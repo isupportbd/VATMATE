@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/costsheet",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Costsheet\\": "app/",
+            "Modules\\Costsheet\\Database\\Factories\\": "database/factories/",
+            "Modules\\Costsheet\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Costsheet\\Tests\\": "tests/"
+        }
+    }
+}

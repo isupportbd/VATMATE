@@ -1,0 +1,13 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Modules\Dashboard\Http\Controllers\DashboardController;
+
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     Route::resource('dashboards', DashboardController::class)->names('dashboard');
+// });
+
+Route::middleware(['auth'])->group(function () {
+  // view route
+  Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('role:superadmin,admin,manager,guest');
+});

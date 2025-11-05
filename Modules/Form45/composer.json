@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/form45",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Form45\\": "app/",
+            "Modules\\Form45\\Database\\Factories\\": "database/factories/",
+            "Modules\\Form45\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Form45\\Tests\\": "tests/"
+        }
+    }
+}

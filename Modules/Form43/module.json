@@ -1,0 +1,11 @@
+{
+    "name": "Form43",
+    "alias": "form43",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Form43\\Providers\\Form43ServiceProvider"
+    ],
+    "files": []
+}

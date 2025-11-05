@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/form44",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Form44\\": "app/",
+            "Modules\\Form44\\Database\\Factories\\": "database/factories/",
+            "Modules\\Form44\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Form44\\Tests\\": "tests/"
+        }
+    }
+}

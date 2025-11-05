@@ -1,0 +1,11 @@
+{
+    "name": "Creditnote",
+    "alias": "creditnote",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Creditnote\\Providers\\CreditnoteServiceProvider"
+    ],
+    "files": []
+}

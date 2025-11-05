@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/form43",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Form43\\": "app/",
+            "Modules\\Form43\\Database\\Factories\\": "database/factories/",
+            "Modules\\Form43\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Form43\\Tests\\": "tests/"
+        }
+    }
+}

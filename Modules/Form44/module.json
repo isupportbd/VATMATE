@@ -1,0 +1,11 @@
+{
+    "name": "Form44",
+    "alias": "form44",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Form44\\Providers\\Form44ServiceProvider"
+    ],
+    "files": []
+}

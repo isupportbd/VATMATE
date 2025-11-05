@@ -1,0 +1,11 @@
+{
+    "name": "Form621",
+    "alias": "form621",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Form621\\Providers\\Form621ServiceProvider"
+    ],
+    "files": []
+}

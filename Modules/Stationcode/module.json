@@ -1,0 +1,11 @@
+{
+    "name": "Stationcode",
+    "alias": "stationcode",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Stationcode\\Providers\\StationcodeServiceProvider"
+    ],
+    "files": []
+}

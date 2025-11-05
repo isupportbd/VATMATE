@@ -1,0 +1,11 @@
+{
+    "name": "Debitnote",
+    "alias": "debitnote",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Debitnote\\Providers\\DebitnoteServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/mushaknote",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Mushaknote\\": "app/",
+            "Modules\\Mushaknote\\Database\\Factories\\": "database/factories/",
+            "Modules\\Mushaknote\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Mushaknote\\Tests\\": "tests/"
+        }
+    }
+}

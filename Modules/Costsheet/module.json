@@ -1,0 +1,11 @@
+{
+    "name": "Costsheet",
+    "alias": "costsheet",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Costsheet\\Providers\\CostsheetServiceProvider"
+    ],
+    "files": []
+}

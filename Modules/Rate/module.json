@@ -1,0 +1,11 @@
+{
+    "name": "Rate",
+    "alias": "rate",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Rate\\Providers\\RateServiceProvider"
+    ],
+    "files": []
+}

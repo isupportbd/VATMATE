@@ -1,0 +1,11 @@
+{
+    "name": "Mushaknote",
+    "alias": "mushaknote",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Mushaknote\\Providers\\MushaknoteServiceProvider"
+    ],
+    "files": []
+}

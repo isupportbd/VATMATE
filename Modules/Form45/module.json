@@ -1,0 +1,11 @@
+{
+    "name": "Form45",
+    "alias": "form45",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Form45\\Providers\\Form45ServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,11 @@
+{
+    "name": "Vatfactor",
+    "alias": "vatfactor",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Vatfactor\\Providers\\VatfactorServiceProvider"
+    ],
+    "files": []
+}
