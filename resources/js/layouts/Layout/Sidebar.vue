@@ -67,7 +67,7 @@
             </div>
             <span>Store</span>
           </a>
-          <ul class="list-group accordion-collapse collapse" id="flush-collapseTwo" data-bs-parent="#accordion-sales">
+          <ul class="list-group accordion-collapse collapse" id="flush-collapseTwo" data-bs-parent="#accordion-sidebar">
             <li class="list-group-item" :class="{ 'active': $page.component === 'form43/index' }">
               <Link :href="route('form43')">Form 4.3</Link>
             </li>
@@ -83,6 +83,9 @@
                 data-bs-parent="#accordion-sales">
                 <li class="list-group-item" :class="{ 'active': $page.component === 'rate/index' }">
                   <Link :href="route('rate')">Rate</Link>
+                </li>
+                <li class="list-group-item" :class="{ 'active': $page.component === 'customer/index' }">
+                  <Link :href="route('customer')">Customer</Link>
                 </li>
                 <li class="list-group-item" :class="{ 'active': $page.component === 'sale/index' }">
                   <Link :href="route('sale')">Supply</Link>

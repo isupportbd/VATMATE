@@ -20,7 +20,7 @@ class StationcodeController extends Controller
     $search = $request->input('search');
     $stationcode = $this->stationcode->when($search, fn($query) => $query->where('code', 'like', '%' . strtolower($search) . '%'))
       ->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 10)
+      ->paginate((int)request('size', 10))
       ->withQueryString();
 
     return Inertia("stationcode/index", ['stationcode' => $stationcode, 'search' => $search]);

@@ -11,21 +11,21 @@
               v-model="field.lc_no" :err="err.lc_no" focus must />
           </div>
           <div class="col-12 col-sm-7">
-            <SelectInfinite placeholder="Select..." title="BIN" label="title" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must :disabled="field.id ? true : false" />
           </div>
           <div class="col-12">
-            <SelectInfinite placeholder="Select..." title="Item" label="title" v-model="field.item"
-              :fetched="fetchedItem" :err="err.item" :disabled="field.id ? true : false" must />
+            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
+              :err="err.item" :disabled="field.id ? true : false" must />
           </div>
           <div class="col-12 col-sm-4">
-            <SelectInfinite placeholder="Select..." title="Purchase Unit" label="title" v-model="field.purchase_unit"
+            <SelectInfinite placeholder="Select..." title="Purchase Unit" v-model="field.purchase_unit"
               :fetched="fetchedPUnit" :err="err.purchase_unit" :disabled="last.lastobj || (field.id ? true : false)"
               must />
           </div>
           <div class="col-12 col-sm-4">
-            <SelectInfinite placeholder="Select..." title="Sale Unit" label="title" v-model="field.sale_unit"
-              :fetched="fetchedSUnit" :err="err.sale_unit" :disabled="last.lastobj || (field.id ? true : false)" must />
+            <SelectInfinite placeholder="Select..." title="Sale Unit" v-model="field.sale_unit" :fetched="fetchedSUnit"
+              :err="err.sale_unit" :disabled="last.lastobj || (field.id ? true : false)" must />
           </div>
           <div class="col-12 col-sm-4">
             <Input type="text" category="decimal" label="factor" placeholder="Ex: 22" v-model="field.factor"

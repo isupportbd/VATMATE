@@ -15,12 +15,12 @@
               maxlength="7" v-model="field.tax_period" :err="err.tax_period" must />
           </div>
           <div class="col-12">
-            <SelectInfinite placeholder="Select..." title="BIN" label="title" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
           <div class="col-12">
-            <SelectInfinite id="expense" placeholder="Select..." title="other adjustment" label="title"
-              v-model="field.expense" :fetched="fetchedExpense" :err="err.expense" must />
+            <SelectInfinite id="expense" placeholder="Select..." title="other adjustment" v-model="field.expense"
+              :fetched="fetchedExpense" :err="err.expense" must />
           </div>
           <div class="col-12">
             <TextArea type="text" label="remarks" maxlength="250" style="height: 112px !important;"

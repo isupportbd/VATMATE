@@ -22,7 +22,7 @@ class CostsheetController extends Controller
     $search = $request->input('search');
     $costsheet = $this->costsheet->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
       ->orderBy('id', 'asc')
-      ->paginate((int)request('size') ? (int)request('size') : 5);
+      ->paginate((int)request('size', 5));
 
     return response()->json(['costsheet' => $costsheet]);
   }

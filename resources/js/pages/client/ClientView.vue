@@ -9,6 +9,8 @@
         <p>{{ props.view?.name }}</p>
         <p class="fw-bold m-0">Address</p>
         <p>{{ props.view?.address }}</p>
+        <p class="fw-bold m-0">Division</p>
+        <p>{{ props.view?.division?.name }}</p>
         <p class="fw-bold m-0">TIN</p>
         <p class="m-0">{{ props.view?.tin }}</p>
       </div>

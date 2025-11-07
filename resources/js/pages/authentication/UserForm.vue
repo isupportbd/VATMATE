@@ -13,8 +13,8 @@
               v-model="field.email" :err="err.email" must :disabled="field.id ? true : false" />
           </div>
           <div class="col-6">
-            <SelectInfinite id="role" ref="roleDD" placeholder="Select..." title="role" label="title"
-              v-model="field.role" :fetched="fetchedRole" :err="err.role" must />
+            <SelectInfinite id="role" placeholder="Select..." title="role" v-model="field.role" :fetched="fetchedRole"
+              :err="err.role" must />
           </div>
           <div class="col-6">
             <Input type="text" id="mobile" label="Mobile" placeholder="Ex: +8801711000000" maxlength="14"
@@ -64,6 +64,35 @@ const props = defineProps({
 // user field
 const field = reactive({ id: '', name: '', email: '', role: '', mobile: '', password: '', confirm_password: '', isLoading: false });
 const err = reactive({ email: '', role: '', mobile: '', password: '', confirm_password: '', });
+
+// role
+const fetchedRole = async () => {
+  return {
+    url: route('role-dropdown'),
+    data: 'role',
+    mapFn: (role) => ({ id: role.id, title: role.name })
+  };
+};
+
+// --- Expose API for parent ---
+const setForm = async (row = {}) => {
+  field.id = row.id ?? "";
+  field.name = row.name ?? "";
+  field.email = row.email ?? "";
+  field.mobile = row.mobile ?? "";
+  field.role = !emptyObj(row.role) ? { id: row.role?.id, title: row.role?.name } : "";
+  // clear previous errors when setting a record
+  err.name = err.email = err.mobile = err.password = err.confirm_password = err.role = "";
+};
+
+// reset form
+const resetForm = () => {
+  field.id = field.name = err.name = field.email = err.email = field.mobile = err.mobile = field.password = err.password = field.confirm_password = err.confirm_password = field.role = err.role = "";
+};
+
+defineExpose({ setForm, resetForm });
+// --- end expose ---
+
 // create or update user
 const submitData = async () => {
   const form = {
@@ -119,35 +148,4 @@ const submitData = async () => {
     });
   }
 };
-
-// role
-const roleDD = ref(null);
-const fetchedRole = async (search, reset = false, reload = false) => {
-  await roleDD.value?.fetchedDropdown(search, {
-    url: route('role-dropdown'),
-    data: 'role',
-    mapFn: (role) => ({ id: role.id, title: role.name }),
-    reset: reset,
-    reload: reload
-  });
-};
-
-// --- Expose API for parent ---
-const setForm = async (row = {}) => {
-  field.id = row.id ?? "";
-  field.name = row.name ?? "";
-  field.email = row.email ?? "";
-  field.mobile = row.mobile ?? "";
-  field.role = !emptyObj(row.role) ? { id: row.role?.id, title: row.role?.name } : "";
-  // clear previous errors when setting a record
-  err.name = err.email = err.mobile = err.password = err.confirm_password = err.role = "";
-};
-
-// reset form
-const resetForm = () => {
-  field.id = field.name = err.name = field.email = err.email = field.mobile = err.mobile = field.password = err.password = field.confirm_password = err.confirm_password = field.role = err.role = "";
-};
-
-defineExpose({ setForm, resetForm });
-// --- end expose ---
 </script>

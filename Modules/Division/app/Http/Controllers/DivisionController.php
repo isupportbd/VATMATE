@@ -20,7 +20,7 @@ class DivisionController extends Controller
     $search = $request->input('search');
     $division = $this->division->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
       ->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 10)
+      ->paginate((int)request('size', 10))
       ->withQueryString();
 
     return Inertia("division/index", ['division' => $division, 'search' => $search]);

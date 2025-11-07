@@ -22,33 +22,36 @@ class Purchase extends Model
   protected $fillable = [
     'client_id',
     'item_id',
+    'lc_no',
+    'lc_date',
     'boe',
     'boe_date',
     'entry_date',
     'stationcode_id',
-    'lc_no',
-    'lc_date',
-    'wastage',
-    'quantity',
-    'net_quantity',
-    'excess_quantity',
-    'total_quantity',
-    'form43_purchase_unit_id', // rule: match client_id, item_id and last = 1
-    'assessable_value',
-    'cd',
-    'rd',
-    'sd',
-    'vat',
-    'at',
+    'mushaknote_id',
     'df_cvat_cf',
+    'assessable_value',
+    'quantity',
+    'excess_quantity',
+    'wastage',
+    'total_quantity',
+    'unit_id', // rule: match client_id, item_id and last = 1 from form43 last purchase unit
+    'base_value',
+    'unit_price',
+    'cd',
+    'cd_value',
+    'rd',
+    'rd_value',
+    'sd',
+    'sd_value',
+    'vat',
+    'vat_value',
+    'at',
+    'at_value',
     'assesment_number',
     'assesment_date',
     'receipt_number',
     'receipt_date',
-    'base_value',
-    'unit_price',
-    'mushaknote_id',
-    'invoice_no',
     'exporter_name',
     'address'
   ];
@@ -58,14 +61,19 @@ class Purchase extends Model
     return $this->belongsTo(Client::class, 'client_id');
   }
 
+  public function item()
+  {
+    return $this->belongsTo(Item::class, 'item_id');
+  }
+
   public function stationcode()
   {
     return $this->belongsTo(Stationcode::class, 'stationcode_id');
   }
 
-  public function item()
+  public function mushaknote()
   {
-    return $this->belongsTo(Item::class, 'item_id');
+    return $this->belongsTo(Mushaknote::class, 'mushaknote_id');
   }
 
   public function unit()
@@ -73,10 +81,6 @@ class Purchase extends Model
     return $this->belongsTo(Unit::class, 'unit_id');
   }
 
-  public function mushaknote()
-  {
-    return $this->belongsTo(Mushaknote::class, 'mushaknote_id');
-  }
 
   // public function import621()
   // {

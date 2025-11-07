@@ -21,7 +21,7 @@ class MushaknoteController extends Controller
     $mushaknote = $this->mushaknote->when(request('search'), function ($query, $search) {
       $query->where('name_note_no', 'like', '%' . strtolower($search) . '%');
     })->orderBy('id', 'asc')
-      ->paginate((int)request('size') ? (int)request('size') : 5);
+      ->paginate((int)request('size', 5));
 
     return response()->json(['mushaknote' => $mushaknote]);
   }

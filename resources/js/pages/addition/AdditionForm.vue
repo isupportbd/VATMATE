@@ -7,9 +7,8 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12">
-            <SelectInfinite id="costsheet" placeholder="Select..." title="costsheet" label="title"
-              v-model="field.costsheet" :fetched="fetchedCostsheet" :err="err.costsheet"
-              :disabled="field.id ? true : false" must />
+            <SelectInfinite id="costsheet" placeholder="Select..." title="costsheet" v-model="field.costsheet"
+              :fetched="fetchedCostsheet" :err="err.costsheet" :disabled="field.id ? true : false" must />
           </div>
           <div class="col-12">
             <InputGroup type="text" category="decimal" label="Rate" placeholder="Ex: 120" placeholder1="Ex: 5%"

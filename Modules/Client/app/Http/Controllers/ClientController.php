@@ -30,39 +30,28 @@ class ClientController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
     $search = $request->input('search');
 
     $client = $this->client->with(['division', 'user', 'user.role'])
-      ->when($search, function ($query) use ($search, $user) {
-        $query->where(function ($query) use ($search, $user) {
-          if (!in_array($user->role->name, ['admin'])) {
-            $query->where('user_id', $user->id)
-              ->where('company_name', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('email', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('reference', 'like', '%' . strtolower($search) . '%')
-              ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-              ->orWhereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'))
-              ->orWhereHas('user.role', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
-          } else {
-            $query->where('company_name', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('email', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('reference', 'like', '%' . strtolower($search) . '%')
-              ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-              ->orWhereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'))
-              ->orWhereHas('user.role', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
-          }
+      ->when($search, function ($query) use ($search, $user, $isAdmin) {
+        $query->where(function ($query) use ($search, $user, $isAdmin) {
+          $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
+          $query->where('company_name', 'like', '%' . strtolower($search) . '%')
+            ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
+            ->orWhere('email', 'like', '%' . strtolower($search) . '%')
+            ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
+            ->orWhere('reference', 'like', '%' . strtolower($search) . '%')
+            ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+            ->orWhereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'));
         });
       });
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $client->where('user_id', $user->id);
     }
 
-    $result = $client->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10)->withQueryString();
+    $result = $client->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     return Inertia('client/index', ['client' => $result, 'search' => $search]);
   }
@@ -90,7 +79,7 @@ class ClientController extends Controller
         'vat_username' => 'required',
         'vat_password' => 'required',
         'user_id' => ['nullable', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if ($user->role->name == 'superadmin' || $user->role->name == 'admin') {
+          if (in_array($user->role->name, ['superadmin', 'admin'])) {
             $fail('Not assignable to ' . $user->role->name);
           }
         }]
@@ -130,9 +119,11 @@ class ClientController extends Controller
   public function show($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $client = $this->client->with(['division', 'user', 'user.role']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $client->where('user_id', $user->id);
     }
 
@@ -145,6 +136,7 @@ class ClientController extends Controller
   public function update(Request $request, $id)
   {
     $user = $this->user->find($request->input('user_id'));
+
     $formField = $request->validate(
       [
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
@@ -201,29 +193,43 @@ class ClientController extends Controller
   // function call from client page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
     $ids = explode(',', $id);
-    $this->client->whereIn('id', $ids)->delete();
+
+    $client = $this->client->whereIn('id', $ids);
+
+    if (!$isAdmin) {
+      $client->where('user_id', $user->id);
+    }
+
+    // Fetch records before delete to check ownership
+    $toDelete = $client->get();
+    // If no record belongs to user → block deletion
+    if ($toDelete->isEmpty()) {
+      return back()->with('error', 'Not your client data');
+    }
+
+    $client->delete();
     return back()->with('message', 'Client deleted');
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
-  public function clientDropdown()
+  public function clientDropdown(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+    $search = $request->input('search');
+
     $client = $this->client->with(['division', 'user', 'user.role'])
-      ->when(request('search'), function ($query, $search) {
-        $query->whereHas('division', function ($query) use ($search) {
-          $query->where('name', 'like', '%' . strtolower($search) . '%');
-        })->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-          ->orWhereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('user.role', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-          ->orWhere('company_name', 'like', '%' . strtolower($search) . '%')
-          ->orWhere('email', 'like', '%' . strtolower($search) . '%')
-          ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-          ->orWhere('reference', 'like', '%' . strtolower($search) . '%');
+      ->when($search, function ($query) use ($search, $user, $isAdmin) {
+        $query->where(function ($query) use ($search, $user, $isAdmin) {
+          $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
+          $query->where('bin', 'like', '%' . strtolower($search) . '%');
+        });
       })->whereNotIn('status', ['0']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $client->where('user_id', $user->id);
     }
 

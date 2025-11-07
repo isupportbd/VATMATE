@@ -23,7 +23,7 @@ class ItemController extends Controller
       $query->where(DB::raw('lower(name)'), 'like', '%' . strtolower($search) . '%')
         ->orWhere(DB::raw('lower(hs_code)'), 'like', '%' . strtolower($search) . '%');
     })->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 10)
+      ->paginate((int)request('size', 10))
       ->withQueryString();
 
     return Inertia("item/index", ['item' => $item, 'search' => $search]);

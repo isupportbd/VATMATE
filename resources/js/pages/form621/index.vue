@@ -19,11 +19,11 @@
                 <Input type="hidden" v-model="field.id" readonly />
               </div>
               <div class="col-5">
-                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" label="title" v-model="field.bin"
+                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin"
                   :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" must />
               </div>
               <div class="col-7">
-                <SelectInfinite ref="itemDD" placeholder="Select..." title="item" label="title" v-model="field.item"
+                <SelectInfinite ref="itemDD" placeholder="Select..." title="item" v-model="field.item"
                   :fetched="fetchedItem" :hood="field.item?.val?.company_name" :err="err.item" must />
               </div>
             </div>
@@ -61,27 +61,21 @@ const field = reactive({ id: '', bin: '' });
 const err = reactive({ bin: '' });
 
 // bin dropdown
-const binDD = ref(null);
-const fetchedBin = async (search, reset = false, reload = false) => {
-  await binDD.value?.fetchedDropdown(search, {
+const fetchedBin = async () => {
+  return {
     url: route('client-dropdown'),
     data: 'client',
-    mapFn: (cbin) => ({ id: cbin.id, title: cbin.bin, val: cbin }),
-    reset: reset,
-    reload: reload
-  });
+    mapFn: (cbin) => ({ id: cbin.id, title: cbin.bin, val: cbin })
+  };
 };
 
 // item dropdown
-const itemDD = ref(null);
-const fetchedItem = async (search, reset = false, reload = false) => {
-  await itemDD.value?.fetchedDropdown(search, {
+const fetchedItem = async () => {
+  return {
     url: route('item-dropdown'),
     data: 'item',
-    mapFn: (item) => ({ id: item.id, title: `${item.name} [${item.hs_code}]` }),
-    reset: reset,
-    reload: reload
-  });
+    mapFn: (item) => ({ id: item.id, title: `${item.name} [${item.hs_code}]` })
+  };
 };
 
 // reload sale

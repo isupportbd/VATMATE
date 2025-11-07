@@ -22,7 +22,7 @@ class ExpenseController extends Controller
     $search = $request->input('search');
     $expense = $this->expense->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
       ->orderBy('id', 'asc')
-      ->paginate((int)request('size') ? (int)request('size') : 5);
+      ->paginate((int)request('size', 5));
 
     return response()->json(['expense' => $expense]);
   }

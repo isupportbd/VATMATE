@@ -31,32 +31,33 @@ class Form43Controller extends Controller
   // function call automatically from form43 page
   public function index(Request $request)
   {
-    $search = trim((string) $request->input('search', ''));
     $user   = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+    $search = trim((string) $request->input('search', ''));
 
     $form43 = $this->form43->select('id', 'client_id', 'item_id', 'last')->with(['client', 'item', 'additionsum'])
-      ->when(!in_array($user->role->name, ['admin']), function ($query) use ($user) {
-        $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1);
-      })->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          // Search within client (company_name, email, mobile, reference, bin)
-          $query->whereHas('client', function ($query) use ($search) {
+      ->when($search, function ($query) use ($search, $user, $isAdmin) {
+        $query->where(function ($query) use ($search, $user, $isAdmin) {
+          $query->whereHas('client', function ($query) use ($search, $user, $isAdmin) {
+            $query->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
             $query->where(function ($query) use ($search) {
               $query->where('company_name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('bin', 'like', "%{$search}%")
                 ->orWhere('mobile', 'like', "%{$search}%")
-                ->orWhere('reference', 'like', "%{$search}%")
-                ->orWhere('bin', 'like', "%{$search}%");
+                ->orWhereHas('user', fn($query) => $query->where('email', 'like', "%{$search}%"));
             });
-          })->orWhereHas('client.user', fn($query) => $query->where('email', 'like', "%{$search}%"))
-            ->orWhereHas('client.user.role', fn($query) => $query->where('name', 'like', "%{$search}%"))
-            ->orWhereHas('item', function ($query) use ($search) {
-              $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
-            });
+          })->orWhereHas('item', function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%")
+              ->orWhere('hs_code', 'like', "%{$search}%");
+          });
         });
       });
 
-    $result = $form43->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10)->withQueryString();
+    if (!$isAdmin) {
+      $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id))->where('last', 1);
+    }
+
+    $result = $form43->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     return Inertia("form43/index", [
       'form43' => $result,
@@ -108,10 +109,11 @@ class Form43Controller extends Controller
   public function form43ClientItemLast(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $form43 = $this->form43->select('id', 'client_id', 'purchase_unit_id', 'sale_unit_id', 'wastage', 'unit_price', 'item_code', 'last', 'factor')->with(['client:id,user_id', 'purchaseunit:id,name', 'saleunit:id,name', 'additionsum']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
     }
 
@@ -126,6 +128,7 @@ class Form43Controller extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
@@ -136,8 +139,8 @@ class Form43Controller extends Controller
             $fail('Exists, change your input');
           }
         }],
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
             // error show if role is not admin and client is not under him
             !$userCheck && $fail('Not your client');
@@ -180,7 +183,7 @@ class Form43Controller extends Controller
         ],
         'submission_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
           $inputdate = Carbon::parse($value)->format('Y-m-d');
-          $currentdate = Carbon::now()->format('Y-m-d');
+          $currentdate = Carbon::now('Asia/Dhaka')->toDateString();
 
           ($inputdate !== $currentdate) && $fail("Select current date");
         }],
@@ -274,9 +277,11 @@ class Form43Controller extends Controller
   public function show($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $form43 = $this->form43->with(['client', 'client.division', 'client.user', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'addition', 'addition.costsheet', 'additionsum']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
     }
 
@@ -289,12 +294,13 @@ class Form43Controller extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
         'lc_no' => 'required|max:50',
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
             // error show if role is not admin and client is not under him
             !$userCheck && $fail('Not your client');
@@ -424,13 +430,21 @@ class Form43Controller extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     try {
-      DB::transaction(function () use ($id, $user) {
+      DB::transaction(function () use ($id, $user, $isAdmin) {
         $form43 = $this->form43->with(['client'])->where('id', $id);
 
-        if (!in_array($user->role->name, ['admin'])) {
+        if (!$isAdmin) {
           $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+        }
+
+        // Fetch records before delete to check ownership
+        $toDelete = $form43->get();
+        // If no record belongs to user → block deletion
+        if ($toDelete->isEmpty()) {
+          return back()->with('error', 'Not your client data');
         }
 
         // find out current id form43

@@ -7,17 +7,16 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div :class="`${role('admin') ? 'col-12 d-block' : 'd-none'}`">
-            <SelectInfinite id="user" ref="userDD" placeholder="Select..." title="Manager" label="title"
-              v-model="field.user" :fetched="fetchedUser" :err="err.user" />
+            <SelectInfinite id="user" ref="userDD" placeholder="Select..." title="Manager" v-model="field.user"
+              :fetched="fetchedUser" :err="err.user" />
           </div>
           <div class="col-6">
-            <Input type="text" category="bin" id="bin" label="BIN" maxlength="30" placeholder="Ex: 004101788-0701"
+            <Input type="text" category="bin" id="bin" label="BIN" maxlength="14" placeholder="Ex: 004101788-0701"
               v-model="field.bin" :err="err.bin" focus must :disabled="field.id ? true : false" />
           </div>
           <div class="col-6">
-            <SelectInfinite id="division" ref="divisionDD" placeholder="Select..." title="Division" label="title"
-              v-model="field.division" :fetched="fetchedDivision" :err="err.division" must
-              :disabled="field.id ? true : false" />
+            <SelectInfinite id="division" ref="divisionDD" placeholder="Select..." title="Division"
+              v-model="field.division" :fetched="fetchedDivision" :err="err.division" must />
           </div>
           <div class="col-12">
             <Input type="text" id="company" label="company" maxlength="200" placeholder="Ex: M/S SHAKIL ENTERPRISE"

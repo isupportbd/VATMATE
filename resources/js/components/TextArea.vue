@@ -1,5 +1,5 @@
 <template>
-  <div class="position-relative mb-3">
+  <div :class="$attrs.topclass ? `${$attrs.topclass} position-relative` : 'mb-3'">
     <div class="position-relative">
       <label :for="$attrs.id" :class="$attrs.label ? 'text-capitalize d-flex mb-1' : 'd-none'">
         <span>{{ $attrs.label }}</span>

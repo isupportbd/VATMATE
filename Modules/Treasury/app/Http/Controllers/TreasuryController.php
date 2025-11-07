@@ -25,41 +25,31 @@ class TreasuryController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
     $search = $request->input('search');
 
     $treasury = $this->treasury->with(['client', 'client.division', 'client.user', 'client.user.role', 'branch', 'branch.bank', 'branch.division'])
-      ->when($search, function ($query) use ($search, $user) {
-        $query->where('tax_period', 'like', '%' . strtolower($search) . '%')
-          ->orWhereHas('client', function ($query) use ($search, $user) {
-            if (!in_array($user->role->name, ['admin'])) {
-              $query->where('user_id', $user->id)->where(function ($query) use ($search) {
-                $query->where('email', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('company_name', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('reference', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('bin', 'like', '%' . strtolower($search) . '%');
-              });
-            } else {
-              $query->where('email', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('company_name', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('reference', 'like', '%' . strtolower($search) . '%');
-            }
-          })
-          ->orWHereHas('client.user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('branch', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('branch.bank', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('branch.division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+      ->when($search, function ($query) use ($search, $user, $isAdmin) {
+        $query->where(function ($query) use ($search, $user, $isAdmin) {
+          $query->where('tax_period', 'like', '%' . strtolower($search) . '%')
+            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
+              $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
+              $query->where('bin', 'like', '%' . strtolower($search) . '%')
+                ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
+            })
+            ->orWhereHas('branch', function ($query) use ($search) {
+              $query->where('name', 'like', '%' . strtolower($search) . '%')
+                ->orWhereHas('bank', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+                ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+            });
+        });
       });
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $treasury->whereHas('client', fn($query) => $query->where('user_id', $user->id));
     }
 
-    $result = $treasury->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 10)
-      ->withQueryString();
+    $result = $treasury->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     return Inertia("treasury/index", ['treasury' => $result, 'search' => $search]);
   }
@@ -68,10 +58,12 @@ class TreasuryController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
             // error show if role is not admin and client is not under him
             !$userCheck && $fail('Not your client');
@@ -120,9 +112,11 @@ class TreasuryController extends Controller
   public function show($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $treasury = $this->treasury->with(['client', 'client.division', 'client.user', 'client.user.role', 'branch', 'branch.bank', 'branch.division']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $treasury->whereHas('client', fn($query) => $query->where('user_id', $user->id));
     }
 
@@ -135,10 +129,12 @@ class TreasuryController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
             // error show if role is not admin and client is not under him
             !$userCheck && $fail('Not your client');
@@ -188,11 +184,20 @@ class TreasuryController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $ids = explode(',', $id);
     $treasury = $this->treasury->with(['client'])->whereIn('id', $ids);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $treasury->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    }
+
+    // Fetch records before delete to check ownership
+    $toDelete = $treasury->get();
+    // If no record belongs to user → block deletion
+    if ($toDelete->isEmpty()) {
+      return back()->with('error', 'Not your client data');
     }
 
     $treasury->delete();

@@ -20,7 +20,7 @@ class BankController extends Controller
     $search = $request->input('search');
     $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
       ->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 10)
+      ->paginate((int)request('size', 10))
       ->withQueryString();
 
     return Inertia("bank/index", ['bank' => $bank, 'search' => $search]);

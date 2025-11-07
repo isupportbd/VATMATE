@@ -7,12 +7,12 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12">
-            <SelectInfinite placeholder="Select..." title="BIN" label="title" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
           <div class="col-12">
-            <SelectInfinite placeholder="Select..." title="Item" label="title" v-model="field.item"
-              :fetched="fetchedItem" :err="err.item" must />
+            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
+              :err="err.item" must />
           </div>
           <div class="col-6">
             <Input type="date" id="date" label="date" v-model="field.date" :err="err.date" must />

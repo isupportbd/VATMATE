@@ -24,19 +24,20 @@ return new class extends Migration
       $table->date('first_delivery_date')->nullable();
       $table->date('boe_date')->nullable(false);
       $table->string('boe_no', 20)->nullable(false);
-      $table->double('quantity', 23, 3)->nullable(false);
+      $table->double('quantity', 23, 2)->nullable(false);
       $table->double('wastage', 5, 2)->nullable(false);
-      $table->double('excess_quantity', 23, 3)->nullable(false);
-      $table->double('purchase_unit_total', 23, 3)->nullable(false);
-      $table->double('sale_unit_total', 23, 3)->nullable(false);
-      $table->double('base_value', 23, 3)->nullable(false);
-      $table->double('unit_price', 23, 3)->nullable(false);
+      $table->double('excess_quantity', 23, 2)->nullable(false);
+      $table->double('purchase_unit_total', 23, 2)->nullable(false);
+      $table->double('sale_unit_total', 23, 2)->nullable(false);
+      $table->double('base_value', 23, 2)->nullable(false);
+      $table->double('unit_price', 23, 2)->nullable(false);
       $table->tinyInteger('last')->default(1);
       $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
       $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
       $table->foreign('purchase_unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->foreign('sale_unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
+      $table->index(['lc_no', 'client_id', 'item_id']);
     });
   }
 

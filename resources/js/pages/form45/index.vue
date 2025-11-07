@@ -9,44 +9,37 @@
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat' @click="refresh" />
   </Refresh>
 
-  <div class="row">
-    <div class="col-8">
-      <div class="card border h-100">
-        <div class="card-body">
-          <form>
-            <div class="row gx-1">
-              <div class="col-12">
-                <Input type="hidden" v-model="field.id" readonly />
-              </div>
-              <div class="col-5">
-                <SelectInfinite placeholder="Select..." title="BIN" label="title" v-model="field.bin"
-                  :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" must />
-              </div>
-              <div class="col-7">
-                <SelectInfinite placeholder="Select..." title="item" label="title" v-model="field.item"
-                  :fetched="fetchedItem" :hood="field.item?.val?.company_name" :err="err.item" must />
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="col-4">
+  <Modal id="form45-view" ref="modal" title="Client Details" size="xl">
+    <template #modalbody>
+      <Form45View :view="form45Single" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeme">close</button>
+    </template>
+  </Modal>
 
+  <div class="row gx-2">
+    <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+      <Form45Form ref="formRef" />
+    </div>
+    <div class="col-12 col-lg-6">
+      <Form45Table :data="props.form45" :search="props.search" :view="view" :edit="edit" :del="del" />
     </div>
   </div>
 </template>
 
 <script setup>
 import axios from "axios";
-import { ref, reactive, inject } from "vue";
+import { ref, inject } from "vue";
 import { router } from "@inertiajs/vue3";
 
 import PageBar from "../../components/PageBar.vue";
 import Refresh from "../../components/Refresh.vue";
 import Button from "../../components/Button.vue";
-import Input from "../../components/Input.vue";
-import SelectInfinite from "../../components/SelectInfinite.vue";
+import Modal from "../../components/Modal.vue";
+import Form45Form from "./Form45Form.vue";
+import Form45Table from "./Form45Table.vue";
+import Form45View from "./Form45View.vue";
 
 import Confirm from "../../helpers/customConfirm";
 
@@ -57,27 +50,41 @@ const props = defineProps({
 
 const notify = inject('showToast'); // toast
 
-const field = reactive({ id: '', bin: '' });
-const err = reactive({ bin: '' });
-
-// bin dropdown
-const fetchedBin = async () => {
-  return {
-    url: route('client-dropdown'),
-    data: 'client',
-    mapFn: (cbin) => ({ id: cbin.id, title: cbin.bin, val: cbin })
-  };
+// display single
+const formRef = ref(null);
+const edit = async (id) => {
+  try {
+    const { data } = await axios.get(route('form45-single', { id }));
+    formRef.value?.setForm(data.form45); // 👈 directly set the form
+  } catch (e) {
+    console.error(e);
+  }
 };
 
-// item dropdown
-const fetchedItem = async () => {
-  return {
-    url: route('item-dropdown'),
-    data: 'item',
-    mapFn: (item) => ({ id: item.id, title: `${item.name} [${item.hs_code}]` })
-  };
+// delete
+const del = async (ids) => {
+  Confirm('Do you want to delete ?', (ok) => {
+    if (!ok) return;
+    router.delete(route('form45-delete', { id: ids }), {
+      preserveScroll: true,
+      onSuccess: (e) => {
+        ids.length = 0;
+        notify(e.props.flash.msg, 'danger');
+        formRef.value?.resetForm(); // 👈 reset the form
+      },
+      onFinish: () => formRef.value?.resetForm()
+    });
+  });
 };
 
-// reload division
+// modal popup
+const modal = ref();
+const closeme = () => modal.value.close();
+
+// for single view popup
+const form44Single = ref();
+const view = async (id) => await axios.get(`/form45/${id}`).then((res) => form44Single.value = res.data.form44);
+
+// reload form45
 const refresh = () => router.get(route('form45'), {}, { preserveScroll: true });
 </script>

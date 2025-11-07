@@ -20,7 +20,7 @@ class Division extends Model
 
   public function client()
   {
-    return $this->belongsTo(Client::class, 'division_id');
+    return $this->hasMany(Client::class, 'division_id');
   }
 
   public function branch()

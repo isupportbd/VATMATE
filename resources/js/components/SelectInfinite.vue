@@ -220,7 +220,7 @@ defineExpose({ field, fieldData, fetchedDropdown });
         {{ props.hood }}
       </div>
     </label>
-    <v-select :filterable="false" v-model="model" v-bind="$attrs" :options="field.all" @open="onOpen"
+    <v-select label="title" :filterable="false" v-model="model" v-bind="$attrs" :options="field.all" @open="onOpen"
       @update:modelValue="onModelUpdate" @close="onClose" @search="inputSearch">
       <template #list-footer>
         <li v-show="hasNextPage" ref="load" class="loader">More...</li>

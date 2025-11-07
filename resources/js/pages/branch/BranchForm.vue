@@ -7,13 +7,12 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12">
-            <SelectInfinite id="division" placeholder="Select..." title="Division" label="title"
-              v-model="field.division" :fetched="fetchedDivision" :err="err.division" must
-              :disabled="field.id ? true : false" />
+            <SelectInfinite id="division" placeholder="Select..." title="Division" v-model="field.division"
+              :fetched="fetchedDivision" :err="err.division" must :disabled="field.id ? true : false" />
           </div>
           <div class="col-12">
-            <SelectInfinite id="bank" placeholder="Select..." title="Bank" label="title" v-model="field.bank"
-              :fetched="fetchedBank" :err="err.bank" must :disabled="field.id ? true : false" />
+            <SelectInfinite id="bank" placeholder="Select..." title="Bank" v-model="field.bank" :fetched="fetchedBank"
+              :err="err.bank" must :disabled="field.id ? true : false" />
           </div>
           <div class="col-12">
             <Input type="text" id="name" label="Name" placeholder="Ex: Dhaka" maxlength="200" v-model="field.name"

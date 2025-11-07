@@ -87,3 +87,68 @@ php artisan route:cache
 ```
 php artisan route:clear
 ```
+
+**Laravel 12 module delete**
+```
+php artisan module:disable module_name
+php artisan cache:clear
+php artisan module:delete module_name
+php artisan cache:clear
+```
+
+**Laravel 12 Event/Listener create, delete, update**
+```
+php artisan make:event event_name (for create)
+php artisan make:listener event_name (for create)
+
+composer dump-autoload / php artisan clear-compiled (for delete)
+php artisan event:generate (for delete)
+```
+
+**Laravel 12 Cpanel CRON run**
+```
+/usr/local/bin/php /home/qoreldesk/authstation.com/artisan schedule:run >> /dev/null 2>&1
+```
+
+**💥 Build & Run (Local or VPS)**
+- Install PHP and JS dependencies, build assets, and cache config before deploy
+```
+docker compose up --build -d
+
+docker exec -it laravel-app bash
+
+composer install --no-dev --optimize-autoloader
+npm install && npm run build
+
+php artisan key:generate
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+**hostinger vps**
+- new upload and give permission for database
+```
+docker exec -it mysql mysql -u root -p
+
+GRANT ALL PRIVILEGES ON stats.* TO 'niyam'@'%';
+FLUSH PRIVILEGES;
+```
+
+
+**after deployment for local environment**
+```
+composer install --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-posix
+composer dump-autoload
+php artisan config:clear
+php artisan cache:clear
+php artisan config:cache
+php artisan route:clear
+php artisan view:clear
+```
+
+**existing database upload from local machine to vps docker(run in powershell)**
+```
+Get-Content -Raw "$env:USERPROFILE\Desktop\stats_old_db_with_id_for_userarea_&_economicarea.sql" | ssh niyam@YOUR_VPS_IP "docker exec -i mysql mysql -u root -pPASSWORD stats"
+```

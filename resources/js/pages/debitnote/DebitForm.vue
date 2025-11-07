@@ -11,15 +11,15 @@
               v-model="field.reason_for_issuance" :err="err.reason_for_issuance" focus must />
           </div>
           <div class="col-5">
-            <SelectInfinite placeholder="Select..." title="LC/Invoice" label="title" v-model="field.lc_invoice"
+            <SelectInfinite placeholder="Select..." title="LC/Invoice" v-model="field.lc_invoice"
               :fetched="fetchedLCInvoice" :err="err.lc_invoice" must />
           </div>
           <div class="col-7">
-            <SelectInfinite placeholder="Select..." title="Item" label="title" v-model="field.item"
-              :fetched="fetchedItem" :err="err.item" must />
+            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
+              :err="err.item" must />
           </div>
           <div class="col-12">
-            <SelectInfinite placeholder="Select..." title="BIN" label="title" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
           <div class="col-4">
@@ -44,7 +44,7 @@
               v-model="field.quantity_in_challan" :err="err.quantity_in_challan" must />
           </div>
           <div class="col-4">
-            <SelectInfinite ref="unitDD" placeholder="Select..." title="Unit" label="title" v-model="field.unit"
+            <SelectInfinite ref="unitDD" placeholder="Select..." title="Unit" v-model="field.unit"
               :fetched="fetchedUnit" :err="err.unit" must />
           </div>
           <div class="col-4">

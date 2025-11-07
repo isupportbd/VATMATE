@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Adjustment\Models\Adjustment;
 use Modules\Creditnote\Models\Creditnote;
+use Modules\CustomerManagement\Models\CustomerManagement;
 use Modules\Debitnote\Models\Debitnote;
 use Modules\Division\Models\Division;
 use Modules\Form43\Models\Form43;
+use Modules\Form44\Models\Form44;
 use Modules\Rate\Models\Rate;
 use Modules\Treasury\Models\Treasury;
 
@@ -56,12 +58,12 @@ class Client extends Model
 
   public function treasury()
   {
-    return $this->hasMany(Treasury::class, 'clientbin_id');
+    return $this->hasMany(Treasury::class, 'client_id');
   }
 
   public function adjustment()
   {
-    return $this->hasMany(Adjustment::class, 'clientbin_id');
+    return $this->hasMany(Adjustment::class, 'client_id');
   }
 
   public function rate()
@@ -77,5 +79,15 @@ class Client extends Model
   public function debitnote()
   {
     return $this->hasMany(Debitnote::class, 'client_id');
+  }
+
+  public function customer()
+  {
+    return $this->hasMany(CustomerManagement::class, 'client_id');
+  }
+
+  public function form44()
+  {
+    return $this->hasMany(Form44::class, 'client_id');
   }
 }

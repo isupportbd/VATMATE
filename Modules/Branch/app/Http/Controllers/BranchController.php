@@ -32,7 +32,7 @@ class BranchController extends Controller
           ->orWhereHas('bank', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
       })
       ->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 10)
+      ->paginate((int)request('size', 10))
       ->withQueryString();
 
     return Inertia("branch/index", ['branch' => $branch, 'search' => $search]);

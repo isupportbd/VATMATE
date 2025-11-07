@@ -27,6 +27,7 @@ class AdditionController extends Controller
   public function index(Request $request, $id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
     $search = $request->input('search');
 
     $addition = $this->addition->select('id', 'form43_id', 'costsheet_id', 'rate', 'value')->with(['form43:id,client_id,item_id', 'form43.client:id,bin,company_name', 'form43.item:id,name', 'costsheet:id,name'])
@@ -34,16 +35,16 @@ class AdditionController extends Controller
         $query->whereHas('costsheet', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
       });
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $addition->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id));
     }
 
-    $result =  $addition->where('form43_id', $id)->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10)->withQueryString();
+    $result =  $addition->where('form43_id', $id)->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     // form43 single from form43 class show method. if we want we can move it as a trait
     $form43 = $this->form43->select('id', 'client_id', 'item_id', 'unit_price')->with(['client:id,bin,user_id', 'item:id,name', 'additionsum']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
     }
 
@@ -56,11 +57,12 @@ class AdditionController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
-        'form43_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if ($user->role->name !== 'admin') {
+        'form43_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->form43->with(['client'])->where('id', $value)->whereHas('client', fn($query) => $query->where('user_id', $user->id))->exists();
 
             !$userCheck && $fail("Not your client");
@@ -114,10 +116,11 @@ class AdditionController extends Controller
   public function show($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $addition = $this->addition->with(['form43', 'form43.client', 'form43.item', 'costsheet']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $addition->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id));
     }
 
@@ -130,11 +133,12 @@ class AdditionController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
-        'form43_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if ($user->role->name !== 'admin') {
+        'form43_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->form43->with(['client'])->where('id', $value)->whereHas('client', fn($query) => $query->where('user_id', $user->id))->exists();
 
             !$userCheck && $fail("Not your client");
@@ -186,12 +190,20 @@ class AdditionController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $ids = explode(',', $id);
     $addition = $this->addition->with(['form43.client'])->whereIn('id', $ids);
 
-    if ($user->role->name !== 'admin') {
+    if (!$isAdmin) {
       $addition->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id));
+    }
+
+    // Fetch records before delete to check ownership
+    $toDelete = $addition->get();
+    // If no record belongs to user → block deletion
+    if ($toDelete->isEmpty()) {
+      return back()->with('error', 'Not your client data');
     }
 
     $addition->delete();

@@ -19,9 +19,9 @@ class VatfactorController extends Controller
   {
     $search = $request->input('search');
     $vatfactor = $this->vatfactor->when($search, function ($query) use ($search) {
-      $query->where('vatfact)', 'like', '%' . strtolower($search) . '%');
+      $query->where('name)', 'like', '%' . strtolower($search) . '%');
     })->orderBy('id', 'desc')
-      ->paginate((int)request('size') ? (int)request('size') : 5)
+      ->paginate((int)request('size', 5))
       ->withQueryString();
 
     return Inertia("vatfactor/index", ['vatfactor' => $vatfactor, 'search' => $search]);
@@ -40,11 +40,16 @@ class VatfactorController extends Controller
   public function update(Request $request, $id)
   {
     $formField = $request->validate(
-      ['vatfact' => 'required|numeric|gt:0|decimal:0,2|between:0,100.00'],
       [
-        'vatfact.required' => 'Percent required',
-        'vatfact.numeric' => 'Number only',
-        'vatfact.between' => '0 to 100.00',
+        'name' => 'required|max:20',
+        'value' => 'required|numeric|gt:0'
+      ],
+      [
+        'name.required' => 'Name required',
+        'name.max' => 'Max 20 char',
+        'value.required' => 'Value required',
+        'value.numeric' => 'Number only',
+        'value.gt' => 'Number > 0',
       ]
     );
 
@@ -56,7 +61,7 @@ class VatfactorController extends Controller
   public function vatfactorDropdown()
   {
     $vatfactor = $this->vatfactor->when(request('search'), function ($query, $search) {
-      $query->where('vatfact', 'like', '%' . strtolower($search) . '%');
+      $query->where('name', 'like', '%' . strtolower($search) . '%');
     })->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

@@ -19,11 +19,11 @@
               maxlength="7" v-model="field.tax_period" :err="err.tax_period" must />
           </div>
           <div class="col-7">
-            <SelectInfinite placeholder="Select..." title="BIN" label="title" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
           <div class="col-12">
-            <SelectInfinite id="branch" placeholder="Select..." title="branch" label="title" v-model="field.branch"
+            <SelectInfinite id="branch" placeholder="Select..." title="branch" v-model="field.branch"
               :fetched="fetchedBranch" :err="err.branch" must />
           </div>
           <div class="col-12">

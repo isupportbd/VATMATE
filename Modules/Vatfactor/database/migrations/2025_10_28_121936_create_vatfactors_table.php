@@ -13,7 +13,8 @@ return new class extends Migration
   {
     Schema::create('vatfactors', function (Blueprint $table) {
       $table->id();
-      $table->double('vatfact', 5, 2)->nullable(false);
+      $table->string('name', 20)->nullable(false);
+      $table->double('value', 23, 2)->nullable(false);
       $table->timestamps();
     });
   }

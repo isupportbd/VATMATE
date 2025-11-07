@@ -29,32 +29,31 @@ class RateController extends Controller
    */
   public function index(Request $request)
   {
-    $search = trim((string) $request->input('search', ''));
     $user   = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+    $search = trim((string) $request->input('search', ''));
 
     $rate = $this->rate->with(['client', 'client.user', 'client.user.role', 'item'])
-      ->when(!in_array($user->role->name, ['admin']), function ($query) use ($user) {
-        $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1);
-      })->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          // Search within client (company_name, email, mobile, reference, bin)
-          $query->whereHas('client', function ($query) use ($search) {
-            $query->where(function ($query) use ($search) {
+      ->when($search, function ($query) use ($search, $user, $isAdmin) {
+        $query->where(function ($query) use ($search, $user, $isAdmin) {
+          $query->orWhere('lc_or_invoice_no', 'like', "%{$search}%")
+            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
+              $query->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
               $query->where('company_name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
                 ->orWhere('mobile', 'like', "%{$search}%")
-                ->orWhere('reference', 'like', "%{$search}%")
                 ->orWhere('bin', 'like', "%{$search}%");
-            });
-          })->orWhereHas('client.user', fn($query) => $query->where('email', 'like', "%{$search}%"))
-            ->orWhereHas('client.user.role', fn($query) => $query->where('name', 'like', "%{$search}%"))
-            ->orWhereHas('item', function ($query) use ($search) {
-              $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
+            })->orWhereHas('item', function ($query) use ($search) {
+              $query->where('name', 'like', "%{$search}%")
+                ->orWhere('hs_code', 'like', "%{$search}%");
             });
         });
       });
 
-    $result = $rate->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10)->withQueryString();
+    if (!$isAdmin) {
+      $rate->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    }
+
+    $result = $rate->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     return Inertia("rate/index", [
       'rate' => $result,
@@ -221,6 +220,13 @@ class RateController extends Controller
 
         if (!in_array($user->role->name, ['admin'])) {
           $rate->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+        }
+
+        // Fetch records before delete to check ownership
+        $toDelete = $rate->get();
+        // If no record belongs to user → block deletion
+        if ($toDelete->isEmpty()) {
+          return back()->with('error', 'Not your client data');
         }
 
         // find out current id rate

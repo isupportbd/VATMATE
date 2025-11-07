@@ -58,9 +58,6 @@ import { ref } from 'vue';
 import DataTableSkeleton from "../../components/datatable/DataTableSkeleton.vue";
 import DataTable from "../../components/datatable/index.vue";
 import Button from "../../components/Button.vue";
-import Modal from '../../components/Modal.vue';
-import CreditnoteView from './CreditnoteView.vue';
-
 const props = defineProps({
   data: { type: [Object, Array] },
   edit: { type: Function },

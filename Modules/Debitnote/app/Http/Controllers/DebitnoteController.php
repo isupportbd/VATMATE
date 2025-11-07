@@ -32,33 +32,31 @@ class DebitnoteController extends Controller
    */
   public function index(Request $request)
   {
-    $search = trim((string) $request->input('search', ''));
     $user   = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+    $search = trim((string) $request->input('search', ''));
 
     $debitnote = $this->debitnote->with(['client', 'client.user', 'client.user.role', 'item'])
-      ->when(!in_array($user->role->name, ['admin']), function ($query) use ($user) {
-        $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1);
-      })->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          // Search within client (company_name, email, mobile, reference, bin)
-          $query->whereHas('client', function ($query) use ($search) {
-            $query->where(function ($query) use ($search) {
+      ->when($search, function ($query) use ($search, $user, $isAdmin) {
+        $query->where(function ($query) use ($search, $user, $isAdmin) {
+          $query->orWhere('lc_or_invoice_no', 'like', "%{$search}%")
+            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
+              $query->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
               $query->where('company_name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
                 ->orWhere('mobile', 'like', "%{$search}%")
-                ->orWhere('reference', 'like', "%{$search}%")
                 ->orWhere('bin', 'like', "%{$search}%");
-            });
-          })->orWhere('lc_or_invoice_no', 'like', "%{$search}%")
-            ->orWhereHas('client.user', fn($query) => $query->where('email', 'like', "%{$search}%"))
-            ->orWhereHas('client.user.role', fn($query) => $query->where('name', 'like', "%{$search}%"))
-            ->orWhereHas('item', function ($query) use ($search) {
-              $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
+            })->orWhereHas('item', function ($query) use ($search) {
+              $query->where('name', 'like', "%{$search}%")
+                ->orWhere('hs_code', 'like', "%{$search}%");
             });
         });
       });
 
-    $result = $debitnote->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10)->withQueryString();
+    if (!$isAdmin) {
+      $debitnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    }
+
+    $result = $debitnote->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     return Inertia("debitnote/index", [
       'debitnote' => $result,
@@ -72,13 +70,14 @@ class DebitnoteController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
         'reason_for_issuance' => 'required|max:150',
         'lc_or_invoice_no' => 'required|max:50',
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
             // error show if role is not admin and client is not under him
             !$userCheck && $fail('Not your client');
@@ -180,9 +179,11 @@ class DebitnoteController extends Controller
   public function show($id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
+
     $debitnote = $this->debitnote->with(['client', 'client.division', 'client.user', 'client.user.role', 'item', 'unit']);
 
-    if (!in_array($user->role->name, ['admin'])) {
+    if (!$isAdmin) {
       $debitnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
     }
 
@@ -197,13 +198,14 @@ class DebitnoteController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
         'reason_for_issuance' => 'required|max:150',
         'lc_or_invoice_no' => 'required|max:50',
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          if (!$isAdmin) {
             $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
             // error show if role is not admin and client is not under him
             !$userCheck && $fail('Not your client');
@@ -304,8 +306,24 @@ class DebitnoteController extends Controller
    */
   public function destroy($id)
   {
+    $user = Auth::user();
+    $isAdmin = in_array($user->role->name, ['admin']);
     $ids = explode(',', $id);
-    $this->debitnote->whereIn('id', $ids)->delete();
-    return back()->with('message', 'Debit note deleted');
+
+    $debitnote = $this->debitnote->whereIn('id', $ids);
+
+    if (!$isAdmin) {
+      $debitnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    }
+
+    // Fetch records before delete to check ownership
+    $toDelete = $debitnote->get();
+    // If no record belongs to user → block deletion
+    if ($toDelete->isEmpty()) {
+      return back()->with('error', 'Not your client data');
+    }
+
+    $debitnote->delete();
+    return back()->with('message', 'Debit none deleted');
   }
 }

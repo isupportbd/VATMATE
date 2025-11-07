@@ -6,23 +6,44 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('sales', function (Blueprint $table) {
-            $table->id();
-            
-            $table->timestamps();
-        });
-    }
+  /**
+   * Run the migrations.
+   */
+  public function up(): void
+  {
+    Schema::create('sales', function (Blueprint $table) {
+      $table->id();
+      $table->unsignedBigInteger('client_id')->nullable(false);
+      $table->unsignedBigInteger('item_id')->nullable();
+      $table->unsignedBigInteger('unit_id')->nullable();
+      $table->unsignedBigInteger('invoice_no')->nullable(false);
+      $table->unsignedBigInteger('bank_id')->nullable();
+      $table->date('date')->nullable(false);
+      $table->string('transaction_no', 100)->nullable();
+      $table->date('transaction_date')->nullable();
+      $table->double('quantity', 23, 2)->nullable(false);
+      $table->double('unit_price', 23, 2)->nullable(false);
+      $table->double('total_price', 23, 2)->nullable(false);
+      $table->double('sd', 5, 2)->nullable(false);
+      $table->double('sd_value', 23, 2)->nullable(false);
+      $table->double('vat', 5, 2)->nullable(false);
+      $table->double('vat_value', 23, 2)->nullable(false);
+      $table->string('customer_name', 100)->nullable();
+      $table->string('bin_or_nid', 17)->nullable();
+      $table->string('address', 150)->nullable();
+      $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
+      $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
+      $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
+      $table->timestamps();
+      $table->index(['invoice_no', 'client_id', 'item_id', 'unit_id']);
+    });
+  }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('sales');
-    }
+  /**
+   * Reverse the migrations.
+   */
+  public function down(): void
+  {
+    Schema::dropIfExists('sales');
+  }
 };
