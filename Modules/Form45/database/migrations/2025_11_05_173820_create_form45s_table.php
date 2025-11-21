@@ -17,7 +17,7 @@ return new class extends Migration
       $table->unsignedBigInteger('item_id')->nullable();
       $table->unsignedBigInteger('unit_id')->nullable(); // from 6.2.1 unit id
       $table->date('date')->nullable(false);
-      $table->string('serial621')->nullable();
+      $table->string('serial621', 50)->nullable();
       $table->double('quantity', 23, 2)->nullable(false);
       $table->double('value', 23, 2)->nullable(false);
       $table->double('vat', 23, 2)->nullable(false);

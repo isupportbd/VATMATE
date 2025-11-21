@@ -4,7 +4,14 @@
       <form @submit.prevent="submitData">
         <div class="row gx-1">
           <div class="col-12">
-            <Input type="hidden" v-model="field.id" readonly />
+            <Input type="hidden" topclass="mb-0" v-model="field.id" readonly />
+          </div>
+          <div class="col-12">
+            <Checkbox label="Release Client" id="release" v-model="field.release_client" />
+            <div class="col-12 mt-1" v-if="field.release_client">
+              <SelectInfinite parentclass="m-0" placeholder="Select..." v-model="field.client"
+                :fetched="fetchedClient" />
+            </div>
           </div>
           <div :class="`${role('admin') ? 'col-12 d-block' : 'd-none'}`">
             <SelectInfinite id="user" ref="userDD" placeholder="Select..." title="Manager" v-model="field.user"
@@ -23,7 +30,7 @@
               v-model="field.company_name" :err="err.company_name" must />
           </div>
           <div class="col-12">
-            <TextArea id="address" type="text" label="address" style="height: 112px !important;" maxlength="250"
+            <TextArea id="address" type="text" label="address" style="height: 112px !important;" maxlength="150"
               placeholder="Ex: Assampara, Jaintapur PS, Sylhet" v-model="field.address" />
           </div>
           <div class="col-6">
@@ -74,24 +81,59 @@ import axios from "axios";
 import { ref, reactive, watchEffect, inject } from "vue";
 import { router } from "@inertiajs/vue3";
 import { user, role } from '../../composables/user';
-import { emptyObj, empty } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import TextArea from "../../components/TextArea.vue";
 import Button from "../../components/Button.vue";
 import SelectInfinite from "../../components/SelectInfinite.vue";
 import Alert from '../../helpers/customAlert';
+import Checkbox from '../../components/Checkbox.vue';
 
 const notify = inject('showToast'); // toast message
 
 // client field
-const field = reactive({ id: '', user: '', company_name: '', division: '', email: '', mobile: '', bin: '', vat_username: '', vat_password: '', address: '', name: '', reference: '', tin: '', circle: '', isLoading: false });
+const field = reactive({ id: '', client: '', user: '', company_name: '', division: '', email: '', mobile: '', bin: '', vat_username: '', vat_password: '', address: '', name: '', reference: '', tin: '', circle: '', release_client: false, isLoading: false });
 const err = reactive({ user: '', company_name: '', division: '', email: '', mobile: '', bin: '', vat_username: '', vat_password: '' });
 
 // props define
 const props = defineProps({
   data: { type: [Array, Object] }
 });
+
+// bin dropdown
+const fetchedClient = async () => {
+  return {
+    url: route('release-client-dropdown'),
+    data: 'client',
+    mapFn: (rbin) => ({ id: rbin.id, title: rbin.bin, val: rbin }),
+    option: async () => await releaseClientSet()
+  };
+};
+
+const releaseClientSet = async () => {
+  if (!field.client?.id) {
+    resetForm();
+    return;
+  }
+
+  const { data } = await axios.get(route('client-single', { id: field.client?.id }));
+  field.id = field.client?.id ?? "";
+  field.bin = data.client?.bin ?? "";
+  field.division = !empty(data.client.division) ? { id: data.client.division?.id, title: data.client.division?.name } : "";
+  field.company_name = data.client?.company_name ?? "";
+  field.address = data.client?.address ?? "";
+  field.email = data.client?.email ?? "";
+  field.mobile = data.client?.mobile ?? "";
+  field.vat_username = data.client?.vat_username ?? "";
+  field.vat_password = data.client?.vat_password ?? "";
+  field.name = data.client?.name ?? "";
+  field.reference = data.client?.reference ?? "";
+  field.tin = data.client?.tin ?? "";
+  field.circle = data.client?.circle ?? "";
+
+  // console.log(data);
+};
 
 // user infinite scroll dropdown
 const fetchedUser = async () => {
@@ -114,8 +156,8 @@ const fetchedDivision = async () => {
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.user = !emptyObj(row.user) ? { id: row.user?.id, title: row.user?.email } : "";
-  field.division = !emptyObj(row.division) ? { id: row.division?.id, title: row.division?.name } : "";
+  field.user = !empty(row.user) ? { id: row.user?.id, title: row.user?.email } : "";
+  field.division = !empty(row.division) ? { id: row.division?.id, title: row.division?.name } : "";
   field.company_name = row.company_name ?? "";
   field.email = row.email ?? "";
   field.mobile = row.mobile ?? "";
@@ -133,9 +175,10 @@ const setForm = async (row = {}) => {
 
 // reset form
 const resetForm = async () => {
-  field.id = field.company_name = field.division = field.email = field.mobile = field.bin = field.vat_username = field.vat_password = field.address = field.name = field.reference = field.tin = field.circle = "";
+  field.id = field.company_name = field.division = field.email = field.mobile = field.bin = field.vat_username = field.vat_password = field.address = field.name = field.reference = field.tin = field.circle = field.client = "";
   err.company_name = err.division = err.email = err.mobile = err.bin = err.vat_username = err.vat_password = "";
   field.user = err.user = "";
+  field.release_client = false;
 };
 
 defineExpose({ setForm, resetForm });
@@ -175,9 +218,9 @@ const submitData = async () => {
   };
 
   if (field.id) {
-    router.put(route('client-update', field.id), form, {
+    router.put(route('client-update', { id: form.id }), form, {
       preserveScroll: true,
-      onSuccess: (e) => {
+      onSuccess: async (e) => {
         notify(e.props.flash.msg, 'success');
         resetForm();
       },

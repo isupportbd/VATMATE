@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -140,33 +140,22 @@ class AuthController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
+    $role = optional($user->role)->name;
     $search = $request->input('search');
-    $result = $this->user->with(['role'])
-      ->when($search, function ($query) use ($search, $user) {
-        if (in_array($user->role->name, ['superadmin'])) {
-          $query->where('name', 'like', '%' . strtolower($search) . '%')
-            ->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'editor']))
-            ->orWhere('email', 'like', '%' . strtolower($search) . '%');
-        }
 
-        if (in_array($user->role->name, ['admin'])) {
-          $query->where('name', 'like', '%' . strtolower($search) . '%')
-            ->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']))
-            ->orWhere('email', 'like', '%' . strtolower($search) . '%');
-        }
-      });
+    $exclude = [];
+    if ($role === 'superadmin') $exclude = ['superadmin', 'editor'];
+    if ($role === 'admin')      $exclude = ['superadmin', 'admin'];
 
-    if (in_array($user->role->name, ['superadmin'])) {
-      $result->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'editor']));
-    }
+    $query = $this->user
+      ->with('role')
+      ->when($exclude, fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', $exclude)))
+      ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
+      ->orderByDesc('id')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
-    if (in_array($user->role->name, ['admin'])) {
-      $result->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']));
-    }
-
-    $user = $result->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10)->withQueryString();
-
-    return Inertia('authentication/index', ['user' => $user, 'search' => $search]);
+    return Inertia('authentication/index', ['user' => $query, 'search' => $search]);
   }
 
   // function call from user page create user
@@ -228,32 +217,31 @@ class AuthController extends Controller
 
       DB::commit();
       return back()->with('message', 'User created');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       DB::rollBack();
-      return back()->with("error", 'May be network issue, not perform all the task, try again');
+      return back()->with("error", $e->getMessage());
     }
   }
 
   // function call from user page for single user
   public function show($id)
   {
-    $userSession = Auth::user();
-    $user = $this->user->with(['role']);
-    if ($userSession->role->name == 'superadmin') {
-      $user->whereHas('role', fn($query) => $query->where('name', 'admin'));
+    $user = Auth::user();
+    $role = optional($user->role)->name;
+
+    $query = $this->user->with('role');
+
+    if ($role === 'superadmin') {
+      $query->whereHas('role', fn($r) => $r->where('name', 'admin'));
+    } elseif ($role === 'admin') {
+      $query->whereHas('role', fn($r) => $r->whereNotIn('name', ['superadmin', 'admin']));
+    } else {
+      $query->where('id', $user->id);
     }
 
-    if ($userSession->role->name == 'admin') {
-      $user->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']));
-    }
+    $result = $query->where('id', $id)->first();
 
-    if ($userSession->role->name == 'editor') {
-      $user->where('id', $userSession->id);
-    }
-
-    $result = $user->where('id', $id)->first();
-    $msg = $result ? ['user' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['user' => $result]);
   }
 
   // function call from user page for update
@@ -330,51 +318,48 @@ class AuthController extends Controller
 
       DB::commit();
       return back()->with('message', 'User updated');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       DB::rollBack();
-      return back()->with("error", 'May be network issue, not perform all the task, try again');
+      return back()->with("error", $e->getMessage());
     }
   }
 
   // function call from user page for delete user
   public function destroy($id)
   {
-    $userSession = Auth::user();
+    $user = Auth::user();
     $ids = explode(',', $id);
-    $result = $this->user->with(['role'])->whereIn('id', $ids);
+    $query = $this->user->with(['role'])->whereIn('id', $ids);
 
-    if ($userSession->role->name == 'superadmin') {
-      $result->whereHas('role', fn($query) => $query->whereIn('name', ['admin']));
+    if ($user->role->name == 'superadmin') {
+      $query->whereHas('role', fn($query) => $query->whereIn('name', ['admin']));
     }
 
-    if ($userSession->role->name == 'admin') {
-      $result->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']));
+    if ($user->role->name == 'admin') {
+      $query->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']));
     }
 
-    $result->delete();
-    return back()->with('message', 'User deleted');
+    $result = $query->delete();
+    return back()->with('message', "Deleted {$result} user(s)");
   }
 
   // function call from user page status click
   public function statusUpdate(Request $request, $id)
   {
-    $userSession = Auth::user();
+    $user = Auth::user();
     $formField = $request->validate(
       [
-        'status' => ['required', 'in:0,1', function ($attribute, $value, $fail) use ($id, $userSession) {
+        'status' => ['required', 'in:0,1', function ($attribute, $value, $fail) use ($id, $user) {
           $user = $this->user->with(['role'])->where('id', $id)->first();
-          if ($userSession->role->name == 'superadmin') {
+          if (in_array($user->role->name, ['superadmin'])) {
             in_array($user->role->name, ['superadmin']) && $fail("Can't update status");
           }
-          if ($userSession->role->name == 'admin') {
+          if (in_array($user->role->name, ['admin'])) {
             in_array($user->role->name, ['superadmin', 'admin']) && $fail("Can't update status");
           }
         }]
       ],
-      [
-        'status.required' => 'Status required',
-        'status.in' => 'Status will be 0 or 1',
-      ]
+      ['status.required' => 'Status required', 'status.in' => 'Status will be 0 or 1']
     );
 
     $this->user->with(['role'])->where('id', $id)->update($formField);
@@ -436,41 +421,34 @@ class AuthController extends Controller
 
       DB::commit();
       return Redirect::route('profile-get')->with('message', 'Profile updated');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       DB::rollBack();
-      return back()->with("error", 'May be network issue, not perform all the task, try again');
+      return back()->with("error", $e->getMessage());
     }
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function userDropdown(Request $request)
   {
-    $userSession = Auth::user();
-    $search = $request->input('search');
-    $result = $this->user->with(['role'])
-      ->when($search, function ($query) use ($search, $userSession) {
-        if (in_array($userSession->role->name, ['superadmin'])) {
-          $query->where('name', 'like', '%' . strtolower($search) . '%')
-            ->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'editor']))
-            ->orWhere('email', 'like', '%' . strtolower($search) . '%');
-        }
+    $auth   = Auth::user();
+    $role   = optional($auth->role)->name;
+    $search = trim((string) $request->input('search', ''));
 
-        if (in_array($userSession->role->name, ['admin'])) {
-          $query->where('name', 'like', '%' . strtolower($search) . '%')
-            ->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']))
-            ->orWhere('email', 'like', '%' . strtolower($search) . '%');
-        }
-      });
+    // which roles to exclude for this viewer
+    $exclude = match ($role) {
+      'superadmin' => ['superadmin', 'editor'],
+      'admin'      => ['superadmin', 'admin'],
+      default      => [],
+    };
 
-    if ($userSession->role->name == 'superadmin') {
-      $result->whereHas('role', fn($query) => $query->where('name', 'admin'));
-    }
+    $query = $this->user->with(['role:id,name'])
+      ->when($exclude, fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', $exclude)))
+      ->when($search, fn($q) => $q->where(
+        fn($q) => $q->where('name',  'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
+      ))->orderByDesc('id')
+      ->paginate((int) $request->input('size', 10))
+      ->withQueryString();
 
-    if ($userSession->role->name == 'admin') {
-      $result->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']));
-    }
-
-    $user = $result->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10);
-    return response()->json(['user' => $user]);
+    return response()->json(['user' => $query]);
   }
 }

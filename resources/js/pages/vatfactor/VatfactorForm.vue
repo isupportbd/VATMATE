@@ -7,8 +7,12 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12">
-            <Input type="text" category="decimal" id="vatfact" label="Vat Fact" placeholder="Ex: 7.50" maxlength="6"
-              v-model="field.vatfact" :err="err.vatfact" :disabled="field.id ? false : true" focus must />
+            <Input type="text" id="name" label="name" placeholder="Ex: atfact" maxlength="20" v-model="field.name"
+              :err="err.name" readonly focus must />
+          </div>
+          <div class="col-12">
+            <Input type="text" category="decimal" id="value" label="Vat Fact" placeholder="Ex: 4512.5"
+              v-model="field.value" :err="err.value" must />
           </div>
         </div>
         <div class="d-flex align-items-center">
@@ -24,7 +28,7 @@
 <script setup>
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -37,21 +41,22 @@ const props = defineProps({
 });
 
 // vat factor field
-const field = reactive({ id: '', vatfact: '', isLoading: false });
-const err = reactive({ vatfact: '' });
+const field = reactive({ id: '', name: '', value: '', isLoading: false });
+const err = reactive({ name: '', value: '' });
 
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.vatfact = row.vatfact ?? "";
+  field.name = row.name ?? "";
+  field.value = row.value ?? "";
   // clear previous errors when setting a record
-  err.vatfact = "";
+  err.name = err.value = "";
 };
 
 // reset form
 const resetForm = () => {
-  field.id = field.vatfact = "";
-  err.vatfact = "";
+  field.id = field.name = field.value = "";
+  err.name = err.value = "";
 };
 
 defineExpose({ setForm, resetForm });
@@ -59,16 +64,17 @@ defineExpose({ setForm, resetForm });
 
 // create or update vat factor
 const submitData = async () => {
-  const form = { id: field.id, vatfact: field.vatfact };
+  const form = { id: field.id, name: field.name, value: field.value };
 
   const onErr = (errors) => {
     let er = {};
     Object.keys(errors).map((key) => er[key] = errors[key].toString());
-    err.vatfact = er.vatfact;
+    err.name = er.name;
+    err.value = er.value;
   };
 
   if (field.id) {
-    router.put(route('vatfactor-update', field.id), form, {
+    router.put(route('vatfactor-update', { id: field.id }), form, {
       preserveScroll: true,
       onSuccess: (e) => {
         notify(e.props.flash.msg, 'success');

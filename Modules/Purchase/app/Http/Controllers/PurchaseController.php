@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Modules\Client\Models\Client;
 use Modules\Form43\Models\Form43;
 use Modules\Form621\Models\Form621;
@@ -15,6 +17,7 @@ use Modules\Purchase\Models\Purchase;
 use Modules\Stationcode\Models\Stationcode;
 use Modules\Unit\Models\Unit;
 use Modules\Vatfactor\Models\Vatfactor;
+use Throwable;
 
 class PurchaseController extends Controller
 {
@@ -45,36 +48,22 @@ class PurchaseController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $import = $this->purchase->with(['client', 'client.division', 'client.user', 'client.user.role', 'stationcode', 'item', 'mushaknote', 'unit'])
-      ->when($search, function ($query) use ($search, $user) {
-        $query->whereHas('client', function ($query) use ($search, $user) {
-          if (!in_array($user->role->name, ['admin'])) {
-            $query->where('user_id', $user->id)->where(function ($query) use ($search) {
-              $query->where('email', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('company_name', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('reference', 'like', '%' . strtolower($search) . '%');
-            });
-          } else {
-            $query->where('email', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
+    $purchase = $this->purchase->with(['client', 'client.division', 'client.user', 'client.user.role', 'stationcode', 'item', 'mushaknote', 'unit'])
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->whereHas('client', function ($query) use ($search) {
+            $query->where('bin', 'like', '%' . strtolower($search) . '%')
               ->orWhere('company_name', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-              ->orWhere('reference', 'like', '%' . strtolower($search) . '%');
-          }
-        })->orWHereHas('client.user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('item', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('stationcode', fn($query) => $query->where('code', 'like', '%' . strtolower($search) . '%'));
+              ->orWhere('mobile', 'like', '%' . strtolower($search) . '%');
+          })->orWhereHas('item', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+        });
       });
 
-    if ($user->role->name !== 'admin') {
-      $import->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $import->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
+    $result = $purchase->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
     return Inertia("purchase/index", ['purchase' => $result, 'search' => $search]);
   }
@@ -83,174 +72,273 @@ class PurchaseController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin'], true);
+
+    // calculation part for validation and insert data
+    $av      = (float) $request->input('assessable_value');
+    $cd      = (float) $request->input('cd', 0);
+    $rd      = (float) $request->input('rd', 0);
+    $sd      = (float) $request->input('sd', 0);
+    $vat     = (float) $request->input('vat', 0);
+    $at      = (float) $request->input('at', 0);
+    $mcu     = (float) $request->input('mcu', 0);
+    $qty     = (float) $request->input('quantity');
+    $exQty   = (float) $request->input('excess_quantity', 0);
+    $wastage = (float) $request->input('wastage', 0);
+
+    $cdValue   = $av * ($cd / 100);
+    $rdValue   = $av * ($rd / 100);
+    $sdValue   = ($av + $cdValue + $rdValue) * ($sd / 100);
+    $baseValue = $av + $cdValue + $rdValue + $sdValue;
+    $vatValue  = $baseValue * ($vat / 100);
+    $atValue   = $baseValue * ($at / 100);
+    $totalQuantity = ($qty + $exQty) - (($qty + $exQty) * ($wastage / 100));
+
+    // NEW: fetch Form 4.3 to get factor BEFORE validation (to compute converted net qty)
+    $form43ForFactor = $this->form43->where([
+      ['client_id', $request->input('client_id')],
+      ['item_id',   $request->input('item_id')],
+      ['last', 1]
+    ])->first();
+    $factor = (float) ($form43ForFactor->factor ?? 1);
+
+    // NEW: converted quantities in sale unit (for validation + insert)
+    $qtyConv            = (float) $qty   * $factor;
+    $exQtyConv          = (float) $exQty * $factor;
+    $totalQuantityConv  = (float) $totalQuantity * $factor;
+    $unitPriceConv      = ($totalQuantityConv > 0) ? ($baseValue / $totalQuantityConv) : null;
+    $mcuAmount          = (float) $av * $mcu;
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (!in_array($user->role->name, ['admin'])) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          $client = $this->client->find($value);
+
+          if (!$client) return $fail('Client does not exist');
+
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+        }],
+        'item_id' => ['required', 'integer', 'gt:0', 'bail', Rule::exists('items', 'id'), function ($attribute, $value, $fail) use ($request) {
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Item not exists');
+
+          $clientId = $request->input('client_id');
+
+          $form43 = $this->form43->where('client_id', $clientId)->where('item_id', $value)->where('last', 1)->first();
+
+          if (!$form43) return $fail('4.3 not found');
+
+          if (!$form43->additions()->exists()) return $fail('4.3 has no addition');
+        }],
+        'lc_no' => ['required', 'max:50', function ($attribute, $value, $fail) use ($request) {
+          $purchase = $this->purchase->where('lc_no', $value)->first();
+
+          if ($purchase && ($purchase->client_id != $request->client_id)) {
+            return $fail("Not same client");
           }
-
-          // bin status check
-          $binStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $binStatusCheck && $fail("BIN inactive");
-
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
         }],
-        'item_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
-          // criteria find out import id
-          $criteria = $this->criteria->where('name', 'import')->first();
-          // last form43 id find out with clientbin_id, item_id, criteria_id
-          $form43 = $this->form43->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')], ['criteria_id', $criteria->id], ['last', 1]])->first();
+        'lc_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
 
-          // error show if not match clientbin_id, item_id, criteria_id == import in form_4.3
-          empty($form43) && $fail('4.3 not found');
-
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          // Stop if entry date is over current date (future date)
+          if ($entrydate->gt($today)) {
+            return $fail("Greater than today");
+          }
         }],
-        'entry_date' => ['required', 'bail', 'date_format:"Y-m-d"', 'bail', function ($attribute, $value, $fail) use ($request) {
-          // last date import621 with clientbin_id
-          $import621LastDate = $this->import621->where('clientbin_id', $request->input('clientbin_id'))->groupBy(['clientbin_id'])->max('date');
-          $import621 = $this->import621->where('date', $import621LastDate)->first();
+        'boe' => ['required', 'max:10', function ($attribute, $value, $fail) use ($request) {
+          $dup = $this->purchase->where([
+            ['boe', $value],
+            ['item_id', $request->input('item_id')],
+            ['boe_date', $request->input('boe_date')],
+            ['stationcode_id', $request->input('stationcode_id')]
+          ])->exists();
 
-          // error show import or sale will not be insert before import621 last date for this client
-          (!empty($import621) && ($import621->date > $value)) && $fail("Violate last date");
-        }],
-        'mushaknote_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
-          // find the gap two month. if work with another field with date then use DateTime not laravel Carbon
-          $start = DateTime::createFromFormat('Y-m-d', $request->input('boe_date'));
-          $end = DateTime::createFromFormat('Y-m-d', $request->input('entry_date'));
-          $monthGap = "";
-          ($end && $start) && $monthGap .= (($end->format('m') - $start->format('m')) + (12 * ($end->format('Y') - $start->format('Y')))) + 1;
-
-          // find note id from mushaknote
-          $note = $this->mushaknote->where('name_note_no', 'note_15')->first();
-          // error show if entry_date and invoice_date gap over 5 month for note_15
-          (($note->id == $value) && ($monthGap > 5)) && $fail('Over 5 tax period');
-
-          // find out note
-          $criteria = $this->criteria->where('name', 'import')->first();
-          $noteCheck = $this->mushaknote->where([['id', $request->input('mushaknote_id')], ['criteria_id', $criteria->id]])->first();
-
-          // error show if not mushak note under import criteria
-          empty($noteCheck) && $fail('Not for import');
-
-          // check exists or not
-          $mushakCheck = $this->mushaknote->where('id', $value)->exists();
-          !$mushakCheck && $fail('Not exists');
+          if ($dup) {
+            return $fail('Exists, change your input');
+          }
         }],
         'boe_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
-          // boe date can not be big from entry date
-          $startMonth = Carbon::parse($request->input('entry_date'));
-          $endMonth = Carbon::parse($value);
-          // error show if boe date is big from entry date
-          ($startMonth < $endMonth) && $fail("BoE date > Entry date");
-        }],
-        'wastage' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
-        'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-          // criteria find out import id
-          $criteria = $this->criteria->where('name', 'import')->first();
-          // last form43 id find out with clientbin_id, item_id, criteria_id
-          $form43 = $this->form43->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')], ['criteria_id', $criteria->id], ['last', 1]])->first();
+          $entrydate = Carbon::parse($request->input('entry_date'), "Asia/Dhaka")->startOfDay();
+          $boedate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
 
-          // error show if not match import_6.2.1
-          (!empty($form43) && ($form43->unit_id !== $value)) && $fail("Not match");
+          // Stop if entry date is over current date (future date)
+          if ($boedate->gt($today)) {
+            return $fail("Greater than today");
+          }
+
+          // error show if boe date is big from entry date
+          if ($boedate->gt($entrydate)) {
+            return $fail("BoE date > Entry date");
+          }
+        }],
+        'entry_date' => ['required', 'bail', 'date_format:"Y-m-d"', 'bail', function ($attribute, $value, $fail) use ($request) {
+          $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($entrydate->gt($today)) {
+            return $fail("Greater than today");
+          }
+
+          $lastDate = $this->form621->where('client_id', $request->input('client_id'))->groupBy(['client_id'])->max('date');
+          if ($lastDate && $lastDate > $value) {
+            return $fail("Violate last date");
+          }
+        }],
+        'mushaknote_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
+          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
+          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
+          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
+          $monthGap   = $diffMonths + 1; // inclusive periods
+
+          // find note id from mushaknote
+          $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
+          // error if entry_date and boe_date gap over 5 months for note_15
+          if ($note15 && ($note15 == $value) && ($monthGap > 5)) {
+            return $fail('Over 5 tax period');
+          }
+
+          if ($note15 && ($note15 == $value) && (empty($request->input('receipt_number')) || empty($request->input('receipt_date')))) {
+            return $fail('Need receipt number and date');
+          }
 
           // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
-        }],
-        'unit_price' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
-          // criteria find out import id
-          $criteria = $this->criteria->where('name', 'import')->first();
-          // last form43 id find out with clientbin_id, item_id, criteria_id
-          $form43 = $this->form43->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')], ['criteria_id', $criteria->id], ['last', 1]])->first();
-          // CALC: ((purchase unit price - 4.3 last import unit price) / 4.3 last import unit price) * 100
-          // calculate from form_4.3 to check over or less 7.5%
-          $calc = !empty($form43) ? ((($value - $form43->unit_price) / $form43->unit_price) * 100) : NULL;
-
-          // error show if gap is over or less vatfactor.
-          $vatfactor = $this->vatfactor->where('criteria_id', $criteria->id)->first();
-
-          (!empty($form43) && ($calc > $vatfactor->percent)) && $fail('Over ' . $vatfactor->percent . ' (' . number_format($calc, 2, '.', '') . '%)');
-          (!empty($form43) && ($calc < - ($vatfactor->percent))) && $fail('Less ' . $vatfactor->percent . ' (' . number_format($calc, 2, '.', '') . '%)');
+          if (!$this->mushaknote->where('id', $value)->exists()) {
+            return $fail('Not exists');
+          }
         }],
         'stationcode_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-          $stationCheck = $this->stationcode->where('id', $value)->exists();
-          !$stationCheck && $fail('Not exists');
+          if (!$this->stationcode->where('id', $value)->exists()) {
+            return $fail('Not exists');
+          }
         }],
-        'quantity' => 'required|numeric|gt:0',
-        'net_quantity' => 'required|numeric|gt:0',
+        'df_cvat_cf' => 'required|numeric|gte:0',
         'assessable_value' => 'required|numeric|gt:0',
+        'quantity' => 'required|numeric|gt:0',
+        'excess_quantity' => 'required|numeric|gte:0',
+        'wastage' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
+        'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          // last form43 id find out with client_id, item_id
+          $unitId = $this->form43->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->value('sale_unit_id');
+
+          // error show if not match form43
+          if (empty($unitId) || (int)$unitId !== (int)$value) {
+            return $fail("Not match");
+          }
+
+          // check exists or not
+          if (!$this->unit->where('id', $value)->exists()) {
+            return $fail('Not exists');
+          }
+        }],
+        'base_value' => 'nullable|numeric|gt:0',
+        // NEW: validate against converted unit price (based on converted net qty)
+        'unit_price'  => ['nullable', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request, $unitPriceConv, $form43ForFactor) {
+          if ($unitPriceConv === null || $unitPriceConv <= 0) {
+            return $fail('Computed unit price invalid');
+          }
+
+          $form43UnitPrice = $form43ForFactor?->unit_price ?? $this->form43->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->value('unit_price');
+
+          $calc = !empty($form43UnitPrice) ? ((($unitPriceConv - $form43UnitPrice) / $form43UnitPrice) * 100) : null;
+
+          $vatfactor = $this->vatfactor->where('name', 'vatfact')->value('value');
+
+          if (!empty($form43UnitPrice) && $vatfactor !== null) {
+            if ($calc >  (float)$vatfactor) return $fail('Over ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+            if ($calc < -(float)$vatfactor) return $fail('Less ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+          }
+        }],
+
         'cd' => 'required|numeric|gte:0',
         'rd' => 'required|numeric|gte:0',
         'sd' => 'required|numeric|gte:0',
         'vat' => 'required|numeric|gte:0|between:0,15.00',
-        'ait' => 'required|numeric|gte:0|between:0,5.00',
-        'at' => ['required', 'numeric', 'gte:0', 'between:0,7.50', function ($attribute, $value, $fail) use ($request) {
-          // find the gap two month. if work with another field with date then use DateTime not Carbon
-          $start = DateTime::createFromFormat('Y-m-d', $request->input('boe_date'));
-          $end = DateTime::createFromFormat('Y-m-d', $request->input('entry_date'));
-          $monthGap = "";
-          ($end && $start) && $monthGap .= (($end->format('m') - $start->format('m')) + (12 * ($end->format('Y') - $start->format('Y')))) + 1;
+        'at' => ['required', 'numeric', 'gte:0', function ($attribute, $value, $fail) use ($request) {
+          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
+          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
+          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
+          $monthGap   = $diffMonths + 1; // inclusive periods
 
           // error show if entry_date and boe_date gap over 5 month, must set 0%
-          if ($monthGap > 5 && $value > 0) {
-            $fail('Set 0%, Over 5 tax period');
+          if (($monthGap > 5) && ($value > 0)) {
+            return $fail('Set 0%, Over 5 tax period');
+          }
+
+          $vatfactor = $this->vatfactor->where('name', 'atfact')->value('value');
+
+          if ($value > $vatfactor) {
+            return $fail('Range 0 to' . ' (' . number_format($vatfactor, 2, '.', '') . '%)');
           }
         }],
-        'boe' => ['required', 'max:20', function ($attribute, $value, $fail) use ($request) {
-          $import = $this->importerpurchase->where([['boe', $value], ['item_id', $request->input('item_id')], ['boe_date', $request->input('boe_date')], ['stationcode_id', $request->input('stationcode_id')]])->exists();
+        'opening_stock' => [Rule::requiredIf(function () use ($request) {
+          return !$this->form621->where([['client_id', $request->input('client_id')], ['item_id',  $request->input('item_id')]])
+            ->exists();
+        }), 'numeric', 'gte:0'],
+        'mcu' => 'required|numeric|gte:0',
+        'mcu_amount' => 'nullable|numeric|gte:0',
+        'receipt_number' => 'nullable|max:20',
+        'receipt_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
 
-          $import && $fail('Exists, change your input');
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
         }],
-        'lc_no' => 'nullable|max:50',
-        'lc_date' => 'nullable|date_format:"Y-m-d"',
-        'base_value_of_vat' => 'required|numeric|gt:0',
-        'seller_name' => 'nullable|max:100',
-        'address' => 'nullable|max:250',
-        'bin_or_nid' => 'nullable|max:30',
+        'exporter_name' => 'nullable|max:100',
+        'address' => 'nullable|max:100',
       ],
       [
-        'clientbin_id.required' => 'BIN required',
-        'clientbin_id.numeric' => 'Number only',
-        'clientbin_id.gt' => 'Number >0',
-        'stationcode_id.required' => 'Station code required',
-        'stationcode_id.numeric' => 'Number only',
-        'stationcode_id.gt' => 'Number > 0',
+        'client_id.required' => 'BIN required',
+        'client_id.numeric' => 'Number only',
+        'client_id.gt' => 'Number >0',
         'item_id.required' =>  'Item required',
         'item_id.numeric' =>  'Number only',
         'item_id.gt' =>  'Number > 0',
+        'lc_no.required' => 'LC number required',
+        'lc_no.max' => 'Max 50 char',
+        'lc_date.date_format' =>  'Invalid date',
+        'boe.required' =>  'BoE required',
+        'boe.max' =>  'Max 10 char',
+        'boe_date.required' =>  'BoE date required',
+        'boe_date.date_format' =>  'Invalid date',
+        'entry_date.required' =>  'Entry date required',
+        'entry_date.date_format' =>  'Invalid date',
         'mushaknote_id.required' =>  'Mushak note required',
         'mushaknote_id.numeric' =>  'Number only',
         'mushaknote_id.gt' =>  'Number > 0',
-        'unit_id.required' =>  'Unit required',
-        'unit_id.numeric' =>  'Number only',
-        'unit_id.gt' =>  'Number > 0',
-        'entry_date.required' =>  'Entry date required',
-        'entry_date.date_format' =>  'Invalid date',
-        'boe.required' =>  'BoE required',
-        'boe.max' =>  'Max 20 char',
-        'boe_date.required' =>  'BoE date required',
-        'boe_date.date_format' =>  'Invalid date',
-        'lc_no.max' => 'Max 50 char',
-        'lc_date.date_format' =>  'Invalid date',
+        'stationcode_id.required' => 'Station code required',
+        'stationcode_id.numeric' => 'Number only',
+        'stationcode_id.gt' => 'Number > 0',
+        'df_cvat_cf.required' =>  'Df/CVAT/VF required',
+        'df_cvat_cf.numeric' =>  'Number only',
+        'df_cvat_cf.gte' =>  '(+)Number only',
         'assessable_value.required' =>  'Assessable value required',
         'assessable_value.numeric' =>  'Number only',
         'assessable_value.gt' =>  'Number > 0',
+        'quantity.required' =>  'Quantity required',
+        'quantity.numeric' =>  'Number only',
+        'quantity.gt' =>  'Number > 0',
+        'excess_quantity.required' =>  'Excess quantity required',
+        'excess_quantity.numeric' =>  'Number only',
+        'excess_quantity.gt' =>  'Number > 0',
         'wastage.required' =>  'Wastage required',
         'wastage.numeric' =>  'Number only',
         'wastage.gte' =>  '(+)Number only',
         'wastage.between' =>  '0 to 100.00',
-        'quantity.required' =>  'Quantity required',
-        'quantity.numeric' =>  'Number only',
-        'quantity.gt' =>  'Number > 0',
+        'unit_id.required' =>  'Unit required',
+        'unit_id.numeric' =>  'Number only',
+        'unit_id.gt' =>  'Number > 0',
+        'base_value.numeric' =>  'Number only',
+        'base_value.gt' =>  'Number > 0',
+        'unit_price.numeric' =>  'Number only',
+        'unit_price.gt' =>  'Number > 0',
         'net_quantity.required' =>  'Net quantity required',
         'net_quantity.numeric' =>  'Number only',
         'net_quantity.gt' =>  '(+)Number only',
@@ -267,459 +355,586 @@ class PurchaseController extends Controller
         'vat.numeric' =>  'Number only',
         'vat.gte' =>  '(+)Number only',
         'vat.between' =>  'Range 0 to 15',
-        'ait.required' =>  'AIT required',
-        'ait.numeric' =>  'Number only',
-        'ait.gte' =>  '(+)Number only',
-        'ait.between' =>  'Range 0 to 5',
         'at.required' =>  'AT required',
         'at.numeric' =>  'Number only',
         'at.gte' =>  '(+)Number only',
         'at.between' =>  'Range 0 to 7.50',
-        'base_value_of_vat.required' =>  'Base value required',
-        'base_value_of_vat.numeric' =>  'Number only',
-        'base_value_of_vat.gt' =>  'Number > 0',
-        'unit_price.required' =>  'Unit price required',
-        'unit_price.numeric' =>  'Number only',
-        'unit_price.gt' =>  'Number > 0',
-        'seller_name.max' => 'Max 100 char',
-        'address.max' => 'Max 250 char',
-        'bin_or_nid.max' => 'Max 30 char',
+        'opening_stock.required' => 'Opening stock required',
+        'opening_stock.numeric' =>  'Number only',
+        'opening_stock.gte' =>  '(+)Number only',
+        'mcu.required' =>  'MCU required',
+        'mcu.numeric' =>  'Number only',
+        'mcu.gte' =>  '(+)Number only',
+        'mcu_amount.numeric' =>  'Number only',
+        'mcu_amount.gte' =>  '(+)Number only',
+        'receipt_number.max' => 'Max 20 char',
+        'receipt_date.date_format' => 'Invalid date',
+        'exporter_name' => 'Max 100 char',
+        'address.max' => 'Max 100 char',
       ]
     );
 
     // use transaction for those exception
     try {
-      DB::transaction(function () use ($formField, $request, $user) {
-        // criteria must be import
-        $criteria = $this->criteria->where('name', 'import')->first();
-        $formField['criteria_id'] = $criteria->id;
+      DB::transaction(function () use ($formField, $request, $user, $cdValue, $rdValue, $sdValue, $baseValue, $vatValue, $atValue, $form43ForFactor, $qtyConv, $exQtyConv, $totalQuantityConv, $unitPriceConv, $mcuAmount) {
+        // NEW: set purchase unit_id to sale unit (since quantities are converted)
+        $form43 = $form43ForFactor ?: $this->form43->where([['client_id', $request->input('client_id')], ['item_id',   $request->input('item_id')], ['last', 1]])->first();
 
-        // check last invoice number check with client id and entry year for invoice number
-        $last = $this->importerpurchase->where('clientbin_id', $request->input('clientbin_id'))->whereYear('entry_date', $request->input('entry_date'))->groupBy(['clientbin_id', DB::raw('YEAR(entry_date)')])->max('id');
-        $import = $this->importerpurchase->where('id', $last)->first();
+        if (!$form43) {
+          throw new \RuntimeException('Form 4.3 not found for conversion.');
+        }
 
-        // invoice number increase or start from 1
-        empty($import) ? ($formField['invoice_no'] = 1) : ($formField['invoice_no'] = $import->invoice_no + 1);
+        // lock last form621 row for this client+item
+        $lastRow = $this->form621
+          ->where('client_id', $request->input('client_id'))
+          ->where('item_id',   $request->input('item_id'))
+          ->lockForUpdate()
+          ->latest('id')
+          ->first();
 
-        $formField['cd'] = number_format($request->input('assessable_value') * ($request->input('cd') / 100), "3", ".", "");
-        $formField['rd'] = number_format($request->input('assessable_value') * ($request->input('rd') / 100), "3", ".", "");
-        $formField['sd'] = number_format(($request->input('assessable_value') + ($request->input('assessable_value') * ($request->input('cd') / 100)) + ($request->input('assessable_value') * ($request->input('rd') / 100))) * ($request->input('sd') / 100), "3", ".", "");
-        $formField['vat'] = number_format(
-          (
-            doubleval($request->input('assessable_value')) +
-            (doubleval($request->input('assessable_value')) * doubleval(($request->input('cd') / 100))) +
-            (doubleval($request->input('assessable_value')) * doubleval(($request->input('rd') / 100))) +
-            (
-              (
-                doubleval($request->input('assessable_value')) +
-                (doubleval($request->input('assessable_value')) * (doubleval($request->input('cd')) / 100)) +
-                (doubleval($request->input('assessable_value')) * (doubleval($request->input('rd')) / 100))
-              ) *
-              (doubleval($request->input('sd')) / 100)
-            )
-          ) * (doubleval($request->input('vat')) / 100),
-          "3",
-          ".",
-          ""
-        );
-        $formField['ait'] = number_format($request->input('assessable_value') * ($request->input('ait') / 100), "3", ".", "");
-        $formField['at'] = number_format((
-          $request->input('assessable_value') +
-          ($request->input('assessable_value') * ($request->input('cd') / 100)) +
-          ($request->input('assessable_value') * ($request->input('rd') / 100)) +
-          (
-            (
-              $request->input('assessable_value') +
-              ($request->input('assessable_value') * ($request->input('cd') / 100)) +
-              ($request->input('assessable_value') * ($request->input('rd') / 100))
-            ) * ($request->input('sd') / 100)
-          )
-        ) * ($request->input('at') / 100), "3", ".", "");
+        // NEW: opening & stock in converted (sale unit)
+        $openingInput = (float) $request->input('opening_stock', 0);
+        $opening = $lastRow ? (float) $lastRow->stock : (float) $openingInput;
+        $quantity = (float) $totalQuantityConv;
+        $stock    = $opening + $quantity;
 
-        // dd($formField['cd'], $formField['rd'], $formField['sd'], $formField['vat'], $formField['ait'], $formField['at']);
-        // create import purchase and increase or start invoice no with entry year
-        $result = $this->importerpurchase->create($formField);
+        $formField['cd_value']        = number_format($cdValue, 2, ".", "");
+        $formField['rd_value']        = number_format($rdValue, 2, ".", "");
+        $formField['sd_value']        = number_format($sdValue, 2, ".", "");
+        $formField['vat_value']       = number_format($vatValue, 2, ".", "");
+        $formField['at_value']        = number_format($atValue, 2, ".", "");
+        $formField['base_value']      = number_format($baseValue, 2, ".", "");
 
-        if ($result) {
-          // import621 check last clientbin_id, item_id and importable_type == import
-          $last = $this->import621->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')]])->groupBy('clientbin_id', 'item_id')->max('id');
-          $import621 = $this->import621->where('id', $last)->first();
+        // NEW: override purchase with CONVERTED (sale unit) values
+        $formField['quantity']        = number_format($qtyConv,           2, ".", "");
+        $formField['excess_quantity'] = number_format($exQtyConv,         2, ".", "");
+        $formField['total_quantity']  = number_format($totalQuantityConv, 2, ".", "");
+        $formField['mcu_amount']      = number_format($mcuAmount,     2, ".", "");
+        $formField['unit_price']      = number_format($unitPriceConv,     2, ".", "");
+        $formField['unit_id']         = $form43->sale_unit_id;
+        $formField['factor']          = $form43->factor;
+        $formField['stock']           = $stock;
 
-          // for last item labeling
-          !empty($import621) && $import621->where('id', $last)->update(['last' => 0]);
-          // if get clientbin_id and item_id match and has stock then it will add into stock else start new stock
-          $stock = empty($import621) ? $formField['net_quantity'] : ($import621->stock + $formField['net_quantity']);
-          $result->import621()->create([
-            'clientbin_id' => $formField['clientbin_id'],
-            'item_id' => $formField['item_id'],
-            'quantity' => $formField['net_quantity'],
-            'unit_id' => $formField['unit_id'],
-            'stock' => $stock,
-            'date' => $formField['entry_date'],
-            'last' => 1,
-            'userid' => $user->id
-          ]);
+        // create purchase
+        $purchase = $this->purchase->create($formField);
+
+        if (!$purchase) return;
+
+        if ($lastRow) {
+          $lastRow->update(['last' => 0]);
+        }
+
+        // insert into form621 (converted, sale unit)
+        $purchase->form621()->create([
+          'client_id'        => $formField['client_id'],
+          'item_id'          => $formField['item_id'],
+          'form43_id'        => $form43->id,
+          'lc_or_invoice_no' => $formField['lc_no'],
+          'boe'              => $formField['boe'],
+          'quantity'         => $quantity,                 // converted
+          'unit_id'          => $form43->sale_unit_id,     // sale unit
+          'opening_stock'    => $opening,                  // converted
+          'stock'            => $stock,                    // converted
+          'date'             => $formField['entry_date'],
+          'last'             => 1,
+          'userid'           => $user->id,
+        ]);
+      });
+
+      return back()->with("message", 'Purchase created');
+    } catch (Throwable $e) {
+      return back()->with("error", $e->getMessage());
+    }
+  }
+
+
+  // function call from importer purchase page as api for same page
+  public function show($id)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $purchase = $this->purchase->with(['client.division', 'client.user.role', 'stationcode', 'item', 'mushaknote', 'unit'])->find($id);
+
+    if (!$isAdmin && $purchase && ($purchase->client->user_id !== $user->id)) {
+      return response()->json(['purchase' => null, 'error' => 'Unauthorized']);
+    }
+
+    $openingCheck = false;   // default
+
+    if ($purchase) {
+      // find first Form621 id for this client + item
+      $firstId = $this->form621->where('client_id', $purchase->client_id)->where('item_id',   $purchase->item_id)->orderBy('id', 'asc')->value('id');
+      // current form621 id
+      $currentForm621Id = $this->form621->where('importable_id', $id)->value('id');
+
+      // if you are passing Form621 id in $id, compare with $currentForm621Id
+      $openingCheck = ($firstId && (int) $firstId === (int) $currentForm621Id);
+    }
+
+    if (!$purchase) {
+      return response()->json(['msg' => 'Nothing found']);
+    }
+
+    return response()->json(['purchase' => $purchase, 'openingcheck' => $openingCheck]);
+  }
+
+
+  // function call form importer purchase page for update
+  public function update(Request $request, $id)
+  {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    if (!$this->form621->where('importable_id', $id)->where('importable_type', 'purchase')->where('last', 1)->first()) {
+      return back()->with('error', 'Can not update: not last combination');
+    }
+
+
+    // calculation part for validation and insert data
+    $av      = (float) $request->input('assessable_value');
+    $cd      = (float) $request->input('cd', 0);
+    $rd      = (float) $request->input('rd', 0);
+    $sd      = (float) $request->input('sd', 0);
+    $vat     = (float) $request->input('vat', 0);
+    $at      = (float) $request->input('at', 0);
+    $mcu     = (float) $request->input('mcu', 0);
+    $qty     = (float) $request->input('quantity');
+    $exQty   = (float) $request->input('excess_quantity', 0);
+    $wastage = (float) $request->input('wastage', 0);
+
+    $cdValue   = $av * ($cd / 100);
+    $rdValue   = $av * ($rd / 100);
+    $sdValue   = ($av + $cdValue + $rdValue) * ($sd / 100);
+    $baseValue = $av + $cdValue + $rdValue + $sdValue;
+    $vatValue  = $baseValue * ($vat / 100);
+    $atValue   = $baseValue * ($at / 100);
+    $totalQuantity = ($qty + $exQty) - (($qty + $exQty) * ($wastage / 100));
+
+    // NEW: fetch Form 4.3 to get factor BEFORE validation (to compute converted net qty)
+    $form43ForFactor = $this->form43->where([
+      ['client_id', $request->input('client_id')],
+      ['item_id',   $request->input('item_id')],
+      ['last', 1]
+    ])->first();
+    $factor = (float) ($form43ForFactor->factor ?? 1);
+
+    // NEW: converted quantities in sale unit (for validation + insert)
+    $qtyConv            = (float) $qty   * $factor;
+    $exQtyConv          = (float) $exQty * $factor;
+    $totalQuantityConv  = (float) $totalQuantity * $factor;
+    $unitPriceConv      = ($totalQuantityConv > 0) ? ($baseValue / $totalQuantityConv) : null;
+    $mcuAmount          = (float) $av * $mcu;
+
+    $formField = $request->validate(
+      [
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          $client = $this->client->find($value);
+
+          if (!$client) return $fail('Client does not exist');
+
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+        }],
+        'item_id' => ['required', 'integer', 'gt:0', 'bail', Rule::exists('items', 'id'), function ($attribute, $value, $fail) use ($request) {
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Item not exists');
+
+          $clientId = $request->input('client_id');
+
+          $form43 = $this->form43->where('client_id', $clientId)->where('item_id', $value)->where('last', 1)->first();
+
+          if (!$form43) return $fail('4.3 not found');
+
+          if (!$form43->additions()->exists()) return $fail('4.3 has no addition');
+        }],
+        'lc_no' => ['required', 'max:50', function ($attribute, $value, $fail) use ($request) {
+          $purchase = $this->purchase->where('lc_no', $value)->first();
+
+          if ($purchase && ($purchase->client_id != $request->client_id)) {
+            return $fail("Not same client");
+          }
+        }],
+        'lc_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($entrydate->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
+        'boe' => 'required|max:10',
+        'boe_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
+          $entrydate = Carbon::parse($request->input('entry_date'), "Asia/Dhaka")->startOfDay();
+          $boedate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($boedate->gt($today)) {
+            return $fail("Greater than today");
+          }
+
+          // error show if boe date is big from entry date
+          if ($boedate->gt($entrydate)) {
+            return $fail("BoE date > Entry date");
+          }
+        }],
+        'entry_date' => ['required', 'bail', 'date_format:"Y-m-d"', 'bail', function ($attribute, $value, $fail) use ($request) {
+          $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today   = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($entrydate->gt($today)) {
+            return $fail("Greater than today");
+          }
+
+          $lastDate = $this->form621->where('client_id', $request->input('client_id'))->groupBy(['client_id'])->max('date');
+          if ($lastDate && $lastDate > $value) {
+            return $fail("Violate last date");
+          }
+        }],
+        'mushaknote_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
+          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
+          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
+          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
+          $monthGap   = $diffMonths + 1; // inclusive periods
+
+          // find note id from mushaknote
+          $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
+          // error if entry_date and boe_date gap over 5 months for note_15
+          if ($note15 && ($note15 == $value) && ($monthGap > 5)) {
+            return $fail('Over 5 tax period');
+          }
+
+          if ($note15 && ($note15 == $value) && (empty($request->input('receipt_number')) || empty($request->input('receipt_date')))) {
+            return $fail('Need receipt number and date');
+          }
+
+          // check exists or not
+          if (!$this->mushaknote->where('id', $value)->exists()) {
+            return $fail('Not exists');
+          }
+        }],
+        'stationcode_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          if (!$this->stationcode->where('id', $value)->exists()) {
+            return $fail('Not exists');
+          }
+        }],
+        'df_cvat_cf' => 'required|numeric|gte:0',
+        'assessable_value' => 'required|numeric|gt:0',
+        'quantity' => 'required|numeric|gt:0',
+        'excess_quantity' => 'required|numeric|gte:0',
+        'wastage' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
+        'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          // last form43 id find out with client_id, item_id
+          $unitId = $this->form43->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->value('sale_unit_id');
+
+          // error show if not match form43
+          if (empty($unitId) || (int)$unitId !== (int)$value) {
+            return $fail("Not match");
+          }
+
+          // check exists or not
+          if (!$this->unit->where('id', $value)->exists()) {
+            return $fail('Not exists');
+          }
+        }],
+        'base_value' => 'nullable|numeric|gt:0',
+        // NEW: validate against converted unit price (based on converted net qty)
+        'unit_price'  => ['nullable', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request, $unitPriceConv, $form43ForFactor) {
+          if ($unitPriceConv === null || $unitPriceConv <= 0) {
+            return $fail('Computed unit price invalid');
+          }
+
+          $form43UnitPrice = $form43ForFactor?->unit_price ?? $this->form43->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->value('unit_price');
+
+          $calc = !empty($form43UnitPrice) ? ((($unitPriceConv - $form43UnitPrice) / $form43UnitPrice) * 100) : null;
+
+          $vatfactor = $this->vatfactor->where('name', 'vatfact')->value('value');
+
+          if (!empty($form43UnitPrice) && $vatfactor !== null) {
+            if ($calc >  (float)$vatfactor) return $fail('Over ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+            if ($calc < -(float)$vatfactor) return $fail('Less ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+          }
+        }],
+
+        'cd' => 'required|numeric|gte:0',
+        'rd' => 'required|numeric|gte:0',
+        'sd' => 'required|numeric|gte:0',
+        'vat' => 'required|numeric|gte:0|between:0,15.00',
+        'at' => ['required', 'numeric', 'gte:0', function ($attribute, $value, $fail) use ($request) {
+          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
+          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
+          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
+          $monthGap   = $diffMonths + 1; // inclusive periods
+
+          // error show if entry_date and boe_date gap over 5 month, must set 0%
+          if (($monthGap > 5) && ($value > 0)) {
+            return $fail('Set 0%, Over 5 tax period');
+          }
+
+          $vatfactor = $this->vatfactor->where('name', 'atfact')->value('value');
+
+          if ($value > $vatfactor) {
+            return $fail('Range 0 to' . ' (' . number_format($vatfactor, 2, '.', '') . '%)');
+          }
+        }],
+        'opening_stock' => [Rule::requiredIf(function () use ($request) {
+          return !$this->form621->where([['client_id', $request->input('client_id')], ['item_id',  $request->input('item_id')]])
+            ->exists();
+        }), 'numeric', 'gte:0'],
+        'mcu' => 'required|numeric|gte:0',
+        'mcu_amount' => 'nullable|numeric|gte:0',
+        'receipt_number' => 'nullable|max:20',
+        'receipt_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
+        'exporter_name' => 'nullable|max:100',
+        'address' => 'nullable|max:100',
+      ],
+      [
+        'client_id.required' => 'BIN required',
+        'client_id.numeric' => 'Number only',
+        'client_id.gt' => 'Number >0',
+        'item_id.required' =>  'Item required',
+        'item_id.numeric' =>  'Number only',
+        'item_id.gt' =>  'Number > 0',
+        'lc_no.required' => 'LC number required',
+        'lc_no.max' => 'Max 50 char',
+        'lc_date.date_format' =>  'Invalid date',
+        'boe.required' =>  'BoE required',
+        'boe.max' =>  'Max 10 char',
+        'boe_date.required' =>  'BoE date required',
+        'boe_date.date_format' =>  'Invalid date',
+        'entry_date.required' =>  'Entry date required',
+        'entry_date.date_format' =>  'Invalid date',
+        'mushaknote_id.required' =>  'Mushak note required',
+        'mushaknote_id.numeric' =>  'Number only',
+        'mushaknote_id.gt' =>  'Number > 0',
+        'stationcode_id.required' => 'Station code required',
+        'stationcode_id.numeric' => 'Number only',
+        'stationcode_id.gt' => 'Number > 0',
+        'df_cvat_cf.required' =>  'Df/CVAT/VF required',
+        'df_cvat_cf.numeric' =>  'Number only',
+        'df_cvat_cf.gte' =>  '(+)Number only',
+        'assessable_value.required' =>  'Assessable value required',
+        'assessable_value.numeric' =>  'Number only',
+        'assessable_value.gt' =>  'Number > 0',
+        'quantity.required' =>  'Quantity required',
+        'quantity.numeric' =>  'Number only',
+        'quantity.gt' =>  'Number > 0',
+        'excess_quantity.required' =>  'Excess quantity required',
+        'excess_quantity.numeric' =>  'Number only',
+        'excess_quantity.gt' =>  'Number > 0',
+        'wastage.required' =>  'Wastage required',
+        'wastage.numeric' =>  'Number only',
+        'wastage.gte' =>  '(+)Number only',
+        'wastage.between' =>  '0 to 100.00',
+        'unit_id.required' =>  'Unit required',
+        'unit_id.numeric' =>  'Number only',
+        'unit_id.gt' =>  'Number > 0',
+        'base_value.numeric' =>  'Number only',
+        'base_value.gt' =>  'Number > 0',
+        'unit_price.numeric' =>  'Number only',
+        'unit_price.gt' =>  'Number > 0',
+        'net_quantity.required' =>  'Net quantity required',
+        'net_quantity.numeric' =>  'Number only',
+        'net_quantity.gt' =>  '(+)Number only',
+        'cd.required' =>  'CD required',
+        'cd.numeric' =>  'Number only',
+        'cd.gte' =>  '(+)Number only',
+        'rd.required' =>  'RD required',
+        'rd.numeric' =>  'Number only',
+        'rd.gte' =>  '(+)Number only',
+        'sd.required' =>  'SD required',
+        'sd.numeric' =>  'Number only',
+        'sd.gte' =>  '(+)Number only',
+        'vat.required' =>  'VAT required',
+        'vat.numeric' =>  'Number only',
+        'vat.gte' =>  '(+)Number only',
+        'vat.between' =>  'Range 0 to 15',
+        'at.required' =>  'AT required',
+        'at.numeric' =>  'Number only',
+        'at.gte' =>  '(+)Number only',
+        'at.between' =>  'Range 0 to 7.50',
+        'opening_stock.required' => 'Opening stock required',
+        'opening_stock.numeric' =>  'Number only',
+        'opening_stock.gte' =>  '(+)Number only',
+        'mcu.required' =>  'MCU required',
+        'mcu.numeric' =>  'Number only',
+        'mcu.gte' =>  '(+)Number only',
+        'mcu_amount.numeric' =>  'Number only',
+        'mcu_amount.gte' =>  '(+)Number only',
+        'receipt_number.max' => 'Max 20 char',
+        'receipt_date.date_format' => 'Invalid date',
+        'exporter_name' => 'Max 100 char',
+        'address.max' => 'Max 100 char',
+      ]
+    );
+
+    // use transaction for those exception
+    try {
+      DB::transaction(function () use ($id, $formField, $request, $user, $cdValue, $rdValue, $sdValue, $baseValue, $vatValue, $atValue, $form43ForFactor, $qtyConv, $exQtyConv, $totalQuantityConv, $unitPriceConv, $mcuAmount) {
+        // NEW: set purchase unit_id to sale unit (since quantities are converted)
+        $form43 = $form43ForFactor ?: $this->form43->where([['client_id', $request->input('client_id')], ['item_id',   $request->input('item_id')], ['last', 1]])->first();
+
+        if (!$form43) {
+          throw new \RuntimeException('Form 4.3 not found for conversion.');
+        }
+
+        $openingInput = (float) $request->input('opening_stock', 0);
+        $quantity = (float) $totalQuantityConv;
+        $stock    = $openingInput + $quantity;
+
+        $formField['cd_value']        = number_format($cdValue, 2, ".", "");
+        $formField['rd_value']        = number_format($rdValue, 2, ".", "");
+        $formField['sd_value']        = number_format($sdValue, 2, ".", "");
+        $formField['vat_value']       = number_format($vatValue, 2, ".", "");
+        $formField['at_value']        = number_format($atValue, 2, ".", "");
+        $formField['base_value']      = number_format($baseValue, 2, ".", "");
+
+        // NEW: override purchase with CONVERTED (sale unit) values
+        $formField['quantity']        = number_format($qtyConv,           2, ".", "");
+        $formField['excess_quantity'] = number_format($exQtyConv,         2, ".", "");
+        $formField['total_quantity']  = number_format($totalQuantityConv, 2, ".", "");
+        $formField['unit_price']      = number_format($unitPriceConv,     2, ".", "");
+        $formField['mcu_amount']      = number_format($mcuAmount,         2, ".", "");
+        $formField['unit_id']         = $form43->sale_unit_id;
+        $formField['factor']          = $form43->factor;
+        $formField['stock']           = $stock;
+
+        $purchase = $this->purchase->find($id);
+
+        if (!$purchase) {
+          throw new \RuntimeException('Purchase not found.');
+        }
+
+        // update the model
+        $purchase->update($formField);
+
+        // insert into form621 (converted, sale unit)
+        $purchase->form621()->where('importable_id', $id)->where('importable_type', 'purchase')->update([
+          'client_id'        => $formField['client_id'],
+          'item_id'          => $formField['item_id'],
+          'form43_id'        => $form43->id,
+          'lc_or_invoice_no' => $formField['lc_no'],
+          'boe'              => $formField['boe'],
+          'quantity'         => $quantity,                 // converted
+          'unit_id'          => $form43->sale_unit_id,     // sale unit
+          'opening_stock'    => $openingInput,
+          'stock'            => $stock,                    // converted
+          'date'             => $formField['entry_date'],
+          'userid'           => $user->id,
+        ]);
+      });
+
+      return back()->with("message", 'Purchase updated');
+    } catch (Throwable $e) {
+      return back()->with("error", $e->getMessage());
+    }
+  }
+
+  // function call from purchase page
+  public function updateExporter(Request $request, $id)
+  {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $purchase = $this->purchase->with(['client'])->where('id', $id)->first();
+
+    if (!$isAdmin && ($purchase->client->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorized');
+    }
+
+    $formField = $request->validate(
+      [
+        'exporter_name' => 'nullable|max:100',
+        'address' => 'nullable|max:100'
+      ],
+      [
+        'exporter_name.max' => 'Max 100 char',
+        'address.max' => 'Max 100 char'
+      ]
+    );
+
+    $this->purchase->where('id', $id)->update($formField);
+
+    return back()->with('message', 'Exporter updated');
+  }
+
+  // function call from importer purchase page for delete
+  public function destroy($id)
+  {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    try {
+      DB::transaction(function () use ($id, $user, $isAdmin) {
+        $permission = $this->form621->with(['client'])->where('id', $id)
+          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+          ->first();
+
+        if (!$permission) {
+          return back()->with('error', 'Unauthorized');
+        }
+
+        $form621 = $this->form621->with(['client'])->where([['id', $id], ['importable_type', 'purchase'], ['last', 1]]);
+
+        if (!$form621->first()) {
+          return back()->with('error', 'Can not delete: not last combination');
+        }
+
+        // temporary store data in variable
+        $storeData = $form621->first();
+        // delete current id
+        $this->purchase->where('id', $storeData->importable_id)->delete();
+        $form621->delete();
+
+        // set the latest remaining record as last=1 (if any)
+        $newLastId = $this->form621->where('client_id', $storeData->client_id)->where('item_id', $storeData->item_id)->max('id');
+        if ($newLastId) {
+          $this->form621->where('id', $newLastId)->update(['last' => 1]);
         }
       });
 
       DB::commit();
-      return back()->with("message", 'Import purchase created');
+      return back()->with('message', 'Purchase deleted');
     } catch (Throwable $e) {
       DB::rollBack();
-      return back()->with("error", 'May be network issue, not perform all the task, try again');
+      return back()->with("error", $e->getMessage());
     }
   }
 
-  // // function call from importer purchase page as api for same page
-  // public function show($id)
-  // {
-  //   $user = Auth::user();
+  /**
+   * Here lc search from purchase for
+   * when type lc or copy paste lc into
+   * field that time forntend call
+   * this api to get lc detail
+   */
+  public function purchaseLcSearch(Request $request)
+  {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-  //   $import = $this->importerpurchase->with(['clientbin', 'clientbin.client', 'clientbin.client.division', 'clientbin.client.user', 'clientbin.client.user.role', 'criteria', 'stationcode', 'item', 'mushaknote', 'unit']);
+    $lc = $request->input('lc_no');
+    $client = $request->input('client_id');
+    $item = $request->input('item_id');
 
-  //   if ($user->role->name !== 'admin') {
-  //     $import->whereHas('clientbin.client', fn($query) => $query->where('user_id', Auth::user()->id));
-  //   }
-
-  //   $result = $import->find($id);
-  //   $msg = empty($result) ? ['msg' => 'Nothing found'] : ['importerpurchase' => $result];
-  //   return response()->json($msg);
-  // }
-
-  // // function call form importer purchase page for update
-  // public function update(Request $request, $id)
-  // {
-  //   $user = Auth::user();
-
-  //   $formField = $request->validate(
-  //     [
-  //       'clientbin_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-  //         if (!in_array($user->role->name, ['admin'])) {
-  //           $userCheck = $this->clientbin->with(['client'])->where('id', $value)->whereHas('client', fn($query) => $query->where('user_id', $user->id))->exists();
-  //           // error show if role is not admin and client is not under him
-  //           !$userCheck && $fail('Not your client');
-  //         }
-
-  //         // bin status check
-  //         $clientbin = $this->clientbin->where('id', $value)->where('status', '0')->first();
-  //         $clientbin && $fail("BIN inactive");
-
-  //         // check exists or not
-  //         $binCheck = $this->clientbin->where('id', $value)->exists();
-  //         !$binCheck && $fail('Not exists');
-  //       }],
-  //       'item_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request, $id) {
-  //         // criteria find out import id
-  //         $criteria = $this->criteria->where('name', 'import')->first();
-  //         // last form43 id find out with clientbin_id, item_id, criteria_id
-  //         $form43 = $this->form43->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')], ['criteria_id', $criteria->id], ['last', 1]])->first();
-
-  //         // error show if not match clientbin_id, item_id, criteria_id == import in form_4.3
-  //         empty($form43) && $fail('4.3 not found');
-
-  //         // import621 check last clientbin_id, item_id and importable_type == import
-  //         $import621 = $this->import621->where('importable_id', $id)->where('importable_type', 'import')->first();
-  //         // check criteria == import and last == 1 then pass
-  //         if (empty($import621)) {
-  //           $fail("Not match");
-  //         } else if ($import621->last == 0) {
-  //           $fail("Not last one");
-  //         } else if ($import621 && !($import621->clientbin_id == $request->input('clientbin_id') && $import621->item_id == $value)) {
-  //           // check clientbin_id and item_id in this given id credential same than pass, else fail
-  //           $fail('Not same item');
-  //         }
-
-  //         // check exists or not
-  //         $itemCheck = $this->item->where('id', $value)->exists();
-  //         !$itemCheck && $fail('Not exists');
-  //       }],
-  //       'stationcode_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-  //         $stationCheck = $this->stationcode->where('id', $value)->exists();
-  //         !$stationCheck && $fail('Not exists');
-  //       }],
-  //       'entry_date' => 'required|date_format:"Y-m-d"',
-  //       'mushaknote_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-  //         // find the gap two month. if work with another field with date then use DateTime not laravel Carbon
-  //         $start = DateTime::createFromFormat('Y-m-d', $request->input('boe_date'));
-  //         $end = DateTime::createFromFormat('Y-m-d', $request->input('entry_date'));
-  //         $monthGap = "";
-  //         ($end && $start) && $monthGap .= (($end->format('m') - $start->format('m')) + (12 * ($end->format('Y') - $start->format('Y')))) + 1;
-
-  //         // find note id from mushaknote
-  //         $note = $this->mushaknote->where('name_note_no', 'note_15')->first();
-  //         // error show if entry_date and invoice_date gap over 5 month for note_15
-  //         (($note->id == $value) && ($monthGap > 5)) && $fail('Over 5 tax period');
-
-  //         // find out note
-  //         $criteria = $this->criteria->where('name', 'import')->first();
-  //         $noteCheck = $this->mushaknote->where('id', $request->input('mushaknote_id'))->where('criteria_id', $criteria->id)->first();
-
-  //         // error show if not mushak note under import criteria
-  //         empty($noteCheck) && $fail('Not for import');
-
-  //         // check exists or not
-  //         $mushakCheck = $this->mushaknote->where('id', $value)->exists();
-  //         !$mushakCheck && $fail('Not exists');
-  //       }],
-  //       'boe_date' => 'required|date_format:"Y-m-d"',
-  //       'wastage' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
-  //       'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-  //         // criteria find out import id
-  //         $criteria = $this->criteria->where('name', 'import')->first();
-  //         // last form43 id find out with clientbin_id, item_id, criteria_id
-  //         $form43 = $this->form43->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')], ['criteria_id', $criteria->id], ['last', 1]])->first();
-
-  //         // error show if not match local_6.2.1
-  //         ($form43 && ($form43->unit_id !== $value)) && $fail("Not match");
-  //         // check exists or not
-  //         $unitCheck = $this->unit->where('id', $value)->exists();
-  //         !$unitCheck && $fail('Not exists');
-  //       }],
-  //       'unit_price' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
-  //         // criteria find out import id
-  //         $criteria = $this->criteria->where('name', 'import')->first();
-  //         // last form43 id find out with clientbin_id, item_id, criteria_id
-  //         $form43 = $this->form43->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')], ['criteria_id', $criteria->id], ['last', 1]])->first();
-  //         // CALC: ((purchase unit price - 4.3 last import unit price) / 4.3 last import unit price) * 100
-  //         // calculate from form_4.3 to check over or less 7.5%
-  //         $calc = $form43 ? ((($value - $form43->unit_price) / $form43->unit_price) * 100) : NULL;
-
-  //         // error show if gap is over or less vatfactor.
-  //         $vatfactor = $this->vatfactor->where('criteria_id', $criteria->id)->first();
-
-  //         (!empty($form43) && ($calc > $vatfactor->percent)) && $fail('Over ' . $vatfactor->percent . ' (' . number_format($calc, 2, '.', '') . '%)');
-  //         (!empty($form43) && ($calc < - ($vatfactor->percent))) && $fail('Less ' . $vatfactor->percent . ' (' . number_format($calc, 2, '.', '') . '%)');
-  //       }],
-  //       'quantity' => 'required|numeric|gt:0',
-  //       'net_quantity' => 'required|numeric|gt:0',
-  //       'assessable_value' => 'required|numeric|gt:0',
-  //       'cd' => 'required|numeric|gte:0',
-  //       'rd' => 'required|numeric|gte:0',
-  //       'sd' => 'required|numeric|gte:0',
-  //       'vat' => 'required|numeric|gte:0|between:0,15.00',
-  //       'ait' => 'required|numeric|gte:0|between:0,5.00',
-  //       'at' => 'required|numeric|gte:0|between:0,7.50',
-  //       'boe' => 'required|max:20',
-  //       'lc_no' => 'nullable|max:50',
-  //       'lc_date' => 'nullable|date_format:"Y-m-d"',
-  //       'base_value_of_vat' => 'required|numeric|gt:0',
-  //       'seller_name' => 'nullable|max:100',
-  //       'address' => 'nullable|max:250',
-  //       'bin_or_nid' => 'nullable|max:30',
-  //     ],
-  //     [
-  //       'clientbin_id.required' => 'BIN required',
-  //       'clientbin_id.numeric' => 'Number only',
-  //       'clientbin_id.gt' => 'Number > 0',
-  //       'stationcode_id.required' => 'Station code required',
-  //       'stationcode_id.numeric' => 'Number only',
-  //       'stationcode_id.gt' => 'Number > 0',
-  //       'item_id.required' =>  'Item required',
-  //       'item_id.numeric' =>  'Number only',
-  //       'item_id.gt' =>  'Number > 0',
-  //       'mushaknote_id.required' =>  'Mushak note required',
-  //       'mushaknote_id.numeric' =>  'Number only',
-  //       'mushaknote_id.gt' =>  'Number > 0',
-  //       'unit_id.required' =>  'Unit required',
-  //       'unit_id.numeric' =>  'Number only',
-  //       'unit_id.gt' =>  'Number > 0',
-  //       'entry_date.required' =>  'Entry date required',
-  //       'entry_date.date_format' =>  'Invalid date',
-  //       'boe.required' =>  'BoE required',
-  //       'boe.max' =>  'Max 20 char',
-  //       'boe_date.required' =>  'BoE date required',
-  //       'boe_date.date_format' =>  'Invalid date',
-  //       'lc_no.max' => 'Max 50 char',
-  //       'lc_date.date_format' =>  'Invalid date',
-  //       'assessable_value.required' =>  'Assessable value required',
-  //       'assessable_value.numeric' =>  'Number only',
-  //       'assessable_value.gt' =>  'Number > 0',
-  //       'wastage.required' =>  'Wastage required',
-  //       'wastage.numeric' =>  'Number only',
-  //       'wastage.gte' =>  '(+)Number only',
-  //       'wastage.between' =>  '0 to 100.00',
-  //       'quantity.required' =>  'Quantity required',
-  //       'quantity.numeric' =>  'Number only',
-  //       'quantity.gt' =>  'Number > 0',
-  //       'net_quantity.required' =>  'Net quantity required',
-  //       'net_quantity.numeric' =>  'Number only',
-  //       'net_quantity.gt' =>  '(+)Number only',
-  //       'cd.required' =>  'CD required',
-  //       'cd.numeric' =>  'Number only',
-  //       'cd.gte' =>  '(+)Number only',
-  //       'rd.required' =>  'RD required',
-  //       'rd.numeric' =>  'Number only',
-  //       'rd.gte' =>  '(+)Number only',
-  //       'sd.required' =>  'SD required',
-  //       'sd.numeric' =>  'Number only',
-  //       'sd.gte' =>  '(+)Number only',
-  //       'vat.required' =>  'VAT required',
-  //       'vat.numeric' =>  'Number only',
-  //       'vat.gte' =>  '(+)Number only',
-  //       'vat.between' =>  'Range 0 to 15',
-  //       'ait.required' =>  'AIT required',
-  //       'ait.numeric' =>  'Number only',
-  //       'ait.gte' =>  '(+)Number only',
-  //       'ait.between' =>  'Range 0 to 5',
-  //       'at.required' =>  'AT required',
-  //       'at.numeric' =>  'Number only',
-  //       'at.gte' =>  '(+)Number only',
-  //       'at.between' =>  'Range 0 to 7.50',
-  //       'base_value_of_vat.required' =>  'Base value required',
-  //       'base_value_of_vat.numeric' =>  'Number only',
-  //       'base_value_of_vat.gt' =>  'Number > 0',
-  //       'unit_price.required' =>  'Unit price required',
-  //       'unit_price.numeric' =>  'Number only',
-  //       'unit_price.gt' =>  'Number > 0',
-  //       'seller_name.max' => 'Max 100 char',
-  //       'address.max' => 'Max 250 char',
-  //       'bin_or_nid.max' => 'Max 30 char',
-  //     ]
-  //   );
-
-  //   try {
-  //     DB::transaction(function () use ($formField, $id, $request, $user) {
-  //       $formField['cd'] = number_format($request->input('assessable_value') * ($request->input('cd') / 100), "3", ".", "");
-  //       $formField['rd'] = number_format($request->input('assessable_value') * ($request->input('rd') / 100), "3", ".", "");
-  //       $formField['sd'] = number_format(($request->input('assessable_value') + ($request->input('assessable_value') * ($request->input('cd') / 100)) + ($request->input('assessable_value') * ($request->input('rd') / 100))) * ($request->input('sd') / 100), "3", ".", "");
-  //       $formField['vat'] = number_format(
-  //         (
-  //           doubleval($request->input('assessable_value')) +
-  //           (doubleval($request->input('assessable_value')) * doubleval(($request->input('cd') / 100))) +
-  //           (doubleval($request->input('assessable_value')) * doubleval(($request->input('rd') / 100))) +
-  //           (
-  //             (
-  //               doubleval($request->input('assessable_value')) +
-  //               (doubleval($request->input('assessable_value')) * (doubleval($request->input('cd')) / 100)) +
-  //               (doubleval($request->input('assessable_value')) * (doubleval($request->input('rd')) / 100))
-  //             ) *
-  //             (doubleval($request->input('sd')) / 100)
-  //           )
-  //         ) * (doubleval($request->input('vat')) / 100),
-  //         "3",
-  //         ".",
-  //         ""
-  //       );
-  //       $formField['ait'] = number_format($request->input('assessable_value') * ($request->input('ait') / 100), "3", ".", "");
-  //       $formField['at'] = number_format((
-  //         $request->input('assessable_value') +
-  //         ($request->input('assessable_value') * ($request->input('cd') / 100)) +
-  //         ($request->input('assessable_value') * ($request->input('rd') / 100)) +
-  //         (
-  //           (
-  //             $request->input('assessable_value') +
-  //             ($request->input('assessable_value') * ($request->input('cd') / 100)) +
-  //             ($request->input('assessable_value') * ($request->input('rd') / 100))
-  //           ) * ($request->input('sd') / 100)
-  //         )
-  //       ) * ($request->input('at') / 100), "3", ".", "");
-
-  //       // dd($formField['cd'], $formField['rd'], $formField['sd'], $formField['vat'], $formField['ait'], $formField['at']);
-
-  //       $updatePurchase = $this->import621->where([['importable_id', $id], ['importable_type', 'import'], ['last', 1]])->first();
-  //       $result = $this->importerpurchase->where('id', $updatePurchase->importable_id)->update([
-  //         'mushaknote_id' => $formField['mushaknote_id'],
-  //         'stationcode_id' => $formField['stationcode_id'],
-  //         'boe' => $formField['boe'],
-  //         'lc_no' => $formField['lc_no'],
-  //         'lc_date' => $formField['lc_date'],
-  //         'assessable_value' => $formField['assessable_value'],
-  //         'wastage' => $formField['wastage'],
-  //         'quantity' => $formField['quantity'],
-  //         'net_quantity' => $formField['net_quantity'],
-  //         'cd' => $formField['cd'],
-  //         'rd' => $formField['rd'],
-  //         'sd' => $formField['sd'],
-  //         'vat' => $formField['vat'],
-  //         'ait' => $formField['ait'],
-  //         'at' => $formField['at'],
-  //         'base_value_of_vat' => $formField['base_value_of_vat'],
-  //         'unit_price' => $formField['unit_price'],
-  //         'seller_name' => $formField['seller_name'],
-  //         'address' => $formField['address'],
-  //         'bin_or_nid' => $formField['bin_or_nid'],
-  //       ]);
-
-  //       if ($result) {
-  //         // import621 check last clientbin_id, item_id and importable_type == import
-  //         $import621SecondLast = $this->import621->where([['clientbin_id', $request->input('clientbin_id')], ['item_id', $request->input('item_id')]])->orderBy('id', 'desc')->skip(1)->take(1)->first();
-
-  //         // if get clientbin_id and item_id match and has stock then it will add into stock else start new stock
-  //         $stock = empty($import621SecondLast) ? $formField['net_quantity'] : $import621SecondLast->stock + $formField['net_quantity'];
-  //         $this->import621->where('importable_id', $id)->where('importable_type', 'import')->update([
-  //           'quantity' => $formField['net_quantity'],
-  //           'stock' => $stock,
-  //           'userid' => $user->id
-  //         ]);
-  //       }
-  //     });
-
-  //     DB::commit();
-  //     return back()->with("message", 'Import purchase updated');
-  //   } catch (Exception $e) {
-  //     DB::rollBack();
-  //     return back()->with("error", 'May be network issue, not perform all the task, try again');
-  //   }
-  // }
-
-  // // function call from importer purchase page for delete
-  // public function destroy($id)
-  // {
-  //   $user = Auth::user();
-  //   try {
-  //     DB::transaction(function () use ($id, $user) {
-  //       // $ids = explode(',', $id);
-  //       // $import = $this->importerpurchase->with(['client'])->whereIn('id', $ids);
-
-  //       $import621 = $this->import621->with(['clientbin.client'])->where([['id', $id], ['importable_type', 'import'], ['last', 1]]);
-
-  //       if (!in_array($user->role->name, ['admin'])) {
-  //         $import621->whereHas('clientbin.client', fn($query) => $query->where('user_id', Auth::user()->id));
-  //       }
-
-  //       // Fetch records before delete to check ownership
-  //       $toDelete = $import621->get();
-  //       // If no record belongs to user → block deletion
-  //       if ($toDelete->isEmpty()) {
-  //         return back()->with('error', 'Not your client data');
-  //       }
-
-  //       // temporary store data in variable
-  //       $storeData = $import621->first();
-  //       // delete current id
-  //       $this->importerpurchase->where('id', $storeData->importable_id)->delete();
-  //       $import621->delete();
-  //       // find out last form43 with form43ById
-  //       $last = $this->import621->where([['clientbin_id', $storeData->clientbin_id], ['item_id', $storeData->item_id]])->groupBy('clientbin_id', 'item_id')->max('id');
-  //       $import621Last = $this->import621->where('id', $last)->first();
-  //       // in this case we will delete this id than update previous last 1
-  //       $import621Last && $import621Last->where('id', $last)->update(['last' => 1]);
-  //     });
-
-  //     DB::commit();
-  //     return back()->with('message', 'Import purchase deleted');
-  //   } catch (Exception $e) {
-  //     DB::rollBack();
-  //     return back()->with("error", 'May be network issue, not perform all the task, try again');
-  //   }
-  // }
-
-  // // function call from importer purchase page
-  // public function importerClientItemCriteria()
-  // {
-  //   $user = Auth::user();
-
-  //   $last = $this->importerpurchase->where([['clientbin_id', request('clientbin_id')], ['item_id', request('item_id')], ['criteria_id', request('criteria_id')]])->groupBy(['clientbin_id', 'item_id', 'criteria_id'])->max('id');
-
-  //   $import = $this->importerpurchase->select('id', 'clientbin_id', 'criteria_id', 'unit_price')->with(['clientbin:id,client_id,bin', 'clientbin.client:id,user_id', 'criteria:id,name']);
-
-  //   if (!in_array(Auth::user()->role->name, ['admin'])) {
-  //     $import->whereHas('clientbin.client', fn($query) => $query->where('user_id', $user->id));
-  //   }
-
-  //   $result = $import->where([['clientbin_id', request('clientbin_id')], ['item_id', request('item_id')], ['criteria_id', request('criteria_id')], ['id', $last]])->first();
-
-  //   $msg = $result ? ['importerpurchase' => $result] : ['msg' => 'Nothing found'];
-  //   return response()->json($msg);
-  // }
+    $lcSearch = $this->purchase->with(['stationcode'])
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->select('id', 'lc_date', 'boe_date', 'entry_date', 'stationcode_id')
+      ->where('client_id', $client)
+      ->where('item_id', $item)
+      ->where('lc_no', $lc)
+      ->first();
+    return response()->json(['lcsearch' => $lcSearch]);
+  }
 }

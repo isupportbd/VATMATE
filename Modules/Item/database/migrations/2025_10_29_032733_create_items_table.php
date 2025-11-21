@@ -20,10 +20,10 @@ return new class extends Migration
       $table->double('rd', 10, 2)->nullable(false);
       $table->double('sd', 10, 2)->nullable(false);
       $table->double('vat', 10, 2)->nullable(false);
-      $table->double('ait', 10, 2)->nullable(false);
       $table->double('at', 10, 2)->nullable(false);
       $table->timestamps();
       $table->index(['name']);
+      $table->index(['hs_code']);
     });
   }
 

@@ -5,6 +5,7 @@ namespace Modules\Debitnote\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Client\Models\Client;
+use Modules\Form621\Models\Form621;
 use Modules\Item\Models\Item;
 use Modules\Unit\Models\Unit;
 
@@ -18,8 +19,8 @@ class Debitnote extends Model
    * The attributes that are mass assignable.
    */
   protected $fillable = [
-    'reason_for_issuance',
     'lc_or_invoice_no',
+    'boe',
     'client_id',
     'item_id',
     'issued_date',
@@ -34,6 +35,7 @@ class Debitnote extends Model
     'quantity_of_increasing_adjustment',
     'vat_of_increasing_adjustment',
     'sd_of_increasing_adjustment',
+    'reason_for_issuance',
     'remarks',
   ];
 
@@ -50,5 +52,10 @@ class Debitnote extends Model
   public function unit()
   {
     return $this->belongsTo(Unit::class, 'item_id');
+  }
+
+  public function form621()
+  {
+    return $this->morphMany(Form621::class, 'importable');
   }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
       $table->unsignedBigInteger('unit_id')->nullable(); // from 6.2.1 unit id
       $table->date('date')->nullable(false);
       $table->string('boe', 20)->nullable(false);
-      $table->string('serial621')->nullable();
+      $table->string('serial621', 50)->nullable();
       $table->double('value', 23, 2)->nullable(false);
       $table->double('vat', 23, 2)->nullable(false);
       $table->double('proposed_value', 23, 2)->nullable(false);
@@ -29,6 +29,7 @@ return new class extends Migration
       $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
       $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
+      $table->index(['boe']);
       $table->index(['serial621']);
     });
   }

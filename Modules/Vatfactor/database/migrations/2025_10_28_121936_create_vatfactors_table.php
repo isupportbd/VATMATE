@@ -16,6 +16,7 @@ return new class extends Migration
       $table->string('name', 20)->nullable(false);
       $table->double('value', 23, 2)->nullable(false);
       $table->timestamps();
+      $table->index(['name']);
     });
   }
 

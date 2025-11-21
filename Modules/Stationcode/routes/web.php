@@ -9,9 +9,9 @@ use Modules\Stationcode\Http\Controllers\StationcodeController;
 
 Route::middleware(['auth'])->group(function () {
   Route::get('/stationcode-dropdown', [StationcodeController::class, 'stationcodeDropdown'])->name('stationcode-dropdown')->middleware('role:admin,manager'); // json response for same page and for dropdown
-  Route::get('/stationcode', [StationcodeController::class, 'index'])->name('stationcode')->middleware('role:admin,manager');
+  Route::get('/stationcode', [StationcodeController::class, 'index'])->name('stationcode')->middleware('role:admin');
   Route::post('/stationcode', [StationcodeController::class, 'store'])->name('stationcode-create')->middleware('role:admin');
-  Route::get('/stationcode/{id}', [StationcodeController::class, 'show'])->name('stationcode-single')->middleware('role:admin,manager'); // json response for same page
+  Route::get('/stationcode/{id}', [StationcodeController::class, 'show'])->name('stationcode-single')->middleware('role:admin'); // json response for same page
   Route::put('/stationcode/{id}', [StationcodeController::class, 'update'])->name('stationcode-update')->middleware('role:admin');
   Route::delete('/stationcode/{id}', [StationcodeController::class, 'destroy'])->name('stationcode-delete')->middleware('role:admin');
 });

@@ -18,15 +18,18 @@ return new class extends Migration
       $table->unsignedBigInteger('unit_id')->nullable(); // rule: match client_id, item_id and last = 1 from form43 last purchase unit
       $table->unsignedBigInteger('stationcode_id')->nullable();
       $table->unsignedBigInteger('mushaknote_id')->nullable();
-      $table->string('lc_no', 50)->nullable(false);
+      $table->string('lc_no', 20)->nullable(false);
       $table->date('lc_date')->nullable();
-      $table->string('boe', 20)->nullable(false);
+      $table->string('boe', 10)->nullable(false);
       $table->date('boe_date')->nullable(false);
       $table->date('entry_date')->nullable(false);
       $table->double('df_cvat_cf', 23, 2)->nullable(false);
       $table->double('assessable_value', 23, 2)->nullable(false);
+      $table->double('factor', 10, 2)->nullable(false);
+      $table->double('opening_stock', 23, 3)->nullable(false);
+      $table->double('stock', 23, 3)->nullable(false);
       $table->double('quantity', 23, 2)->nullable(false);
-      $table->double('extra_quantity', 23, 2)->nullable(false);
+      $table->double('excess_quantity', 23, 2)->nullable(false);
       $table->double('wastage', 5, 2)->nullable(false);
       $table->double('total_quantity', 23, 2)->nullable(false);
       $table->double('base_value', 23, 2)->nullable(false);
@@ -41,8 +44,8 @@ return new class extends Migration
       $table->double('vat_value', 23, 2)->nullable(false);
       $table->double('at', 5, 2)->nullable(false);
       $table->double('at_value', 23, 2)->nullable(false);
-      $table->string('assesment_number', 20)->nullable();
-      $table->date('assesment_date')->nullable();
+      $table->double('mcu', 20)->nullable();
+      $table->double('mcu_amount', 23, 2)->nullable();
       $table->string('receipt_number', 20)->nullable();
       $table->date('receipt_date')->nullable();
       $table->string('exporter_name', 100)->nullable();
@@ -53,7 +56,8 @@ return new class extends Migration
       $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->foreign('mushaknote_id')->references('id')->on('mushaknotes')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
-      $table->index(['boe', 'lc_no', 'client_id', 'item_id', 'unit_id']);
+      $table->index(['boe']);
+      $table->index(['lc_no']);
     });
   }
 

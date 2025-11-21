@@ -45,6 +45,9 @@
             <li class="list-group-item" :class="{ 'active': $page.component === 'item/index' }">
               <Link :href="route('item')">Item</Link>
             </li>
+            <li class="list-group-item" :class="{ 'active': $page.component === 'costsheet/index' }">
+              <Link :href="route('costsheet')">Costsheet</Link>
+            </li>
             <li class="list-group-item" :class="{ 'active': $page.component === 'unit/index' }">
               <Link :href="route('unit')">Unit</Link>
             </li>
@@ -68,7 +71,8 @@
             <span>Store</span>
           </a>
           <ul class="list-group accordion-collapse collapse" id="flush-collapseTwo" data-bs-parent="#accordion-sidebar">
-            <li class="list-group-item" :class="{ 'active': $page.component === 'form43/index' }">
+            <li class="list-group-item"
+              :class="{ 'active': $page.component === 'form43/index' || $page.component === 'addition/index' }">
               <Link :href="route('form43')">Form 4.3</Link>
             </li>
             <li class="list-group-item" :class="{ 'active': $page.component === 'purchase/index' }">
@@ -81,11 +85,11 @@
               </a>
               <ul class="list-group accordion-collapse collapse" id="flush-collapseSalesOne"
                 data-bs-parent="#accordion-sales">
-                <li class="list-group-item" :class="{ 'active': $page.component === 'rate/index' }">
-                  <Link :href="route('rate')">Rate</Link>
-                </li>
                 <li class="list-group-item" :class="{ 'active': $page.component === 'customer/index' }">
                   <Link :href="route('customer')">Customer</Link>
+                </li>
+                <li class="list-group-item" :class="{ 'active': $page.component === 'rate/index' }">
+                  <Link :href="route('rate')">Rate</Link>
                 </li>
                 <li class="list-group-item" :class="{ 'active': $page.component === 'sale/index' }">
                   <Link :href="route('sale')">Supply</Link>
@@ -94,7 +98,8 @@
             </li>
           </ul>
         </li>
-        <li class="list-group-item" :class="{ 'active': $page.component === 'form621/index' }">
+        <li class="list-group-item"
+          :class="{ 'active': $page.component === 'form621/index' || $page.component === 'form621/Form621IndividualTable' }">
           <Link :href="route('form621')">
           <div class="menu-icon"><i class="bi bi-ui-checks"></i></div>
           <span>Form 6.2.1</span>
@@ -194,6 +199,9 @@
             </li>
             <li class="list-group-item" :class="{ 'active': $page.component === 'client/index' }">
               <Link :href="route('client')">Clients</Link>
+            </li>
+            <li class="list-group-item" :class="{ 'active': $page.component === 'economicarea/index' }">
+              <Link :href="route('economicarea')">Economic Area</Link>
             </li>
           </ul>
         </li>

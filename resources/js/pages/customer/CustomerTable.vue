@@ -35,7 +35,7 @@
         </p>
         <p class="m-0">
           <span><i class="bi bi-person-vcard"></i></span> :
-          <span>{{ td?.bin_or_nid }}</span>
+          <span style="font-size: 0.82rem;">{{ td?.bin_or_nid }}</span>
         </p>
       </td>
       <td class="text-center">

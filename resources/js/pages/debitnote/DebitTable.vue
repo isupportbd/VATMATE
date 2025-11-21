@@ -21,10 +21,9 @@
         <span>{{ td?.name }}</span>
       </td>
       <td class="text-center">
-        <div class="btn-group" role="group">
-          <Button type="button" class="btn btn-outline-dark" title="edit" icon="bi bi-pencil-square"
-            @click="props.edit(td.id)" />
-        </div>
+        <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark" title="view" @click="props.view(td.id)" />
+        <Button type="button" class="btn btn-outline-dark" title="edit" icon="bi bi-pencil-square"
+          @click="props.edit(td.id)" />
       </td>
     </template>
   </DataTable>
@@ -41,6 +40,7 @@ const props = defineProps({
   data: { type: [Object, Array] },
   edit: { type: Function },
   del: { type: Function },
+  view: { type: Function },
   search: { type: String }
 });
 </script>

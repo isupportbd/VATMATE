@@ -4,12 +4,17 @@
     v-else>
     <template #thead>
       <th>Vat Factor</th>
+      <th>Value</th>
       <th class="text-center">Action</th>
     </template>
     <template #tbody="{ td }">
       <td>
         <span><i class="bi bi-arrow-down-up"></i></span> :
-        <span>{{ td?.vatfact }}%</span>
+        <span>{{ td?.name }}</span>
+      </td>
+      <td>
+        <span><i class="bi bi-activity"></i></span> :
+        <span>{{ td?.value }}</span>
       </td>
       <td class="text-center">
         <div class="btn-group" role="group">

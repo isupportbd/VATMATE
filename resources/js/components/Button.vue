@@ -21,9 +21,4 @@ const props = defineProps({
 });
 </script>
 
-<style lang="scss" scoped>
-.custom-btn {
-  padding-top: 6.5px;
-  padding-bottom: 6.5px;
-}
-</style>
+<style lang="scss" scoped></style>

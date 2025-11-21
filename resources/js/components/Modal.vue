@@ -8,7 +8,7 @@
             <div class="d-flex w-100 justify-content-between align-items-center">
               <h5 class="modal-title me-3" id="modalScrollableTitle">{{ props.title }}</h5>
               <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-              <!-- <slot name="modal-header-extra"></slot> -->
+              <slot name="modal-header-extra"></slot>
             </div>
           </div>
           <div class="modal-body">
@@ -24,24 +24,50 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Modal } from 'bootstrap';
 
 defineOptions({ name: "Modal", inheritAttrs: false });
 
 const props = defineProps({
-  id: { type: String },
-  title: { type: String },
-  size: { type: String },
+  id: { type: String, required: true },
+  title: { type: String, default: "" },
+  size: { type: String, default: "md" },
 });
 
 const modal = ref(null);
-const close = () => {
-  const modalpop = Modal.getOrCreateInstance(modal.value);
-  modalpop.hide();
+let modalInstance = null;
+
+onMounted(() => {
+  modalInstance = new Modal(modal.value, {
+    backdrop: 'static',
+    keyboard: false,
+  });
+});
+
+const open = () => {
+  if (!modalInstance) {
+    modalInstance = new Modal(modal.value, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+  modalInstance.show();
 };
 
-defineExpose({ close });
+const close = () => {
+  if (!modalInstance) {
+    modalInstance = new Modal(modal.value, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+  document.activeElement?.blur(); // to avoid aria-hidden warning
+  modalInstance.hide();
+};
+
+defineExpose({ close, open });
 </script>
+
 
 <style lang="scss" scoped></style>

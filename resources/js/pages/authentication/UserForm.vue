@@ -44,7 +44,7 @@
 import axios from "axios";
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty, capitalizeLine } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -70,7 +70,7 @@ const fetchedRole = async () => {
   return {
     url: route('role-dropdown'),
     data: 'role',
-    mapFn: (role) => ({ id: role.id, title: role.name })
+    mapFn: (role) => ({ id: role.id, title: capitalizeLine(role.name) })
   };
 };
 
@@ -80,7 +80,7 @@ const setForm = async (row = {}) => {
   field.name = row.name ?? "";
   field.email = row.email ?? "";
   field.mobile = row.mobile ?? "";
-  field.role = !emptyObj(row.role) ? { id: row.role?.id, title: row.role?.name } : "";
+  field.role = !empty(row.role) ? { id: row.role?.id, title: row.role?.name } : "";
   // clear previous errors when setting a record
   err.name = err.email = err.mobile = err.password = err.confirm_password = err.role = "";
 };

@@ -11,7 +11,7 @@
               :fetched="fetchedCostsheet" :err="err.costsheet" :disabled="field.id ? true : false" must />
           </div>
           <div class="col-12">
-            <InputGroup type="text" category="decimal" label="Rate" placeholder="Ex: 120" placeholder1="Ex: 5%"
+            <InputGroup type="text" category="decimal" label="Rate" placeholder="Amount: 120" placeholder1="Ex: 5%"
               v-model="field.value" :err="err.rateval" @keyup="ratevalue" :calcdata="field.rate"
               :hood="props.form43Current?.unit_price" must />
           </div>
@@ -29,12 +29,13 @@
 <script setup>
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import InputGroup from "../../components/InputGroup.vue";
 import Button from "../../components/Button.vue";
 import SelectInfinite from "../../components/SelectInfinite.vue";
+import Alert from "../../helpers/customAlert";
 
 const notify = inject('showToast'); // toast message
 
@@ -66,7 +67,7 @@ const ratevalue = () => {
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
   field.form43 = row.form43_id ?? "";
-  field.costsheet = !emptyObj(row.costsheet) ? { id: row.costsheet?.id, title: row.costsheet?.name } : "";
+  field.costsheet = !empty(row.costsheet) ? { id: row.costsheet?.id, title: row.costsheet?.name } : "";
   field.rate = row.rate?.toString() ?? "";
   field.value = row.value?.toString() ?? "";
   // clear previous errors when setting a record
@@ -90,7 +91,7 @@ const submitData = async () => {
     value: field.value
   };
 
-  // console.log(form);
+  console.log(form);
 
   const onErr = (errors) => {
     let er = {};
@@ -98,14 +99,19 @@ const submitData = async () => {
     err.form43 = er.form43_id;
     err.rateval = er.value;
     err.costsheet = er.costsheet_id;
+    console.log(errors);
   };
 
   if (field.id) {
     router.put(route('addition-update', field.id), form, {
       preserveScroll: true,
       onSuccess: (e) => {
-        notify(e.props.flash.msg, 'success');
-        resetForm();
+        if (e.props.flash.err) {
+          Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+        } else {
+          notify(e.props.flash.msg, 'success');
+          resetForm();
+        }
       },
       onError: onErr,
       onStart: () => field.isLoading = true,
@@ -116,8 +122,12 @@ const submitData = async () => {
     router.post(route('addition-create'), form, {
       preserveScroll: true,
       onSuccess: (e) => {
-        notify(e.props.flash.msg, 'primary');
-        resetForm();
+        if (e.props.flash.err) {
+          Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+        } else {
+          notify(e.props.flash.msg, 'primary');
+          resetForm();
+        }
       },
       onError: onErr,
       onStart: () => field.isLoading = true,

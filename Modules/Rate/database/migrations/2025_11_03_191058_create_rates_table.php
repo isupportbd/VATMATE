@@ -17,11 +17,13 @@ return new class extends Migration
       $table->unsignedBigInteger('item_id')->nullable();
       $table->date('date')->nullable(false);
       $table->double('unit_price', 23, 2)->nullable(false);
+      $table->double('sd', 5, 2)->nullable(false);
+      $table->double('vat', 5, 2)->nullable(false);
       $table->tinyInteger('last')->default(1);
       $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
       $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
-      $table->index(['client_id', 'item_id']);
+      $table->index(['client_id', 'item_id', 'last']);
     });
   }
 

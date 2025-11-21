@@ -1,23 +1,25 @@
 <template>
   <div :class="$attrs.topclass ? $attrs.topclass : 'mb-2'">
     <div class="position-relative">
-      <label :for="$attrs.id" :class="$attrs.label ? 'd-flex mb-1' : 'd-none'">
-        <span class="text-capitalize" v-html="$attrs.label"></span>
-        <span :class="props.must ? 'text-danger rounded-circle bg-danger must' : 'd-none'"></span>
-        <div :class="props.hood ? 'text-end ms-auto text-primary align-self-center' : 'd-none'"
-          style="font-size: 13px;">
-          {{ props.hood }}
+      <label :for="$attrs.id" class="d-flex align-items-center mb-1" :class="{ 'd-none': !$attrs.label }">
+        <div class="position-relative">
+          <span class="text-capitalize" v-html="$attrs.label"></span>
+          <span class="position-absolute text-danger rounded-circle bg-danger must"
+            :class="{ 'd-none': !props.must }"></span>
         </div>
+        <div class="text-end ms-auto text-primary fw-semibold" :class="{ 'd-none': !props.hood }"
+          style="font-size: 12px; margin-top: 0.15rem;" v-html="props.hood"></div>
       </label>
       <input class="form-control" :value="props.modelValue" @input="updateModel" :maxlength="max"
-        :readonly="props.readonly" v-bind="$attrs">
+        :readonly="props.readonly" v-bind="$attrs"
+        :autocomplete="$attrs.autocomplete || ['number', 'decimal'].includes(props.category) ? 'off' : 'on'">
       <!-- <input class="form-control" v-model="model" :maxlength="max" v-bind="$attrs"> vue3.3 (2nd way)/3.4 -->
-      <div :class="max ? 'position-absolute bottom-0 end-0 pe-1 text-secondary max' : 'd-none'">
+      <div class="position-absolute bottom-0 end-0 pe-1 text-secondary max" :class="{ 'd-none': !max }">
         {{ isFirefox ? (max - String(props.modelValue).length) : ($attrs.type == 'month') ? '' : (max -
           String(props.modelValue).length) }}
       </div>
     </div>
-    <div :id="`${$attrs.id}Help`" :class="err ? 'form-text mt-1 text-danger' : 'd-none'">{{ err }}</div>
+    <div :id="`${$attrs.id}Help`" class="form-text mt-1 text-danger" :class="{ 'd-none': !err }">{{ err }}</div>
   </div>
 </template>
 
@@ -68,14 +70,15 @@ const updateModel = (e) => {
     let val = e.target.value;
 
     // Remove everything except digits, decimal point, and minus sign
-    val = val.replace(/[^0-9.-]/g, '');
+    val = val.replace(/[^0-9.]/g, '');
+    // val = val.replace(/[^0-9.-]/g, ''); // if need minus sign
 
-    // Move minus sign to the front if it exists anywhere
-    const isNegative = val.includes('-');
-    val = val.replace(/-/g, ''); // remove all minus signs
-    if (isNegative) {
-      val = '-' + val;
-    }
+    // // Move minus sign to the front if it exists anywhere
+    // const isNegative = val.includes('-');
+    // val = val.replace(/-/g, ''); // remove all minus signs
+    // if (isNegative) {
+    //   val = '-' + val;
+    // }
 
     // Allow only one decimal point
     const parts = val.split('.');
@@ -158,10 +161,6 @@ onMounted(() => { props.focus ? nextTick(() => document.querySelector(`#${$attrs
 </script>
 
 <style lang="scss" scoped>
-.form-text {
-  font-size: 0.75rem;
-}
-
 .must {
   width: 4px;
   height: 4px;

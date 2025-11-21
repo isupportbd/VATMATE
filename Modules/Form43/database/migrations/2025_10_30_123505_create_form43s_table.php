@@ -24,6 +24,7 @@ return new class extends Migration
       $table->date('first_delivery_date')->nullable();
       $table->date('boe_date')->nullable(false);
       $table->string('boe_no', 20)->nullable(false);
+      $table->double('mcu', 10, 2)->nullable(false);
       $table->double('quantity', 23, 2)->nullable(false);
       $table->double('wastage', 5, 2)->nullable(false);
       $table->double('excess_quantity', 23, 2)->nullable(false);
@@ -37,7 +38,8 @@ return new class extends Migration
       $table->foreign('purchase_unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->foreign('sale_unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
-      $table->index(['lc_no', 'client_id', 'item_id']);
+      $table->index(['lc_no']);
+      $table->index(['client_id', 'item_id', 'last']);
     });
   }
 

@@ -42,8 +42,7 @@
         <span>{{ td?.reason_for_issuance }}</span>
       </td>
       <td class="text-center">
-        <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark" title="view" data-bs-toggle="modal"
-          data-bs-target="#creditnote-view" @click="props.view(td.id)" />
+        <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark" title="view" @click="props.view(td.id)" />
         <Button type="button" class="btn btn-outline-dark" title="edit" icon="bi bi-pencil-square"
           @click="props.edit(td.id)" />
       </td>

@@ -1,13 +1,4 @@
 <template>
-  <Modal id="client-view" ref="modal" title="Client Details" size="xl">
-    <template #modalbody>
-      <ClientView :view="clientSingle" />
-    </template>
-    <template #modalfooter>
-      <button type="button" class="btn btn-primary" @click="closeme">close</button>
-    </template>
-  </Modal>
-
   <DataTableSkeleton row="5" col="4" v-if="empty(props.data)" />
   <DataTable :data="props.data" :search="props.search" :option="[5, 10, 15]" @remove="props.del"
     :removable="role('admin') ? true : false" v-else>
@@ -55,10 +46,13 @@
           vertical />
       </td>
       <td class="text-center">
-        <Button type="button" icon="bi bi-eye" class="btn btn-outline-secondary mx-auto" title="view"
-          data-bs-toggle="modal" data-bs-target="#client-view" @click="view(td.id)" />
+        <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark mx-auto" title="view"
+          @click="props.view(td.id)" />
         <Button type="button" class="btn btn-outline-dark mx-auto" title="edit" icon="bi bi-pencil-square"
           @click="props.edit(td.id)" />
+        <Button type="button" class="btn btn-outline-dark mx-auto" title="release"
+          :icon="empty(td?.user_id) ? 'bi bi-heartbreak-fill' : 'bi bi-link-45deg'"
+          @click="!empty(td?.user_id) && props.release(td.id)" />
       </td>
     </template>
   </DataTable>
@@ -73,24 +67,15 @@ import { empty } from '../../helpers/utils';
 import DataTableSkeleton from "../../components/datatable/DataTableSkeleton.vue";
 import DataTable from "../../components/datatable/index.vue";
 import Button from "../../components/Button.vue";
-import Modal from "../../components/Modal.vue";
 import Switch from "../../components/Switch.vue";
-
-import ClientView from "./ClientView.vue";
 
 const props = defineProps({
   data: { type: [Object, Array] },
   search: { type: String },
+  view: { type: Function },
   edit: { type: Function },
   del: { type: Function },
+  release: { type: Function },
   statusUpdate: { type: Function }
 });
-
-// modal popup
-const modal = ref();
-const closeme = () => modal.value.close();
-
-// for single view popup
-const clientSingle = ref();
-const view = async (id) => await axios.get(`/client/${id}`).then((res) => clientSingle.value = res.data.client);
 </script>

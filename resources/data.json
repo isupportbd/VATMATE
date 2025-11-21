@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "invoice_no": "0001",
+      "client_id": 12,
+      "date": "2025-11-08",
+      "customer_id": 34,
+      "bin_or_nid": "1524...",
+      "address": "Tamabil, Sylhet",
+      "bank_id": 2,
+      "transaction_no": "TXN123",
+      "transaction_date": "2025-11-08",
+      "item_id": 5,
+      "unit_id": 1,
+      "quantity": "3.000",
+      "unit_price": "100.000",
+      "total_price": "300.000",
+      "sd": "5.000",
+      "sd_value": "15.000",
+      "vat": "7.500",
+      "vat_value": "23.625"
+    },
+    {
+      "invoice_no": "0001",
+      "client_id": 12,
+      "date": "2025-11-08",
+      "customer_id": 34,
+      "bin_or_nid": "1524...",
+      "address": "Tamabil, Sylhet",
+      "bank_id": 2,
+      "transaction_no": "TXN123",
+      "transaction_date": "2025-11-08",
+      "item_id": 7,
+      "unit_id": 1,
+      "quantity": "2.000",
+      "unit_price": "200.000",
+      "total_price": "400.000",
+      "sd": "0.000",
+      "sd_value": "0.000",
+      "vat": "7.500",
+      "vat_value": "30.000"
+    }
+  ]
+}

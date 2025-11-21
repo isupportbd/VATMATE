@@ -2,7 +2,7 @@
   <Teleport to="#toast-show">
     <div ref="notify" class="toast position-fixed" role="alert" aria-live="assertive" aria-atomic="true"
       style="z-index: 1000000; top: 10px; right: 23px;" data-bs-delay="2000">
-      <div :class="`text-bg-${bgcolor} align-items-center rounded-3 shadow-sm`">
+      <div :class="`text-bg-${bgcolor} align-items-center rounded-1 shadow-sm`">
         <div class="d-flex">
           <div class="toast-body">
             {{ message }}

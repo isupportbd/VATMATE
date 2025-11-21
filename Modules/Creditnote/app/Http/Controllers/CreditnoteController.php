@@ -3,7 +3,7 @@
 namespace Modules\Creditnote\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Exception;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +12,8 @@ use Modules\Client\Models\Client;
 use Modules\Creditnote\Models\Creditnote;
 use Modules\Item\Models\Item;
 use Modules\Unit\Models\Unit;
+use Psy\Util\Str;
+use Throwable;
 
 class CreditnoteController extends Controller
 {
@@ -33,15 +35,15 @@ class CreditnoteController extends Controller
   public function index(Request $request)
   {
     $user   = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
 
     $creditnote = $this->creditnote->with(['client', 'client.user', 'client.user.role', 'item'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->orWhere('lc_or_invoice_no', 'like', "%{$search}%")
-            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
-              $query->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
+      // ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->where('lc_or_invoice_no', 'like', "%{$search}%")
+            ->orWhereHas('client', function ($query) use ($search) {
               $query->where('company_name', 'like', "%{$search}%")
                 ->orWhere('mobile', 'like', "%{$search}%")
                 ->orWhere('bin', 'like', "%{$search}%");
@@ -50,61 +52,77 @@ class CreditnoteController extends Controller
                 ->orWhere('hs_code', 'like', "%{$search}%");
             });
         });
-      });
-
-    if (!$isAdmin) {
-      $creditnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $creditnote->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
+      })->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
     return Inertia("creditnote/index", [
-      'creditnote' => $result,
+      'creditnote' => $creditnote,
       'search' => $search
     ]);
   }
 
   /**
-   * Store a newly created resource in storage.
+   * credit note need only invoice -> stock plus
    */
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
-        'reason_for_issuance' => 'required|max:150',
-        'lc_or_invoice_no' => 'required|max:50',
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
+        'lc_or_invoice_no' => ['required', 'string', 'max:20', function ($attribute, $value, $fail) {
+          if (!Str::startsWith($value, 'INV')) {
+            return $fail("Not invoice number");
           }
+        }],
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbinStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $clientbinStatusCheck && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Not exists');
         }],
-        'issued_date' => 'required|date_format:"Y-m-d"',
-        'vat_challan_no' => 'required|max:16',
-        'vat_challan_date' => 'required|date_format:"Y-m-d"',
+        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
+        'vat_challan_no' => ['required', 'max:16', function ($attribute, $value, $fail) {
+          // enforce pattern: first 4 digits, dash, then 10–11 digits
+          if ((!empty($value) && !preg_match('/^\d{4}-\d{11}$/', $value))) return $fail('Challan must be 16 char');
+
+          // uniqueness against stored value
+          if (!empty($value)) {
+            $exists = $this->creditnote->where('challan_number', $value)->exists();
+            if ($exists) return $fail('Exists, change your input');
+          }
+        }],
+        'vat_challan_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'value_in_challan' => 'required|numeric|gt:0',
         'quantity_in_challan' => 'required|numeric|gt:0',
         'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'vat_in_challan' => 'required|numeric|gt:0',
         'sd_in_challan' => 'required|numeric|gte:0',
@@ -112,11 +130,10 @@ class CreditnoteController extends Controller
         'quantity_of_decreasing_adjustment' => 'required|numeric|gt:0',
         'vat_of_decreasing_adjustment' => 'required|numeric|gt:0',
         'sd_of_decreasing_adjustment' => 'required|numeric|gt:0',
+        'reason_for_issuance' => 'required|max:150',
         'remarks' => 'nullable|max:250'
       ],
       [
-        'reason_for_issuance.required' => 'Reason required',
-        'reason_for_issuance.max' => 'Max 150 char',
         'lc_or_invoice_no.required' => 'Lc or invoice number required',
         'lc_or_invoice_no.max' => 'Max 50 char',
         'client_id.required' => 'BIN required',
@@ -158,6 +175,8 @@ class CreditnoteController extends Controller
         'sd_of_decreasing_adjustment.required' => 'Decrease SD required',
         'sd_of_decreasing_adjustment.numeric' => 'Number only',
         'sd_of_decreasing_adjustment.gt' => 'Number > 0',
+        'reason_for_issuance.required' => 'Reason required',
+        'reason_for_issuance.max' => 'Max 150 char',
         'remarks.max' => 'Max 250 char'
       ]
     );
@@ -168,7 +187,7 @@ class CreditnoteController extends Controller
       });
 
       return back()->with('message', 'Credit note created');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
     }
   }
@@ -179,60 +198,66 @@ class CreditnoteController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $creditnote = $this->creditnote->with(['client', 'client.division', 'client.user', 'client.user.role', 'item', 'unit']);
+    $creditnote = $this->creditnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])->find($id);
 
-    if (!$isAdmin) {
-      $creditnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    if (!$isAdmin && $creditnote?->client->user_id !== $user->id) {
+      return response()->json(['error' => 'Unauthorised']);
     }
 
-    $result = $creditnote->find($id);
-    $msg = $result ? ['creditnote' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['creditnote' => $creditnote]);
   }
 
   /**
-   * Update the specified resource in storage.
+   * credit note need only invoice -> stock plus
    */
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'reason_for_issuance' => 'required|max:150',
         'lc_or_invoice_no' => 'required|max:50',
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbinStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $clientbinStatusCheck && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Not exists');
         }],
-        'issued_date' => 'required|date_format:"Y-m-d"',
+        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'vat_challan_no' => 'required|max:16',
-        'vat_challan_date' => 'required|date_format:"Y-m-d"',
+        'vat_challan_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'value_in_challan' => 'required|numeric|gt:0',
         'quantity_in_challan' => 'required|numeric|gt:0',
         'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'vat_in_challan' => 'required|numeric|gt:0',
         'sd_in_challan' => 'required|numeric|gte:0',
@@ -296,7 +321,7 @@ class CreditnoteController extends Controller
       });
 
       return back()->with('message', 'Credit note updated');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
     }
   }
@@ -307,23 +332,26 @@ class CreditnoteController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids = explode(',', $id);
 
-    $creditnote = $this->creditnote->whereIn('id', $ids);
+    $creditnote = $this->creditnote->with(['client'])->whereIn('id', $ids)->get();
+
+    if ($creditnote->isEmpty()) {
+      return back()->with('error', 'No data found');
+    }
 
     if (!$isAdmin) {
-      $creditnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+      $permission = $creditnote->filter(function ($row) use ($user) {
+        return $row->client?->user_id !== $user->id;
+      });
+
+      if ($permission->isNotEmpty()) {
+        return back()->with('error', 'Unauthorised.');
+      }
     }
 
-    // Fetch records before delete to check ownership
-    $toDelete = $creditnote->get();
-    // If no record belongs to user → block deletion
-    if ($toDelete->isEmpty()) {
-      return back()->with('error', 'Not your client data');
-    }
-
-    $creditnote->delete();
+    $this->creditnote->whereIn('id', $ids)->delete();
     return back()->with('message', 'Credit none deleted');
   }
 }

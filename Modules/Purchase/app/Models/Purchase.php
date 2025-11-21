@@ -5,6 +5,7 @@ namespace Modules\Purchase\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Client\Models\Client;
+use Modules\Form621\Models\Form621;
 use Modules\Item\Models\Item;
 use Modules\Mushaknote\Models\Mushaknote;
 use Modules\Stationcode\Models\Stationcode;
@@ -31,6 +32,9 @@ class Purchase extends Model
     'mushaknote_id',
     'df_cvat_cf',
     'assessable_value',
+    'factor',
+    'opening_stock',
+    'stock',
     'quantity',
     'excess_quantity',
     'wastage',
@@ -48,8 +52,8 @@ class Purchase extends Model
     'vat_value',
     'at',
     'at_value',
-    'assesment_number',
-    'assesment_date',
+    'mcu',
+    'mcu_amount',
     'receipt_number',
     'receipt_date',
     'exporter_name',
@@ -81,9 +85,8 @@ class Purchase extends Model
     return $this->belongsTo(Unit::class, 'unit_id');
   }
 
-
-  // public function import621()
-  // {
-  //   return $this->morphMany(Import621::class, 'importable');
-  // }
+  public function form621()
+  {
+    return $this->morphMany(Form621::class, 'importable');
+  }
 }

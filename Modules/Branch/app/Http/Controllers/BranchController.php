@@ -46,12 +46,12 @@ class BranchController extends Controller
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           // check exists or not
           $divisionCheck = $this->division->where('id', $value)->exists();
-          !$divisionCheck && $fail('Not exists');
+          if (!$divisionCheck) return $fail('Not exists');
         }],
         'bank_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           // check exists or not
           $bankCheck = $this->bank->where('id', $value)->exists();
-          !$bankCheck && $fail('Not exists');
+          if (!$bankCheck) return $fail('Not exists');
         }],
         'name' => [
           'required',
@@ -59,7 +59,7 @@ class BranchController extends Controller
           function ($attribute, $value, $fail) use ($request) {
             $result = $this->branch->where([['division_id', $request->input('division_id')], ['bank_id', $request->input('bank_id')], ['name', $value]])->exists();
 
-            $result && $fail('Exists, change your input');
+            if ($result) return $fail('Exists, change your input');
           }
         ]
       ],
@@ -95,12 +95,12 @@ class BranchController extends Controller
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           // check exists or not
           $divisionCheck = $this->division->where('id', $value)->exists();
-          !$divisionCheck && $fail('Not exists');
+          if (!$divisionCheck) return $fail('Not exists');
         }],
         'bank_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           // check exists or not
           $bankCheck = $this->bank->where('id', $value)->exists();
-          !$bankCheck && $fail('Not exists');
+          if (!$bankCheck) return $fail('Not exists');
         }],
         'name' => [
           'required',
@@ -108,7 +108,7 @@ class BranchController extends Controller
           function ($attribute, $value, $fail) use ($request) {
             $result = $this->branch->where([['division_id', $request->input('division_id')], ['bank_id', $request->input('bank_id')], ['name', $value]])->exists();
 
-            $result && $fail('Exists, change your input');
+            if ($result) return $fail('Exists, change your input');
           }
         ]
       ],
@@ -138,14 +138,6 @@ class BranchController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function branchDropdown(Request $request)
   {
-    // $branch = $this->branch->with(['division', 'bank'])
-    //     ->where('division_id', request('division_id'))
-    //     ->where('bank_id', request('bank_id'))
-    //     ->orderBy('id', 'desc')
-    //     ->paginate((int)request('size') ? (int)request('size') : 10);
-
-    // return response()->json(['branch' => $branch]);
-
     $search = $request->input('search');
     $branch = $this->branch->with(['division', 'bank'])
       ->when($search, function ($query) use ($search) {

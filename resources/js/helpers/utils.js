@@ -29,27 +29,33 @@ export function inArray(needle, haystack, strict = false) {
 }
 
 // null check
-// empty: mimic PHP's empty()
+// empty: mimic PHP's empty() but also check object and array
 export function empty(v) {
-  if (v == null) return true;                 // undefined, null
-  if (typeof v === 'boolean') return v === false;
-  if (typeof v === 'number') return v === 0 || Number.isNaN(v); // PHP has no NaN; treating as empty is practical
-  if (typeof v === 'bigint') return v === 0n;
-  if (typeof v === 'string') return v === '' || v === '0';
-  if (Array.isArray(v)) return v.length === 0;
-  if (v instanceof Map || v instanceof Set) return v.size === 0;
-  // In PHP, objects are never "empty" by empty()
-  return false;
-}
+  // null / undefined
+  if (v == null) return true;
 
-// emptyObj: empty plus {} as empty
-export function emptyObj(v) {
-  if (empty(v)) return true;
-  if (v && typeof v === 'object' &&
-    !Array.isArray(v) &&
-    !(v instanceof Map) && !(v instanceof Set)) {
-    return Object.keys(v).length === 0; // {}
-  }
+  // boolean
+  if (typeof v === 'boolean') return v === false;
+
+  // number
+  if (typeof v === 'number') return v === 0 || Number.isNaN(v);
+
+  // bigint
+  if (typeof v === 'bigint') return v === 0n;
+
+  // string
+  if (typeof v === 'string') return v === '' || v === '0';
+
+  // array
+  if (Array.isArray(v)) return v.length === 0;
+
+  // map / set
+  if (v instanceof Map || v instanceof Set) return v.size === 0;
+
+  // object (treat {} as empty)
+  if (typeof v === 'object') return Object.keys(v).length === 0;
+
+  // everything else (functions, symbols, etc.) not empty
   return false;
 }
 
@@ -70,3 +76,8 @@ export async function downloadExcel(url, fileName) {
     console.error('Export failed:', e);
   }
 };
+
+// to capitalize only first letter in a line
+export function capitalizeLine(str = '') {
+  return str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}

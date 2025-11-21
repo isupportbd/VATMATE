@@ -52,8 +52,8 @@
 </template>
 
 <script setup>
-import { empty } from '../../helpers/utils';
 import { ref } from 'vue';
+import { empty } from '../../helpers/utils';
 
 import DataTableSkeleton from "../../components/datatable/DataTableSkeleton.vue";
 import DataTable from "../../components/datatable/index.vue";

@@ -26,59 +26,49 @@ class AdjustmentController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $adjustment = $this->adjustment->with(['client:id,bin,company_name', 'expense:id,name'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
+    $query = $this->adjustment->with(['client:id,bin,company_name', 'expense:id,name'])
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
           $query->where(DB::raw('tax_period'), 'like', '%' . strtolower($search) . '%')
-            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
-              $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
+            ->orWhereHas('expense', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+            ->orWhereHas('client', function ($query) use ($search) {
               $query->where(function ($query) use ($search) {
                 $query->where('bin', 'like', '%' . strtolower($search) . '%')
                   ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
               });
-            })->orWhereHas('expense', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+            });
         });
-      });
+      })->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
-    if (!$isAdmin) {
-      $adjustment->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $adjustment->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
-
-    return Inertia("adjustment/index", ['adjustment' => $result, 'search' => $search]);
+    return Inertia("adjustment/index", ['adjustment' => $query, 'search' => $search]);
   }
 
   // function call from adjustment page for create
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $bin = $this->client->where('id', $value)->where('status', '0')->first();
-          $bin && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $expenseCheck = $this->expense->where('id', $value)->exists();
-          !$expenseCheck && $fail('Not exists');
+          $expense = $this->expense->find($value);
+          if (!$expense) return $fail('Not exists');
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
         'amount' => 'required|numeric|gt:0',
@@ -108,46 +98,37 @@ class AdjustmentController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $adjustment = $this->adjustment->with(['client', 'client.division', 'client.user', 'client.user.role', 'expense']);
+    $adjustment = $this->adjustment->with(['client.division', 'client.user.role', 'expense'])->find($id);
 
-    if (!$isAdmin) {
-      $adjustment->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    if (!$isAdmin && (optional($adjustment->client)->user_id !== $user->id)) {
+      return response()->json(['error' => 'Unauthorised']);
     }
 
-    $result = $adjustment->find($id);
-    $msg = $result ? ['adjustment' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['adjustment' => $adjustment]);
   }
 
   // function call form adjustment page for update
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $bin = $this->client->where('id', $value)->where('status', '0')->first();
-          $bin && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $expenseCheck = $this->expense->where('id', $value)->exists();
-          !$expenseCheck && $fail('Not exists');
+          $expense = $this->expense->find($value);
+          if (!$expense) return $fail('Not exists');
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
         'amount' => 'required|numeric|gt:0',
@@ -168,7 +149,8 @@ class AdjustmentController extends Controller
         'amount.gt' =>  'Number > 0',
       ]
     );
-    $result = $this->adjustment->where('id', $id)->update($formField);
+
+    $this->adjustment->where('id', $id)->update($formField);
     return back()->with('message', 'Adjustment updated');
   }
 
@@ -176,23 +158,27 @@ class AdjustmentController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids = explode(',', $id);
 
-    $adjustment = $this->adjustment->whereIn('id', $ids);
+    $adjustment = $this->adjustment->with(['client'])->whereIn('id', $ids)->get();
+
+    if ($adjustment->isEmpty()) {
+      return back()->with('error', 'No data found');
+    }
 
     if (!$isAdmin) {
-      $adjustment->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+      $permission = $adjustment->filter(function ($row) use ($user) {
+        return $row->client?->user_id !== $user->id;
+      });
+
+      if ($permission->isNotEmpty()) {
+        return back()->with('error', 'Unauthorised.');
+      }
     }
 
-    // Fetch records before delete to check ownership
-    $toDelete = $adjustment->get();
-    // If no record belongs to user → block deletion
-    if ($toDelete->isEmpty()) {
-      return back()->with('error', 'Not your client data');
-    }
-
-    $adjustment->delete();
+    // Now safe to delete
+    $this->adjustment->whereIn('id', $ids)->delete();
     return back()->with('message', 'Adjustment deleted');
   }
 
@@ -200,22 +186,17 @@ class AdjustmentController extends Controller
   public function adjustmentDropdown(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $adjustment = $this->adjustment->with(['client', 'expense'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($query) => $query->where('user_id', $user->id)));
-          $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
-        });
-      });
+    $query = $this->adjustment->with(['client', 'expense'])
+      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+      })
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10));
 
-    if (!$isAdmin) {
-      $adjustment->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $adjustment->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10);
-    return response()->json(['adjustment' => $result]);
+    return response()->json(['adjustment' => $query]);
   }
 }

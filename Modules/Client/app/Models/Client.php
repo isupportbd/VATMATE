@@ -10,8 +10,12 @@ use Modules\Creditnote\Models\Creditnote;
 use Modules\CustomerManagement\Models\CustomerManagement;
 use Modules\Debitnote\Models\Debitnote;
 use Modules\Division\Models\Division;
+use Modules\EconomicArea\Models\EconomicArea;
 use Modules\Form43\Models\Form43;
 use Modules\Form44\Models\Form44;
+use Modules\Form45\Models\Form45;
+use Modules\Form46\Models\Form46;
+use Modules\Item\Models\Item;
 use Modules\Rate\Models\Rate;
 use Modules\Treasury\Models\Treasury;
 
@@ -89,5 +93,26 @@ class Client extends Model
   public function form44()
   {
     return $this->hasMany(Form44::class, 'client_id');
+  }
+
+  public function form45()
+  {
+    return $this->hasMany(Form45::class, 'client_id');
+  }
+
+  public function form46()
+  {
+    return $this->hasMany(Form46::class, 'client_id');
+  }
+
+  public function item()
+  {
+    return $this->belongsToMany(Item::class, EconomicArea::class, 'client_id', 'item_id');
+  }
+
+  public function items()
+  {
+    // 2nd arg MUST be the pivot table name, not EconomicArea::class
+    return $this->belongsToMany(Item::class, 'economic_areas', 'client_id', 'item_id')->withPivot(['client_id', 'item_id']);
   }
 }

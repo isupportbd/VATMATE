@@ -5,6 +5,7 @@ namespace Modules\Creditnote\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Client\Models\Client;
+use Modules\Form621\Models\Form621;
 use Modules\Item\Models\Item;
 use Modules\Unit\Models\Unit;
 
@@ -18,7 +19,6 @@ class Creditnote extends Model
    * The attributes that are mass assignable.
    */
   protected $fillable = [
-    'reason_for_issuance',
     'lc_or_invoice_no',
     'client_id',
     'item_id',
@@ -34,6 +34,7 @@ class Creditnote extends Model
     'quantity_of_decreasing_adjustment',
     'vat_of_decreasing_adjustment',
     'sd_of_decreasing_adjustment',
+    'reason_for_issuance',
     'remarks',
   ];
 
@@ -50,5 +51,10 @@ class Creditnote extends Model
   public function unit()
   {
     return $this->belongsTo(Unit::class, 'item_id');
+  }
+
+  public function form621()
+  {
+    return $this->morphMany(Form621::class, 'importable');
   }
 }

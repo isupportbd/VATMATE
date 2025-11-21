@@ -32,7 +32,7 @@
 <script setup>
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -53,8 +53,8 @@ const err = reactive({ name: '', division: '', bank: '' });
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
   field.name = row.name ?? "";
-  field.division = !emptyObj(row.division) ? { id: row.division?.id, title: row.division?.name } : "";
-  field.bank = !emptyObj(row.bank) ? { id: row.bank?.id, title: row.bank?.name } : "";
+  field.division = !empty(row.division) ? { id: row.division?.id, title: row.division?.name } : "";
+  field.bank = !empty(row.bank) ? { id: row.bank?.id, title: row.bank?.name } : "";
   // clear previous errors when setting a record
   err.name = err.division = err.bank = "";
 };

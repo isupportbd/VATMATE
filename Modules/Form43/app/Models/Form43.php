@@ -31,6 +31,7 @@ class Form43 extends Model
     'first_delivery_date',
     'boe_date',
     'boe_no',
+    'mcu',
     'quantity',
     'wastage',
     'excess_quantity',
@@ -61,7 +62,7 @@ class Form43 extends Model
     return $this->belongsTo(Unit::class, 'sale_unit_id');
   }
 
-  public function addition()
+  public function additions()
   {
     return $this->hasMany(Addition::class, 'form43_id');
   }

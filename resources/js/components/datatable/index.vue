@@ -8,12 +8,12 @@
         </div>
         <div class="col-12 col-md-6">
           <div class="d-flex align-items-center justify-content-center justify-content-md-end">
-            <div class="me-1" :class="props.removable ? 'd-block' : 'd-none'" v-if="checked.checkcolumn.length > 0">
+            <div class="me-1" :class="{ 'd-none': !props.removable }" v-if="checked.checkcolumn.length > 0">
               <Button type="button" class="btn btn-outline-danger" @click.prevent="remove">
                 <i class="bi bi-trash"></i>
               </Button>
             </div>
-            <div class="d-flex align-items-center" :class="props.searchable ? 'd-block' : 'd-none'">
+            <div class="d-flex align-items-center" :class="{ 'd-none': !props.searchable }">
               <Button class="btn btn-outline-secondary rounded-0 rounded-start" type="button" @click="searchMe">
                 <i class='bi bi-search'></i>
               </Button>
@@ -27,16 +27,17 @@
     <div class="card-body">
       <slot name="extra"></slot>
       <div class="table-responsive">
-        <table class="table table-bordered table-striped border-custom table-sm align-middle m-0 datatable">
+        <table
+          class="table table-bordered table-striped border-custom table-sm align-middle m-0 datatable no-shrink-table">
 
           <slot name="customhead"></slot>
           <thead :class="{ 'd-none': slots.customhead }">
             <tr>
-              <th :class="`${props.removable ? 'align-middle' : 'd-none'} ${props.data.current_page ? '' : 'd-none'}`">
+              <th class="align-middle" :class="{ 'd-none': !props.removable || !props.data.current_page }">
                 <Checkbox topclass="ms-2" v-model="checked.check" :value="checked.check" @click="checkAll"
                   :disabled="props.disabled" />
               </th>
-              <th class="text-center" :class="props.countable ? 'align-middle' : 'd-none'">#</th>
+              <th class="text-center align-middle" :class="{ 'd-none': !props.countable }">#</th>
               <slot name="thead"></slot>
             </tr>
           </thead>
@@ -45,11 +46,11 @@
           <tbody :class="{ 'd-none': slots.custombody }">
             <tr v-for="(dt, i) in (props.data.current_page ? (props.loop ? props.loop : props.data.data) : props.data)"
               :key="`${dt.id}-${i}`">
-              <td :class="`${props.removable ? 'align-middle' : 'd-none'} ${props.data.current_page ? '' : 'd-none'}`">
+              <td class="align-middle" :class="{ 'd-none': !props.removable || !props.data.current_page }">
                 <Checkbox topclass="ms-2" :value="dt.id" v-model="checked.checkcolumn" @change="updateChecked"
                   :disabled="props.disabled" />
               </td>
-              <td class="text-center" :class="props.countable ? 'align-middle' : 'd-none'">
+              <td class="text-center align-middle" :class="{ 'd-none': !props.countable }">
                 {{
                   props.data.current_page ? (props.data.per_page * (props.data.current_page - 1)) + (i + 1) : (i + 1)
                 }}
@@ -61,16 +62,16 @@
         </table>
       </div>
     </div>
-    <div class="card-footer" :class="props.data.total <= props.data.data?.length ? 'd-none' : 'd-block'">
+    <div class="card-footer" :class="{ 'd-none': props.data.total <= props.data.data?.length }">
       <Pagination :data="props.data" :selectedoption="selectedoption" :search="searchdata" />
+      {{ props.data.total <= props.data.data?.length }} </div>
     </div>
-  </div>
 </template>
 
 <script setup>
 import { reactive, ref, useSlots, watchEffect } from 'vue';
 import { router } from '@inertiajs/vue3';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash-es';
 
 import Checkbox from "../Checkbox.vue";
 import Button from "../Button.vue";
@@ -142,5 +143,24 @@ watchEffect(() => {
 <style lang="scss" scoped>
 .border-custom {
   border-color: #CCCCCC !important;
+}
+
+.no-shrink-table th,
+.no-shrink-table td {
+  white-space: nowrap;
+}
+
+/* By default (large screens and up) do not force a min-width:
+   allow table to size normally so no horizontal scrollbar on large screens */
+@media (min-width: 992px) {
+  .no-shrink-table {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .no-shrink-table {
+    min-width: 1000px;
+  }
 }
 </style>

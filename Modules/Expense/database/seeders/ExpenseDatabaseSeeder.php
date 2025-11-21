@@ -18,6 +18,7 @@ class ExpenseDatabaseSeeder extends Seeder
       ['name' => 'Increase', 'created_at' => Carbon::now()],
       ['name' => 'Decrease', 'created_at' => Carbon::now()],
       ['name' => 'Penalty', 'created_at' => Carbon::now()],
+      ['name' => 'Closing Balance', 'created_at' => Carbon::now()],
     ]);
   }
 }

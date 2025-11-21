@@ -3,7 +3,7 @@
 namespace Modules\Debitnote\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Exception;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +12,7 @@ use Modules\Client\Models\Client;
 use Modules\Debitnote\Models\Debitnote;
 use Modules\Item\Models\Item;
 use Modules\Unit\Models\Unit;
+use Throwable;
 
 class DebitnoteController extends Controller
 {
@@ -33,15 +34,15 @@ class DebitnoteController extends Controller
   public function index(Request $request)
   {
     $user   = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
 
     $debitnote = $this->debitnote->with(['client', 'client.user', 'client.user.role', 'item'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->orWhere('lc_or_invoice_no', 'like', "%{$search}%")
-            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
-              $query->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->where('lc_or_invoice_no', 'like', "%{$search}%")
+            ->orWhereHas('client', function ($query) use ($search) {
               $query->where('company_name', 'like', "%{$search}%")
                 ->orWhere('mobile', 'like', "%{$search}%")
                 ->orWhere('bin', 'like', "%{$search}%");
@@ -50,61 +51,65 @@ class DebitnoteController extends Controller
                 ->orWhere('hs_code', 'like', "%{$search}%");
             });
         });
-      });
-
-    if (!$isAdmin) {
-      $debitnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $debitnote->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
+      })->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
     return Inertia("debitnote/index", [
-      'debitnote' => $result,
+      'debitnote' => $debitnote,
       'search' => $search
     ]);
   }
 
   /**
-   * Store a newly created resource in storage.
+   * debit note need lc and boe -> stock minus
    */
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'reason_for_issuance' => 'required|max:150',
         'lc_or_invoice_no' => 'required|max:50',
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbinStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $clientbinStatusCheck && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Not exists');
         }],
-        'issued_date' => 'required|date_format:"Y-m-d"',
+        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'vat_challan_no' => 'required|max:16',
-        'vat_challan_date' => 'required|date_format:"Y-m-d"',
+        'vat_challan_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'value_in_challan' => 'required|numeric|gt:0',
         'quantity_in_challan' => 'required|numeric|gt:0',
         'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'vat_in_challan' => 'required|numeric|gt:0',
         'sd_in_challan' => 'required|numeric|gte:0',
@@ -168,7 +173,7 @@ class DebitnoteController extends Controller
       });
 
       return back()->with('message', 'Debit note created');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
     }
   }
@@ -179,60 +184,66 @@ class DebitnoteController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $debitnote = $this->debitnote->with(['client', 'client.division', 'client.user', 'client.user.role', 'item', 'unit']);
+    $debitnote = $this->debitnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])->find($id);
 
-    if (!$isAdmin) {
-      $debitnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    if (!$isAdmin && $debitnote?->client->user_id !== $user->id) {
+      return response()->json(['error' => 'Unauthorised']);
     }
 
-    $result = $debitnote->find($id);
-    $msg = $result ? ['debitnote' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['debitnote' => $debitnote]);
   }
 
   /**
-   * Update the specified resource in storage.
+   * debit note need lc and boe -> stock minus
    */
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'reason_for_issuance' => 'required|max:150',
         'lc_or_invoice_no' => 'required|max:50',
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbinStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $clientbinStatusCheck && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Not exists');
         }],
-        'issued_date' => 'required|date_format:"Y-m-d"',
+        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'vat_challan_no' => 'required|max:16',
-        'vat_challan_date' => 'required|date_format:"Y-m-d"',
+        'vat_challan_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'value_in_challan' => 'required|numeric|gt:0',
         'quantity_in_challan' => 'required|numeric|gt:0',
         'unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'vat_in_challan' => 'required|numeric|gt:0',
         'sd_in_challan' => 'required|numeric|gte:0',
@@ -296,7 +307,7 @@ class DebitnoteController extends Controller
       });
 
       return back()->with('message', 'Debit note updated');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
     }
   }
@@ -307,23 +318,26 @@ class DebitnoteController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids = explode(',', $id);
 
-    $debitnote = $this->debitnote->whereIn('id', $ids);
+    $debitnote = $this->debitnote->with(['client'])->whereIn('id', $ids)->get();
+
+    if ($debitnote->isEmpty()) {
+      return back()->with('error', 'No data found');
+    }
 
     if (!$isAdmin) {
-      $debitnote->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+      $permission = $debitnote->filter(function ($row) use ($user) {
+        return $row->client?->user_id !== $user->id;
+      });
+
+      if ($permission->isNotEmpty()) {
+        return back()->with('error', 'Unauthorised.');
+      }
     }
 
-    // Fetch records before delete to check ownership
-    $toDelete = $debitnote->get();
-    // If no record belongs to user → block deletion
-    if ($toDelete->isEmpty()) {
-      return back()->with('error', 'Not your client data');
-    }
-
-    $debitnote->delete();
-    return back()->with('message', 'Debit none deleted');
+    $this->debitnote->whereIn('id', $ids)->delete();
+    return back()->with('message', 'Debit note deleted');
   }
 }

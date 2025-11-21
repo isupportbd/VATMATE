@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick, computed, onBeforeUnmount } from 'vue';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash-es';
 import axios from 'axios';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';

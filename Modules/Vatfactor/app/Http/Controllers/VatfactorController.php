@@ -31,9 +31,8 @@ class VatfactorController extends Controller
   public function show($id)
   {
     $result = $this->vatfactor->find($id);
-    $msg = $result ? ['vatfactor' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
-    // return inertia("item/index", ['single' => $result]);
+    return response()->json(['vatfactor' => $result]);
+    // return Inertia("item/index", ['single' => $result]);
   }
 
   // function call form vcatfactor page for update
@@ -53,6 +52,7 @@ class VatfactorController extends Controller
       ]
     );
 
+    unset($formField['name']);
     $this->vatfactor->where('id', $id)->update($formField);
     return back()->with('message', 'Vat factor updated');
   }

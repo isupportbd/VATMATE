@@ -39,10 +39,9 @@
         </p>
       </td>
       <td class="text-center">
-        <div class="btn-group" role="group">
-          <Button type="button" class="btn btn-outline-dark" title="edit" icon="bi bi-pencil-square"
-            @click="props.edit(td.id)" />
-        </div>
+        <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark" title="view" @click="props.view(td.id)" />
+        <Button type="button" class="btn btn-outline-dark" title="edit" icon="bi bi-pencil-square"
+          @click="props.edit(td.id)" />
       </td>
     </template>
   </DataTable>
@@ -58,6 +57,7 @@ import Button from "../../components/Button.vue";
 
 const props = defineProps({
   data: { type: [Object, Array] },
+  view: { type: Function },
   edit: { type: Function },
   del: { type: Function },
   search: { type: String }

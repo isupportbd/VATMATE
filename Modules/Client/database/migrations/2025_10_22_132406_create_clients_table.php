@@ -20,7 +20,7 @@ return new class extends Migration
       $table->string('company_name', 200)->nullable(false);
       $table->string('email', 200)->unique()->nullable(false);
       $table->string('mobile', 14)->nullable(false);
-      $table->string('address', 250)->nullable();
+      $table->string('address', 150)->nullable();
       $table->string('name', 100)->nullable();
       $table->string('reference', 100)->nullable();
       $table->string('tin', 20)->nullable();
@@ -30,7 +30,11 @@ return new class extends Migration
       $table->foreign('division_id')->references('id')->on('divisions')->onUpdate('cascade')->onDelete('set null');
       $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
-      $table->index(['bin', 'company_name', 'email', 'mobile', 'reference']);
+      $table->index(['bin']);
+      $table->index(['company_name']);
+      $table->index(['email']);
+      $table->index(['mobile']);
+      $table->index(['reference']);
     });
   }
 

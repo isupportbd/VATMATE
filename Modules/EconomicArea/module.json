@@ -1,0 +1,11 @@
+{
+    "name": "EconomicArea",
+    "alias": "economicarea",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\EconomicArea\\Providers\\EconomicAreaServiceProvider"
+    ],
+    "files": []
+}

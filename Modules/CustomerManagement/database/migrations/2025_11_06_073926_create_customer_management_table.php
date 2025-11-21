@@ -14,13 +14,14 @@ return new class extends Migration
     Schema::create('customer_management', function (Blueprint $table) {
       $table->id();
       $table->unsignedBigInteger('client_id')->nullable(false);
-      $table->string('mobile', 14)->nullable(false);
+      $table->string('mobile', 11)->nullable(false);
       $table->string('customer_name', 100)->nullable(false);
       $table->string('bin_or_nid', 17)->nullable();
       $table->string('address', 150)->nullable();
       $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
       $table->timestamps();
-      $table->index(['mobile', 'bin_or_nid', 'client_id']);
+      $table->index(['mobile']);
+      $table->index(['bin_or_nid']);
     });
   }
 

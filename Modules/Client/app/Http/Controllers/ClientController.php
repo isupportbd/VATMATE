@@ -5,10 +5,8 @@ namespace Modules\Client\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Modules\Client\Models\Client;
 use Modules\Division\Models\Division;
 
@@ -30,13 +28,13 @@ class ClientController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $client = $this->client->with(['division', 'user', 'user.role'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
+    $query = $this->client->with(['division', 'user.role'])
+      ->when(!$isAdmin, fn($q) =>  $q->where('user_id', $user->id))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
           $query->where('company_name', 'like', '%' . strtolower($search) . '%')
             ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
             ->orWhere('email', 'like', '%' . strtolower($search) . '%')
@@ -44,16 +42,10 @@ class ClientController extends Controller
             ->orWhere('reference', 'like', '%' . strtolower($search) . '%')
             ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
             ->orWhereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'));
-        });
-      });
+        })->whereNotIn('user_id', NULL);
+      })->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
-    if (!$isAdmin) {
-      $client->where('user_id', $user->id);
-    }
-
-    $result = $client->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
-
-    return Inertia('client/index', ['client' => $result, 'search' => $search]);
+    return Inertia('client/index', ['client' => $query, 'search' => $search]);
   }
 
   // function call from client page for create
@@ -65,12 +57,12 @@ class ClientController extends Controller
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           // check exists or not
           $divisionCheck = $this->division->where('id', $value)->exists();
-          !$divisionCheck && $fail('Not exists');
+          if (!$divisionCheck) return $fail('Not exists');
         }],
         'company_name' => 'required|max:200',
         'email' => 'required|email|unique:clients,email|max:200',
         'mobile' => 'required|max:14',
-        'address' => 'nullable|max:250',
+        'address' => 'nullable|max:150',
         'name' => 'nullable|max:100',
         'reference' => 'nullable|max:100',
         'tin' => 'nullable|max:20',
@@ -80,7 +72,7 @@ class ClientController extends Controller
         'vat_password' => 'required',
         'user_id' => ['nullable', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           if (in_array($user->role->name, ['superadmin', 'admin'])) {
-            $fail('Not assignable to ' . $user->role->name);
+            return $fail('Not assignable to ' . $user->role->name);
           }
         }]
       ],
@@ -119,35 +111,39 @@ class ClientController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $client = $this->client->with(['division', 'user', 'user.role']);
+    $client = $this->client->with(['division', 'user', 'user.role'])->find($id);
 
-    if (!$isAdmin) {
-      $client->where('user_id', $user->id);
+    if (!$isAdmin && (optional($client)->user_id !== $user->id)) {
+      return response()->json(['error' => 'Unauthorised']);
     }
 
-    $result = $client->find($id);
-    $msg = $result ? ['client' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['client' => $client]);
   }
 
   // function call from client page for update
   public function update(Request $request, $id)
   {
-    $user = $this->user->find($request->input('user_id'));
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $client = $this->client->find($id);
+    if (!$isAdmin && (optional($client)->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
 
     $formField = $request->validate(
       [
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           // check exists or not
           $divisionCheck = $this->division->where('id', $value)->exists();
-          !$divisionCheck && $fail('Not exists');
+          if (!$divisionCheck) return $fail('Not exists');
         }],
         'company_name' => 'required|max:200',
         'email' => 'required|email|max:200',
         'mobile' => 'required|max:14',
-        'address' => 'nullable|max:250',
+        'address' => 'nullable|max:150',
         'name' => 'nullable|max:100',
         'reference' => 'nullable|max:100',
         'tin' => 'nullable|max:20',
@@ -155,9 +151,10 @@ class ClientController extends Controller
         'bin' => 'required',
         'vat_username' => 'required',
         'vat_password' => 'required',
-        'user_id' => ['nullable', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
-          if (in_array($user->role->name, ['superadmin', 'admin'])) {
-            $fail('Not assignable to ' . $user->role->name);
+        'user_id' => ['nullable', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          $role = $this->user->find($request->input('user_id'));
+          if (in_array($role->role->name, ['superadmin', 'admin'])) {
+            return $fail('Not assignable to ' . $role->role->name);
           }
         }]
       ],
@@ -194,61 +191,101 @@ class ClientController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids = explode(',', $id);
 
-    $client = $this->client->whereIn('id', $ids);
+    $client = $this->client->with(['user'])->whereIn('id', $ids)->get();
+
+    if ($client->isEmpty()) {
+      return back()->with('error', 'No data found');
+    }
 
     if (!$isAdmin) {
-      $client->where('user_id', $user->id);
+      $permission = $client->filter(function ($row) use ($user) {
+        return $row->user_id !== $user->id;
+      });
+
+      if ($permission->isNotEmpty()) {
+        return back()->with('error', 'Unauthorised.');
+      }
     }
 
-    // Fetch records before delete to check ownership
-    $toDelete = $client->get();
-    // If no record belongs to user → block deletion
-    if ($toDelete->isEmpty()) {
-      return back()->with('error', 'Not your client data');
-    }
-
-    $client->delete();
-    return back()->with('message', 'Client deleted');
+    $this->client->whereIn('id', $ids)->delete();
+    return back()->with('message', "Client deleted");
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function clientDropdown(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $client = $this->client->with(['division', 'user', 'user.role'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
-          $query->where('bin', 'like', '%' . strtolower($search) . '%');
-        });
-      })->whereNotIn('status', ['0']);
+    $query = $this->client->with(['division', 'user.role'])
+      ->when(!$isAdmin, fn($q) =>  $q->where('user_id', $user->id))
+      ->when($search, fn($q) => $q->where('bin', 'like', '%' . strtolower($search) . '%'))
+      ->whereNotIn('status', ['0'])
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10));
 
-    if (!$isAdmin) {
-      $client->where('user_id', $user->id);
-    }
-
-    $result = $client->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10);
-    return response()->json(['client' => $result]);
+    return response()->json(['client' => $query]);
   }
 
   // function call from client page status click
   public function statusUpdate(Request $request, $id)
   {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
     $formField = $request->validate(
       ['status' => "required|in:0,1"],
-      [
-        'status.required' => 'Status required',
-        'status.in' => 'Status will be 0 or 1',
-      ]
+      ['status.required' => 'Status required', 'status.in' => 'Status will be 0 or 1']
     );
 
-    $this->client->where('id', $id)->update($formField);
+    $client = $this->client->where('id', $id)->first();
+
+    if (!$isAdmin && $client->user_id !== $user->id) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    $client->update($formField);
     return back()->with('message', 'Client status updated');
+  }
+
+  // function call from client page for release
+  public function clientRelease($id)
+  {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $client = $this->client->with(['user'])->find($id);
+
+    if (!$client) {
+      return back()->with('error', 'No data found');
+    }
+
+    if (!$isAdmin && ($client->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised.');
+    }
+
+    $this->client->where('id', $id)->update(['user_id' => null, 'status' => ['0']]);
+
+    return back()->with('message', "Client released");
+  }
+
+  // function call for dropdown. it needs SelectInfinite component. It is send json response
+  public function releaseClientDropdown(Request $request)
+  {
+    $user = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+    $search = $request->input('search');
+
+    $query = $this->client->with(['division', 'user.role'])
+      ->when($search, fn($q) => $q->where('bin', 'like', '%' . strtolower($search) . '%'))
+      ->where('user_id', NULL)
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10));
+
+    return response()->json(['client' => $query]);
   }
 }

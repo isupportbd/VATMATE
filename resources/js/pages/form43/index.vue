@@ -19,7 +19,7 @@
   </Modal>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-5 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
       <Form43Form ref="formRef" />
     </div>
     <div class="col-12 col-lg-7">
@@ -42,6 +42,7 @@ import Modal from "../../components/Modal.vue";
 import Form43View from "./Form43View.vue";
 
 import Confirm from "../../helpers/customConfirm";
+import Alert from "../../helpers/customAlert";
 
 const props = defineProps({
   form43: { type: Object },
@@ -50,27 +51,35 @@ const props = defineProps({
 
 const notify = inject('showToast'); // toast
 
+// modal popup
+const modal = ref();
+const closeme = () => modal.value.close();
+
 // display single
 const formRef = ref(null);
 const edit = async (id) => {
-  try {
-    const { data } = await axios.get(route('form43-single', { id }));
-    formRef.value?.setForm(data.form43); // 👈 directly set the form
-  } catch (e) {
-    console.error(e);
+  const { data } = await axios.get(route('form43-single', { id }));
+  if (data.error) {
+    Alert(`<b class='text-danger'>${data.error}</b>`);
+  }
+  else {
+    formRef.value?.setForm(data); // 👈 directly set the form
   }
 };
 
 // delete
-const del = async (ids) => {
+const del = async (id) => {
   Confirm('Do you want to delete ?', (ok) => {
     if (!ok) return;
-    router.delete(route('form43-delete', { id: ids }), {
+    router.delete(route('form43-delete', { id: id }), {
       preserveScroll: true,
       onSuccess: (e) => {
-        // ids.length = 0;
-        notify(e.props.flash.msg, 'danger');
-        formRef.value?.resetForm(); // 👈 reset the form
+        if (e.props.flash.err) {
+          Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+        } else {
+          notify(e.props.flash.msg, 'danger');
+          formRef.value?.resetForm(); // 👈 reset the form
+        }
       },
       onFinish: () => formRef.value?.resetForm()
     });
@@ -79,11 +88,16 @@ const del = async (ids) => {
 
 // for single view popup
 const form43Single = ref();
-const view = async (id) => await axios.get(route('form43-single', { id: id })).then((res) => form43Single.value = res.data?.form43);
-
-// modal popup
-const modal = ref();
-const closeme = () => modal.value.close();
+const view = async (id) => {
+  const { data } = await axios.get(route('form43-single', { id }));
+  if (data.error) {
+    modal.value.close();
+    Alert(`<b class='text-danger'>${data.error}</b>`);
+  } else {
+    modal.value.open();
+    form43Single.value = data?.form43;
+  }
+};
 
 // reload form43
 const refresh = () => router.get(route('form43'), {}, { preserveScroll: true });

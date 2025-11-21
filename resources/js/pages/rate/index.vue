@@ -10,7 +10,7 @@
   </Refresh>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
       <RateForm ref="formRef" />
     </div>
     <div class="col-12 col-lg-8">
@@ -31,6 +31,7 @@ import RateForm from "./RateForm.vue";
 import RateTable from "./RateTable.vue";
 
 import Confirm from "../../helpers/customConfirm";
+import Alert from "../../helpers/customAlert";
 
 const props = defineProps({
   rate: { type: Object },
@@ -42,11 +43,11 @@ const notify = inject('showToast'); // toast
 // display single
 const formRef = ref(null);
 const edit = async (id) => {
-  try {
-    const { data } = await axios.get(route('rate-single', { id }));
-    formRef.value?.setForm(data.rate); // 👈 directly set the form
-  } catch (e) {
-    console.error(e);
+  const { data } = await axios.get(route('rate-single', { id }));
+  if (data.error) {
+    Alert(`<b class='text-danger'>${data.error}</b>`);
+  } else {
+    formRef.value?.setForm(data); // 👈 directly set the form
   }
 };
 
@@ -57,9 +58,12 @@ const del = async (ids) => {
     router.delete(route('rate-delete', { id: ids }), {
       preserveScroll: true,
       onSuccess: (e) => {
-        ids.length = 0;
-        notify(e.props.flash.msg, 'danger');
-        formRef.value?.resetForm(); // 👈 reset the form
+        if (e.props.flash.err) {
+          Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+        } else {
+          notify(e.props.flash.msg, 'danger');
+          formRef.value?.resetForm(); // 👈 reset the form
+        }
       },
       onFinish: () => formRef.value?.resetForm()
     });

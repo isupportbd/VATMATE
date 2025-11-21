@@ -20,60 +20,46 @@ class CustomerManagementController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $customer = $this->customer->with(['client'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->where('mobile', 'like', '%' . strtolower($search) . '%')
-            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
-              $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
-              $query->where(function ($query) use ($search) {
-                $query->where('email', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('company_name', 'like', '%' . strtolower($search) . '%')
-                  ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-                  ->orWHereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'));
-              });
+    $query = $this->customer->with(['client'])
+      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->whereHas('client', function ($query) use ($search) {
+            $query->where(function ($query) use ($search) {
+              $query->where('bin', 'like', '%' . strtolower($search) . '%')
+                ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
             });
+          })->oWhere('mobile', 'like', '%' . strtolower($search) . '%');
         });
-      });
+      })
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
-    if (!$isAdmin) {
-      $customer->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $customer->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
-
-    return Inertia("customer/index", ['customer' => $result, 'search' => $search]);
+    return Inertia("customer/index", ['customer' => $query, 'search' => $search]);
   }
 
   // function call from adjustment page for create
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $bin = $this->client->where('id', $value)->where('status', '0')->first();
-          $bin && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
-        'mobile' => 'required|unique:customer_management,mobile|max:14',
+        'mobile' => 'required|unique:customer_management,mobile|max:11',
         'customer_name' => 'required|max:100',
         'bin_or_nid' => 'nullable|max:17',
         'address' => 'nullable|max:150',
@@ -84,7 +70,7 @@ class CustomerManagementController extends Controller
         'client_id.gt' => 'Number > 0',
         'mobile.required' => 'Mobile required',
         'mobile.unique' => 'Exists, change your input',
-        'mobile.max' => 'Max 14 char',
+        'mobile.max' => 'Max 11 char',
         'customer.required' => 'Name required',
         'customer.max' => 'Max 100 char',
         'bin_or_nid.max' => 'Max 17 char',
@@ -100,43 +86,35 @@ class CustomerManagementController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $customer = $this->customer->with(['client']);
+    $query = $this->customer->with(['client'])->find($id);
 
-    if (!$isAdmin) {
-      $customer->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    if (!$isAdmin && $query?->client->user_id !== $user->id) {
+      return response()->json(['error' => 'Unauthorised']);
     }
 
-    $result = $customer->find($id);
-    $msg = $result ? ['customer' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['customer' => $query]);
   }
 
   // function call form adjustment page for update
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $bin = $this->client->where('id', $value)->where('status', '0')->first();
-          $bin && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
-        'mobile' => 'required|unique:customer_management,mobile|max:14',
+        'mobile' => 'required|unique:customer_management,mobile|max:11',
         'customer_name' => 'required|max:100',
         'bin_or_nid' => 'nullable|max:17',
         'address' => 'nullable|max:150',
@@ -147,7 +125,7 @@ class CustomerManagementController extends Controller
         'client_id.gt' => 'Number > 0',
         'mobile.required' => 'Mobile required',
         'mobile.unique' => 'Exists, change your input',
-        'mobile.max' => 'Max 14 char',
+        'mobile.max' => 'Max 11 char',
         'customer.required' => 'Name required',
         'customer.max' => 'Max 100 char',
         'bin_or_nid.max' => 'Max 17 char',
@@ -163,42 +141,43 @@ class CustomerManagementController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids = explode(',', $id);
 
-    $customer = $this->customer->whereIn('id', $ids);
+    $customer = $this->customer->with(['client'])->whereIn('id', $ids)->get();
+
+    if ($customer->isEmpty()) {
+      return back()->with('error', 'No data found');
+    }
 
     if (!$isAdmin) {
-      $customer->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+      $permission = $customer->filter(function ($row) use ($user) {
+        return $row->client?->user_id !== $user->id;
+      });
+
+      if ($permission->isNotEmpty()) {
+        return back()->with('error', 'Unauthorised.');
+      }
     }
 
-    // Fetch records before delete to check ownership
-    $toDelete = $customer->get();
-    // If no record belongs to user → block deletion
-    if ($toDelete->isEmpty()) {
-      return back()->with('error', 'Not your client data');
-    }
-
-    $customer->delete();
-    return back()->with('message', 'Customer deleted');
+    // Now safe to delete
+    $this->customer->whereIn('id', $ids)->delete();
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function customerDropdown(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = $request->input('search');
 
-    $customer = $this->customer->with(['client'])->when($search, function ($query) use ($search) {
-      $query->where('mobile', 'like', '%' . strtolower($search) . '%');
-    });
+    $query = $this->customer->with(['client'])
+      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
+      ->when($search, fn($q) => $q->where('mobile', 'like', '%' . strtolower($search) . '%'))
+      ->whereHas('client', fn($q) => $q->where('id', $request->input('client_id')))
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10));
 
-    if (!$isAdmin) {
-      $customer->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $customer->orderBy('id', 'desc')->paginate((int)request('size') ? (int)request('size') : 10);
-    return response()->json(['customer' => $result]);
+    return response()->json(['customer' => $query]);
   }
 }

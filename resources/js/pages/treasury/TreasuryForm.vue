@@ -44,7 +44,7 @@
 <script setup>
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -83,8 +83,8 @@ const fetchedBranch = async () => {
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.bin = !emptyObj(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
-  field.branch = !emptyObj(row.branch) ? { id: row.branch?.id, title: `${row.branch?.name}, ${row.branch.bank?.name}, ${row.branch.division?.name}` } : "";
+  field.bin = !empty(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
+  field.branch = !empty(row.branch) ? { id: row.branch?.id, title: `${row.branch?.name}, ${row.branch.bank?.name}, ${row.branch.division?.name}` } : "";
   field.challan_no = row.challan_no ?? "";
   field.tax_period = row.tax_period ?? "";
   field.amount = row.amount ?? "";
@@ -116,7 +116,7 @@ const submitData = async () => {
   const onErr = (errors) => {
     let er = {};
     Object.keys(errors).map((key) => er[key] = errors[key].toString());
-    err.client = er.client_id;
+    err.bin = er.client_id;
     err.branch = er.branch_id;
     err.challan_no = er.challan_no;
     err.tax_period = er.tax_period;

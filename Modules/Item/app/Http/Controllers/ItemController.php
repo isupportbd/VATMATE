@@ -38,14 +38,13 @@ class ItemController extends Controller
         'hs_code' => ['required', 'max:20', function ($attribute, $value, $fail) use ($request) {
           $check_unique = $this->item->where([['name', $request->input('name')], ['hs_code', $value]])->exists();
 
-          $check_unique && $fail('Exists, change your input');
+          if ($check_unique) return $fail('Exists, change your input');
         }],
         'description' => 'nullable|max:250',
         'cd' => 'required|numeric',
         'rd' => 'required|numeric',
         'sd' => 'required|numeric',
         'vat' => 'required|numeric',
-        'ait' => 'required|numeric',
         'at' => 'required|numeric',
       ],
       [
@@ -64,8 +63,6 @@ class ItemController extends Controller
         'sd.numeric' => 'Number only',
         'vat.required' => 'VAT required',
         'vat.numeric' => 'Number only',
-        'ait.required' => 'AIT required',
-        'ait.numeric' => 'Number only',
         'at.required' => 'AT required',
         'at.numeric' => 'Number only',
       ]
@@ -95,14 +92,13 @@ class ItemController extends Controller
         'hs_code' => ['required', 'max:20', function ($attribute, $value, $fail) use ($request) {
           $check_unique = $this->item->where([['name', $request->input('name')], ['hs_code', $value]])->exists();
 
-          $check_unique && $fail('Exists, change your input');
+          if ($check_unique) return $fail('Exists, change your input');
         }],
         'description' => 'nullable|max:250',
         'cd' => 'required|numeric',
         'rd' => 'required|numeric',
         'sd' => 'required|numeric',
         'vat' => 'required|numeric',
-        'ait' => 'required|numeric',
         'at' => 'required|numeric',
       ],
       [
@@ -121,8 +117,6 @@ class ItemController extends Controller
         'sd.numeric' => 'Number only',
         'vat.required' => 'VAT required',
         'vat.numeric' => 'Number only',
-        'ait.required' => 'AIT required',
-        'ait.numeric' => 'Number only',
         'at.required' => 'AT required',
         'at.numeric' => 'Number only',
       ]
@@ -140,10 +134,12 @@ class ItemController extends Controller
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
-  public function itemDropdown()
+  public function itemDropdown(Request $request)
   {
+    $search = $request->input('search');
+
     $item = $this->item->query()
-      ->when(request('search'), function ($query, $search) {
+      ->when($search, function ($query, $search) {
         $query->where(DB::raw('lower(name)'), 'like', '%' . strtolower($search) . '%')
           ->orWhere(DB::raw('lower(hs_code)'), 'like', '%' . strtolower($search) . '%');
       })

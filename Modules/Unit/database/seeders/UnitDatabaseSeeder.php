@@ -17,7 +17,8 @@ class UnitDatabaseSeeder extends Seeder
     DB::table('units')->insert([
       ['name' => 'Packet', 'created_at' => Carbon::now()],
       ['name' => 'Cartoon', 'created_at' => Carbon::now()],
-      ['name' => 'KGM', 'created_at' => Carbon::now()],
+      ['name' => 'Foot', 'created_at' => Carbon::now()],
+      ['name' => 'KG', 'created_at' => Carbon::now()],
       ['name' => 'MT', 'created_at' => Carbon::now()],
     ]);
   }

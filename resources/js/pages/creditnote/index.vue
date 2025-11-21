@@ -9,7 +9,7 @@
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat' @click="refresh" />
   </Refresh>
 
-  <Modal id="creditnote-view" ref="modal" title="Client Details" size="xl">
+  <Modal id="creditnote-view" ref="modal" title="Credit Note Details" size="xl">
     <template #modalbody>
       <CreditnoteView :view="creditnoteSingle" />
     </template>
@@ -19,7 +19,7 @@
   </Modal>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-5 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
       <CreditForm ref="formRef" />
     </div>
     <div class="col-12 col-lg-7">
@@ -42,6 +42,7 @@ import Modal from "../../components/Modal.vue";
 import CreditnoteView from "./CreditnoteView.vue";
 
 import Confirm from "../../helpers/customConfirm";
+import Alert from "../../helpers/customAlert";
 
 const props = defineProps({
   creditnote: { type: Object },
@@ -53,11 +54,11 @@ const notify = inject('showToast'); // toast
 // display single
 const formRef = ref(null);
 const edit = async (id) => {
-  try {
-    const { data } = await axios.get(route('creditnote-single', { id }));
+  const { data } = await axios.get(route('creditnote-single', { id }));
+  if (data.error) {
+    Alert(`<b class='text-danger'>${data.error}</b>`);
+  } else {
     formRef.value?.setForm(data.creditnote); // 👈 directly set the form
-  } catch (e) {
-    console.error(e);
   }
 };
 
@@ -83,7 +84,15 @@ const closeme = () => modal.value.close();
 
 // for single view popup
 const creditnoteSingle = ref();
-const view = async (id) => await axios.get(`/creditnote/${id}`).then((res) => creditnoteSingle.value = res.data.creditnote);
+const view = async (id) => await axios.get(`/creditnote/${id}`).then((res) => {
+  if (res.data.error) {
+    modal.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modal.value.open();
+    creditnoteSingle.value = res.data.creditnote;
+  }
+});
 
 // reload creditnote
 const refresh = () => router.get(route('creditnote'), {}, { preserveScroll: true });

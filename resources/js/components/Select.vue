@@ -1,11 +1,17 @@
 <template>
-  <div class="mb-2">
-    <label for="select" :class="$attrs.title ? 'form-label text-capitalize d-flex' : 'd-none'">
+  <div class="position-relative mb-2">
+    <label for="select" class="position-relative form-label text-capitalize d-flex align-items-centre"
+      :class="{ 'd-none': !$attrs.title }">
+      <div class="position-relative">
+        <span class="text-capitalize" v-html="$attrs.label"></span>
+        <span class="position-absolute text-danger rounded-circle bg-danger must"
+          :class="{ 'd-none': !props.must }"></span>
+      </div>
       <span class="text-capitalize">{{ $attrs.title }}</span>
-      <span :class="props.must ? 'text-danger rounded-circle bg-danger must' : 'd-none'"></span>
+      <span class="text-danger rounded-circle bg-danger must" :class="{ 'd-none': !props.must }"></span>
     </label>
     <v-select id="select" v-model="model" v-bind="$attrs" />
-    <div :class="err ? 'form-text text-danger' : 'd-none'" style="font-size: 0.8rem;">{{ err }}</div>
+    <div class="form-text text-danger" :class="{ 'd-none': !err }" style="font-size: 0.8rem;">{{ err }}</div>
   </div>
 </template>
 

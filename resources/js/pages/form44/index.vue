@@ -19,10 +19,10 @@
   </Modal>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
       <Form44Form ref="formRef" />
     </div>
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-7">
       <Form44Table :data="props.form44" :search="props.search" :view="view" :edit="edit" :del="del" />
     </div>
   </div>

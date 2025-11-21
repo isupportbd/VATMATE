@@ -6,75 +6,75 @@
           <div class="col-12">
             <Input type="hidden" v-model="field.id" readonly />
           </div>
-          <div class="col-12">
-            <Input type="text" id="reason" label="reason" placeholder="Ex: Test reason" maxlength="150"
-              v-model="field.reason_for_issuance" :err="err.reason_for_issuance" focus must />
-          </div>
-          <div class="col-5">
-            <SelectInfinite placeholder="Select..." title="LC/Invoice" v-model="field.lc_invoice"
-              :fetched="fetchedLCInvoice" :err="err.lc_invoice" must />
-          </div>
-          <div class="col-7">
-            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
-              :err="err.item" must />
-          </div>
-          <div class="col-12">
+          <div class="col-12 col-sm-7 col-md-4 col-lg-6">
             <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
-          <div class="col-4">
+          <div class="col-12 col-sm-5 col-md-4 col-lg-6">
+            <SelectInfinite placeholder="Select..." title="Invoice" v-model="field.invoice" :fetched="fetchedInvoice"
+              :err="err.invoice" :reset-key="field.bin?.id" must />
+          </div>
+          <div class="col-12 col-sm-8 col-md-4 col-lg-7">
+            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
+              :reset-key="field.invoice?.title" :err="err.item" must />
+          </div>
+          <div class="col-6 col-sm-4 col-lg-5">
+            <Input type="text" category="challan-number" id="challan-no" label="Challan No"
+              placeholder="Ex: 5214-98547584515" maxlength="16" v-model="field.vat_challan_no" :err="err.vat_challan_no"
+              focus must />
+          </div>
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="date" id="issued-date" label="issued date" v-model="field.issued_date" :err="err.issued_date"
               must />
           </div>
-          <div class="col-4">
-            <Input type="text" category="challan-number" id="challan-no" label="Challan No"
-              placeholder="Ex: 5214-98547584515" maxlength="16" v-model="field.vat_challan_no" :err="err.vat_challan_no"
-              must />
-          </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="date" id="challan-date" label="challan date" v-model="field.vat_challan_date"
               :err="err.vat_challan_date" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="text" category="decimal" id="value" label="value" placeholder="Ex: 152.25"
               v-model="field.value_in_challan" :err="err.value_in_challan" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="text" category="decimal" id="quantity" label="quantity" placeholder="Ex: 89.25"
               v-model="field.quantity_in_challan" :err="err.quantity_in_challan" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <SelectInfinite ref="unitDD" placeholder="Select..." title="Unit" v-model="field.unit"
               :fetched="fetchedUnit" :err="err.unit" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="text" category="decimal" id="vat" label="VAT" placeholder="Ex: 1598.87"
               v-model="field.vat_in_challan" :err="err.vat_in_challan" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="text" category="decimal" id="sd" label="SD" placeholder="Ex: 520.74"
               v-model="field.sd_in_challan" :err="err.sd_in_challan" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="text" category="decimal" id="decrease-value" label="decrease value" placeholder="Ex: 554.21"
               v-model="field.value_of_decreasing_adjustment" :err="err.value_of_decreasing_adjustment" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-sm-4 col-lg-6">
             <Input type="text" category="decimal" id="decrease-quantity" label="decrease quantity"
               placeholder="Ex: 214.25" v-model="field.quantity_of_decreasing_adjustment"
               :err="err.quantity_of_decreasing_adjustment" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-md-4 col-lg-6">
             <Input type="text" category="decimal" id="decrease-vat" label="decrease vat" placeholder="Ex: 354.25"
               v-model="field.vat_of_decreasing_adjustment" :err="err.vat_of_decreasing_adjustment" must />
           </div>
-          <div class="col-4">
+          <div class="col-6 col-md-4 col-lg-6">
             <Input type="text" category="decimal" id="decrease-sd" label="decrease SD" placeholder="Ex: 654.14"
               v-model="field.sd_of_decreasing_adjustment" :err="err.sd_of_decreasing_adjustment" must />
           </div>
           <div class="col-12">
+            <Input type="text" id="reason" label="reason" placeholder="Ex: Test reason" maxlength="150"
+              v-model="field.reason_for_issuance" :err="err.reason_for_issuance" must />
+          </div>
+          <div class="col-12">
             <TextArea type="text" label="remarks" maxlength="250" style="height: 112px !important;"
-              placeholder="Ex: Remarks" v-model="field.remarks" :err="err.remarks" />
+              placeholder="Ex: Remarks" v-model="field.remarks" :err="err.remarks" :hood="field.remarks" />
           </div>
         </div>
         <div class="d-flex align-items-center">
@@ -88,9 +88,10 @@
 </template>
 
 <script setup>
+import axios from "axios";
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -105,35 +106,38 @@ const props = defineProps({
 });
 
 // creditnote field
-const field = reactive({ id: '', lc_invoice: '', bin: '', item: '', issued_date: '', vat_challan_no: '', vat_challan_date: '', reason_for_issuance: '', value_in_challan: '', quantity_in_challan: '', unit: '', vat_in_challan: '', sd_in_challan: '', value_of_decreasing_adjustment: '', quantity_of_decreasing_adjustment: '', vat_of_decreasing_adjustment: '', sd_of_decreasing_adjustment: '', remarks: '', isLoading: false });
+const field = reactive({ id: '', invoice: '', bin: '', item: '', issued_date: '', vat_challan_no: '', vat_challan_date: '', reason_for_issuance: '', value_in_challan: '', quantity_in_challan: '', unit: '', vat_in_challan: '', sd_in_challan: '', value_of_decreasing_adjustment: '', quantity_of_decreasing_adjustment: '', vat_of_decreasing_adjustment: '', sd_of_decreasing_adjustment: '', remarks: '', isLoading: false });
 
-const err = reactive({ lc_invoice: '', bin: '', item: '', issued_date: '', vat_challan_no: '', vat_challan_date: '', reason_for_issuance: '', value_in_challan: '', quantity_in_challan: '', unit: '', vat_in_challan: '', sd_in_challan: '', value_of_decreasing_adjustment: '', quantity_of_decreasing_adjustment: '', vat_of_decreasing_adjustment: '', sd_of_decreasing_adjustment: '', remarks: '' });
-
-// form 6.2.1 dropdown
-const fetchedLCInvoice = async () => {
-  return {
-    url: route('form621-dropdown'),
-    data: 'form621',
-    mapFn: (form621) => ({ id: form621.id, title: form621.lc_or_invoice_no })
-  };
-};
-
-// item dropdown
-const fetchedItem = async () => {
-  return {
-    url: route('item-dropdown'),
-    data: 'item',
-    mapFn: (item) => ({ id: item.id, title: `${item.name} [${item.hs_code}]` })
-  }
-};
+const err = reactive({ invoice: '', bin: '', item: '', issued_date: '', vat_challan_no: '', vat_challan_date: '', reason_for_issuance: '', value_in_challan: '', quantity_in_challan: '', unit: '', vat_in_challan: '', sd_in_challan: '', value_of_decreasing_adjustment: '', quantity_of_decreasing_adjustment: '', vat_of_decreasing_adjustment: '', sd_of_decreasing_adjustment: '', remarks: '' });
 
 // bin dropdown
 const fetchedBin = async () => {
   return {
-    url: route('client-dropdown'),
-    data: 'client',
-    mapFn: (cbin) => ({ id: cbin.id, title: cbin.bin, val: cbin })
+    url: route('form621-client-dropdown'),
+    data: 'clientdropdown',
+    mapFn: (col) => ({ id: col?.client?.id, title: col?.client?.bin, val: col?.client })
   };
+};
+
+// form 6.2.1 dropdown
+const fetchedInvoice = async () => {
+  return {
+    url: route('form621-client-lc-inv-dropdown'),
+    data: 'lcinvdropdown',
+    params: { client_id: field?.bin?.id, type: 'inv' },
+    mapFn: (col) => ({ title: col?.lc_or_invoice_no }),
+  };
+};
+
+
+// item dropdown
+const fetchedItem = async () => {
+  return {
+    url: route('form621-client-lc-inv-item-dropdown'),
+    data: 'itemdropdown',
+    params: { client_id: field.bin?.id, lc_or_invoice_no: field.invoice?.title },
+    mapFn: (col) => ({ id: col?.item?.id, title: `${col?.item?.name} [${col?.item?.hs_code}]` })
+  }
 };
 
 // unit dropdown
@@ -148,10 +152,10 @@ const fetchedUnit = async () => {
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.lc_invoice = !emptyObj(row.form621) ? { id: row.form621?.id, title: row.form621?.lc_or_invoice_no } : "";
-  field.bin = !emptyObj(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
-  field.item = !emptyObj(row.item) ? { id: row.item?.id, title: row.item?.name } : "";
-  field.unit = !emptyObj(row.unit) ? { id: row.unit?.id, title: row.unit?.name } : "";
+  field.invoice = !empty(row.form621) ? { title: row.form621?.lc_or_invoice_no } : "";
+  field.bin = !empty(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
+  field.item = !empty(row.item) ? { id: row.item?.id, title: row.item?.name } : "";
+  field.unit = !empty(row.unit) ? { id: row.unit?.id, title: row.unit?.name } : "";
   field.issued_date = row.issued_date ?? "";
   field.vat_challan_no = row.vat_challan_no ?? "";
   field.vat_challan_date = row.vat_challan_date ?? "";
@@ -166,14 +170,14 @@ const setForm = async (row = {}) => {
   field.sd_of_decreasing_adjustment = row.sd_of_decreasing_adjustment ?? "";
   field.remarks = row.remarks ?? "";
   // clear previous errors when setting a record
-  err.lc_invoice = err.bin = err.item = err.unit = err.issued_date = err.vat_challan_no = err.vat_challan_date = err.reason_for_issuance = err.value_in_challan = err.quantity_in_challan = err.vat_in_challan = err.sd_in_challan = err.value_of_decreasing_adjustment = err.quantity_of_decreasing_adjustment = err.vat_of_decreasing_adjustment = err.sd_of_decreasing_adjustment = err.remarks = "";
+  err.invoice = err.bin = err.item = err.unit = err.issued_date = err.vat_challan_no = err.vat_challan_date = err.reason_for_issuance = err.value_in_challan = err.quantity_in_challan = err.vat_in_challan = err.sd_in_challan = err.value_of_decreasing_adjustment = err.quantity_of_decreasing_adjustment = err.vat_of_decreasing_adjustment = err.sd_of_decreasing_adjustment = err.remarks = "";
 };
 
 // reset form
 const resetForm = () => {
-  field.id = field.lc_invoice = field.bin = field.item = field.unit = field.issued_date = field.vat_challan_no = field.vat_challan_date = field.reason_for_issuance = field.value_in_challan = field.quantity_in_challan = field.vat_in_challan = field.sd_in_challan = field.value_of_decreasing_adjustment = field.quantity_of_decreasing_adjustment = field.vat_of_decreasing_adjustment = field.sd_of_decreasing_adjustment = field.remarks = "";
+  field.id = field.invoice = field.bin = field.item = field.unit = field.issued_date = field.vat_challan_no = field.vat_challan_date = field.reason_for_issuance = field.value_in_challan = field.quantity_in_challan = field.vat_in_challan = field.sd_in_challan = field.value_of_decreasing_adjustment = field.quantity_of_decreasing_adjustment = field.vat_of_decreasing_adjustment = field.sd_of_decreasing_adjustment = field.remarks = "";
 
-  err.lc_invoice = err.bin = err.item = err.unit = err.issued_date = err.vat_challan_no = err.vat_challan_date = err.reason_for_issuance = err.value_in_challan = err.quantity_in_challan = err.vat_in_challan = err.sd_in_challan = err.value_of_decreasing_adjustment = err.quantity_of_decreasing_adjustment = err.vat_of_decreasing_adjustment = err.sd_of_decreasing_adjustment = err.remarks = "";
+  err.invoice = err.bin = err.item = err.unit = err.issued_date = err.vat_challan_no = err.vat_challan_date = err.reason_for_issuance = err.value_in_challan = err.quantity_in_challan = err.vat_in_challan = err.sd_in_challan = err.value_of_decreasing_adjustment = err.quantity_of_decreasing_adjustment = err.vat_of_decreasing_adjustment = err.sd_of_decreasing_adjustment = err.remarks = "";
 };
 
 defineExpose({ setForm, resetForm });
@@ -183,14 +187,13 @@ defineExpose({ setForm, resetForm });
 const submitData = async () => {
   const form = {
     id: field.id,
-    lc_or_invoice_no: field.form621?.lc_or_invoice_no,
+    lc_or_invoice_no: field.invoice?.title,
     client_id: field.bin?.id,
     item_id: field.item?.id,
     unit_id: field.unit?.id,
     issued_date: field.issued_date,
     vat_challan_no: field.vat_challan_no,
     vat_challan_date: field.vat_challan_date,
-    reason_for_issuance: field.reason_for_issuance,
     value_in_challan: field.value_in_challan,
     quantity_in_challan: field.quantity_in_challan,
     vat_in_challan: field.vat_in_challan,
@@ -199,13 +202,14 @@ const submitData = async () => {
     quantity_of_decreasing_adjustment: field.quantity_of_decreasing_adjustment,
     vat_of_decreasing_adjustment: field.vat_of_decreasing_adjustment,
     sd_of_decreasing_adjustment: field.sd_of_decreasing_adjustment,
+    reason_for_issuance: field.reason_for_issuance,
     remarks: field.remarks
   };
 
   const onErr = (errors) => {
     let er = {};
     Object.keys(errors).map((key) => er[key] = errors[key].toString());
-    err.lc_invoice = er.lc_or_invoice_no;
+    err.invoice = er.lc_or_invoice_no;
     err.bin = er.client_id;
     err.item = er.item_id;
     err.unit = er.unit_id;

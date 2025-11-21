@@ -28,12 +28,13 @@ class TreasuryController extends Controller
     $isAdmin = in_array($user->role->name, ['admin']);
     $search = $request->input('search');
 
-    $treasury = $this->treasury->with(['client', 'client.division', 'client.user', 'client.user.role', 'branch', 'branch.bank', 'branch.division'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->where('tax_period', 'like', '%' . strtolower($search) . '%')
-            ->orWhereHas('client', function ($query) use ($search, $user, $isAdmin) {
-              $query->when(!$isAdmin, fn($query) => $query->where('user_id', $user->id));
+    $treasury = $this->treasury->with(['client.division', 'branch.bank', 'branch.division'])
+      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->query()
+            ->where('tax_period', 'like', '%' . strtolower($search) . '%')
+            ->orWhereHas('client', function ($query) use ($search) {
               $query->where('bin', 'like', '%' . strtolower($search) . '%')
                 ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
             })
@@ -43,15 +44,11 @@ class TreasuryController extends Controller
                 ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
             });
         });
-      });
+      })->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
-    if (!$isAdmin) {
-      $treasury->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    $result = $treasury->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
-
-    return Inertia("treasury/index", ['treasury' => $result, 'search' => $search]);
+    return Inertia("treasury/index", ['treasury' => $treasury, 'search' => $search]);
   }
 
   // function call from treasuty page for create
@@ -63,24 +60,17 @@ class TreasuryController extends Controller
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbin = $this->client->where('id', $value)->where('status', '0')->first();
-          $clientbin && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'branch_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $branchCheck = $this->branch->where('id', $value)->exists();
-          !$branchCheck && $fail('Not exists');
+          $branch = $this->branch->find($value);
+          if (!$branch) return $fail('Not exists');
         }],
         'tax_period' => 'required|date_format:"Y-m"',
         'challan_no' => 'required|max:16',
@@ -114,15 +104,13 @@ class TreasuryController extends Controller
     $user = Auth::user();
     $isAdmin = in_array($user->role->name, ['admin']);
 
-    $treasury = $this->treasury->with(['client', 'client.division', 'client.user', 'client.user.role', 'branch', 'branch.bank', 'branch.division']);
+    $treasury = $this->treasury->with(['client.division', 'client.user', 'branch.bank', 'branch.division'])->find($id);
 
-    if (!$isAdmin) {
-      $treasury->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    if (!$isAdmin && ($treasury?->client->user_id !== $user->id)) {
+      return response()->json(['error' => 'Unauthorised']);
     }
 
-    $result = $treasury->find($id);
-    $msg = $result ? ['treasury' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    return response()->json(['treasury' => $treasury]);
   }
 
   // function call form treasury page for update
@@ -134,24 +122,17 @@ class TreasuryController extends Controller
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbin = $this->client->where('id', $value)->where('status', '0')->first();
-          $clientbin && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'branch_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $branchCheck = $this->branch->where('id', $value)->exists();
-          !$branchCheck && $fail('Not exists');
+          $branch = $this->branch->find($value);
+          if (!$branch) return $fail('Not exists');
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
         'challan_no' => 'required|max:16',
@@ -187,21 +168,24 @@ class TreasuryController extends Controller
     $isAdmin = in_array($user->role->name, ['admin']);
 
     $ids = explode(',', $id);
-    $treasury = $this->treasury->with(['client'])->whereIn('id', $ids);
+
+    $treasury = $this->treasury->with(['client'])->whereIn('id', $ids)->get();
+
+    if (!$treasury) {
+      return back()->with('error', 'No data found');
+    }
 
     if (!$isAdmin) {
-      $treasury->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+      $permission = $treasury->filter(function ($row) use ($user) {
+        return $row->client?->user_id !== $user->id;
+      });
+
+      if ($permission->isNotEmpty()) {
+        return back()->with('error', 'Unauthorised.');
+      }
     }
 
-    // Fetch records before delete to check ownership
-    $toDelete = $treasury->get();
-    // If no record belongs to user → block deletion
-    if ($toDelete->isEmpty()) {
-      return back()->with('error', 'Not your client data');
-    }
-
-    $treasury->delete();
-
+    $this->treasury->whereIn('id', $ids)->delete();
     return back()->with('message', 'Treasury deleted');
   }
 }

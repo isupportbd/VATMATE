@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3 mb-md-0 text-black-50"
-    :class="props.isOptions ? 'd-block' : 'd-none'">
+    :class="{ 'd-none': !props.isOptions }">
     Show
     <select class="form-select shadow-none w-auto mx-2" v-model="selectedoption" @change="selectOption">
       <option v-for="(val, i) in props.option" :key="i" :value="val">{{ val }}</option>

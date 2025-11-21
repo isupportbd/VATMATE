@@ -8,6 +8,7 @@ use Modules\Rate\Http\Controllers\RateController;
 // });
 
 Route::middleware(['auth'])->group(function () {
+  Route::get('/rate-last', [RateController::class, 'rateLast'])->name('rate-last')->middleware('role:admin,manager');
   Route::get('/rate', [RateController::class, 'index'])->name('rate')->middleware('role:admin,manager');
   Route::post('/rate', [RateController::class, 'store'])->name('rate-create')->middleware('role:admin,manager');
   Route::get('/rate/{id}', [RateController::class, 'show'])->name('rate-single')->middleware('role:admin,manager'); // json response for same page

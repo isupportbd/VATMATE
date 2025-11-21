@@ -6,23 +6,23 @@
           <div class="col-12">
             <Input type="hidden" v-model="field.id" readonly />
           </div>
-          <div class="col-12">
+          <div class="col-12 col-sm-7 col-md-6 col-lg-12">
             <SelectInfinite id="bin" placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
-          <div class="col-12">
+          <div class="col-12 col-sm-5 col-md-6 col-lg-12">
             <Input type="text" id="customer-name" label="name" placeholder="Ex: Jhon Doe" maxlength="100"
               v-model="field.name" :err="err.name" must />
           </div>
-          <div class="col-6">
-            <Input type="text" category="mobile" id="mobile" label="mobile" placeholder="Ex: +8801711000000"
-              maxlength="14" v-model="field.mobile" :err="err.mobile" must />
+          <div class="col-6 col-md-3 col-lg-6">
+            <Input type="text" category="mobile" id="mobile" label="mobile" placeholder="Ex: 01711000000" maxlength="11"
+              v-model="field.mobile" :err="err.mobile" must />
           </div>
-          <div class="col-6">
+          <div class="col-6 col-md-3 col-lg-6">
             <Input type="text" id="bin-or-nid" label="BIN/NID" placeholder="Ex: 52142354587413657" maxlength="17"
               v-model="field.bin_or_nid" :err="err.bin_or_nid" />
           </div>
-          <div class="col-12">
+          <div class="col-12 col-md-6 col-lg-12">
             <Input type="text" id="address" label="address" placeholder="Ex: Tamabil, Sylhet" maxlength="150"
               v-model="field.address" :err="err.address" />
           </div>
@@ -40,7 +40,7 @@
 <script setup>
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -60,7 +60,7 @@ const err = reactive({ bin: '', name: '', mobile: '', bin_or_nid: '', address: '
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.bin = !emptyObj(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
+  field.bin = !empty(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
   field.name = row.customer_name ?? "";
   field.mobile = row.mobile ?? "";
   field.bin_or_nid = row.bin_or_nid ?? "";

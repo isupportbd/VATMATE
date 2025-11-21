@@ -19,10 +19,10 @@
   </Modal>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
       <Form46Form ref="formRef" />
     </div>
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-7">
       <Form46Table :data="props.form46" :search="props.search" :view="view" :edit="edit" :del="del" />
     </div>
   </div>
@@ -82,8 +82,8 @@ const modal = ref();
 const closeme = () => modal.value.close();
 
 // for single view popup
-const form44Single = ref();
-const view = async (id) => await axios.get(`/form46/${id}`).then((res) => form44Single.value = res.data.form44);
+const form46Single = ref();
+const view = async (id) => await axios.get(`/form46/${id}`).then((res) => form46Single.value = res.data.form46);
 
 // reload form46
 const refresh = () => router.get(route('form46'), {}, { preserveScroll: true });

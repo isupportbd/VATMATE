@@ -10,7 +10,7 @@
   </Refresh>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
       <VatfactorForm ref="formRef" />
     </div>
     <div class="col-12 col-lg-8">

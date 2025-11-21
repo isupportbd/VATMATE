@@ -16,15 +16,7 @@ class Form46Controller extends Controller
   }
 
   /**
-   * Show the form for creating a new resource.
-   */
-  public function create()
-  {
-    return view('form46::create');
-  }
-
-  /**
-   * Store a newly created resource in storage.
+   * 4.6 need lc and boe or invoice -> stock minus
    */
   public function store(Request $request) {}
 
@@ -37,15 +29,7 @@ class Form46Controller extends Controller
   }
 
   /**
-   * Show the form for editing the specified resource.
-   */
-  public function edit($id)
-  {
-    return view('form46::edit');
-  }
-
-  /**
-   * Update the specified resource in storage.
+   * 4.6 need lc and boe or invoice -> stock minus
    */
   public function update(Request $request, $id) {}
 

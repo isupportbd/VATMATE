@@ -10,7 +10,7 @@
   </Refresh>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+    <div class="col-12 col-lg-3 mb-2 mb-lg-0">
       <ItemForm ref="formRef" />
     </div>
     <div class="col-12 col-lg-9">

@@ -21,6 +21,8 @@ class Rate extends Model
     'item_id',
     'date',
     'unit_price',
+    'sd',
+    'vat',
     'last'
   ];
 

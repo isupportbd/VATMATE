@@ -1,19 +1,22 @@
 <template>
   <div :class="$attrs.topclass ? $attrs.topclass : 'mb-3'">
     <div class="position-relative">
-      <label :for="$attrs.id" :class="$attrs.label ? 'text-capitalize d-flex mb-1' : 'd-none'">
-        <span>{{ $attrs.label }}</span>
-        <span :class="props.must ? 'text-danger rounded-circle bg-danger must' : 'd-none'"></span>
-        <div :class="hood ? 'text-uppercase w-100 text-end text-primary' : 'd-none'" style="font-size: 13px;">
-          {{ hood }}
+      <label :for="$attrs.id" class="text-capitalize d-flex align-items-center mb-1"
+        :class="{ 'd-none': !$attrs.label }">
+        <div class="position-relative">
+          <span class="text-capitalize" v-html="$attrs.label"></span>
+          <span class="position-absolute text-danger rounded-circle bg-danger must"
+            :class="{ 'd-none': !props.must }"></span>
         </div>
+        <div class="text-uppercase w-100 text-end text-primary fw-semibold" :class="{ 'd-none': !props.hood }"
+          style="font-size: 12px; margin-top: 0.15rem;" v-html="props.hood"></div>
       </label>
       <div class="input-group">
         <div class="position-relative" style="width: 35%;">
           <input type="text" class="form-control flex-grow-0 px-1 text-center rounded-0 rounded-start" :maxlength="max"
             :value="modelValue" @input="updateModel" :id="$attrs.id" v-bind="$attrs" />
-          <div :class="max ? 'position-absolute bottom-0 end-0 pe-1 text-info fw-bold max' : 'd-none'">
-            {{ max - props.modelValue.length }}
+          <div class="position-absolute bottom-0 end-0 pe-1 text-secondary max" :class="{ 'd-none': !max }">
+            {{ max - String(props.modelValue).length }}
           </div>
         </div>
         <input type="text" class="form-control border-start second-input" style="width: 62%;"
@@ -21,7 +24,7 @@
         <!-- <input class="form-control" v-model="model" :maxlength="max" v-bind="$attrs"> vue3.3 (2nd way)/3.4 -->
       </div>
     </div>
-    <div :id="`${$attrs.id}Help`" :class="err ? 'form-text text-danger' : 'd-none'">{{ err }}</div>
+    <div :id="`${$attrs.id}Help`" class="form-text text-danger" :class="{ 'd-none': !err }">{{ err }}</div>
   </div>
 </template>
 
@@ -41,7 +44,7 @@ const props = defineProps({
   hood: { type: [String, Number, Boolean] }
 });
 
-const max = $attrs.maxlength ? $attrs.maxlength.match(/^[0-9]*$/) : '';
+const max = $attrs.maxlength ? Number($attrs.maxlength) : null;
 
 // vue3.4 way
 /**
@@ -69,14 +72,15 @@ const updateModel = (e) => {
     let val = e.target.value;
 
     // Remove everything except digits, decimal point, and minus sign
-    val = val.replace(/[^0-9.-]/g, '');
+    val = val.replace(/[^0-9.]/g, '');
+    // val = val.replace(/[^0-9.-]/g, ''); // if need minus sign
 
-    // Move minus sign to the front if it exists anywhere
-    const isNegative = val.includes('-');
-    val = val.replace(/-/g, ''); // remove all minus signs
-    if (isNegative) {
-      val = '-' + val;
-    }
+    // // Move minus sign to the front if it exists anywhere
+    // const isNegative = val.includes('-');
+    // val = val.replace(/-/g, ''); // remove all minus signs
+    // if (isNegative) {
+    //   val = '-' + val;
+    // }
 
     // Allow only one decimal point
     const parts = val.split('.');

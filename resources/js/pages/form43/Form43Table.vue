@@ -29,25 +29,28 @@
         </p>
         <div :class="td.additionsum.length > 0 ? 'text-uppercase fw-bold' : 'd-none'" style="font-size: 10px;">
           <p class="m-0">
-            value: {{
-              Number(td.additionsum[0]?.valuesum)?.toFixed(2) }} | rate: {{ Number(td.additionsum[0]?.ratesum)?.toFixed(2)
-            }}</p>
+            value: {{ Number(td.additionsum[0]?.valuesum)?.toFixed(2) }} | rate: {{
+              Number(td.additionsum[0]?.ratesum)?.toFixed(2) }}</p>
           <p class="m-0"></p>
         </div>
       </td>
       <td class="text-center">
         <div class="btn-group" role="group">
-          <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark" title="view" data-bs-toggle="modal"
-            data-bs-target="#form43-view" @click="props.view(td.id)" />
-          <Button type="button" class="btn btn-outline-dark" title="edit" icon="bi bi-pencil-square"
-            @click="props.edit(td.id)" />
+          <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="view"
+            @click="props.view(td.id)" />
+          <Button type="button"
+            :class="['btn', 'rounded-2', td?.has_form621 ? 'btn-outline-secondary disabled' : 'btn-outline-dark']"
+            title="edit" icon="bi bi-pencil-square" @click="props.edit(td.id)" />
         </div>
         <div class="btn-group" role="group">
-          <Link :href="route('addition', { id: td.id })" class="btn btn-outline-dark" title="addition">
+          <Link :href="route('addition', { id: td.id })"
+            :class="['btn', 'rounded-2', td?.has_form621 ? 'btn-outline-secondary disabled' : 'btn-outline-dark']"
+            title="addition">
           <i class="bi bi-plus-circle"></i>
           </Link>
-          <Button type="button" class="btn btn-outline-danger" title="delete" icon="bi bi-trash"
-            @click="props.del(td.id)" />
+          <Button type="button"
+            :class="['btn', 'rounded-2', td?.has_form621 ? 'btn-outline-secondary disabled' : 'btn-outline-danger']"
+            title="delete" icon="bi bi-trash" @click="props.del(td.id)" />
         </div>
       </td>
     </template>

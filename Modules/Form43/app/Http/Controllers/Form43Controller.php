@@ -4,26 +4,29 @@ namespace Modules\Form43\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Models\Client;
 use Modules\Form43\Models\Form43;
+use Modules\Form621\Models\Form621;
 use Modules\Item\Models\Item;
 use Modules\Unit\Models\Unit;
+use Throwable;
 
 class Form43Controller extends Controller
 {
   public $client;
   public $criteria;
   public $form43;
+  public $form621;
   public $item;
   public $unit;
-  public function __construct(Client $client, Form43 $form43, Item $item, Unit $unit)
+  public function __construct(Client $client, Form43 $form43, Form621 $form621, Item $item, Unit $unit)
   {
     $this->client = $client;
     $this->form43 = $form43;
+    $this->form621 = $form621;
     $this->item = $item;
     $this->unit = $unit;
   }
@@ -32,16 +35,17 @@ class Form43Controller extends Controller
   public function index(Request $request)
   {
     $user   = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
 
-    $form43 = $this->form43->select('id', 'client_id', 'item_id', 'last')->with(['client', 'item', 'additionsum'])
-      ->when($search, function ($query) use ($search, $user, $isAdmin) {
-        $query->where(function ($query) use ($search, $user, $isAdmin) {
-          $query->whereHas('client', function ($query) use ($search, $user, $isAdmin) {
-            $query->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
-            $query->where(function ($query) use ($search) {
-              $query->where('company_name', 'like', "%{$search}%")
+    $query = $this->form43->with(['client', 'item', 'additionsum'])
+      ->select('id', 'client_id', 'item_id', 'last')
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1))
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($q) use ($search) {
+          $q->whereHas('client', function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+              $q->where('company_name', 'like', "%{$search}%")
                 ->orWhere('bin', 'like', "%{$search}%")
                 ->orWhere('mobile', 'like', "%{$search}%")
                 ->orWhereHas('user', fn($query) => $query->where('email', 'like', "%{$search}%"));
@@ -51,84 +55,28 @@ class Form43Controller extends Controller
               ->orWhere('hs_code', 'like', "%{$search}%");
           });
         });
-      });
-
-    if (!$isAdmin) {
-      $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id))->where('last', 1);
-    }
-
-    $result = $form43->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
+      })->addSelect(DB::raw("
+        EXISTS (
+            SELECT 1
+            FROM form621s f
+            WHERE f.client_id = form43s.client_id
+              AND f.item_id   = form43s.item_id
+        ) AS has_form621
+    "))->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
     return Inertia("form43/index", [
-      'form43' => $result,
+      'form43' => $query,
       'search' => $search
     ]);
-  }
-
-  // // function call from form43 page
-  // public function form43ClientItemCriteriaImport()
-  // {
-  //   $user = Auth::user();
-
-  //   $form43 = $this->form43->select('id', 'clientbin_id', 'unit_id', 'wastage', 'unit_price')->with(['clientbin:id,client_id', 'clientbin.client:id,user_id', 'unit:id,name']);
-
-  //   if ($user->role->name !== 'admin') {
-  //     $form43->whereHas('clientbin.client', fn($query) => $query->where('user_id', $user->id));
-  //   }
-
-  //   // criteria id found for import
-  //   $criteria = $this->criteria->where('name', 'import')->value('id');
-  //   // last item found
-  //   $result = $form43->where([['clientbin_id', request('clientbin_id')], ['item_id', request('item_id')], ['criteria_id', $criteria], ['last', 1]])->first();
-
-  //   $msg = $result ? ['form43' => $result] : ['msg' => 'Nothing found'];
-  //   return response()->json($msg);
-  // }
-
-  // // function call from form43 page
-  // public function form43ClientItemCriteriaLocal()
-  // {
-  //   $user = Auth::user();
-
-  //   $form43 = $this->form43->select('id', 'clientbin_id', 'unit_id', 'wastage', 'unit_price')->with(['clientbin:id,client_id', 'clientbin.client:id,user_id', 'unit:id,name']);
-
-  //   if ($user->role->name !== 'admin') {
-  //     $form43->whereHas('clientbin.client', fn($query) => $query->where('user_id', $user->id));
-  //   }
-
-  //   // criteria id found for local
-  //   $criteria = $this->criteria->where('name', 'local')->value('id');
-  //   // last item found
-  //   $result = $form43->where([['clientbin_id', request('clientbin_id')], ['item_id', request('item_id')], ['criteria_id', $criteria], ['last', 1]])->first();
-
-  //   $msg = $result ? ['form43' => $result] : ['msg' => 'Nothing found'];
-  //   return response()->json($msg);
-  // }
-
-  // function call from form43 page
-  public function form43ClientItemLast(Request $request)
-  {
-    $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
-
-    $form43 = $this->form43->select('id', 'client_id', 'purchase_unit_id', 'sale_unit_id', 'wastage', 'unit_price', 'item_code', 'last', 'factor')->with(['client:id,user_id', 'purchaseunit:id,name', 'saleunit:id,name', 'additionsum']);
-
-    if (!$isAdmin) {
-      $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-    }
-
-    // last item found
-    $result = $form43->where([['client_id', $request->client_id], ['item_id', $request->item_id], ['last', 1]])->first();
-
-    $msg = $result ? ['lastform43' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
   }
 
   // function call from statiocode form43 for create
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
@@ -136,60 +84,94 @@ class Form43Controller extends Controller
           $exists = $this->form43->where([['lc_no', $value], ['client_id', $request->client_id], ['item_id', $request->item_id]])->exists();
 
           if ($exists) {
-            $fail('Exists, change your input');
+            return $fail('Exists, change your input');
           }
         }],
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbinStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $clientbinStatusCheck && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Not exists');
         }],
         'purchase_unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'sale_unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'factor' => 'required|numeric|gt:0',
-        'item_code' => [
-          'required',
-          'numeric',
-          'gt:0',
-          // function ($attribute, $value, $fail) use ($request) {
-          //   $form43 = $this->form43->where(['client_id' => $request->client_id, 'item_id' => $request->item_id])->latest('id')->first();
-          //   if ($form43 && ($form43->item_code == $value)) {
-          //     $fail(($form43->item_code == $value));
-          //   }
-          // }
-        ],
-        'submission_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
-          $inputdate = Carbon::parse($value)->format('Y-m-d');
-          $currentdate = Carbon::now('Asia/Dhaka')->toDateString();
+        'item_code' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          $clientId = $request->input('client_id');
+          $itemId   = $request->input('item_id');
+          $rowId    = $request->input('id'); // null on create, set on update
 
-          ($inputdate !== $currentdate) && $fail("Select current date");
+          if (!$clientId || !$itemId) {
+            return $fail('Client, item required');
+          }
+
+          // Base query for this client
+          $base = $this->form43->where('client_id', $clientId);
+
+          // 1) Existing code for THIS item (same client+item, other rows ignored)
+          $existingCode = (clone $base)->when($rowId, fn($q) => $q->where('id', '!=', $rowId))
+            ->where('item_id', $itemId)
+            ->value('item_code');
+
+          if ($existingCode !== null) {
+            // Must match existing code
+            if ((string) $existingCode !== (string) $value) {
+              return $fail("Not matched ({$existingCode})");
+            }
+            return; // matched or failed; in both cases, no more checks
+          }
+
+          // 2) No code yet for this item → code must be unique among other items of same client
+          $usedByAnother = (clone $base)->when($rowId, fn($q) => $q->where('id', '!=', $rowId))
+            ->where('item_id', '!=', $itemId)
+            ->where('item_code', $value)
+            ->exists();
+
+          if ($usedByAnother) {
+            return $fail('Already used');
+          }
         }],
-        'first_delivery_date' => 'nullable|date_format:"Y-m-d"',
-        'boe_date' => 'required|date_format:"Y-m-d"',
+        'submission_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $inputdate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $currentdate = Carbon::now('Asia/Dhaka')->startOfDay();
+
+          if (!$inputdate->isSameDay($currentdate)) {
+            return $fail("Select current date");
+          }
+        }],
+        'first_delivery_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
+        'boe_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'boe_no' => 'required|max:20',
+        'mcu' => 'required|numeric|gt:0',
         'quantity' => 'required|numeric|gt:0',
         'wastage' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
         'excess_quantity' => 'required|numeric|gte:0',
@@ -223,6 +205,9 @@ class Form43Controller extends Controller
         'boe_date.date_format' => 'Invalid date',
         'boe_no.required' => 'BoE or Invoice no required',
         'boe_no.max' => 'Max 20 char',
+        'mcu.required' => 'MCU required',
+        'mcu.numeric' => 'Number only',
+        'mcu.gt' => 'Number > 0',
         'quantity.required' => 'Quantity required',
         'quantity.numeric' => 'Number only',
         'quantity.gt' => 'Number > 0',
@@ -268,7 +253,7 @@ class Form43Controller extends Controller
       });
 
       return back()->with('message', 'Form 4.3 created');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
     }
   }
@@ -276,80 +261,124 @@ class Form43Controller extends Controller
   // function call from form43 page as api for same page
   public function show($id)
   {
-    $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $form43 = $this->form43->with(['client', 'client.division', 'client.user', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'addition', 'addition.costsheet', 'additionsum']);
+    $form43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions', 'additions.costsheet', 'additionsum'])->find($id);
 
-    if (!$isAdmin) {
-      $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
+    if (!$form43) {
+      return response()->json(['form43' => null, 'max_item_code' => null, 'has_form621' => false, 'error' => 'Form 4.3 not found.']);
     }
 
-    $result = $form43->find($id);
-    $msg = $result ? ['form43' => $result] : ['msg' => 'Nothing found'];
-    return response()->json($msg);
+    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+      return response()->json(['form43' => null, 'max_item_code' => null, 'has_form621' => false, 'error' => 'Unauthorised']);
+    }
+
+    $maxItemCode = $this->form43->where('client_id', $form43->client_id)->max('item_code');
+
+    $hasForm621 = $this->form621->where('form43_id', $form43->id)->exists();
+
+    return response()->json(['form43' => $form43, 'max_item_code' => $maxItemCode, 'has_form621' => $hasForm621, 'error' => null]);
   }
 
   // function call form form43 page for update
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    if ($this->form621->where('form43_id', $id)->exists()) {
+      return back()->with('error', 'Cannot update: used in 6.2.1');
+    }
 
     $formField = $request->validate(
       [
         'lc_no' => 'required|max:50',
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
-          if (!$isAdmin) {
-            $userCheck = $this->client->where('id', $value)->where('user_id', $user->id)->exists();
-            // error show if role is not admin and client is not under him
-            !$userCheck && $fail('Not your client');
-          }
+          $client = $this->client->find($value);
 
-          // bin status check
-          $clientbinStatusCheck = $this->client->where([['id', $value], ['status', '0']])->first();
-          $clientbinStatusCheck && $fail("BIN inactive");
+          if (!$client) return $fail('Client does not exist');
 
-          // check exists or not
-          $binCheck = $this->client->where('id', $value)->exists();
-          !$binCheck && $fail('Not exists');
+          if ($client->status == 0) return $fail('BIN inactive');
+
+          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $itemCheck = $this->item->where('id', $value)->exists();
-          !$itemCheck && $fail('Not exists');
+          $item = $this->item->find($value);
+          if (!$item) return $fail('Not exists');
         }],
         'purchase_unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'sale_unit_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
-          // check exists or not
-          $unitCheck = $this->unit->where('id', $value)->exists();
-          !$unitCheck && $fail('Not exists');
+          $unit = $this->unit->find($value);
+          if (!$unit) return $fail('Not exists');
         }],
         'factor' => 'required|numeric|gt:0',
-        'item_code' => [
-          'required',
-          'numeric',
-          'gt:0',
-          // function ($attribute, $value, $fail) use ($request) {
-          //   $form43 = $this->form43->where(['client_id' => $request->client_id, 'item_id' => $request->item_id])->latest('id')->first();
-          //   if ($form43 && ($form43->item_code == $value)) {
-          //     $fail(($form43->item_code == $value));
-          //   }
-          // }
-        ],
-        'submission_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
-          $inputdate = Carbon::parse($value)->format('Y-m-d');
-          $currentdate = Carbon::now()->format('Y-m-d');
+        'item_code' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          $clientId = $request->input('client_id');
+          $itemId   = $request->input('item_id');
+          $rowId    = $request->input('id'); // null on create, set on update
 
-          ($inputdate !== $currentdate) && $fail("Select current date");
+          if (!$clientId || !$itemId) {
+            return $fail('Client, item required');
+          }
+
+          // Base query for this client
+          $base = $this->form43->where('client_id', $clientId);
+
+          // 1) Existing code for THIS item (same client+item, other rows ignored)
+          $existingCode = (clone $base)->when($rowId, fn($q) => $q->where('id', '!=', $rowId))
+            ->where('item_id', $itemId)
+            ->value('item_code');
+
+          if ($existingCode !== null) {
+            // Must match existing code
+            if ((string) $existingCode !== (string) $value) {
+              return $fail("Not matched ({$existingCode})");
+            }
+            return; // matched or failed; in both cases, no more checks
+          }
+
+          // 2) No code yet for this item → code must be unique among other items of same client
+          $usedByAnother = (clone $base)->when($rowId, fn($q) => $q->where('id', '!=', $rowId))
+            ->where('item_id', '!=', $itemId)
+            ->where('item_code', $value)
+            ->exists();
+
+          if ($usedByAnother) {
+            return $fail('Already used');
+          }
         }],
-        'first_delivery_date' => 'nullable|date_format:"Y-m-d"',
-        'boe_date' => 'required|date_format:"Y-m-d"',
+        'submission_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $inputdate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $currentdate = Carbon::now('Asia/Dhaka')->startOfDay();
+
+          if (!$inputdate->isSameDay($currentdate)) {
+            return $fail("Select current date");
+          }
+        }],
+        'first_delivery_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
+        'boe_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'boe_no' => 'required|max:20',
+        'mcu' => 'required|numeric|gt:0',
         'quantity' => 'required|numeric|gt:0',
         'wastage' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
         'excess_quantity' => 'required|numeric|gte:0',
@@ -383,6 +412,9 @@ class Form43Controller extends Controller
         'boe_date.date_format' => 'Invalid date',
         'boe_no.required' => 'BoE or Invoice no required',
         'boe_no.max' => 'Max 20 char',
+        'mcu.required' => 'MCU required',
+        'mcu.numeric' => 'Number only',
+        'mcu.gt' => 'Number > 0',
         'quantity.required' => 'Quantity required',
         'quantity.numeric' => 'Number only',
         'quantity.gt' => 'Number > 0',
@@ -421,7 +453,7 @@ class Form43Controller extends Controller
       });
 
       return back()->with('message', 'Form 4.3 updated');
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
     }
   }
@@ -429,39 +461,88 @@ class Form43Controller extends Controller
   // function call from form43 page for delete
   public function destroy($id)
   {
-    $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    try {
-      DB::transaction(function () use ($id, $user, $isAdmin) {
-        $form43 = $this->form43->with(['client'])->where('id', $id);
+    // 1) Load record without user filter first
+    $form43 = $this->form43->with('client')->find($id);
 
-        if (!$isAdmin) {
-          $form43->whereHas('client', fn($query) => $query->where('user_id', $user->id));
-        }
-
-        // Fetch records before delete to check ownership
-        $toDelete = $form43->get();
-        // If no record belongs to user → block deletion
-        if ($toDelete->isEmpty()) {
-          return back()->with('error', 'Not your client data');
-        }
-
-        // find out current id form43
-        $form43ById = $this->form43->where('id', $id)->first();
-        // delete current id
-        $result = $form43->delete();
-
-        // find out last form43 with form43ById
-        $last = $this->form43->where([['client_id', $form43ById->client_id], ['item_id', $form43ById->item_id]])->groupBy('client_id', 'item_id')->max('id');
-        $form43Last = $this->form43->where('id', $last)->first();
-        // in this case we will delete this id than update previous last 1
-        !empty($form43Last) && $form43Last->where('id', $last)->update(['last' => 1]);
-      });
-
-      return back()->with('message', 'Form 4.3 deleted');
-    } catch (Exception $e) {
-      return back()->with("error", $e->getMessage());
+    if (!$form43) {
+      return back()->with('error', 'Form 4.3 not found');
     }
+
+    // Case 2: exists but not his and not admin
+    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    // 3) Hard block if used in 6.2.1
+    $inUse = $this->form621->where('form43_id', $form43->id)->exists();
+
+    if ($inUse) {
+      return back()->with('error', 'Cannot delete: Already used in Form 6.2.1');
+    }
+
+    // can delete last combination only
+    if ($form43->last != 1) {
+      return back()->with('error', 'Can not delete: not last combination');
+    }
+
+    // 4) Delete + maintain "last" in a transaction
+    DB::transaction(function () use ($form43) {
+      $clientId = $form43->client_id;
+      $itemId   = $form43->item_id;
+
+      // delete current row
+      $form43->delete();
+
+      // set latest remaining record as last=1 (if any)
+      $newLastId = $this->form43->where('client_id', $clientId)->where('item_id', $itemId)->max('id'); // null if none left
+
+      if ($newLastId) {
+        $this->form43->where('id', $newLastId)->update(['last' => 1]);
+      }
+    });
+
+    return back()->with('message', 'Form 4.3 deleted');
+  }
+
+  /**
+   * Find last from Form 4.3
+   * combination will be: client, item, last
+   */
+  public function form43Last(Request $request)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $client  = $request->query('client_id');
+    $item    = $request->query('item_id');
+
+    // max item code (keep this, works even if there is no "last")
+    $maxItemCode = $this->form43->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+      ->where('client_id', $client)
+      ->max('item_code');
+
+    // last 4.3 for this client+item
+    $form43 = $this->form43->with(['client', 'item', 'purchaseunit:id,name', 'saleunit:id,name'])
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->where('client_id', $client)
+      ->where('item_id', $item)
+      ->where('last', 1)
+      ->first();
+
+    if (!$form43) {
+      return response()->json(['form43last' => $form43, 'max_item_code' => $maxItemCode, 'has_addition' => false, 'message' => '4.3 not found']);
+    }
+
+    // use your simple additions() relation here
+    $hasAddition = $form43->additions()->exists();
+
+    if (!$hasAddition) {
+      return response()->json(['form43last' => $form43, 'max_item_code' => $maxItemCode, 'has_addition' => $hasAddition, 'message' => '4.3 has no addition']);
+    }
+
+    return response()->json(['form43last' => $form43, 'max_item_code' => $maxItemCode, 'has_addition' => $hasAddition, 'message' => null]);
   }
 }

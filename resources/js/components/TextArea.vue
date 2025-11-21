@@ -1,24 +1,24 @@
 <template>
-  <div :class="$attrs.topclass ? `${$attrs.topclass} position-relative` : 'mb-3'">
+  <div :class="$attrs.topclass ? `${$attrs.topclass} position-relative` : 'mb-2'">
     <div class="position-relative">
-      <label :for="$attrs.id" :class="$attrs.label ? 'text-capitalize d-flex mb-1' : 'd-none'">
-        <span>{{ $attrs.label }}</span>
-        <span :class="props.must ? 'text-danger rounded-circle bg-danger must' : 'd-none'"></span>
-      </label>
+      <div class="position-relative mb-1">
+        <span class="text-capitalize" v-html="$attrs.label"></span>
+        <span class="position-absolute text-danger rounded-circle bg-danger must"
+          :class="{ 'd-none': !props.must }"></span>
+      </div>
       <div class="form-floating h-100">
         <textarea :value="props.modelValue" @input="updateModel" class="form-control mb-0 h-100" :maxlength="max"
           :aria-describedby="`${$attrs.id}Help`" v-bind="$attrs">
         </textarea>
-        <label :for="$attrs.id" :class="$attrs.placeholder ? 'd-block placeholder-label border-0' : 'd-none'"
-          style="top: -11px; left: 3px;">
+        <label :for="$attrs.id" class="d-block placeholder-label border-0" :class="{ 'd-none': !$attrs.placeholder }">
           {{ $attrs.placeholder }}
         </label>
       </div>
-      <label :class="max ? 'position-absolute end-0 pe-1 text-secondary max' : 'd-none'" style="top: 28px">
+      <label class="position-absolute end-0 pe-1 text-secondary max" :class="{ 'd-none': !max }" style="top: 28px">
         {{ max - props.modelValue.length }}
       </label>
     </div>
-    <div :id="`${$attrs.id}Help`" :class="!err ? 'd-none' : 'form-text text-danger'">{{ err }}</div>
+    <div :id="`${$attrs.id}Help`" class="form-text text-danger" :class="{ 'd-none': !err }">{{ err }}</div>
   </div>
 </template>
 
@@ -43,15 +43,15 @@ onMounted(() => { props.focus ? nextTick(() => document.querySelector(`#${$attrs
 </script>
 
 <style lang="scss" scoped>
-textarea {
-  border-color: #CCCCCC;
-
-  &:focus {
-    border-color: #9ea5f5;
+.form-floating {
+  label {
+    top: -1px;
+    left: 1px;
   }
 
-  &:read-only {
-    background-color: #F8F8F8;
+  textarea:focus+label,
+  textarea:not(:placeholder-shown)+label {
+    top: -6px;
   }
 }
 
@@ -68,13 +68,5 @@ textarea {
 
 .max {
   font-size: 0.6rem;
-}
-
-textarea {
-  border-color: #CCCCCC;
-}
-
-textarea:read-only {
-  background-color: #F8F8F8;
 }
 </style>

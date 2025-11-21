@@ -40,7 +40,7 @@
 <script setup>
 import { ref, reactive, inject } from "vue";
 import { router } from "@inertiajs/vue3";
-import { emptyObj } from "../../helpers/utils";
+import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -79,8 +79,8 @@ const fetchedExpense = async () => {
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.bin = !emptyObj(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
-  field.expense = !emptyObj(row.expense) ? { id: row.expense?.id, title: row.expense?.name } : "";
+  field.bin = !empty(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
+  field.expense = !empty(row.expense) ? { id: row.expense?.id, title: row.expense?.name } : "";
   field.tax_period = row.tax_period ?? "";
   field.amount = row.amount ?? "";
   field.remarks = row.remarks ?? "";

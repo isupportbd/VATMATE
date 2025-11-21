@@ -209,7 +209,7 @@ $sidebar-width: 16.25rem;
 
   .form-control {
     border: 1px solid map.get($theme, border-custom);
-    padding: calc(0.45rem - var(--bs-border-width)) calc(0.9375rem - var(--bs-border-width));
+    // padding: calc(0.44rem - var(--bs-border-width)) calc(0.9375rem - var(--bs-border-width));
     // line-height: 1.375;
     background: map.get($theme, bg-white);
     color-scheme: dark;
@@ -698,7 +698,7 @@ $sidebar-width: 16.25rem;
 
         @include media-breakpoint-down(sm) {
           .nav-btn {
-            flex: 1 1 calc(25% - 0.25rem); // 4 items per row with gap
+            flex: 1 1 calc(20% - 0.25rem); // 4 items per row with gap
             display: flex;
             justify-content: center;
           }
@@ -798,10 +798,35 @@ $sidebar-width: 16.25rem;
 }
 
 .datatable thead tr > th:last-child {
-  width: 1% !important;
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .datatable-pagination .page-item{
+  .page-link{
+    border-radius: 5px;
+    margin-left: 0;
+    border: 1px solid #DFDFDF;
+  }
+}
+
+// general table
+.datatable-general thead tr > th, .datatable-general tbody tr > td{
+  padding: 7.5px 10px;
+}
+
+.datatable-general thead tr > th{
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.datatable-general thead tr > th:nth-child(-n+1) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.datatable-general-pagination .page-item{
   .page-link{
     border-radius: 5px;
     margin-left: 0;

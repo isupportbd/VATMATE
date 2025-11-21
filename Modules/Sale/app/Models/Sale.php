@@ -4,7 +4,9 @@ namespace Modules\Sale\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Bank\Models\Bank;
 use Modules\Client\Models\Client;
+use Modules\Form621\Models\Form621;
 use Modules\Item\Models\Item;
 use Modules\Unit\Models\Unit;
 
@@ -21,6 +23,7 @@ class Sale extends Model
     'invoice_no',
     'client_id',
     'date',
+    'customer_mobile',
     'customer_name',
     'bin_or_nid',
     'address',
@@ -28,7 +31,10 @@ class Sale extends Model
     'transaction_no',
     'transaction_date',
     'item_id',
+    'opening_stock',
+    'stock',
     'quantity',
+    'last_purchase_unit_price',
     'unit_price',
     'total_price',
     'unit_id',
@@ -48,8 +54,18 @@ class Sale extends Model
     return $this->belongsTo(Item::class, 'item_id');
   }
 
+  public function bank()
+  {
+    return $this->belongsTo(Bank::class, 'bank_id');
+  }
+
   public function unit()
   {
     return $this->belongsTo(Unit::class, 'unit_id');
+  }
+
+  public function form621()
+  {
+    return $this->morphMany(Form621::class, 'importable');
   }
 }
