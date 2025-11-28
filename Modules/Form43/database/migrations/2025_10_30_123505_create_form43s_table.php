@@ -13,7 +13,7 @@ return new class extends Migration
   {
     Schema::create('form43s', function (Blueprint $table) {
       $table->id();
-      $table->string('lc_no', 50)->nullable();
+      $table->string('lc_no', 20)->nullable();
       $table->unsignedBigInteger('client_id')->nullable(false);
       $table->unsignedBigInteger('item_id')->nullable();
       $table->unsignedBigInteger('purchase_unit_id')->nullable();

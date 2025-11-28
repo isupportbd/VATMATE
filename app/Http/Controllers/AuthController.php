@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MailSendEvent;
+use App\Events\UserCreateMailEvent;
+use App\Events\UserDeleteEvent;
+use App\Events\UserForgetPasswordMailEvent;
+use App\Events\UserProfileMailEvent;
+use App\Events\UserStatusUpdateEvent;
+use App\Events\UserUpdateMailEvent;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -99,14 +106,9 @@ class AuthController extends Controller
       ]
     );
 
+    // send from queue
     $user = $this->user->where('email', $formField['email'])->first();
-    $user->makeVisible(['forget_password']);
-
-    $mailData = 'Your password is "' . $user['forget_password'] . '"';
-    Mail::raw($mailData, function ($message) use ($user) {
-      $message->to($user['email']);
-      $message->subject('Forget password from VATMATE');
-    });
+    event(new UserForgetPasswordMailEvent($user));
 
     return Redirect::route('forget-password')->with('message', 'Check your email');
   }
@@ -127,11 +129,7 @@ class AuthController extends Controller
       ]
     );
 
-    $mailData = $formField['mailbody'];
-    Mail::raw($mailData, function ($message) use ($formField) {
-      $message->to($formField['email']);
-      $message->subject('Username & Password');
-    });
+    event(new MailSendEvent($formField['mailbody'], $formField['email']));
 
     return response()->json(['msg' => 'Sent']);
   }
@@ -202,23 +200,14 @@ class AuthController extends Controller
         $formField['forget_password'] = $request->input('password');
         $formField['status'] = '1';
 
-        $result = User::create($formField);
+        $result = $this->user->create($formField);
 
-        if ($result) {
-          $user = $this->user->where('email', $formField['email'])->first();
-          $user->makeVisible(['forget_password']);
-          $mailData = "Dear " . $formField['name'] . ",\n\nCongratulations! Your username and password were successfully created on " . Carbon::parse($user->created_at)->format('d/m/Y') . ".\n\nYou may now log in to our web application by clicking on the Login link using the following username and password.\n\n\nLogin Link: https://www.vatmate.org\n\nUsername: " . $formField['email'] . "\nPassword: " . $formField['forget_password'] . "\n\n\nYou can change your password by clicking your profile in the window's top right corner. Select My Profile, click the edit button in the top right corner, set a new password for it, and put it again to confirm. Then save it. You cannot change your mobile.\n\nIf you have any questions you may contact the Contact Center at 01719950891 and mention your email.\n\n\nBest Regards,\n\nvatmate.org";
-          Mail::raw($mailData, function ($message) use ($user) {
-            $message->to($user['email']);
-            $message->subject('Welcome to vatmate.org');
-          });
-        }
+        // for general application events that may or may not broadcast
+        event(new UserCreateMailEvent($result));
       });
 
-      DB::commit();
       return back()->with('message', 'User created');
     } catch (Throwable $e) {
-      DB::rollBack();
       return back()->with("error", $e->getMessage());
     }
   }
@@ -305,21 +294,13 @@ class AuthController extends Controller
           ])
         );
 
-        if ($result) {
-          $user = $this->user->where('email', $request->input('email'))->first();
-          $user->makeVisible(['forget_password']);
-          $mailData = "Hi " . $user['name'] . "\n\nYour profile successfully updated on " . Carbon::parse($user->updated_at)->format('d/m/Y') . ". You may now log in to our web application by clicking on the Login link using the new password.\n\n\nLogin Link: https://www.vatmate.org\n\nUsername: " . $request->input('email') . "\nPassword: " . $user['forget_password'] . "\n\n\n\nYou can change your password by clicking your profile in the window's top right corner. Select My Profile, click the edit button in the top right corner, set a new password for it, and put it again to confirm. Then save it. You cannot change your mobile.\n\nIf you have any questions you may contact the Contact Center at 01719950891 and mention your email.\n\n\nBest Regards,\n\nvatmate.org";
-          Mail::raw($mailData, function ($message) use ($user) {
-            $message->to($user['email']);
-            $message->subject('Profile has been updated by vatmate');
-          });
-        }
+        // real time data update
+        $userUpdate = $this->user->with(['role'])->where('id', $id)->first();
+        event(new UserUpdateMailEvent($userUpdate));
       });
 
-      DB::commit();
       return back()->with('message', 'User updated');
     } catch (Throwable $e) {
-      DB::rollBack();
       return back()->with("error", $e->getMessage());
     }
   }
@@ -340,6 +321,10 @@ class AuthController extends Controller
     }
 
     $result = $query->delete();
+
+    // realtime data create
+    event(new UserDeleteEvent($result));
+
     return back()->with('message', "Deleted {$result} user(s)");
   }
 
@@ -363,6 +348,10 @@ class AuthController extends Controller
     );
 
     $this->user->with(['role'])->where('id', $id)->update($formField);
+
+    $userStatusUpdate = $this->user->where('id', $id)->first();
+    event(new UserStatusUpdateEvent($userStatusUpdate));
+
     return back()->with('message', 'User status updated');
   }
 
@@ -408,15 +397,9 @@ class AuthController extends Controller
           ])
         );
 
-        if ($result) {
-          $user = $this->user->where('email', $request->input('email'))->first();
-          $user->makeVisible(['forget_password']);
-          $mailData = "Hi " . $user['name'] . "\n\nYour profile successfully updated on " . Carbon::parse($user->updated_at)->format('d/m/Y') . ". You may now log in to our web application by clicking on the Login link using the new password.\n\n\nLogin Link: https://www.vatmate.org\n\nUsername: " . "\nName: " . $user['name'] . "\nMobile: " . $user['mobile'] . "\nEmail: " . $request->input('email') . "\nPassword: " . $user['forget_password'] . "\n\n\n\nYou can change your password by clicking your profile in the window's top right corner. Select My Profile, click the edit button in the top right corner, set a new password for it, and put it again to confirm. Then save it. You cannot change your mobile.\n\nIf you have any questions you may contact the Contact Center at +8801719950891 and mention your email.\n\n\nBest Regards,\n\nvatmate.org";
-          Mail::raw($mailData, function ($message) use ($user) {
-            $message->to($user['email']);
-            $message->subject('Profile has been updated');
-          });
-        }
+        // send from queue
+        $user = $this->user->where('email', $request->input('email'))->first();
+        event(new UserProfileMailEvent($user));
       });
 
       DB::commit();

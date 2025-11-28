@@ -35,7 +35,7 @@ class ItemController extends Controller
     $formField = $request->validate(
       [
         'name' => 'required|max:250',
-        'hs_code' => ['required', 'max:20', function ($attribute, $value, $fail) use ($request) {
+        'hs_code' => ['required', 'max:10', function ($attribute, $value, $fail) use ($request) {
           $check_unique = $this->item->where([['name', $request->input('name')], ['hs_code', $value]])->exists();
 
           if ($check_unique) return $fail('Exists, change your input');
@@ -53,7 +53,7 @@ class ItemController extends Controller
         'name.max' => 'Max 150 char',
         'hs_code.required' => 'HS code required',
         'hs_code.unique' => 'Exists, change your input',
-        'hs_code.max' => 'Max 20 char',
+        'hs_code.max' => 'Max 10 char',
         'description.max' => 'Max 250 char',
         'cd.required' => 'CD required',
         'cd.numeric' => 'Number only',
@@ -89,7 +89,7 @@ class ItemController extends Controller
     $formField = $request->validate(
       [
         'name' => 'required|max:250',
-        'hs_code' => ['required', 'max:20', function ($attribute, $value, $fail) use ($request) {
+        'hs_code' => ['required', 'max:10', function ($attribute, $value, $fail) use ($request) {
           $check_unique = $this->item->where([['name', $request->input('name')], ['hs_code', $value]])->exists();
 
           if ($check_unique) return $fail('Exists, change your input');
@@ -107,7 +107,7 @@ class ItemController extends Controller
         'name.max' => 'Max 150 char',
         'hs_code.required' => 'HS code required',
         'hs_code.unique' => 'Exists, change your input',
-        'hs_code.max' => 'Max 20 char',
+        'hs_code.max' => 'Max 10 char',
         'description.max' => 'Max 250 char',
         'cd.required' => 'CD required',
         'cd.numeric' => 'Number only',

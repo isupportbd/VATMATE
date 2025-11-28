@@ -6,17 +6,13 @@
           <div class="col-12">
             <Input type="hidden" v-model="field.id" readonly />
           </div>
-          <div class="col-12 col-sm-7 col-md-6 col-lg-12">
-            <SelectInfinite id="bin" placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
-              :hood="field.bin?.val?.company_name" :err="err.bin" must />
-          </div>
           <div class="col-12 col-sm-5 col-md-6 col-lg-12">
             <Input type="text" id="customer-name" label="name" placeholder="Ex: Jhon Doe" maxlength="100"
               v-model="field.name" :err="err.name" must />
           </div>
           <div class="col-6 col-md-3 col-lg-6">
             <Input type="text" category="mobile" id="mobile" label="mobile" placeholder="Ex: 01711000000" maxlength="11"
-              v-model="field.mobile" :err="err.mobile" must />
+              v-model="field.mobile" :err="err.mobile" :readonly="!empty(field.id)" must />
           </div>
           <div class="col-6 col-md-3 col-lg-6">
             <Input type="text" id="bin-or-nid" label="BIN/NID" placeholder="Ex: 52142354587413657" maxlength="17"
@@ -44,7 +40,6 @@ import { empty } from "../../helpers/utils";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
-import SelectInfinite from "../../components/SelectInfinite.vue";
 
 const notify = inject('showToast'); // toast message
 
@@ -54,43 +49,32 @@ const props = defineProps({
 });
 
 // branch field
-const field = reactive({ id: '', bin: '', name: '', mobile: '', bin_or_nid: '', address: '', isLoading: false });
-const err = reactive({ bin: '', name: '', mobile: '', bin_or_nid: '', address: '' });
+const field = reactive({ id: '', name: '', mobile: '', bin_or_nid: '', address: '', isLoading: false });
+const err = reactive({ name: '', mobile: '', bin_or_nid: '', address: '' });
 
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
   field.id = row.id ?? "";
-  field.bin = !empty(row.client) ? { id: row.client?.id, title: row.client?.bin } : "";
   field.name = row.customer_name ?? "";
   field.mobile = row.mobile ?? "";
   field.bin_or_nid = row.bin_or_nid ?? "";
   field.address = row.address ?? "";
   // clear previous errors when setting a record
-  err.bin = err.name = err.mobile = err.bin_or_nid = err.address = "";
+  err.name = err.mobile = err.bin_or_nid = err.address = "";
 };
 
 // reset form
 const resetForm = () => {
-  field.id = field.bin = field.name = field.mobile = field.bin_or_nid = field.address = err.bin = err.name = err.mobile = err.bin_or_nid = err.address = "";
+  field.id = field.name = field.mobile = field.bin_or_nid = field.address = err.name = err.mobile = err.bin_or_nid = err.address = "";
 };
 
 defineExpose({ setForm, resetForm });
 // --- end expose ---
 
-// bin
-const fetchedBin = async () => {
-  return {
-    url: route('client-dropdown'),
-    data: 'client',
-    mapFn: (cbin) => ({ id: cbin.id, title: cbin.bin, val: cbin })
-  };
-};
-
 // create or update branch
 const submitData = async () => {
   const form = {
     id: field.id,
-    client_id: field.bin?.id,
     customer_name: field.name,
     mobile: field.mobile,
     bin_or_nid: field.bin_or_nid,
@@ -100,7 +84,6 @@ const submitData = async () => {
   const onErr = (errors) => {
     let er = {};
     Object.keys(errors).map((key) => er[key] = errors[key].toString());
-    err.bin = er.client_id;
     err.name = er.customer_name;
     err.mobile = er.mobile;
     err.bin_or_nid = er.bin_or_nid;

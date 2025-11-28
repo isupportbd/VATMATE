@@ -8,33 +8,47 @@
     <div class="col-12 col-md-6">
       <nav class="datatable-pagination" aria-label="Page navigation">
         <ul class="pagination justify-content-center justify-content-md-end">
-          <li :disabled="noPreviousPage" :class="{ 'page-item': noPreviousPage }">
-            <Link class="page-link" href="#" role="button" @click="loadPage(1)">
-            <i class='bx bx-chevrons-left'></i>
+          <!-- First -->
+          <li :class="['page-item', { disabled: noPreviousPage }]">
+            <Link class="page-link" href="#" role="button" :aria-disabled="noPreviousPage ? 'true' : 'false'"
+              :tabindex="noPreviousPage ? -1 : 0" @click.prevent="!noPreviousPage && loadPage(1)">
+            <i class="bi bi-chevron-double-left"></i>
             </Link>
           </li>
-          <li :disabled="noPreviousPage" :class="{ 'page-item': noPreviousPage }">
-            <Link class="page-link" href="#" @click="loadPage(props.data.current_page - 1)">
-            <i class='bx bx-chevron-left'></i>
+
+          <!-- Prev -->
+          <li :class="['page-item', { disabled: noPreviousPage }]">
+            <Link class="page-link" href="#" :aria-disabled="noPreviousPage ? 'true' : 'false'"
+              :tabindex="noPreviousPage ? -1 : 0"
+              @click.prevent="!noPreviousPage && loadPage(props.data.current_page - 1)">
+            <i class="bi bi-chevron-left"></i>
             </Link>
           </li>
+
           <li class="page-item">
-            <Input type="text" class="form-control shadow-none text-center" style="width: 100px;" v-model="page.page"
-              @keyup.enter="loadPage(page.page)" />
+            <Input type="text" category="number" class="form-control shadow-none text-center"
+              style="width: 100px; line-height: 1;" v-model="page.page" @keyup.enter="loadPage(page.page)" />
           </li>
+
           <li class="page-item lastpage">
             <Link class="page-link text-nowrap" href="#">
             of {{ nFormatter(props.data.last_page) }}
             </Link>
           </li>
-          <li :disabled="noNextPage" :class="{ 'page-item': noNextPage }">
-            <Link class="page-link" href="#" @click="loadPage(props.data.current_page + 1)">
-            <i class='bx bx-chevron-right'></i>
+
+          <!-- Next -->
+          <li :class="['page-item', { disabled: noNextPage }]">
+            <Link class="page-link" href="#" :aria-disabled="noNextPage ? 'true' : 'false'"
+              :tabindex="noNextPage ? -1 : 0" @click.prevent="!noNextPage && loadPage(props.data.current_page + 1)">
+            <i class="bi bi-chevron-right"></i>
             </Link>
           </li>
-          <li :disabled="noNextPage" :class="{ 'page-item': noNextPage }">
-            <Link class="page-link" href="#" @click="loadPage(props.data.last_page)">
-            <i class='bx bx-chevrons-right'></i>
+
+          <!-- Last -->
+          <li :class="['page-item', { disabled: noNextPage }]">
+            <Link class="page-link" href="#" :aria-disabled="noNextPage ? 'true' : 'false'"
+              :tabindex="noNextPage ? -1 : 0" @click.prevent="!noNextPage && loadPage(props.data.last_page)">
+            <i class="bi bi-chevron-double-right"></i>
             </Link>
           </li>
         </ul>
@@ -45,24 +59,37 @@
 
 <script setup>
 import { reactive, computed, watchEffect } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, Link } from '@inertiajs/vue3';
 import Input from '../../../components/Input.vue';
 
 const props = defineProps({
   data: { type: [Array, Object] },
   selectedoption: { type: [String, Number] },
-  filters: { type: [Array, Object] },
   search: { type: String }
 });
 
 const page = reactive({ page: '', from: '', to: '', total: '' });
 
 const noPreviousPage = computed(() => props.data.current_page - 1 <= 0);
-const noNextPage = computed(() => props.data.current_page + 1 > props.data.last_page);
+const noNextPage = computed(() => (props.data.current_page + 1) > props.data.last_page);
 
 const loadPage = (page) => {
-  // console.log(page, props.selectedoption, props.area_id, props.tax_period, props.user_id);
-  return router.visit(props.data.path, { data: { page: page, size: props.selectedoption, search: props.search, ...props.filters }, preserveState: true, preserveScroll: true });
+  let p = parseInt(page, 10);
+
+  // fallback if NaN
+  if (isNaN(p)) p = props.data.current_page;
+
+  const last = Number(props.data.last_page) || 1;
+
+  // clamp between 1 and last
+  if (p < 1) p = 1;
+  if (p > last) p = last;
+
+  return router.visit(props.data.path, {
+    data: { page: p, size: props.selectedoption, search: props.search, },
+    preserveState: true,
+    preserveScroll: true,
+  });
 };
 
 const nFormatter = (num) => {
@@ -83,8 +110,23 @@ watchEffect(() => {
 </script>
 
 <style lang="scss" scoped>
-.pagination .page-link {
-  margin-left: 0;
-  border-color: #CDCDCD !important;
+ul.pagination {
+  margin: 0;
+
+  :deep(.page-item.disabled .page-link),
+  :deep(.page-link:disabled),
+  :deep(.page-link[aria-disabled="true"]) {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .page-link {
+    border-radius: 5px !important;
+    margin-left: 0;
+    border-color: #CDCDCD !important;
+    color: inherit;
+    box-shadow: none;
+  }
 }
 </style>

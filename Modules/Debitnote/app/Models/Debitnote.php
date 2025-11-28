@@ -19,13 +19,16 @@ class Debitnote extends Model
    * The attributes that are mass assignable.
    */
   protected $fillable = [
+    'client_id',
+    'debitnote_invoice',
     'lc_or_invoice_no',
     'boe',
-    'client_id',
     'item_id',
     'issued_date',
-    'vat_challan_no',
+    'opening_stock',
+    'stock',
     'vat_challan_date',
+    'rate_in_challan',
     'value_in_challan',
     'quantity_in_challan',
     'unit_id',
@@ -51,7 +54,7 @@ class Debitnote extends Model
 
   public function unit()
   {
-    return $this->belongsTo(Unit::class, 'item_id');
+    return $this->belongsTo(Unit::class, 'unit_id');
   }
 
   public function form621()

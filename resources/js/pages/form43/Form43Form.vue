@@ -7,7 +7,7 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12 col-sm-5">
-            <Input type="text" category="number" id="lc_no" label="Lc No" maxlength="50"
+            <Input type="text" category="number" id="lc_no" label="Lc No" maxlength="20"
               placeholder="Ex: 00003764658574" autocomplete="off" v-model="field.lc_no" :err="err.lc_no" focus must />
           </div>
           <div class="col-12 col-sm-7">

@@ -26,6 +26,7 @@ return new class extends Migration
       $table->double('quantity', 23, 2)->nullable(false);
       $table->double('last_purchase_unit_price', 23, 2)->nullable(false);
       $table->double('unit_price', 23, 2)->nullable(false);
+      $table->double('item_price', 23, 2)->nullable(false);
       $table->double('total_price', 23, 2)->nullable(false);
       $table->double('sd', 5, 2)->nullable(false);
       $table->double('sd_value', 23, 2)->nullable(false);

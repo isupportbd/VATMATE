@@ -41,7 +41,8 @@ class VatfactorController extends Controller
     $formField = $request->validate(
       [
         'name' => 'required|max:20',
-        'value' => 'required|numeric|gt:0'
+        'value' => 'required|numeric|gt:0',
+        'description' => 'required|max:150',
       ],
       [
         'name.required' => 'Name required',
@@ -49,6 +50,8 @@ class VatfactorController extends Controller
         'value.required' => 'Value required',
         'value.numeric' => 'Number only',
         'value.gt' => 'Number > 0',
+        'description.required' => 'Description',
+        'description.max' => 'Max 150 char',
       ]
     );
 

@@ -11,7 +11,7 @@
               :err="err.name" focus must />
           </div>
           <div class="col-12">
-            <Input type="text" label="hs code" maxlength="20" placeholder="Ex: 2701.19.00" v-model="field.hs_code"
+            <Input type="text" label="hs code" maxlength="10" placeholder="Ex: 2701.19.00" v-model="field.hs_code"
               :err="err.hs_code" must />
           </div>
           <div class="col-4">
@@ -26,15 +26,15 @@
             <Input type="text" category="decimal" label="SD" maxlength="6" placeholder="Ex: 15" v-model="field.sd"
               :err="err.sd" must />
           </div>
-          <div class="col-4">
+          <div class="col-6">
             <Input type="text" category="decimal" label="VAT" maxlength="6" placeholder="Ex: 15" v-model="field.vat"
               :err="err.vat" must />
           </div>
-          <div class="col-4">
+          <!-- <div class="col-4">
             <Input type="text" category="decimal" label="AIT" maxlength="6" placeholder="Ex: 15" v-model="field.ait"
               :err="err.ait" must />
-          </div>
-          <div class="col-4">
+          </div> -->
+          <div class="col-6">
             <Input type="text" category="decimal" label="AT" maxlength="6" placeholder="Ex: 15" v-model="field.at"
               :err="err.at" must />
           </div>
@@ -67,8 +67,8 @@ const props = defineProps({
 });
 
 // item field
-const field = reactive({ id: '', name: '', hs_code: '', description: '', cd: '', rd: '', sd: '', vat: '', ait: '', at: '', isLoading: false });
-const err = reactive({ name: '', hs_code: '', cd: '', rd: '', sd: '', vat: '', ait: '', at: '' });
+const field = reactive({ id: '', name: '', hs_code: '', description: '', cd: '', rd: '', sd: '', vat: '', at: '', isLoading: false });
+const err = reactive({ name: '', hs_code: '', cd: '', rd: '', sd: '', vat: '', at: '' });
 
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
@@ -80,15 +80,14 @@ const setForm = async (row = {}) => {
   field.rd = row.rd ?? "";
   field.sd = row.sd ?? "";
   field.vat = row.vat ?? "";
-  field.ait = row.ait ?? "";
   field.at = row.at ?? "";
   // clear previous errors when setting a record
-  err.name = err.hs_code = err.cd = err.rd = err.sd = err.vat = err.ait = err.at = "";
+  err.name = err.hs_code = err.cd = err.rd = err.sd = err.vat = err.at = "";
 };
 
 // reset form
 const resetForm = () => {
-  field.id = field.name = field.hs_code = field.description = field.cd = field.rd = field.sd = field.vat = field.ait = field.at = err.name = err.hs_code = err.cd = err.rd = err.sd = err.vat = err.ait = err.at = "";
+  field.id = field.name = field.hs_code = field.description = field.cd = field.rd = field.sd = field.vat = field.ait = field.at = err.name = err.hs_code = err.cd = err.rd = err.sd = err.vat = err.at = "";
 };
 
 defineExpose({ setForm, resetForm });
@@ -96,7 +95,7 @@ defineExpose({ setForm, resetForm });
 
 // create or update division
 const submitData = async () => {
-  const form = { id: field.id, name: field.name, hs_code: field.hs_code, description: field.description, cd: field.cd, rd: field.rd, sd: field.sd, vat: field.vat, ait: field.ait, at: field.at };
+  const form = { id: field.id, name: field.name, hs_code: field.hs_code, description: field.description, cd: field.cd, rd: field.rd, sd: field.sd, vat: field.vat, at: field.at };
 
   const onErr = (errors) => {
     let er = {};
@@ -107,7 +106,6 @@ const submitData = async () => {
     err.rd = er.rd;
     err.sd = er.sd;
     err.vat = er.vat;
-    err.ait = er.ait;
     err.at = er.at;
   };
 

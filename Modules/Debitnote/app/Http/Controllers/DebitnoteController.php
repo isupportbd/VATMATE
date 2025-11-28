@@ -7,10 +7,14 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Modules\Client\Models\Client;
 use Modules\Debitnote\Models\Debitnote;
+use Modules\Form43\Models\Form43;
+use Modules\Form621\Models\Form621;
 use Modules\Item\Models\Item;
+use Modules\Purchase\Models\Purchase;
 use Modules\Unit\Models\Unit;
 use Throwable;
 
@@ -20,12 +24,18 @@ class DebitnoteController extends Controller
   public $item;
   public $unit;
   public $debitnote;
-  public function __construct(Client $client, Item $item, Unit $unit, Debitnote $debitnote)
+  public $form43;
+  public $form621;
+  public $purchase;
+  public function __construct(Client $client, Item $item, Unit $unit, Debitnote $debitnote, Form43 $form43, Form621 $form621, Purchase $purchase)
   {
     $this->client = $client;
     $this->item = $item;
     $this->unit = $unit;
     $this->debitnote = $debitnote;
+    $this->form43 = $form43;
+    $this->form621 = $form621;
+    $this->purchase = $purchase;
   }
 
   /**
@@ -62,7 +72,7 @@ class DebitnoteController extends Controller
   }
 
   /**
-   * debit note need lc and boe -> stock minus
+   * credit note need only invoice -> stock plus
    */
   public function store(Request $request)
   {
@@ -71,8 +81,16 @@ class DebitnoteController extends Controller
 
     $formField = $request->validate(
       [
-        'reason_for_issuance' => 'required|max:150',
-        'lc_or_invoice_no' => 'required|max:50',
+        'lc_or_invoice_no' => ['required', 'string', 'max:20', function ($attribute, $value, $fail) {
+          $invoicePrefixes = collect(['INV', 'CRN', 'DBN']);
+
+          $isInvoice = $invoicePrefixes->contains(fn($prefix) => Str::startsWith($value, $prefix));
+
+          // If NOT invoice → must be numeric (LC)
+          if (!$isInvoice && !ctype_digit($value)) {
+            return $fail("LC number must be digits only");
+          }
+        }],
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
           $client = $this->client->find($value);
 
@@ -86,7 +104,8 @@ class DebitnoteController extends Controller
           $item = $this->item->find($value);
           if (!$item) return $fail('Not exists');
         }],
-        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+        'boe' => 'required|string|max:20',
+        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
           $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
           $today = Carbon::today('Asia/Dhaka')->startOfDay();
 
@@ -94,8 +113,14 @@ class DebitnoteController extends Controller
           if ($date->gt($today)) {
             return $fail("Greater than today");
           }
+
+          $lastDate = $this->form621
+            ->where('client_id', $request->input('client_id'))
+            ->groupBy(['client_id'])
+            ->max('date');
+
+          if ($lastDate && ($lastDate > $value)) return $fail("Violate last date");
         }],
-        'vat_challan_no' => 'required|max:16',
         'vat_challan_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
           $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
           $today = Carbon::today('Asia/Dhaka')->startOfDay();
@@ -111,17 +136,16 @@ class DebitnoteController extends Controller
           $unit = $this->unit->find($value);
           if (!$unit) return $fail('Not exists');
         }],
-        'vat_in_challan' => 'required|numeric|gt:0',
+        'vat_in_challan' => 'required|numeric|gte:0',
         'sd_in_challan' => 'required|numeric|gte:0',
         'value_of_increasing_adjustment' => 'required|numeric|gt:0',
         'quantity_of_increasing_adjustment' => 'required|numeric|gt:0',
-        'vat_of_increasing_adjustment' => 'required|numeric|gt:0',
-        'sd_of_increasing_adjustment' => 'required|numeric|gt:0',
+        'vat_of_increasing_adjustment' => 'required|numeric|gte:0',
+        'sd_of_increasing_adjustment' => 'required|numeric|gte:0',
+        'reason_for_issuance' => 'required|max:150',
         'remarks' => 'nullable|max:250'
       ],
       [
-        'reason_for_issuance.required' => 'Reason required',
-        'reason_for_issuance.max' => 'Max 150 char',
         'lc_or_invoice_no.required' => 'Lc or invoice number required',
         'lc_or_invoice_no.max' => 'Max 50 char',
         'client_id.required' => 'BIN required',
@@ -130,10 +154,10 @@ class DebitnoteController extends Controller
         'item_id.required' => 'Item required',
         'item_id.numeric' => 'Number only',
         'item_id.gt' => 'Number > 0',
+        'boe.required' => 'BoE required',
+        'boe.max' => 'Max 10 char',
         'issued_date.required' => 'Issue date required',
         'issued_date.date_format' => 'Invalid date',
-        'vat_challan_no.required' => 'Challan number required',
-        'vat_challan_no.max' => 'Max 16 char',
         'vat_challan_date.required' => 'Challan date required',
         'vat_challan_date.date_format' => 'Invalid date',
         'value_in_challan.required' => 'Value required',
@@ -147,29 +171,115 @@ class DebitnoteController extends Controller
         'unit_id.gt' => 'Number > 0',
         'vat_in_challan.required' => 'VAT required',
         'vat_in_challan.numeric' => 'Number only',
-        'vat_in_challan.gt' => 'Number > 0',
+        'vat_in_challan.gte' => '(+)Number only',
         'sd_in_challan.required' => 'SD required',
         'sd_in_challan.numeric' => 'Number only',
-        'sd_in_challan.gt' => 'Number > 0',
-        'value_of_increasing_adjustment.required' => 'Increase Value required',
+        'sd_in_challan.gte' => '(+)Number only',
+        'value_of_increasing_adjustment.required' => 'Decrease Value required',
         'value_of_increasing_adjustment.numeric' => 'Number only',
         'value_of_increasing_adjustment.gt' => 'Number > 0',
-        'quantity_of_increasing_adjustment.required' => 'Increase quantity required',
+        'quantity_of_increasing_adjustment.required' => 'Decrease quantity required',
         'quantity_of_increasing_adjustment.numeric' => 'Number only',
         'quantity_of_increasing_adjustment.gt' => 'Number > 0',
-        'vat_of_increasing_adjustment.required' => 'Increase VAT required',
+        'vat_of_increasing_adjustment.required' => 'Decrease VAT required',
         'vat_of_increasing_adjustment.numeric' => 'Number only',
-        'vat_of_increasing_adjustment.gt' => 'Number > 0',
-        'sd_of_increasing_adjustment.required' => 'Increase SD required',
+        'vat_of_increasing_adjustment.gte' => '(+)Number only',
+        'sd_of_increasing_adjustment.required' => 'Decrease SD required',
         'sd_of_increasing_adjustment.numeric' => 'Number only',
-        'sd_of_increasing_adjustment.gt' => 'Number > 0',
+        'sd_of_increasing_adjustment.gte' => '(+)Number only',
+        'reason_for_issuance.required' => 'Reason required',
+        'reason_for_issuance.max' => 'Max 150 char',
         'remarks.max' => 'Max 250 char'
       ]
     );
 
     try {
-      DB::transaction(function () use ($formField, $request) {
-        $this->debitnote->create($formField);
+      DB::transaction(function () use ($formField, $request, $user, $isAdmin) {
+        $currentYear = now('Asia/Dhaka')->format('Y');
+        $clientId = $request->input('client_id');
+        $itemId = $request->input('item_id');
+        $invNo = $request->input('lc_or_invoice_no');
+        $boeNo = $request->input('boe');
+
+        $base621 = $this->form621->with(['sale'])->where('client_id', $clientId)->where('item_id', $itemId);
+        $form621 = (clone $base621)->where('last', 1)->first();
+
+        if (!$form621) {
+          throw new \RuntimeException("Form 6.2.1 last not found");
+        }
+
+        $form43Id = (clone $base621)->where('lc_or_invoice_no', $invNo)->where('boe', $boeNo)->value('form43_id');
+
+        if (!$form43Id) {
+          throw new \RuntimeException("Form 4.3 reference id not found");
+        }
+
+        $purchaseUnitPrice = (clone $base621)->where('lc_or_invoice_no', $invNo)->where('boe', $boeNo)->first()?->purchase?->unit_price;
+
+        // Mark previous last as not last
+        $form621->update(['last' => 0]);
+
+        // LAST INVOICE FOR THIS BIN + THIS YEAR
+        $lastInvoice = $this->debitnote->query()
+          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+          ->where('client_id', $clientId)
+          ->whereYear('issued_date', $currentYear)
+          ->orderByDesc('id')
+          ->first();
+
+        if ($lastInvoice) {
+          $parts = explode('/', $lastInvoice->invoice_no);
+          $number = isset($parts[1]) ? (int) $parts[1] : 0;
+          $nextInvoiceNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
+          $invoice = 'DBN-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoiceNumber;
+        } else {
+          $invoice = 'DBN-' . now('Asia/Dhaka')->format('y') . '/00001';
+        }
+
+        $stockAfter = (float) $form621->stock - (float) $formField['quantity_of_increasing_adjustment'];
+
+        if ($formField['quantity_of_increasing_adjustment'] > $form621->stock) {
+          throw new \RuntimeException("Over the stock");
+        }
+
+        $debitnote = $this->debitnote->create([
+          'debitnote_invoice' => $invoice,
+          'lc_or_invoice_no' => $formField['lc_or_invoice_no'],
+          'boe' => $formField['boe'],
+          'client_id' => $clientId,
+          'item_id' => $itemId,
+          'issued_date' => $formField['issued_date'],
+          'opening_stock' => number_format($form621->stock, 2, ".", ""),
+          'stock' => number_format($stockAfter, 2, ".", ""),
+          'vat_challan_date' => number_format($formField['vat_challan_date'], 2, ".", ""),
+          'rate_in_challan' => number_format($purchaseUnitPrice, 2, ".", ""),
+          'value_in_challan' => number_format($formField['value_in_challan'], 2, ".", ""),
+          'quantity_in_challan' => number_format($formField['quantity_in_challan'], 2, ".", ""),
+          'unit_id' => $formField['unit_id'],
+          'vat_in_challan' => number_format($formField['vat_in_challan'], 2, ".", ""),
+          'sd_in_challan' => number_format($formField['sd_in_challan'], 2, ".", ""),
+          'value_of_increasing_adjustment' => number_format($formField['value_of_increasing_adjustment'], 2, ".", ""),
+          'quantity_of_increasing_adjustment' => number_format($formField['quantity_of_increasing_adjustment'], 2, ".", ""),
+          'vat_of_increasing_adjustment' => number_format($formField['vat_of_increasing_adjustment'], 2, ".", ""),
+          'sd_of_increasing_adjustment' => number_format($formField['sd_of_increasing_adjustment'], 2, ".", ""),
+          'reason_for_issuance' => $formField['reason_for_issuance'],
+          'remarks' => $formField['remarks'],
+        ]);
+
+        $debitnote->form621()->create([
+          'client_id'        => $clientId,
+          'item_id'          => $itemId,
+          'form43_id'        => $form43Id,
+          'lc_or_invoice_no' => $invoice,
+          'boe'              => $formField['boe'],
+          'quantity'         => number_format($formField['quantity_of_increasing_adjustment'], 2, ".", ""),
+          'unit_id'          => $formField['unit_id'],
+          'opening_stock'    => number_format($form621->stock, 2, ".", ""),
+          'stock'            => number_format($stockAfter, 2, ".", ""),
+          'date'             => $formField['issued_date'],
+          'last'             => 1,
+          'userid'           => $user->id,
+        ]);
       });
 
       return back()->with('message', 'Debit note created');
@@ -196,17 +306,29 @@ class DebitnoteController extends Controller
   }
 
   /**
-   * debit note need lc and boe -> stock minus
+   * credit note need only invoice -> stock plus
    */
   public function update(Request $request, $id)
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
+    if (!$this->form621->where('importable_id', $id)->where('importable_type', 'mushak68')->where('last', 1)->first()) {
+      throw new \RuntimeException("Can not update: not last combination");
+    }
+
     $formField = $request->validate(
       [
-        'reason_for_issuance' => 'required|max:150',
-        'lc_or_invoice_no' => 'required|max:50',
+        'lc_or_invoice_no' => ['required', 'string', 'max:20', function ($attribute, $value, $fail) {
+          $invoicePrefixes = collect(['INV', 'CRN', 'DBN']);
+
+          $isInvoice = $invoicePrefixes->contains(fn($prefix) => Str::startsWith($value, $prefix));
+
+          // If NOT invoice → must be numeric (LC)
+          if (!$isInvoice && !ctype_digit($value)) {
+            return $fail("LC number must be digits only");
+          }
+        }],
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
           $client = $this->client->find($value);
 
@@ -220,7 +342,8 @@ class DebitnoteController extends Controller
           $item = $this->item->find($value);
           if (!$item) return $fail('Not exists');
         }],
-        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+        'boe' => 'required|string|max:20',
+        'issued_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
           $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
           $today = Carbon::today('Asia/Dhaka')->startOfDay();
 
@@ -228,8 +351,14 @@ class DebitnoteController extends Controller
           if ($date->gt($today)) {
             return $fail("Greater than today");
           }
+
+          $lastDate = $this->form621
+            ->where('client_id', $request->input('client_id'))
+            ->groupBy(['client_id'])
+            ->max('date');
+
+          if ($lastDate && ($lastDate > $value)) return $fail("Violate last date");
         }],
-        'vat_challan_no' => 'required|max:16',
         'vat_challan_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
           $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
           $today = Carbon::today('Asia/Dhaka')->startOfDay();
@@ -245,17 +374,16 @@ class DebitnoteController extends Controller
           $unit = $this->unit->find($value);
           if (!$unit) return $fail('Not exists');
         }],
-        'vat_in_challan' => 'required|numeric|gt:0',
+        'vat_in_challan' => 'required|numeric|gte:0',
         'sd_in_challan' => 'required|numeric|gte:0',
         'value_of_increasing_adjustment' => 'required|numeric|gt:0',
         'quantity_of_increasing_adjustment' => 'required|numeric|gt:0',
-        'vat_of_increasing_adjustment' => 'required|numeric|gt:0',
-        'sd_of_increasing_adjustment' => 'required|numeric|gt:0',
+        'vat_of_increasing_adjustment' => 'required|numeric|gte:0',
+        'sd_of_increasing_adjustment' => 'required|numeric|gte:0',
+        'reason_for_issuance' => 'required|max:150',
         'remarks' => 'nullable|max:250'
       ],
       [
-        'reason_for_issuance.required' => 'Reason required',
-        'reason_for_issuance.max' => 'Max 150 char',
         'lc_or_invoice_no.required' => 'Lc or invoice number required',
         'lc_or_invoice_no.max' => 'Max 50 char',
         'client_id.required' => 'BIN required',
@@ -264,10 +392,10 @@ class DebitnoteController extends Controller
         'item_id.required' => 'Item required',
         'item_id.numeric' => 'Number only',
         'item_id.gt' => 'Number > 0',
+        'boe.required' => 'BoE required',
+        'boe.max' => 'Max 10 char',
         'issued_date.required' => 'Issue date required',
         'issued_date.date_format' => 'Invalid date',
-        'vat_challan_no.required' => 'Challan number required',
-        'vat_challan_no.max' => 'Max 16 char',
         'vat_challan_date.required' => 'Challan date required',
         'vat_challan_date.date_format' => 'Invalid date',
         'value_in_challan.required' => 'Value required',
@@ -281,29 +409,66 @@ class DebitnoteController extends Controller
         'unit_id.gt' => 'Number > 0',
         'vat_in_challan.required' => 'VAT required',
         'vat_in_challan.numeric' => 'Number only',
-        'vat_in_challan.gt' => 'Number > 0',
+        'vat_in_challan.gte' => '(+)Number only',
         'sd_in_challan.required' => 'SD required',
         'sd_in_challan.numeric' => 'Number only',
-        'sd_in_challan.gt' => 'Number > 0',
-        'value_of_increasing_adjustment.required' => 'Increase Value required',
+        'sd_in_challan.gte' => '(+)Number only',
+        'value_of_increasing_adjustment.required' => 'Decrease Value required',
         'value_of_increasing_adjustment.numeric' => 'Number only',
         'value_of_increasing_adjustment.gt' => 'Number > 0',
-        'quantity_of_increasing_adjustment.required' => 'Increase quantity required',
+        'quantity_of_increasing_adjustment.required' => 'Decrease quantity required',
         'quantity_of_increasing_adjustment.numeric' => 'Number only',
         'quantity_of_increasing_adjustment.gt' => 'Number > 0',
-        'vat_of_increasing_adjustment.required' => 'Increase VAT required',
+        'vat_of_increasing_adjustment.required' => 'Decrease VAT required',
         'vat_of_increasing_adjustment.numeric' => 'Number only',
-        'vat_of_increasing_adjustment.gt' => 'Number > 0',
-        'sd_of_increasing_adjustment.required' => 'Increase SD required',
+        'vat_of_increasing_adjustment.gte' => '(+)Number only',
+        'sd_of_increasing_adjustment.required' => 'Decrease SD required',
         'sd_of_increasing_adjustment.numeric' => 'Number only',
-        'sd_of_increasing_adjustment.gt' => 'Number > 0',
+        'sd_of_increasing_adjustment.gte' => '(+)Number only',
+        'reason_for_issuance.required' => 'Reason required',
+        'reason_for_issuance.max' => 'Max 150 char',
         'remarks.max' => 'Max 250 char'
       ]
     );
 
     try {
-      DB::transaction(function () use ($formField, $request, $id) {
-        $this->debitnote->where('id', $id)->update($formField);
+      DB::transaction(function () use ($formField, $request, $user, $isAdmin, $id) {
+        $debitnote = $this->debitnote->with('form621')->find($id);
+        if (!$debitnote) {
+          throw new \RuntimeException('Debit note not found');
+        }
+
+        $debitnoteForm621 = optional($debitnote->form621->first());
+        if (!$debitnote) {
+          throw new \RuntimeException('Related Form 6.2.1 row not found');
+        }
+
+        if ($formField['quantity_of_increasing_adjustment'] > $debitnoteForm621->opening_stock) {
+          throw new \RuntimeException("Over the stock");
+        }
+
+        $stockAfter = (float) $debitnoteForm621->opening_stock - (float) $formField['quantity_of_increasing_adjustment'];
+
+        $debitnote->update([
+          'issued_date' => $formField['issued_date'],
+          'opening_stock' => number_format($debitnoteForm621->opening_stock, 2, ".", ""),
+          'stock' => number_format($stockAfter, 2, ".", ""),
+          'value_of_increasing_adjustment' => number_format($formField['value_of_increasing_adjustment'], 2, ".", ""),
+          'quantity_of_increasing_adjustment' => number_format($formField['quantity_of_increasing_adjustment'], 2, ".", ""),
+          'vat_of_increasing_adjustment' => number_format($formField['vat_of_increasing_adjustment'], 2, ".", ""),
+          'sd_of_increasing_adjustment' => number_format($formField['sd_of_increasing_adjustment'], 2, ".", ""),
+          'reason_for_issuance' => $formField['reason_for_issuance'],
+          'remarks' => $formField['remarks'],
+        ]);
+
+        $debitnoteForm621->update([
+          'boe'              => $formField['boe'],
+          'quantity'         => number_format($formField['quantity_in_challan'], 2, ".", ""),
+          'opening_stock'    => number_format($debitnoteForm621->opening_stock, 2, ".", ""),
+          'stock'            => number_format($stockAfter, 2, ".", ""),
+          'date'             => $formField['issued_date'],
+          'userid'           => $user->id,
+        ]);
       });
 
       return back()->with('message', 'Debit note updated');
@@ -319,25 +484,39 @@ class DebitnoteController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $ids = explode(',', $id);
 
-    $debitnote = $this->debitnote->with(['client'])->whereIn('id', $ids)->get();
+    try {
+      DB::transaction(function () use ($id, $user, $isAdmin) {
+        $permission = $this->form621->with(['client'])->where('id', $id)
+          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+          ->first();
 
-    if ($debitnote->isEmpty()) {
-      return back()->with('error', 'No data found');
-    }
+        if (!$permission) {
+          return back()->with('error', 'Unauthorized');
+        }
 
-    if (!$isAdmin) {
-      $permission = $debitnote->filter(function ($row) use ($user) {
-        return $row->client?->user_id !== $user->id;
+        $form621 = $this->form621->with(['client'])->where([['id', $id], ['importable_type', 'mushak68'], ['last', 1]]);
+
+        if (!$form621->first()) {
+          return back()->with('error', 'Can not delete: not last combination');
+        }
+
+        // temporary store data in variable
+        $storeData = $form621->first();
+        // delete current id
+        $this->debitnote->where('id', $storeData->importable_id)->delete();
+        $form621->delete();
+
+        // set the latest remaining record as last=1 (if any)
+        $newLastId = $this->form621->where('client_id', $storeData->client_id)->where('item_id', $storeData->item_id)->max('id');
+        if ($newLastId) {
+          $this->form621->where('id', $newLastId)->update(['last' => 1]);
+        }
       });
 
-      if ($permission->isNotEmpty()) {
-        return back()->with('error', 'Unauthorised.');
-      }
+      return back()->with('message', 'Debit note deleted');
+    } catch (Throwable $e) {
+      return back()->with("error", $e->getMessage());
     }
-
-    $this->debitnote->whereIn('id', $ids)->delete();
-    return back()->with('message', 'Debit note deleted');
   }
 }

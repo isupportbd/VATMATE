@@ -26,8 +26,8 @@
           </li>
 
           <li class="page-item">
-            <Input type="text" class="form-control shadow-none text-center" style="width: 100px; line-height: 1;"
-              v-model="page.page" @keyup.enter="loadPage(page.page)" />
+            <Input type="text" category="number" class="form-control shadow-none text-center"
+              style="width: 100px; line-height: 1;" v-model="page.page" @keyup.enter="loadPage(page.page)" />
           </li>
 
           <li class="page-item lastpage">
@@ -74,7 +74,22 @@ const noPreviousPage = computed(() => props.data.current_page - 1 <= 0);
 const noNextPage = computed(() => (props.data.current_page + 1) > props.data.last_page);
 
 const loadPage = (page) => {
-  return router.visit(props.data.path, { data: { page: page, size: props.selectedoption, search: props.search }, preserveState: true, preserveScroll: true });
+  let p = parseInt(page, 10);
+
+  // fallback if NaN
+  if (isNaN(p)) p = props.data.current_page;
+
+  const last = Number(props.data.last_page) || 1;
+
+  // clamp between 1 and last
+  if (p < 1) p = 1;
+  if (p > last) p = last;
+
+  return router.visit(props.data.path, {
+    data: { page: p, size: props.selectedoption, search: props.search, },
+    preserveState: true,
+    preserveScroll: true,
+  });
 };
 
 const nFormatter = (num) => {

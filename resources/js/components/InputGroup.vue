@@ -8,19 +8,21 @@
           <span class="position-absolute text-danger rounded-circle bg-danger must"
             :class="{ 'd-none': !props.must }"></span>
         </div>
-        <div class="text-uppercase w-100 text-end text-primary fw-semibold" :class="{ 'd-none': !props.hood }"
+        <div
+          :class="['text-uppercase w-50 text-end text-primary fw-semibold', half ? 'w-50' : 'w-100', !props.hood && 'd-none']"
           style="font-size: 12px; margin-top: 0.15rem;" v-html="props.hood"></div>
       </label>
       <div class="input-group">
-        <div class="position-relative" style="width: 35%;">
+        <div class="position-relative" :style="`${half ? 'width: 50%;' : 'width: 35%;'}`">
           <input type="text" class="form-control flex-grow-0 px-1 text-center rounded-0 rounded-start" :maxlength="max"
             :value="modelValue" @input="updateModel" :id="$attrs.id" v-bind="$attrs" />
           <div class="position-absolute bottom-0 end-0 pe-1 text-secondary max" :class="{ 'd-none': !max }">
             {{ max - String(props.modelValue).length }}
           </div>
         </div>
-        <input type="text" class="form-control border-start second-input" style="width: 62%;"
-          :placeholder="$attrs.placeholder1" :value="props.calcdata" readonly />
+        <input type="text" class="form-control border-start second-input"
+          :style="`${half ? 'width: 50%;' : 'width: 62%;'}`" :placeholder="$attrs.placeholder1" :value="props.calcdata"
+          readonly />
         <!-- <input class="form-control" v-model="model" :maxlength="max" v-bind="$attrs"> vue3.3 (2nd way)/3.4 -->
       </div>
     </div>
@@ -37,11 +39,12 @@ const $attrs = useAttrs();
 const props = defineProps({
   focus: { type: Boolean },
   must: { type: Boolean },
+  half: { type: Boolean },
   err: { type: [String, Boolean], default: false },
   modelValue: { type: [String, Number], default: '' },
   category: { type: String },
   calcdata: { type: [String, Number], default: '' },
-  hood: { type: [String, Number, Boolean] }
+  hood: { type: [String, Number, Boolean] },
 });
 
 const max = $attrs.maxlength ? Number($attrs.maxlength) : null;

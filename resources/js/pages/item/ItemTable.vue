@@ -8,7 +8,6 @@
       <th class="text-center">RD</th>
       <th class="text-center">SD</th>
       <th class="text-center">VAT</th>
-      <th class="text-center">AIT</th>
       <th class="text-center">AT</th>
       <th class="text-center">Action</th>
     </template>
@@ -33,7 +32,6 @@
       <td class="text-center">{{ td.rd }}%</td>
       <td class="text-center">{{ td.sd }}%</td>
       <td class="text-center">{{ td.vat }}%</td>
-      <td class="text-center">{{ td.ait }}%</td>
       <td class="text-center">{{ td.at }}%</td>
       <td class="text-center">
         <div class="btn-group" role="group">

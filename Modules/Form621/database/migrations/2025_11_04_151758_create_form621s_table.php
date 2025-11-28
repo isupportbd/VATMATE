@@ -35,6 +35,7 @@ return new class extends Migration
       $table->timestamps();
       $table->index(['lc_or_invoice_no']);
       $table->index(['client_id', 'item_id', 'last']);
+      $table->index(['client_id', 'lc_or_invoice_no', 'item_id', 'boe']);
     });
   }
 

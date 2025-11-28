@@ -78,6 +78,94 @@
       </button>
     </template>
   </Modal>
+  <!-- creditnote view -->
+  <Modal id="viewcreditnote" ref="modalviewcreditnote" title="Credit Note (6.7) Details" size="xl">
+    <template #modalbody>
+      <ViewCreditnote :view="singleCreditnote" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeViewCreditnote">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- creditnote edit -->
+  <Modal id="editcreditnote" ref="modaleditcreditnote" title="Edit Credit Note 6.7" size="xl">
+    <template #modalbody>
+      <EditCreditnote ref="creditnoteRef" :modal="modaleditcreditnote" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeEditCreditnote">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- debitnote view -->
+  <Modal id="viewdebitnote" ref="modalviewdebitnote" title="Debit Note (6.8) Details" size="xl">
+    <template #modalbody>
+      <ViewDebitnote :view="singleDebitnote" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeViewDebitnote">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- debitnote edit -->
+  <Modal id="editdebitnote" ref="modaleditdebitnote" title="Edit Debit Note 6.8" size="xl">
+    <template #modalbody>
+      <EditDebitnote ref="debitnoteRef" :modal="modaleditdebitnote" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeEditDebitnote">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- form44 view -->
+  <Modal id="viewform44" ref="modalviewform44" title="Form 4.4 Details" size="xl">
+    <template #modalbody>
+      <ViewForm44 :view="singleForm44" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeViewForm44">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- form44 edit -->
+  <Modal id="editform44" ref="modaleditform44" title="Edit Form 4.4" size="xl">
+    <template #modalbody>
+      <EditForm44 ref="form44Ref" :modal="modaleditform44" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeEditForm44">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- form45 view -->
+  <Modal id="viewform45" ref="modalviewform45" title="Form 4.5 Details" size="xl">
+    <template #modalbody>
+      <ViewForm45 :view="singleForm45" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeViewForm45">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
+  <!-- form45 edit -->
+  <Modal id="editform45" ref="modaleditform45" title="Edit Form 4.5" size="xl">
+    <template #modalbody>
+      <EditForm45 ref="form45Ref" :modal="modaleditform45" />
+    </template>
+    <template #modalfooter>
+      <button type="button" class="btn btn-primary" @click="closeEditForm45">
+        <span class="me-1">Close</span> <i class="bx bx-x-circle"></i>
+      </button>
+    </template>
+  </Modal>
 
   <TableSkeleton row="5" col="4" v-if="empty(props.Form621ClientTable)" />
   <TableData name="Form 6.2.1" :data="props.Form621ClientTable" :item_id="props.item_id" :option="[5, 10, 15]"
@@ -91,7 +179,7 @@
           </div>
           <div class="col-2 col-sm-2 col-lg-2 col-xl-1">
             <div class="d-flex">
-              <Button type="button" class="btn btn-outline-secondary me-1" title="reset" @click="filterData">
+              <Button type="button" class="btn btn-outline-secondary me-1" title="filter" @click="filterData">
                 <i class="bi bi-filter"></i>
               </Button>
               <Button type="button" class="btn btn-outline-secondary" title="reset"
@@ -106,7 +194,7 @@
     <template #customhead>
       <thead>
         <tr>
-          <th colspan="24" class="text-center fw-semibold">
+          <th colspan="28" class="text-center fw-semibold">
             <p class="m-0">{{ props.clientdetail?.client?.company_name }}</p>
             <p class="m-0">{{ props.clientdetail?.client?.bin }}</p>
           </th>
@@ -114,30 +202,35 @@
         <tr class="align-middle text-center fw-normal">
           <th rowspan="2">#</th>
           <th rowspan="2">Date</th>
-          <th rowspan="2">Item</th>
+          <th colspan="2">Opening Stock</th>
           <th colspan="3">Purchase</th>
-          <th colspan="2">Total Stock</th>
+          <th rowspan="2">Total Stock</th>
           <th colspan="3">Seller Information</th>
           <th colspan="2">Purchase Challan/Bill</th>
-          <th colspan="5">Sold/Supplied goods description</th>
+          <th colspan="8">Sold/Supplied goods description</th>
           <th colspan="3">Purchaser Information</th>
           <th colspan="2">Sales Invoice</th>
+          <th rowspan="2">Closing Stock</th>
+          <th rowspan="2">Remarks</th>
           <th rowspan="2">Action</th>
         </tr>
         <tr class="align-middle text-center">
+          <th>Item</th>
+          <th>Quantity</th>
           <th>Quantity</th>
           <th>Rate</th>
-          <th>Value (Excluding all type of taxes)</th>
-          <th>Quantity</th>
           <th>Value (Excluding all type of taxes)</th>
           <th>Name</th>
           <th>Address</th>
           <th>Passport/NID</th>
           <th>Number</th>
           <th>Date</th>
+          <th>Item</th>
           <th>Quantity</th>
           <th>Taxable Value (Excluding all type of taxes)</th>
           <th>Rate</th>
+          <th>SD Rate(%)</th>
+          <th>SD</th>
           <th>VAT Rate(%)</th>
           <th>VAT</th>
           <th>Name</th>
@@ -159,11 +252,11 @@
           </td>
           <td>{{ moment(td?.date).format('DD/MM/YYYY') }}</td>
           <td>{{ td?.item?.name }}<br>{{ td?.item?.hs_code }}</td>
-          <td>{{ Number(td?.importable?.total_quantity).toFixed(2) }} {{ td?.importable?.unit?.name }}</td>
+          <td>{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td>{{ Number(td?.quantity).toFixed(2) }} {{ td?.unit?.name }}</td>
           <td>{{ Number(td?.importable?.unit_price).toFixed(2) }}</td>
           <td>{{ Number(td?.importable?.base_value).toFixed(2) }}</td>
-          <td class="text-primary">{{ Number(td?.stock).toFixed(2) }} {{ td?.importable?.unit?.name }}</td>
-          <td class="text-primary">{{ Number(Number(td?.stock) * Number(td?.importable?.unit_price)).toFixed(3) }}</td>
+          <td class="text-primary">{{ Number(td?.stock).toFixed(2) }} {{ td?.unit?.name }}</td>
           <td>{{ td?.importable?.exporter_name }}</td>
           <td>{{ td?.importable?.address }}</td>
           <td>{{ td?.importable?.bin_or_nid }}</td>
@@ -179,11 +272,16 @@
           <td></td>
           <td></td>
           <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.stock }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable_type }}</td>
           <td>
             <div class="btn-group">
               <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="details"
                 @click="viewPurchase(td.importable_id)" />
-              <Button type="button" icon="bi bi-person-square" class="btn btn-outline-dark rounded-2"
+              <Button type="button" icon="bi bi-person-vcard" class="btn btn-outline-dark rounded-2"
                 title="edit exporter" @click="editExporter(td.importable_id)" />
             </div>
             <div class="btn-group" :class="{ 'd-none': !td?.last }" role="group">
@@ -203,19 +301,22 @@
           </td>
           <td>{{ moment(td?.date).format('DD/MM/YYYY') }}</td>
           <td>{{ td?.item?.name }}<br>{{ td?.item?.hs_code }}</td>
+          <td>{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
           <td></td>
           <td></td>
           <td></td>
-          <td class="text-danger">{{ td?.stock }} {{ td?.importable?.unit?.name }}</td>
-          <td class="text-danger">{{ (+(td?.stock) * +(td?.importable?.last_purchase_unit_price)).toFixed(2) }}</td>
+          <td class="text-danger">{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
           <td></td>
           <td></td>
           <td></td>
           <td></td>
           <td></td>
-          <td>{{ td?.importable?.quantity }} {{ td?.importable?.unit?.name }}</td>
+          <td>{{ td?.item?.name }} <br /> {{ td?.item?.hs_code }}</td>
+          <td>{{ td?.quantity }} {{ td?.unit?.name }}</td>
           <td>{{ td?.importable?.total_price }}</td>
           <td>{{ td?.importable?.unit_price }}</td>
+          <td>{{ td?.importable?.sd }}%</td>
+          <td>{{ td?.importable?.sd_value }}</td>
           <td>{{ td?.importable?.vat }}%</td>
           <td>{{ td?.importable?.vat_value }}</td>
           <td>{{ td?.importable?.customer_name }}</td>
@@ -223,6 +324,8 @@
           <td>{{ td?.importable?.bin_or_nid }}</td>
           <td>{{ td?.importable?.invoice_no }}</td>
           <td>{{ moment(td?.importable?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.stock }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable_type }}</td>
           <td>
             <div class="btn-group" role="group">
               <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="details"
@@ -235,6 +338,194 @@
                 @click="editSale(td.importable_id)" />
               <Button type="button" class="btn btn-outline-danger rounded-2" icon="bi bi-trash"
                 @click="delSale(td.id)" />
+            </div>
+          </td>
+        </tr>
+        <tr class="text-center" v-if="td.importable_type == 'mushak67'">
+          <td class="text-center align-middle">
+            {{
+              props.Form621ClientTable.current_page ? (props.Form621ClientTable.per_page *
+                (props.Form621ClientTable.current_page - 1)) + (i + 1) : (i + 1)
+            }}
+          </td>
+          <td>{{ moment(td?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.item?.name }}<br>{{ td?.item?.hs_code }}</td>
+          <td>{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td>{{ Number(td?.importable?.quantity_of_decreasing_adjustment).toFixed(2) }} {{ td?.unit?.name }}</td>
+          <td>{{ Number(td?.importable?.rate_in_challan).toFixed(2) }}</td>
+          <td>{{ Number(td?.importable?.value_of_decreasing_adjustment).toFixed(2) }}</td>
+          <td class="text-primary">{{ Number(td?.stock).toFixed(2) }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.importable?.creditnote_invoice }}</td>
+          <td>{{ moment(td?.importable?.issued_date).format('DD/MM/YYYY') }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.stock }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable_type }}</td>
+          <td>
+            <div class="btn-group">
+              <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="details"
+                @click="viewCreditnote(td?.importable_id)" />
+            </div>
+            <div class="btn-group" :class="{ 'd-none': !td?.last }" role="group">
+              <Button type="button" icon="bi bi-pencil-square" class="btn btn-outline-dark rounded-2" title="edit"
+                @click="editCreditnote(td?.importable_id)" />
+              <Button type="button" class="btn btn-outline-danger rounded-2" icon="bi bi-trash"
+                @click="delCreditnote(td?.id)" />
+            </div>
+          </td>
+        </tr>
+        <tr class="text-center" v-if="td.importable_type == 'mushak68'">
+          <td class="text-center align-middle">
+            {{
+              props.Form621ClientTable.current_page ? (props.Form621ClientTable.per_page *
+                (props.Form621ClientTable.current_page - 1)) + (i + 1) : (i + 1)
+            }}
+          </td>
+          <td>{{ moment(td?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.item?.name }}<br>{{ td?.item?.hs_code }}</td>
+          <td>{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="text-danger">{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.item?.name }} <br /> {{ td?.item?.hs_code }}</td>
+          <td>{{ td?.importable?.quantity_of_increasing_adjustment }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable?.value_of_increasing_adjustment }}</td>
+          <td>{{ td?.importable?.rate_in_challan }}</td>
+          <td></td>
+          <td>{{ td?.importable?.sd_of_increasing_adjustment }}</td>
+          <td></td>
+          <td>{{ td?.importable?.vat_of_increasing_adjustment }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.importable?.debitnote_invoice }}</td>
+          <td>{{ moment(td?.importable?.issued_date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.stock }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable_type }}</td>
+          <td>
+            <div class="btn-group">
+              <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="details"
+                @click="viewDebitnote(td?.importable_id)" />
+            </div>
+            <div class="btn-group" :class="{ 'd-none': !td?.last }" role="group">
+              <Button type="button" icon="bi bi-pencil-square" class="btn btn-outline-dark rounded-2" title="edit"
+                @click="editDebitnote(td?.importable_id)" />
+              <Button type="button" class="btn btn-outline-danger rounded-2" icon="bi bi-trash"
+                @click="delDebitnote(td?.id)" />
+            </div>
+          </td>
+        </tr>
+        <tr class="text-center" v-if="td.importable_type == 'mushak44'">
+          <td class="text-center align-middle">
+            {{
+              props.Form621ClientTable.current_page ? (props.Form621ClientTable.per_page *
+                (props.Form621ClientTable.current_page - 1)) + (i + 1) : (i + 1)
+            }}
+          </td>
+          <td>{{ moment(td?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.item?.name }}<br>{{ td?.item?.hs_code }}</td>
+          <td>{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="text-danger">{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.item?.name }} <br /> {{ td?.item?.hs_code }}</td>
+          <td>{{ td?.importable?.quantity }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable?.value }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.importable?.vat }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.importable?.form44_invoice }}</td>
+          <td>{{ moment(td?.importable?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.stock }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable_type }}</td>
+          <td>
+            <div class="btn-group">
+              <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="details"
+                @click="viewForm44(td?.importable_id)" />
+            </div>
+            <div class="btn-group" :class="{ 'd-none': !td?.last }" role="group">
+              <Button type="button" icon="bi bi-pencil-square" class="btn btn-outline-dark rounded-2" title="edit"
+                @click="editForm44(td?.importable_id)" />
+              <Button type="button" class="btn btn-outline-danger rounded-2" icon="bi bi-trash"
+                @click="delForm44(td?.id)" />
+            </div>
+          </td>
+        </tr>
+        <tr class="text-center" v-if="td.importable_type == 'mushak45'">
+          <td class="text-center align-middle">
+            {{
+              props.Form621ClientTable.current_page ? (props.Form621ClientTable.per_page *
+                (props.Form621ClientTable.current_page - 1)) + (i + 1) : (i + 1)
+            }}
+          </td>
+          <td>{{ moment(td?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.item?.name }}<br>{{ td?.item?.hs_code }}</td>
+          <td>{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="text-danger">{{ td?.opening_stock }} {{ td?.unit?.name }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.item?.name }} <br /> {{ td?.item?.hs_code }}</td>
+          <td>{{ td?.importable?.quantity }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable?.value }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.importable?.vat }}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ td?.importable?.form45_invoice }}</td>
+          <td>{{ moment(td?.importable?.date).format('DD/MM/YYYY') }}</td>
+          <td>{{ td?.stock }} {{ td?.unit?.name }}</td>
+          <td>{{ td?.importable_type }}</td>
+          <td>
+            <div class="btn-group">
+              <Button type="button" icon="bi bi-eye" class="btn btn-outline-dark rounded-2" title="details"
+                @click="viewForm45(td?.importable_id)" />
+            </div>
+            <div class="btn-group" :class="{ 'd-none': !td?.last }" role="group">
+              <Button type="button" icon="bi bi-pencil-square" class="btn btn-outline-dark rounded-2" title="edit"
+                @click="editForm45(td?.importable_id)" />
+              <Button type="button" class="btn btn-outline-danger rounded-2" icon="bi bi-trash"
+                @click="delForm45(td?.id)" />
             </div>
           </td>
         </tr>
@@ -257,20 +548,27 @@ import TableSkeleton from './table/TableSkeleton.vue';
 import TableData from "./table/index.vue";
 import SelectInfinite from '../../components/SelectInfinite.vue';
 import Modal from '../../components/Modal.vue';
-import Spinner from '../../components/Spinner.vue';
 import ViewPurchase from './purchases/ViewPurchase.vue';
 import EditPurchase from './purchases/EditPurchase.vue';
 import ExporterEdit from './purchases/ExporterEdit.vue';
 import ViewSale from './sales/ViewSale.vue';
 import EditSale from './sales/EditSale.vue';
 import CustomerEdit from './sales/CustomerEdit.vue';
+import ViewCreditnote from './creditnote/ViewCreditnote.vue';
+import EditCreditnote from './creditnote/EditCreditnote.vue';
+import ViewDebitnote from './debitnote/ViewDebitnote.vue';
+import EditDebitnote from './debitnote/EditDebitnote.vue';
+import ViewForm44 from './form44/ViewForm44.vue';
+import EditForm44 from './form44/EditForm44.vue';
+import ViewForm45 from './form45/ViewForm45.vue';
+import EditForm45 from './form45/EditForm45.vue';
 
 import Alert from '../../helpers/customAlert';
 import Confirm from '../../helpers/customConfirm';
 
 const notify = inject('showToast'); // taost
 
-const field = reactive({ item: '', from_date: '', to_date: '' });
+const field = reactive({ item: '' });
 const err = reactive({ item: '' });
 
 const props = defineProps({
@@ -316,27 +614,20 @@ const filterData = () => {
   });
 };
 
-// modal popup
+// --- Purchase functionality ---
+// purchase modal pop
 const modalviewpurchase = ref();
 const modaleditpurchase = ref();
 const modalexporteredit = ref();
-const modalviewsale = ref();
-const modaleditsale = ref();
-const modalcustomeredit = ref();
-const closeViewPurchase = () => modalviewpurchase.value.close();
-const closeEditPurchase = () => modaleditpurchase.value.close();
-const closeExporterEdit = () => modalexporteredit.value.close();
-const closeViewSale = () => modalviewsale.value.close();
-const closeEditSale = () => modaleditsale.value.close();
-const closeCustomerEdit = () => modalcustomeredit.value.close();
-
-// purchase view and edit
+// purchase ref
 const singlePurchase = ref();
 const purchaseRef = ref(null);
 const exporterRef = ref(null);
-const singleSale = ref();
-const saleRef = ref(null);
-const customerRef = ref(null);
+// purchase modal close
+const closeViewPurchase = () => modalviewpurchase.value.close();
+const closeEditPurchase = () => modaleditpurchase.value.close();
+const closeExporterEdit = () => modalexporteredit.value.close();
+
 const viewPurchase = async (id) => await axios.get(route('purchase-single', { id: id })).then((res) => {
   if (res.data?.error) {
     modalviewpurchase.value.close();
@@ -364,6 +655,39 @@ const editExporter = async (id) => await axios.get(route('purchase-single', { id
     exporterRef.value?.setForm(res.data?.purchase);
   }
 });
+// delete purchase from form621
+const delPurchase = async (ids) => {
+  Confirm('Do you want to delete ?', async (res) => {
+    if (res) {
+      router.delete(route('purchase-delete', { id: ids }), {
+        preserveScroll: true,
+        onSuccess: (e) => {
+          if (e.props.flash.err) {
+            Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+          } else {
+            notify(e.props.flash.msg, 'danger');
+          }
+        }
+      });
+    }
+  });
+};
+// --- end purchase functionality ---
+
+// --- Sale functionality ---
+// sale modal pop
+const modalviewsale = ref();
+const modaleditsale = ref();
+const modalcustomeredit = ref();
+// sale view edit
+const singleSale = ref();
+const saleRef = ref(null);
+const customerRef = ref(null);
+// sale modal close
+const closeViewSale = () => modalviewsale.value.close();
+const closeEditSale = () => modaleditsale.value.close();
+const closeCustomerEdit = () => modalcustomeredit.value.close();
+
 const viewSale = async (id) => await axios.get(route('sale-single', { id: id })).then((res) => {
   if (res.data?.error) {
     modalviewsale.value.close();
@@ -391,25 +715,7 @@ const editCustomer = async (id) => await axios.get(route('sale-single', { id }))
     customerRef.value?.setForm(res.data?.sale);
   }
 });
-
-// delete purchase from localpurchase and local621 table
-const delPurchase = async (ids) => {
-  Confirm('Do you want to delete ?', async (res) => {
-    if (res) {
-      router.delete(route('purchase-delete', { id: ids }), {
-        preserveScroll: true,
-        onSuccess: (e) => {
-          if (e.props.flash.err) {
-            Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
-          } else {
-            notify(e.props.flash.msg, 'danger');
-          }
-        }
-      });
-    }
-  });
-};
-// delete purchase from localsale and local621 table
+// delete sale from form621
 const delSale = async (ids) => {
   Confirm('Do you want to delete ?', async (res) => {
     if (res) {
@@ -426,9 +732,199 @@ const delSale = async (ids) => {
     }
   });
 };
+// --- end sale functionality ---
 
-// after update notification
-// const notification = (notification) => notify(notification, 'success');
+// --- Credit note functionality ---
+// creditnote modal popup
+const modalviewcreditnote = ref();
+const modaleditcreditnote = ref();
+// creditnote ref
+const singleCreditnote = ref();
+const creditnoteRef = ref(null);
+// creditnote modal pop close
+const closeViewCreditnote = () => modalviewcreditnote.value.close();
+const closeEditCreditnote = () => modaleditcreditnote.value.close();
+
+const viewCreditnote = async (id) => await axios.get(route('creditnote-single', { id: id })).then((res) => {
+  if (res.data?.error) {
+    modalviewcreditnote.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modalviewcreditnote.value.open();
+    singleCreditnote.value = res.data.creditnote;
+  }
+});
+const editCreditnote = async (id) => await axios.get(route('creditnote-single', { id })).then((res) => {
+  if (res.data?.error) {
+    modaleditcreditnote.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modaleditcreditnote.value.open();
+    creditnoteRef.value?.setForm(res.data);
+  }
+});
+// delete mushak67 from form621
+const delCreditnote = async (id) => {
+  Confirm('Do you want to delete ?', async (res) => {
+    if (res) {
+      router.delete(route('creditnote-delete', { id: id }), {
+        preserveScroll: true,
+        onSuccess: (e) => {
+          if (e.props.flash.err) {
+            Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+          } else {
+            notify(e.props.flash.msg, 'danger');
+          }
+        }
+      });
+    }
+  });
+};
+// --- end creditnote functionality ---
+
+// --- debit note functionality ---
+// debitnote modal popup
+const modalviewdebitnote = ref();
+const modaleditdebitnote = ref();
+// debitnote ref
+const singleDebitnote = ref();
+const debitnoteRef = ref(null);
+// debitnote modal pop close
+const closeViewDebitnote = () => modalviewdebitnote.value.close();
+const closeEditDebitnote = () => modaleditdebitnote.value.close();
+
+const viewDebitnote = async (id) => await axios.get(route('debitnote-single', { id: id })).then((res) => {
+  if (res.data?.error) {
+    modalviewdebitnote.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modalviewdebitnote.value.open();
+    singleDebitnote.value = res.data.debitnote;
+  }
+});
+const editDebitnote = async (id) => await axios.get(route('debitnote-single', { id })).then((res) => {
+  if (res.data?.error) {
+    modaleditdebitnote.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modaleditdebitnote.value.open();
+    debitnoteRef.value?.setForm(res.data);
+  }
+});
+// delete mushak67 from form621
+const delDebitnote = async (id) => {
+  Confirm('Do you want to delete ?', async (res) => {
+    if (res) {
+      router.delete(route('debitnote-delete', { id: id }), {
+        preserveScroll: true,
+        onSuccess: (e) => {
+          if (e.props.flash.err) {
+            Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+          } else {
+            notify(e.props.flash.msg, 'danger');
+          }
+        }
+      });
+    }
+  });
+};
+// --- end debitnote functionality ---
+
+// --- form 4.4 functionality ---
+// form 4.4 modal popup
+const modalviewform44 = ref();
+const modaleditform44 = ref();
+// form 4.4 ref
+const singleForm44 = ref();
+const form44Ref = ref(null);
+// form 4.4 modal pop close
+const closeViewForm44 = () => modalviewform44.value.close();
+const closeEditForm44 = () => modaleditform44.value.close();
+
+const viewForm44 = async (id) => await axios.get(route('form44-single', { id: id })).then((res) => {
+  if (res.data?.error) {
+    modalviewform44.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modalviewform44.value.open();
+    singleForm44.value = res.data.form44;
+  }
+});
+const editForm44 = async (id) => await axios.get(route('form44-single', { id })).then((res) => {
+  if (res.data?.error) {
+    modaleditform44.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modaleditform44.value.open();
+    form44Ref.value?.setForm(res.data);
+  }
+});
+// delete mushak44 from form621
+const delForm44 = async (id) => {
+  Confirm('Do you want to delete ?', async (res) => {
+    if (res) {
+      router.delete(route('form44-delete', { id: id }), {
+        preserveScroll: true,
+        onSuccess: (e) => {
+          if (e.props.flash.err) {
+            Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+          } else {
+            notify(e.props.flash.msg, 'danger');
+          }
+        }
+      });
+    }
+  });
+};
+// --- end form44 functionality ---
+
+// --- form 4.5 functionality ---
+// form 4.5 modal popup
+const modalviewform45 = ref();
+const modaleditform45 = ref();
+// form 4.5 ref
+const singleForm45 = ref();
+const form45Ref = ref(null);
+// form 4.5 modal pop close
+const closeViewForm45 = () => modalviewform45.value.close();
+const closeEditForm45 = () => modaleditform45.value.close();
+
+const viewForm45 = async (id) => await axios.get(route('form45-single', { id: id })).then((res) => {
+  if (res.data?.error) {
+    modalviewform45.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modalviewform45.value.open();
+    singleForm45.value = res.data.form45;
+  }
+});
+const editForm45 = async (id) => await axios.get(route('form45-single', { id })).then((res) => {
+  if (res.data?.error) {
+    modaleditform45.value.close();
+    Alert(`<b class='text-danger'>${res.data.error}</b>`);
+  } else {
+    modaleditform45.value.open();
+    form45Ref.value?.setForm(res.data);
+  }
+});
+// delete mushak45 from form621
+const delForm45 = async (id) => {
+  Confirm('Do you want to delete ?', async (res) => {
+    if (res) {
+      router.delete(route('form45-delete', { id: id }), {
+        preserveScroll: true,
+        onSuccess: (e) => {
+          if (e.props.flash.err) {
+            Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+          } else {
+            notify(e.props.flash.msg, 'danger');
+          }
+        }
+      });
+    }
+  });
+};
+// --- end form45 functionality ---
 
 // refresh load
 const refresh = (id) => router.get(route('form621-client-single-index', { client_id: id }), {}, { preserveScroll: true });

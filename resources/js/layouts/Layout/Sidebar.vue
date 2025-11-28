@@ -21,10 +21,10 @@
           <span>Dashboard</span>
           </Link>
         </li>
-        <li class="split-label">
+        <li class="split-label" :class="{ 'd-none': !role('admin') }">
           <span class="text-uppercase">setup</span>
         </li>
-        <li class="list-group-item accordion-item">
+        <li class="list-group-item accordion-item" :class="{ 'd-none': !role('admin') }">
           <a href="#" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
             <div class="menu-icon">
@@ -129,12 +129,6 @@
           <span>Form 4.5</span>
           </Link>
         </li>
-        <li class="list-group-item" :class="{ 'active': $page.component === 'form46/index' }">
-          <Link :href="route('form46')">
-          <div class="menu-icon"><i class="bi bi-list-ol"></i></div>
-          <span>Form 4.6</span>
-          </Link>
-        </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'adjustment/index' }">
           <Link :href="route('adjustment')">
           <div class="menu-icon"><i class="bi bi-wrench-adjustable-circle"></i></div>
@@ -150,7 +144,21 @@
         <li class="split-label">
           <span class="text-uppercase">Reports</span>
         </li>
-        <li class="list-group-item accordion-item">
+        <li class="list-group-item"
+          :class="{ 'active': ['report/index', 'report/ClientDataList', 'report/report621/index'].includes($page.component) }">
+          <Link :href="route('report')">
+          <div class="menu-icon"><i class="bi bi-files"></i></div>
+          <span>Reports</span>
+          </Link>
+        </li>
+        <li class="list-group-item"
+          :class="{ 'active': $page.component === 'report/files/index', 'd-none': role('superadmin') }">
+          <Link :href="route('report-files')">
+          <div class="menu-icon"><i class="bi bi-file-earmark-excel"></i></div>
+          <span>Download Format</span>
+          </Link>
+        </li>
+        <!-- <li class="list-group-item accordion-item">
           <a href="#" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
             <div class="menu-icon">
@@ -179,7 +187,7 @@
               <Link href="#">Search BoE</Link>
             </li>
           </ul>
-        </li>
+        </li> -->
         <li class="split-label">
           <span class="text-uppercase">Auth</span>
         </li>

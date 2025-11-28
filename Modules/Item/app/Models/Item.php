@@ -64,11 +64,6 @@ class Item extends Model
     return $this->hasMany(Form45::class, 'item_id');
   }
 
-  public function form46()
-  {
-    return $this->hasMany(Form46::class, 'item_id');
-  }
-
   public function client()
   {
     return $this->belongsToMany(Client::class, EconomicArea::class, 'item_id', 'client_id');

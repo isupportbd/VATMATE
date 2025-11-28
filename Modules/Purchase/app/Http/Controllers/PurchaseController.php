@@ -113,40 +113,32 @@ class PurchaseController extends Controller
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
           $client = $this->client->find($value);
-
           if (!$client) return $fail('Client does not exist');
-
           if ($client->status == 0) return $fail('BIN inactive');
-
           if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'integer', 'gt:0', 'bail', Rule::exists('items', 'id'), function ($attribute, $value, $fail) use ($request) {
+          $clientId = $request->input('client_id');
+
           $item = $this->item->find($value);
           if (!$item) return $fail('Item not exists');
-
-          $clientId = $request->input('client_id');
 
           $form43 = $this->form43->where('client_id', $clientId)->where('item_id', $value)->where('last', 1)->first();
 
           if (!$form43) return $fail('4.3 not found');
-
           if (!$form43->additions()->exists()) return $fail('4.3 has no addition');
         }],
         'lc_no' => ['required', 'max:50', function ($attribute, $value, $fail) use ($request) {
           $purchase = $this->purchase->where('lc_no', $value)->first();
 
-          if ($purchase && ($purchase->client_id != $request->client_id)) {
-            return $fail("Not same client");
-          }
+          if ($purchase && ($purchase->client_id != $request->client_id)) return $fail("Not same client");
         }],
         'lc_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
           $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
           $today   = Carbon::today('Asia/Dhaka')->startOfDay();
 
           // Stop if entry date is over current date (future date)
-          if ($entrydate->gt($today)) {
-            return $fail("Greater than today");
-          }
+          if ($entrydate->gt($today)) return $fail("Greater than today");
         }],
         'boe' => ['required', 'max:10', function ($attribute, $value, $fail) use ($request) {
           $dup = $this->purchase->where([
@@ -156,9 +148,7 @@ class PurchaseController extends Controller
             ['stationcode_id', $request->input('stationcode_id')]
           ])->exists();
 
-          if ($dup) {
-            return $fail('Exists, change your input');
-          }
+          if ($dup) return $fail('Exists, change your input');
         }],
         'boe_date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
           $entrydate = Carbon::parse($request->input('entry_date'), "Asia/Dhaka")->startOfDay();
@@ -166,40 +156,41 @@ class PurchaseController extends Controller
           $today   = Carbon::today('Asia/Dhaka')->startOfDay();
 
           // Stop if entry date is over current date (future date)
-          if ($boedate->gt($today)) {
-            return $fail("Greater than today");
-          }
+          if ($boedate->gt($today)) return $fail("Greater than today");
 
           // error show if boe date is big from entry date
-          if ($boedate->gt($entrydate)) {
-            return $fail("BoE date > Entry date");
-          }
+          if ($boedate->gt($entrydate)) return $fail("BoE date > Entry date");
         }],
         'entry_date' => ['required', 'bail', 'date_format:"Y-m-d"', 'bail', function ($attribute, $value, $fail) use ($request) {
           $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
           $today   = Carbon::today('Asia/Dhaka')->startOfDay();
 
           // Stop if entry date is over current date (future date)
-          if ($entrydate->gt($today)) {
-            return $fail("Greater than today");
-          }
+          if ($entrydate->gt($today)) return $fail("Greater than today");
 
           $lastDate = $this->form621->where('client_id', $request->input('client_id'))->groupBy(['client_id'])->max('date');
-          if ($lastDate && $lastDate > $value) {
-            return $fail("Violate last date");
-          }
+          if ($lastDate && $lastDate > $value) return $fail("Violate last date");
         }],
         'mushaknote_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
-          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
-          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
-          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
-          $monthGap   = $diffMonths + 1; // inclusive periods
-
           // find note id from mushaknote
           $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
-          // error if entry_date and boe_date gap over 5 months for note_15
-          if ($note15 && ($note15 == $value) && ($monthGap > 5)) {
-            return $fail('Over 5 tax period');
+          $gap = $this->vatfactor->where('name', 'month_gap')->value('value');
+
+          // Only run gap + receipt checks when note_15 is selected
+          if ($note15 && $note15 == $value) {
+
+            // Only run date gap check when both dates are present
+            if ($request->boe_date && $request->entry_date) {
+
+              $boe   = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka');
+              $entry = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka');
+
+              $boeIndex   = $boe->year * 12 + $boe->month;
+              $entryIndex = $entry->year * 12 + $entry->month;
+              $monthGap   = ($entryIndex - $boeIndex) + 1;
+
+              if ($monthGap > $gap) return $fail('Over ' . $gap . ' tax period');
+            }
           }
 
           if ($note15 && ($note15 == $value) && (empty($request->input('receipt_number')) || empty($request->input('receipt_date')))) {
@@ -207,14 +198,10 @@ class PurchaseController extends Controller
           }
 
           // check exists or not
-          if (!$this->mushaknote->where('id', $value)->exists()) {
-            return $fail('Not exists');
-          }
+          if (!$this->mushaknote->where('id', $value)->exists()) return $fail('Not exists');
         }],
         'stationcode_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-          if (!$this->stationcode->where('id', $value)->exists()) {
-            return $fail('Not exists');
-          }
+          if (!$this->stationcode->where('id', $value)->exists()) return $fail('Not exists');
         }],
         'df_cvat_cf' => 'required|numeric|gte:0',
         'assessable_value' => 'required|numeric|gt:0',
@@ -226,21 +213,15 @@ class PurchaseController extends Controller
           $unitId = $this->form43->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->value('sale_unit_id');
 
           // error show if not match form43
-          if (empty($unitId) || (int)$unitId !== (int)$value) {
-            return $fail("Not match");
-          }
+          if (empty($unitId) || (int)$unitId !== (int)$value) return $fail("Not match");
 
           // check exists or not
-          if (!$this->unit->where('id', $value)->exists()) {
-            return $fail('Not exists');
-          }
+          if (!$this->unit->where('id', $value)->exists()) return $fail('Not exists');
         }],
         'base_value' => 'nullable|numeric|gt:0',
         // NEW: validate against converted unit price (based on converted net qty)
         'unit_price'  => ['nullable', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request, $unitPriceConv, $form43ForFactor) {
-          if ($unitPriceConv === null || $unitPriceConv <= 0) {
-            return $fail('Computed unit price invalid');
-          }
+          if ($unitPriceConv === null || $unitPriceConv <= 0) return $fail('Computed unit price invalid');
 
           $form43UnitPrice = $form43ForFactor?->unit_price ?? $this->form43->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->value('unit_price');
 
@@ -257,23 +238,35 @@ class PurchaseController extends Controller
         'cd' => 'required|numeric|gte:0',
         'rd' => 'required|numeric|gte:0',
         'sd' => 'required|numeric|gte:0',
-        'vat' => 'required|numeric|gte:0|between:0,15.00',
-        'at' => ['required', 'numeric', 'gte:0', function ($attribute, $value, $fail) use ($request) {
-          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
-          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
-          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
-          $monthGap   = $diffMonths + 1; // inclusive periods
+        'vat' => ['required', 'numeric', 'gte:0', 'between:0,15.00', function ($attribute, $value, $fail) use ($request) {
+          // get note_15 id
+          $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
 
-          // error show if entry_date and boe_date gap over 5 month, must set 0%
-          if (($monthGap > 5) && ($value > 0)) {
-            return $fail('Set 0%, Over 5 tax period');
+          // If mushaknote_id = note_15 → VAT MUST be 15
+          if ($request->mushaknote_id == $note15 && $value != 15) {
+            return $fail('Set 15%');
           }
+        }],
+        'at' => ['required', 'numeric', 'gte:0', function ($attribute, $value, $fail) use ($request) {
+          // Skip checks until BOTH dates are filled
+          if (!$request->boe_date || !$request->entry_date) return;
 
+          $boe   = Carbon::parse($request->boe_date, 'Asia/Dhaka');
+          $entry = Carbon::parse($request->entry_date, 'Asia/Dhaka');
+
+          $boeIndex   = $boe->year * 12 + $boe->month;
+          $entryIndex = $entry->year * 12 + $entry->month;
+          $monthGap   = ($entryIndex - $boeIndex) + 1;
+
+          $gap = $this->vatfactor->where('name', 'month_gap')->value('value');
+
+          // Over X months → AT must be 0
+          if ($monthGap > $gap && $value > 0) return $fail("Set 0%, Over " . $gap . " months");
+
+          // max AT check
           $vatfactor = $this->vatfactor->where('name', 'atfact')->value('value');
 
-          if ($value > $vatfactor) {
-            return $fail('Range 0 to' . ' (' . number_format($vatfactor, 2, '.', '') . '%)');
-          }
+          if ($value > $vatfactor) return $fail('Range 0 to (' . number_format($vatfactor, 2, '.', '') . '%)');
         }],
         'opening_stock' => [Rule::requiredIf(function () use ($request) {
           return !$this->form621->where([['client_id', $request->input('client_id')], ['item_id',  $request->input('item_id')]])
@@ -413,7 +406,7 @@ class PurchaseController extends Controller
         $formField['unit_price']      = number_format($unitPriceConv,     2, ".", "");
         $formField['unit_id']         = $form43->sale_unit_id;
         $formField['factor']          = $form43->factor;
-        $formField['stock']           = $stock;
+        $formField['stock']           = number_format($stock, 2, ".", "");
 
         // create purchase
         $purchase = $this->purchase->create($formField);
@@ -431,10 +424,10 @@ class PurchaseController extends Controller
           'form43_id'        => $form43->id,
           'lc_or_invoice_no' => $formField['lc_no'],
           'boe'              => $formField['boe'],
-          'quantity'         => $quantity,                 // converted
+          'quantity'         => number_format($quantity, 2, ".", ""),                 // converted
           'unit_id'          => $form43->sale_unit_id,     // sale unit
-          'opening_stock'    => $opening,                  // converted
-          'stock'            => $stock,                    // converted
+          'opening_stock'    => number_format($opening, 2, ".", ""),                  // converted
+          'stock'            => number_format($stock, 2, ".", ""),                    // converted
           'date'             => $formField['entry_date'],
           'last'             => 1,
           'userid'           => $user->id,
@@ -489,7 +482,6 @@ class PurchaseController extends Controller
     if (!$this->form621->where('importable_id', $id)->where('importable_type', 'purchase')->where('last', 1)->first()) {
       return back()->with('error', 'Can not update: not last combination');
     }
-
 
     // calculation part for validation and insert data
     $av      = (float) $request->input('assessable_value');
@@ -596,16 +588,25 @@ class PurchaseController extends Controller
           }
         }],
         'mushaknote_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
-          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
-          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
-          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
-          $monthGap   = $diffMonths + 1; // inclusive periods
-
           // find note id from mushaknote
           $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
-          // error if entry_date and boe_date gap over 5 months for note_15
-          if ($note15 && ($note15 == $value) && ($monthGap > 5)) {
-            return $fail('Over 5 tax period');
+          $gap = $this->vatfactor->where('name', 'month_gap')->value('value');
+
+          // Only run gap + receipt checks when note_15 is selected
+          if ($note15 && $note15 == $value) {
+
+            // Only run date gap check when both dates are present
+            if ($request->boe_date && $request->entry_date) {
+
+              $boe   = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka');
+              $entry = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka');
+
+              $boeIndex   = $boe->year * 12 + $boe->month;
+              $entryIndex = $entry->year * 12 + $entry->month;
+              $monthGap   = ($entryIndex - $boeIndex) + 1;
+
+              if ($monthGap > $gap) return $fail('Over ' . $gap . ' tax period');
+            }
           }
 
           if ($note15 && ($note15 == $value) && (empty($request->input('receipt_number')) || empty($request->input('receipt_date')))) {
@@ -613,9 +614,7 @@ class PurchaseController extends Controller
           }
 
           // check exists or not
-          if (!$this->mushaknote->where('id', $value)->exists()) {
-            return $fail('Not exists');
-          }
+          if (!$this->mushaknote->where('id', $value)->exists()) return $fail('Not exists');
         }],
         'stationcode_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
           if (!$this->stationcode->where('id', $value)->exists()) {
@@ -659,27 +658,38 @@ class PurchaseController extends Controller
             if ($calc < -(float)$vatfactor) return $fail('Less ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
           }
         }],
-
         'cd' => 'required|numeric|gte:0',
         'rd' => 'required|numeric|gte:0',
         'sd' => 'required|numeric|gte:0',
-        'vat' => 'required|numeric|gte:0|between:0,15.00',
-        'at' => ['required', 'numeric', 'gte:0', function ($attribute, $value, $fail) use ($request) {
-          $boedate = Carbon::parse($request->input('boe_date'), 'Asia/Dhaka')->startOfDay();
-          $entrydate = Carbon::parse($request->input('entry_date'), 'Asia/Dhaka')->startOfDay();
-          $diffMonths = $boedate->diffInMonths($entrydate);   // 0 if same calendar month
-          $monthGap   = $diffMonths + 1; // inclusive periods
+        'vat' => ['required', 'numeric', 'gte:0', 'between:0,15.00', function ($attribute, $value, $fail) use ($request) {
+          // get note_15 id
+          $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
 
-          // error show if entry_date and boe_date gap over 5 month, must set 0%
-          if (($monthGap > 5) && ($value > 0)) {
-            return $fail('Set 0%, Over 5 tax period');
+          // If mushaknote_id = note_15 → VAT MUST be 15
+          if ($request->mushaknote_id == $note15 && $value != 15) {
+            return $fail('Set 15%');
           }
+        }],
+        'at' => ['required', 'numeric', 'gte:0', function ($attribute, $value, $fail) use ($request) {
+          // Skip checks until BOTH dates are filled
+          if (!$request->boe_date || !$request->entry_date) return;
 
+          $boe   = Carbon::parse($request->boe_date, 'Asia/Dhaka');
+          $entry = Carbon::parse($request->entry_date, 'Asia/Dhaka');
+
+          $boeIndex   = $boe->year * 12 + $boe->month;
+          $entryIndex = $entry->year * 12 + $entry->month;
+          $monthGap   = ($entryIndex - $boeIndex) + 1;
+
+          $gap = $this->vatfactor->where('name', 'month_gap')->value('value');
+
+          // Over X months → AT must be 0
+          if ($monthGap > $gap && $value > 0) return $fail("Set 0%, Over " . $gap . " months");
+
+          // max AT check
           $vatfactor = $this->vatfactor->where('name', 'atfact')->value('value');
 
-          if ($value > $vatfactor) {
-            return $fail('Range 0 to' . ' (' . number_format($vatfactor, 2, '.', '') . '%)');
-          }
+          if ($value > $vatfactor) return $fail('Range 0 to (' . number_format($vatfactor, 2, '.', '') . '%)');
         }],
         'opening_stock' => [Rule::requiredIf(function () use ($request) {
           return !$this->form621->where([['client_id', $request->input('client_id')], ['item_id',  $request->input('item_id')]])
@@ -809,7 +819,7 @@ class PurchaseController extends Controller
         $formField['mcu_amount']      = number_format($mcuAmount,         2, ".", "");
         $formField['unit_id']         = $form43->sale_unit_id;
         $formField['factor']          = $form43->factor;
-        $formField['stock']           = $stock;
+        $formField['stock']           = number_format($stock, 2, ".", "");
 
         $purchase = $this->purchase->find($id);
 
@@ -827,10 +837,10 @@ class PurchaseController extends Controller
           'form43_id'        => $form43->id,
           'lc_or_invoice_no' => $formField['lc_no'],
           'boe'              => $formField['boe'],
-          'quantity'         => $quantity,                 // converted
+          'quantity'         => number_format($quantity, 2, ".", ""),                 // converted
           'unit_id'          => $form43->sale_unit_id,     // sale unit
-          'opening_stock'    => $openingInput,
-          'stock'            => $stock,                    // converted
+          'opening_stock'    => number_format($openingInput, 2, ".", ""),
+          'stock'            => number_format($stock, 2, ".", ""),                    // converted
           'date'             => $formField['entry_date'],
           'userid'           => $user->id,
         ]);
@@ -856,10 +866,36 @@ class PurchaseController extends Controller
 
     $formField = $request->validate(
       [
+        'mushaknote_id' => ['required', 'numeric', 'gt:0', 'bail', function ($attribute, $value, $fail) use ($request) {
+          // find note id from mushaknote
+          $note15 = $this->mushaknote->where('name_note_no', 'note_15')->value('id');
+
+          if ($note15 && ($note15 == $value) && (empty($request->input('receipt_number')) || empty($request->input('receipt_date')))) {
+            return $fail('Need receipt number and date');
+          }
+
+          // check exists or not
+          if (!$this->mushaknote->where('id', $value)->exists()) return $fail('Not exists');
+        }],
+        'receipt_number' => 'nullable|max:20',
+        'receipt_date' => ['nullable', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) {
+          $date = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
+          $today = Carbon::today('Asia/Dhaka')->startOfDay();
+
+          // Stop if entry date is over current date (future date)
+          if ($date->gt($today)) {
+            return $fail("Greater than today");
+          }
+        }],
         'exporter_name' => 'nullable|max:100',
         'address' => 'nullable|max:100'
       ],
       [
+        'mushaknote_id.required' =>  'Mushak note required',
+        'mushaknote_id.numeric' =>  'Number only',
+        'mushaknote_id.gt' =>  'Number > 0',
+        'receipt_number.max' => 'Max 20 char',
+        'receipt_date.date_format' => 'Invalid date',
         'exporter_name.max' => 'Max 100 char',
         'address.max' => 'Max 100 char'
       ]

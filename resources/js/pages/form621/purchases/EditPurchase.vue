@@ -323,12 +323,15 @@ const recompute = () => {
 
   const mcu = num(field.mcu);
   const factor = num(field.form43_factor);
+  const exQty = num(field.excess_quantity);
+  const wastage = num(field.wastage);
   const assessable = num(field.assessable_value);
   const cdRate = pct(field.cd);
   const rdRate = pct(field.rd);
   const sdRate = pct(field.sd);
   const vatRate = pct(field.vat);
   const atRate = pct(field.at);
+  const qty = pct(field.quantity);
 
   const cdValue = assessable * cdRate;
   const rdValue = assessable * rdRate;
@@ -340,8 +343,8 @@ const recompute = () => {
   const vatValue = baseValue * vatRate;
   const atValue = baseValue * atRate;
 
-  const grossQty = num(field.quantity) + num(field.excess_quantity);
-  const totalQty = grossQty - (grossQty * pct(field.wastage));
+  const grossQty = qty + exQty;
+  const totalQty = grossQty - (grossQty * wastage);
   const netQtySale = totalQty * factor;
 
   // console.log(factor);
@@ -353,6 +356,7 @@ const recompute = () => {
   field.vat_value = +vatValue.toFixed(2);
   field.at_value = +atValue.toFixed(2);
   field.mcu_amount = +mcuAmount.toFixed(2);
+  field.excess_quantity = +exQty.toFixed(2);
   field.total_quantity = totalQty > 0 ? +totalQty.toFixed(2) : 0;
   field.unit_price = netQtySale > 0 ? +(baseValue / netQtySale).toFixed(2) : 0;
 };
@@ -360,10 +364,14 @@ const recompute = () => {
 // --- Expose API for parent ---
 const setForm = async (data = {}) => {
   let row = data.purchase;
+
   field.id = row?.id ?? "";
   field.bin = !empty(row.client) ? { id: row.client?.id, title: row.client?.bin, val: row.client } : "";
   await nextTick(); // selectinfinite always reset and clear. it is stop clear child visual when click edit
   field.item = !empty(row.item) ? { id: row.item?.id, title: `${row.item?.name} [${row.item?.hs_code}]` } : "";
+
+  await last(); // call here cause last need cilent and item id
+
   field.lc_no = row.lc_no ?? "";
   field.lc_date = row.lc_date ?? "";
   field.boe = row.boe ?? "";
@@ -374,10 +382,10 @@ const setForm = async (data = {}) => {
   field.df_cvat_cf = row.df_cvat_cf ?? "";
   field.assessable_value = row.assessable_value ?? "";
   field.opening_stock = row.opening_stock ?? "";
-  field.quantity = (+(row.quantity) / +(row.factor)).toString() ?? "";
-  field.excess_quantity = (+(row.excess_quantity) / +(row.factor)).toString() ?? "";
+  field.quantity = (+(row.quantity) / +(row.factor)).toFixed(2) ?? "";
+  field.excess_quantity = (+(row.excess_quantity) / +(row.factor)).toFixed(2) ?? "";
   field.wastage = row.wastage ?? "";
-  field.total_quantity = (+(row.total_quantity) / +(row.factor)).toString() ?? "";
+  field.total_quantity = (+(row.total_quantity) / +(row.factor)).toFixed(2) ?? "";
   field.unit = !empty(row.unit) ? { id: row.unit?.id, title: row.unit?.name } : "";
   field.base_value = row.base_value ?? "";
   field.unit_price = row.unit_price ?? "";
@@ -402,7 +410,7 @@ const setForm = async (data = {}) => {
   // clear previous errors when setting a record
   err.bin = err.item = err.lc_no = err.lc_date = err.boe = err.boe_date = err.entry_date = err.stationcode = err.mushaknote = err.df_cvat_cf = err.assessable_value = err.opening_stock = err.quantity = err.excess_quantity = err.wastage = err.total_quantity = err.unit = err.base_value = err.unit_price = err.cd = err.rd = err.sd = err.vat = err.at = err.assesment_number = err.assesment_date = err.receipt_number = err.receipt_date = err.exporter_name = err.address = err.mcu = err.mcu_amount = "";
 
-  await last(); // call here cause last need cilent and item id
+
 };
 
 // reset form

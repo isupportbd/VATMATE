@@ -19,33 +19,38 @@ class Form45 extends Model
    * The attributes that are mass assignable.
    */
   protected $fillable = [
+    'form45_invoice',
     'client_id',
+    'lc_or_invoice_no',
     'item_id',
+    'boe',
     'unit_id',
+    'form621_id',
     'date',
-    'serial621',
+    'opening_stock',
+    'stock',
     'quantity',
     'value',
     'vat',
     'proposed_value',
     'increasing_adjustment_vat',
-    'net_decrease',
+    'net_increase',
     'reason_ineligibility'
   ];
 
   public function client()
   {
-    $this->belongsTo(Client::class, 'client_id');
+    return $this->belongsTo(Client::class, 'client_id');
   }
 
   public function item()
   {
-    $this->belongsTo(Item::class, 'item_id');
+    return $this->belongsTo(Item::class, 'item_id');
   }
 
   public function unit()
   {
-    $this->belongsTo(Unit::class, 'unit_id');
+    return $this->belongsTo(Unit::class, 'unit_id');
   }
 
   public function form621()

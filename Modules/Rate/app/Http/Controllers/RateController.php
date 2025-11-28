@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Modules\Addition\Models\Addition;
 use Modules\Client\Models\Client;
 use Modules\Form43\Models\Form43;
 use Modules\Item\Models\Item;
 use Modules\Rate\Models\Rate;
+use Modules\Vatfactor\Models\Vatfactor;
 use Throwable;
 
 class RateController extends Controller
@@ -21,12 +23,16 @@ class RateController extends Controller
   public $item;
   public $rate;
   public $form43;
-  public function __construct(Client $client, Item $item, Rate $rate, Form43 $form43)
+  public $vatfactor;
+  public $addition;
+  public function __construct(Client $client, Item $item, Rate $rate, Form43 $form43, Vatfactor $vatfactor, Addition $addition)
   {
     $this->client = $client;
     $this->item = $item;
     $this->rate = $rate;
     $this->form43 = $form43;
+    $this->vatfactor = $vatfactor;
+    $this->addition = $addition;
   }
 
   /**
@@ -107,7 +113,22 @@ class RateController extends Controller
             return $fail("Greater than today");
           }
         }],
-        'unit_price' => 'required|numeric|gt:0',
+        'unit_price' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          $form43Price = $this->form43->with(['additionsum'])->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->first();
+
+          $additionSum = optional($form43Price->additionsum())->first();
+          $unitPrice = optional($form43Price)->unit_price;
+          $form43ForFactor = ($unitPrice + $additionSum->valuesum);
+
+          $calc = !empty($form43ForFactor) ? ((($value - $form43ForFactor) / $form43ForFactor) * 100) : null;
+
+          $vatfactor = $this->vatfactor->where('name', 'vatfact')->value('value');
+
+          if (!empty($form43ForFactor) && $vatfactor !== null) {
+            if ($calc >  (float)$vatfactor) return $fail('Over ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+            if ($calc < -(float)$vatfactor) return $fail('Less ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+          }
+        }],
         'sd' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
         'vat' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
       ],
@@ -166,10 +187,17 @@ class RateController extends Controller
       return response()->json(['error' => 'Unauthorised']);
     }
 
-    $form43Last = $this->form43->with(['client', 'item', 'purchaseunit:id,name', 'saleunit:id,name',])
+    $additionsSub = $this->addition->select('form43_id', DB::raw('SUM(value) as valuesum'))->groupBy('form43_id');
+
+    $form43Last = $this->form43
+      ->with(['client', 'item', 'purchaseunit:id,name', 'saleunit:id,name']) // additionsum rel not required here
+      ->leftJoinSub($additionsSub, 'additionsum', function ($join) {
+        $join->on('form43s.id', '=', 'additionsum.form43_id');
+      })
       ->where('client_id', $query->client_id)
       ->where('item_id', $query->item_id)
       ->where('last', 1)
+      ->select('form43s.*', DB::raw('form43s.unit_price + COALESCE(additionsum.valuesum,0) as unit_price_with_addition'))
       ->first();
 
     return response()->json(['rate' => $query, 'form43last' => $form43Last]);
@@ -207,7 +235,22 @@ class RateController extends Controller
             return $fail("Greater than today");
           }
         }],
-        'unit_price' => 'required|numeric|gt:0',
+        'unit_price' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+          $form43Price = $this->form43->with(['additionsum'])->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->first();
+
+          $additionSum = optional($form43Price->additionsum())->first();
+          $unitPrice = optional($form43Price)->unit_price;
+          $form43ForFactor = ($unitPrice + $additionSum->valuesum);
+
+          $calc = !empty($form43ForFactor) ? ((($value - $form43ForFactor) / $form43ForFactor) * 100) : null;
+
+          $vatfactor = $this->vatfactor->where('name', 'vatfact')->value('value');
+
+          if (!empty($form43ForFactor) && $vatfactor !== null) {
+            if ($calc >  (float)$vatfactor) return $fail('Over ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+            if ($calc < -(float)$vatfactor) return $fail('Less ' . $vatfactor . ' (' . number_format($calc, 2, '.', '') . '%)');
+          }
+        }],
         'sd' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
         'vat' => 'required|numeric|gte:0|decimal:0,2|between:0,100.00',
       ],

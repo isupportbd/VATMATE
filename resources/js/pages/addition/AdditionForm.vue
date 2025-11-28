@@ -91,7 +91,7 @@ const submitData = async () => {
     value: field.value
   };
 
-  console.log(form);
+  // console.log(form);
 
   const onErr = (errors) => {
     let er = {};
@@ -99,7 +99,6 @@ const submitData = async () => {
     err.form43 = er.form43_id;
     err.rateval = er.value;
     err.costsheet = er.costsheet_id;
-    console.log(errors);
   };
 
   if (field.id) {

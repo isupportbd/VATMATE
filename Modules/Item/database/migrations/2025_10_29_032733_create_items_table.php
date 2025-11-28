@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::create('items', function (Blueprint $table) {
       $table->id();
       $table->string('name', 250);
-      $table->string('hs_code', 20);
+      $table->string('hs_code', 10);
       $table->string('description', 250)->nullable();
       $table->double('cd', 10, 2)->nullable(false);
       $table->double('rd', 10, 2)->nullable(false);

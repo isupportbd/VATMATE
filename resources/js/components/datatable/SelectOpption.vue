@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3 mb-md-0 text-black-50"
+  <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-2 mb-md-0 text-black-50"
     :class="{ 'd-none': !props.isOptions }">
     Show
     <select class="form-select shadow-none w-auto mx-2" v-model="selectedoption" @change="selectOption">

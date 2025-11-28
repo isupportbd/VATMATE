@@ -85,11 +85,6 @@ class Client extends Model
     return $this->hasMany(Debitnote::class, 'client_id');
   }
 
-  public function customer()
-  {
-    return $this->hasMany(CustomerManagement::class, 'client_id');
-  }
-
   public function form44()
   {
     return $this->hasMany(Form44::class, 'client_id');
@@ -98,11 +93,6 @@ class Client extends Model
   public function form45()
   {
     return $this->hasMany(Form45::class, 'client_id');
-  }
-
-  public function form46()
-  {
-    return $this->hasMany(Form46::class, 'client_id');
   }
 
   public function item()

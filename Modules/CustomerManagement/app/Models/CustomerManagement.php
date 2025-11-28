@@ -16,15 +16,9 @@ class CustomerManagement extends Model
    * The attributes that are mass assignable.
    */
   protected $fillable = [
-    'client_id',
     'mobile',
     'customer_name',
     'bin_or_nid',
     'address'
   ];
-
-  public function client()
-  {
-    return $this->belongsTo(Client::class, 'client_id');
-  }
 }

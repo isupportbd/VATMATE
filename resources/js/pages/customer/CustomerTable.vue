@@ -1,23 +1,13 @@
 <template>
   <DataTableSkeleton row="5" col="4" v-if="empty(props.data)" />
-  <DataTable :data="props.data" :search="props.search" :option="[5, 10, 15]" @remove="props.del" v-else>
+  <DataTable :data="props.data" :search="props.search" :option="[5, 10, 15]" @remove="props.del"
+    :removable="role('admin')" v-else>
     <template #thead>
-      <th class="col-5">Client</th>
       <th class="col-4">Name | address</th>
       <th class="col-3">Mobile | BIN/NID</th>
       <th class="text-center">Action</th>
     </template>
     <template #tbody="{ td }">
-      <td>
-        <p class="m-0">
-          <span><i class="bi bi-buildings"></i></span> :
-          <span>{{ td?.client?.company_name }}</span>
-        </p>
-        <p class="m-0">
-          <span><i class="bi bi-database"></i></span> :
-          <span>{{ td?.client?.bin }}</span>
-        </p>
-      </td>
       <td>
         <p class="m-0">
           <span><i class="bi bi-person-badge"></i></span> :
@@ -50,6 +40,7 @@
 
 <script setup>
 import { empty } from '../../helpers/utils';
+import { role } from '../../composables/user';
 
 import DataTableSkeleton from "../../components/datatable/DataTableSkeleton.vue";
 import DataTable from "../../components/datatable/index.vue";

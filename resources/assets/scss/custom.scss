@@ -272,8 +272,7 @@ $sidebar-width: 16.25rem;
       border: 1px solid map.get($theme, primary);
     }
 
-    .form-control,
-    .form-select {
+    .form-control, .form-select {
       border: none;
       box-shadow: none;
 
@@ -282,6 +281,14 @@ $sidebar-width: 16.25rem;
         border: none !important;
         background: map.get($theme, bg-white);
       }
+    }
+
+    input.form-control:focus:first-child{
+      border-right: 1px solid map.get($theme, border-custom) !important;
+    }
+
+    input.form-control + input.form-control {
+      border-left: 1px solid map.get($theme, border-custom) !important;
     }
   }
 
@@ -675,7 +682,7 @@ $sidebar-width: 16.25rem;
           background: map.get($theme, bg-white);
           color: map.get($theme, text-color);
           &:hover {
-            background: map.get($theme, sidebar-link-bg);
+            background: map.get($theme, bg-white);
             color: map.get($theme, primary);
           }
         }
@@ -778,38 +785,48 @@ $sidebar-width: 16.25rem;
   }
 }
 
-.datatable thead tr > th, .datatable tbody tr > td{
-  padding: 7.5px 10px;
-}
+.datatable{
+  thead tr > th, tbody tr > td {
+    padding: 7.5px 10px;
+  }
+  
+  thead{
+    tr > th {
+      padding-top: 7.5px;
+      padding-bottom: 7.5px;
+    }
+    
+    tr > th:nth-child(-n+2) {
+      width: 1%;
+      white-space: nowrap;
+    }
+    
+    tr > th:nth-child(-n+1) {
+      padding-left: 6px !important;
+      padding-right: 5px !important;
+    }
+    
+    tr > th:last-child {
+      width: 1%;
+      white-space: nowrap;
+      text-align: center;
+    }
+  }
 
-.datatable thead tr > th{
-  padding-top: 7.5px;
-  padding-bottom: 7.5px;
-}
-
-.datatable thead tr > th:nth-child(-n+2) {
-  width: 1%;
-  white-space: nowrap;
-}
-
-.datatable thead tr > th:nth-child(-n+1), .datatable tbody tr > td:nth-child(-n+1) {
-  padding-left: 6px !important;
-  padding-right: 5px !important;
-}
-
-.datatable thead tr > th:last-child {
-  width: 1%;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.datatable-pagination .page-item{
-  .page-link{
-    border-radius: 5px;
-    margin-left: 0;
-    border: 1px solid #DFDFDF;
+  tbody tr > td:nth-child(-n+1) {
+    padding-left: 6px !important;
+    padding-right: 5px !important;
+  }
+  
+  .datatable-pagination .page-item{
+    .page-link{
+      border-radius: 5px;
+      margin-left: 0;
+      border: 1px solid #DFDFDF;
+    }
   }
 }
+
 
 // general table
 .datatable-general thead tr > th, .datatable-general tbody tr > td{

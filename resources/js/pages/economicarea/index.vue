@@ -21,8 +21,9 @@
 
 <script setup>
 import axios from "axios";
-import { ref, inject } from "vue";
+import { ref, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
+import { user } from '../../composables/user';
 
 import PageBar from "../../components/PageBar.vue";
 import Refresh from "../../components/Refresh.vue";
@@ -31,6 +32,7 @@ import EconomicareaForm from "./EconomicareaForm.vue";
 import EconomicareaTable from "./EconomicareaTable.vue";
 
 import Confirm from "../../helpers/customConfirm";
+import Alert from '../../helpers/customAlert';
 
 const props = defineProps({
   economicarea: { type: Object },
@@ -47,8 +49,12 @@ const del = async (clientId, itemId) => {
     router.delete(route('economicarea-delete', { client_id: clientId, item_id: itemId }), {
       preserveScroll: true,
       onSuccess: (e) => {
-        notify(e.props.flash.msg, 'danger');
-        formRef.value?.resetForm(); // 👈 reset the form
+        if (e.props.flash.err) {
+          Alert(`<b class='text-danger'>${e.props.flash.err}</b>`);
+        } else {
+          notify(e.props.flash.msg, 'danger');
+          formRef.value?.resetForm(); // 👈 reset the form
+        }
       },
       onFinish: () => formRef.value?.resetForm()
     });
@@ -57,4 +63,21 @@ const del = async (clientId, itemId) => {
 
 // reload economicarea
 const refresh = () => router.get(route('economicarea'), {}, { preserveScroll: true });
+
+
+onMounted(() => {
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.EconomicaAreaEvent', () => {
+    router.reload({ only: ['economicarea'], preserveState: true, preserveScroll: true });
+  });
+
+  // admin always listens to this
+  window.Echo.private('admin').listen('.EconomicaAreaEvent', () => {
+    router.reload({ only: ['economicarea'], preserveState: true, preserveScroll: true });
+  });
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`private-App.Models.User.${user.id}`);
+  window.Echo.leave('private-admin');
+});
 </script>

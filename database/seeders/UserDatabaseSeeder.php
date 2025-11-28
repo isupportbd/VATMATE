@@ -18,10 +18,10 @@ class UserDatabaseSeeder extends Seeder
     DB::table('users')->insert([
       [
         'name' => 'superadmin',
-        'email' => 'superadmin@mail.com',
-        'mobile' => '+8801711000000',
-        'password' => Hash::make('super@dmin'),
-        'forget_password' => 'super@dmin',
+        'email' => 'niyamulahsan@mail.com',
+        'mobile' => '+8801711061131',
+        'password' => Hash::make('mowsumii007'),
+        'forget_password' => NULL,
         'role_id' => '1',
         'status' => '1',
         'remember_token' => '',

@@ -18,130 +18,130 @@
               <div class="col-12">
                 <Input type="hidden" v-model="field.id" readonly />
               </div>
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-sm-6 col-md-5">
                 <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
                   :hood="field.bin?.val?.company_name" :err="err.bin" must />
               </div>
-              <div class="col-12 col-md-5">
+              <div class="col-12 col-sm-6 col-md-4">
                 <SelectInfinite placeholder="Select..." title="item" v-model="field.item" :fetched="fetchedItem"
                   :hood="`<span class='text-danger text-lowercase'>${field.form43_check}</span>`" :err="err.item"
                   :reset-key="field.bin?.id" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="number" id="lc" label="LC no" maxlength="20" placeholder="Ex: 5124845487"
                   v-model="field.lc_no" :err="err.lc_no" @keyup="lcAutoSetField" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="date" label="LC date" placeholder="Ex: 2023-01-01" v-model="field.lc_date"
                   :err="err.lc_date" />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" id="boe" label="BoE" maxlength="20" placeholder="Ex: 5124" v-model="field.boe"
                   :err="err.boe" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="date" label="BoE date" placeholder="Ex: 2023-01-01" v-model="field.boe_date"
                   :err="err.boe_date" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="date" label="entry date" placeholder="Ex: 2023-01-01" v-model="field.entry_date"
                   :err="err.entry_date" :hood="field.form621_last_date" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <SelectInfinite placeholder="Select..." title="station" v-model="field.stationcode"
                   :fetched="fetchedStationcode" :err="err.stationcode" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="DF/CVAT/CF" placeholder="Ex: 5214.215"
                   v-model="field.df_cvat_cf" :err="err.df_cvat_cf" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="assessable value" placeholder="Ex: 5214.215"
                   v-model="field.assessable_value" :err="err.assessable_value" @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="opening stock" placeholder="Ex: 541.216"
                   v-model="field.opening_stock" :err="err.opening_stock" :hood="field.form43_sale_unit"
                   :readonly="field.readonly_opening_stock" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="quantity" placeholder="Ex: 541.216"
                   v-model="field.quantity" :err="err.quantity" :hood="field.form43_purchase_unit" @keyup="recompute"
                   must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="excess quantity" placeholder="Ex: 5247.216"
                   v-model="field.excess_quantity" :err="err.excess_quantity" :hood="field.form43_purchase_unit"
                   @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" maxlength="6" label="wastage(%)" placeholder="Ex: 3.5"
                   v-model="field.wastage" :err="err.wastage" must readonly />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="total quantity" placeholder="Ex: 3254.216"
                   v-model="field.total_quantity" :err="err.total_quantity" :hood="field.form43_purchase_unit"
                   @keyup="recompute" must readonly />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <SelectInfinite placeholder="Select..." title="unit" v-model="field.unit" :fetched="fetchedUnit"
                   :err="err.unit" must disabled />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="base value" placeholder="Ex: 521423.215"
                   v-model="field.base_value" :err="err.base_value" @keyup="recompute" must readonly />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="unit price" placeholder="Ex: 118.530"
                   v-model="field.unit_price" :err="err.unit_price" :hood="field.form43_sale_unit" @keyup="recompute"
                   must readonly />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <InputGroup type="text" category="decimal" label="CD(%)" maxlength="6" placeholder="Ex: 5%"
                   placeholder1="Ex: 5214.25" v-model="field.cd" :err="err.cd" :calcdata="field.cd_value"
                   @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <InputGroup type="text" category="decimal" label="RD(%)" maxlength="6" placeholder="Ex: 5%"
                   placeholder1="Ex: 5214.25" v-model="field.rd" :err="err.rd" :calcdata="field.rd_value"
                   @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <InputGroup type="text" category="decimal" label="SD(%)" maxlength="6" placeholder="Ex: 5%"
                   placeholder1="Ex: 5214.25" v-model="field.sd" :err="err.sd" :calcdata="field.sd_value"
                   @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <InputGroup type="text" category="decimal" label="VAT(%)" maxlength="6" placeholder="Ex: 7.5%"
                   placeholder1="Ex: 5214.25" v-model="field.vat" :err="err.vat" :calcdata="field.vat_value"
                   @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <InputGroup type="text" category="decimal" label="AT(%)" maxlength="6" placeholder="Ex: 7.5%"
                   placeholder1="Ex: 5214.25" v-model="field.at" :err="err.at" :calcdata="field.at_value"
                   @keyup="recompute" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" id="mcu" label="MCU" placeholder="Ex: 0.00112" v-model="field.mcu"
                   :err="err.mcu" readonly must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" category="decimal" label="MCU amount" placeholder="Ex: 300302.87"
                   v-model="field.mcu_amount" :err="err.mcu_amount" @keyup="recompute" readonly must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <SelectInfinite placeholder="Select..." title="mushak note" v-model="field.mushaknote"
                   :fetched="fetchedMushaknote" :err="err.mushaknote" must />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="text" id="receipt-no" label="Receipt No" maxlength="20" placeholder="Ex: 512489654654"
                   v-model="field.receipt_number" :err="err.receipt_number" />
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-sm-4 col-md-3">
                 <Input type="date" label="receipt date" placeholder="Ex: 2023-01-01" v-model="field.receipt_date"
                   :err="err.receipt_date" />
               </div>
-              <div class="col-12 col-md-5">
+              <div class="col-12 col-sm-4 col-md-5">
                 <Input type="text" label="exporter name" maxlength="100" placeholder="Ex: Jhon Doe"
                   v-model="field.exporter_name" :err="err.exporter_name" />
               </div>

@@ -10,9 +10,9 @@
   </Refresh>
 
   <form @submit.prevent="submitData">
-    <div class="row gx-2">
+    <div class="row g-2">
       <div class="col-12 col-lg-6">
-        <div class="card border mb-2">
+        <div class="card border h-100 mb-2">
           <div class="card-body">
             <div class="row gx-1">
               <div class="col-12 col-sm-4">
@@ -29,7 +29,7 @@
               </div>
               <div class="col-6 col-sm-4">
                 <SelectInfinite placeholder="Select..." title="customer" v-model="field.customer"
-                  :fetched="fetchedCustomer" :err="err.customer" :reset-key="field.bin?.id" />
+                  :fetched="fetchedCustomer" :err="err.customer" />
               </div>
               <div class="col-6 col-sm-4">
                 <Input type="text" id="name" label="name" maxlength="100" placeholder="Ex: Jhon Doe"
@@ -48,15 +48,18 @@
                   v-model="field.grand_total" :hood="`<span>limit: ${field.sale_limit}</span>`" :err="err.grand_total"
                   must readonly />
               </div>
-              <div class="col-6 col-sm-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total) }">
+              <div v-if="saleLimitLoaded && +(field.sale_limit) <= +(field.grand_total_note15 || 0)"
+                class="col-6 col-sm-4">
                 <SelectInfinite placeholder="Select..." title="bank" v-model="field.bank" :fetched="fetchedBank"
                   :err="err.bank" must />
               </div>
-              <div class="col-6 col-sm-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total) }">
+              <div v-if="saleLimitLoaded && +(field.sale_limit) <= +(field.grand_total_note15 || 0)"
+                class="col-6 col-sm-4">
                 <Input type="text" id="transaction-no" label="Transaction No" maxlength="20"
                   placeholder="Ex: 512489654654" v-model="field.transaction_no" :err="err.transaction_no" must />
               </div>
-              <div class="col-12 col-sm-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total) }">
+              <div v-if="saleLimitLoaded && +(field.sale_limit) <= +(field.grand_total_note15 || 0)"
+                class="col-6 col-sm-4">
                 <Input type="date" label="transaction date" placeholder="Ex: 2023-01-01"
                   v-model="field.transaction_date" :err="err.transaction_date" must />
               </div>
@@ -99,13 +102,13 @@
             </div>
             <div class="col-6 col-sm-4">
               <InputGroup type="text" category="decimal" label="SD(%)" maxlength="6" placeholder="Ex: 5%"
-                placeholder1="Ex: 5214.25" v-model="row.sd" :err="itemErr[index]?.sd" :calcdata="row.sd_value" readonly
-                must />
+                placeholder1="Ex: 5214.25" v-model="row.sd" :err="itemErr[index]?.sd" :calcdata="row.sd_value"
+                @keyup="recompute" must />
             </div>
             <div class="col-12 col-sm-4">
               <InputGroup type="text" category="decimal" label="VAT(%)" maxlength="6" placeholder="Ex: 7.5%"
                 placeholder1="Ex: 5214.25" v-model="row.vat" :err="itemErr[index]?.vat" :calcdata="row.vat_value"
-                readonly must />
+                @keyup="recompute" must />
             </div>
           </div>
           <div class="d-flex align-items-center justify-content-between" v-if="index === (items.length - 1)">
@@ -153,11 +156,11 @@ const props = defineProps({
 
 const notify = inject('showToast'); // toast
 
-const field = reactive({ id: '', invoice_no: '', bin: '', date: '', customer: '', mobile: '', name: '', bin_or_nid: '', address: '', grand_total: '', bank: '', transaction_no: '', transaction_date: '', form621_last_date: '', sale_limit: '', isLoading: false });
+const field = reactive({ id: '', invoice_no: '', bin: '', date: '', customer: '', mobile: '', name: '', bin_or_nid: '', address: '', grand_total: '', bank: '', transaction_no: '', transaction_date: '', form621_last_date: '', sale_limit: '', note15: '', isLoading: false });
 
 const err = reactive({ invoice_no: '', bin: '', date: '', customer: '', mobile: '', name: '', bin_or_nid: '', address: '', grand_total: '', bank: '', transaction_no: '', transaction_date: '' });
 
-const emptyItem = () => ({ item: null, stock: '', quantity: '', unit_price: '', total_price: '', unit: '', sd: '', sd_value: '', vat: '', vat_value: '', form621_sale_unit: '' });
+const emptyItem = () => ({ item: null, stock: '', quantity: '', unit_price: '', total_price: '', unit: '', sd: '', sd_value: '', vat: '', vat_value: '', form621_sale_unit: '', rate_vat: '' });
 const emptyItemErr = () => ({ item: '', stock: '', quantity: '', unit_price: '', total_price: '', unit: '', sd: '', sd_value: '', vat: '', vat_value: '' });
 
 const items = ref([emptyItem()]);
@@ -184,7 +187,12 @@ const removeItem = (index) => {
 };
 
 // const last invoice
-const loadSaleLimit = async () => await axios.get(route('sale-limit')).then((res) => field.sale_limit = res.data?.salelimit);
+const saleLimitLoaded = ref(false);
+const loadSaleLimit = async () => await axios.get(route('sale-limit')).then((res) => {
+  field.sale_limit = res.data?.salelimit ?? "";
+  field.note15 = res.data?.note15 ?? "";
+  saleLimitLoaded.value = true;
+});
 
 // bin dropdown
 const fetchedBin = async () => {
@@ -209,7 +217,6 @@ const fetchedCustomer = async () => {
   return {
     url: route('customer-dropdown'),
     data: 'customer',
-    params: { client_id: field.bin?.id },
     mapFn: (customer) => ({ id: customer.id, title: customer.mobile, val: customer }),
     option: (row) => {
       field.name = row?.val?.customer_name ?? "";
@@ -286,6 +293,7 @@ const setPromiseData = async (index, row) => {
   target.vat_value = rate?.vat_value ?? "";
   target.ratemsg = rRate?.data?.ratemsg ?? "";
   target.check43 = rRate?.data?.message ?? "";
+  target.rate_vat = rate?.vat ?? "";
 
   recompute(row);
 };
@@ -296,21 +304,37 @@ const setPromiseData = async (index, row) => {
  * vat_value   = (total_price + sd_value) * (vat / 100)
  */
 const recompute = () => {
-  let gtotal = 0;
+  let gtotalAll = 0;
+  let gtotalNote15 = 0;
+
+  const note15 = +(field.note15) || 0;
 
   items.value.forEach((row) => {
     const qty = +(row.quantity) || 0;
-    const price = +(row.unit_price) || 0;
+    const up = +(row.unit_price) || 0;
     const sd = +(row.sd) || 0;
     const vat = +(row.vat) || 0;
+    const tare = +(row.rate_vat) || 0;   // from rate-last
 
-    row.total_price = (qty * price).toFixed(2);
-    row.sd_value = (+(row.total_price) * (sd / 100)).toFixed(2);
-    row.vat_value = ((+(row.total_price) + +(row.sd_value)) * (vat / 100)).toFixed(2);
-    gtotal += +(row.total_price) + +(row.sd_value) + +(row.vat_value);
+    const itemPrice = +(qty * up).toFixed(2);
+
+    row.sd_value = +(itemPrice * (sd / 100)).toFixed(2);
+    row.vat_value = +((itemPrice + row.sd_value) * (vat / 100)).toFixed(2);
+    row.total_price = +(itemPrice + row.sd_value + row.vat_value).toFixed(2);
+
+    // all items total (for display)
+    gtotalAll += row.total_price;
+
+    // 🔹 backend rule: item is "VAT 15" if either vat or tare equals note15
+    const isVat15 = note15 > 0 && (vat === note15 || tare === note15);
+
+    if (isVat15) {
+      gtotalNote15 += row.total_price;
+    }
   });
 
-  field.grand_total = gtotal.toFixed(2);
+  field.grand_total = gtotalAll.toFixed(2);
+  field.grand_total_note15 = gtotalNote15.toFixed(2);   // 🔹 new
 };
 
 // create or update branch

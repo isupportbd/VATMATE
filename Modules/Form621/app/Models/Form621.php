@@ -12,7 +12,6 @@ use Modules\Debitnote\Models\Debitnote;
 use Modules\Form43\Models\Form43;
 use Modules\Form44\Models\Form44;
 use Modules\Form45\Models\Form45;
-use Modules\Form46\Models\Form46;
 use Modules\Item\Models\Item;
 use Modules\Purchase\Models\Purchase;
 use Modules\Sale\Models\Sale;
@@ -27,7 +26,6 @@ Relation::morphMap([
   'mushak68' => Debitnote::class,
   'mushak44' => Form44::class,
   'mushak45' => Form45::class,
-  'mushak46' => Form46::class,
 ]);
 
 class Form621 extends Model
@@ -92,5 +90,15 @@ class Form621 extends Model
   public function sale()
   {
     return $this->belongsTo(Sale::class, 'importable_id', 'id');
+  }
+
+  public function form44()
+  {
+    return $this->belongsTo(Form44::class, 'importable_id', 'id');
+  }
+
+  public function form45()
+  {
+    return $this->belongsTo(Form45::class, 'importable_id', 'id');
   }
 }

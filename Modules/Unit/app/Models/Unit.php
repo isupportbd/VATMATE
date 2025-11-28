@@ -57,9 +57,4 @@ class Unit extends Model
   {
     return $this->hasMany(Form45::class, 'unit_id');
   }
-
-  public function form46()
-  {
-    return $this->hasMany(Form46::class, 'unit_id');
-  }
 }

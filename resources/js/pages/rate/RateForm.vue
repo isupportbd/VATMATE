@@ -6,21 +6,22 @@
           <div class="col-12">
             <Input type="hidden" v-model="field.id" readonly />
           </div>
-          <div class="col-12 col-md-5">
+          <div class="col-12 col-md-5 col-lg-12">
             <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
-          <div class="col-12 col-md-7">
+          <div class="col-12 col-md-7 col-lg-12">
             <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
               :err="err.item" :hood="`<span class='text-lowercase text-danger'>${field.check43}</span>`"
               :reset-key="field.bin?.id" must />
           </div>
-          <div class="col-6 col-md-3 col-lg-12">
+          <div class="col-6 col-md-3 col-lg-6">
             <Input type="date" id="date" label="date" v-model="field.date" :err="err.date" must />
           </div>
           <div class="col-6 col-md-3 col-lg-6">
-            <Input type="text" category="decimal" id="unit-price" label="unit price" placeholder="Ex: 1600"
-              v-model="field.unit_price" :hood="field.last_purchase_rate" :err="err.unit_price" must />
+            <InputGroup type="text" category="decimal" label="unit price" placeholder="Ex: 5412"
+              placeholder1="Ex: 46.60%" v-model="field.unit_price" :err="err.unit_price"
+              :hood="field.last_purchase_rate" :calcdata="field.percent_gap" @keyup="recompute" half must />
           </div>
           <div class="col-6 col-md-3 col-lg-6">
             <Input type="text" category="decimal" id="sd" label="SD(%)" placeholder="Ex: 5%" maxlength="6"
@@ -42,6 +43,7 @@
 </template>
 
 <script setup>
+import axios from "axios";
 import { ref, reactive, inject, nextTick } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
@@ -49,7 +51,7 @@ import { empty } from "../../helpers/utils";
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
 import SelectInfinite from "../../components/SelectInfinite.vue";
-import axios from "axios";
+import InputGroup from "../../components/InputGroup.vue";
 
 const notify = inject('showToast'); // toast message
 
@@ -59,7 +61,7 @@ const props = defineProps({
 });
 
 // rate field
-const field = reactive({ id: '', bin: '', item: '', date: '', unit_price: '', sd: '', vat: '', last_purchase_rate: '', check43: '', isLoading: false });
+const field = reactive({ id: '', bin: '', item: '', date: '', unit_price: '', sd: '', vat: '', last_purchase_rate: '', form43_unit_price: '', percent_gap: '', check43: '', isLoading: false });
 const err = reactive({ bin: '', item: '', date: '', unit_price: '', sd: '', vat: '' });
 
 // bin dropdown
@@ -89,9 +91,31 @@ const lastForm43Load = async () => {
     field.check43 = "";
     return;
   }
-  const { data } = await axios.get(route('rate-last', { client_id: field.bin?.id, item_id: field.item?.id }));
-  field.last_purchase_rate = data?.form43last?.unit_price ?? "";
-  field.check43 = data?.message ?? "";
+
+  const [rRate, res43] = await Promise.all([
+    axios.get(route('rate-last'), { params: param }),
+    axios.get(route('form43-last'), { params: param }),
+  ]);
+
+  field.last_purchase_rate = res43.data?.unitprice ?? "";
+  field.form43_unit_price = res43.data?.form43last?.unit_price ?? "";
+  field.check43 = rRate.data?.message ?? "";
+
+  field.percent_gap = (((+(field.last_purchase_rate) - +(field.form43_unit_price)) / +(field.form43_unit_price)) * 100).toFixed(2) + "%" ?? "";
+};
+
+const recompute = () => {
+  const unitPrice = Number(field.unit_price);
+  const from43UnitPrice = Number(field.form43_unit_price);
+
+  // If cleared → clear percent_gap
+  if (!unitPrice || !from43UnitPrice) {
+    field.percent_gap = "";
+    return;
+  }
+
+  const gap = ((unitPrice - from43UnitPrice) / from43UnitPrice) * 100;
+  field.percent_gap = `${gap.toFixed(2)}%`;
 };
 
 // --- Expose API for parent ---
@@ -102,18 +126,21 @@ const setForm = async (data = {}) => {
   await nextTick(); // selectinfinite always reset and clear. it is stop clear child visual when click edit
   field.item = !empty(row.item) ? { id: row.item?.id, title: `${row.item?.name} [${row.item?.hs_code}]` } : "";
   await nextTick(); // selectinfinite always reset and clear. it is stop clear child visual when click edit
-  field.last_purchase_rate = data?.form43last?.unit_price ?? "";
+  field.last_purchase_rate = data?.form43last?.unit_price_with_addition ?? "";
   field.date = row.date ?? "";
   field.unit_price = row.unit_price ?? "";
   field.sd = row.sd ?? "";
   field.vat = row.vat ?? "";
   // clear previous errors when setting a record
   err.bin = err.item = err.date = err.unit_price = err.sd = err.vat = "";
+
+  field.form43_unit_price = data.form43last?.unit_price ?? "";
+  field.percent_gap = (((+(field.unit_price) - +(field.form43_unit_price)) / +(field.form43_unit_price)) * 100).toFixed(2) + "%" ?? "";
 };
 
 // reset form
 const resetForm = () => {
-  field.id = field.bin = field.item = field.date = field.unit_price = field.sd = field.vat = err.bin = err.item = err.date = err.unit_price = err.sd = err.vat = field.last_purchase_rate = field.check43 = "";
+  field.id = field.bin = field.item = field.date = field.unit_price = field.sd = field.vat = err.bin = err.item = err.date = err.unit_price = err.sd = err.vat = field.last_purchase_rate = field.check43 = field.percent_gap = "";
 };
 
 defineExpose({ setForm, resetForm });

@@ -21,10 +21,10 @@
   </Modal>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
+    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
       <TreasuryForm ref="formRef" />
     </div>
-    <div class="col-12 col-lg-8">
+    <div class="col-12 col-lg-7">
       <TreasuryTable :data="props.treasury" :search="props.search" :view="view" :edit="edit" :del="del" />
     </div>
   </div>

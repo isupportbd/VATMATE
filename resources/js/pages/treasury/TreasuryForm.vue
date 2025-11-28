@@ -11,8 +11,8 @@
               v-model="field.amount" :err="err.amount" focus must />
           </div>
           <div class="col-6">
-            <Input type="text" category="challan-number" id="challan-no" label="challan no" placeholder="Ex: 2541"
-              maxlength="16" v-model="field.challan_no" :err="err.challan_no" must />
+            <Input type="text" id="challan-no" label="challan no" placeholder="Ex: 2541" maxlength="16"
+              v-model="field.challan_no" :err="err.challan_no" must />
           </div>
           <div class="col-5">
             <Input type="month" id="tax-period" category="tax-period" label="tax period" placeholder="Ex: 2024-07"

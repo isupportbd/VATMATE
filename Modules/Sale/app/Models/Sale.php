@@ -36,6 +36,7 @@ class Sale extends Model
     'quantity',
     'last_purchase_unit_price',
     'unit_price',
+    'item_price',
     'total_price',
     'unit_id',
     'sd',

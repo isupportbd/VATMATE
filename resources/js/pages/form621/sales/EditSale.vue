@@ -49,13 +49,13 @@
               </div>
               <div class="col-4">
                 <InputGroup type="text" category="decimal" label="SD(%)" maxlength="6" placeholder="Ex: 5%"
-                  placeholder1="Ex: 5214.25" v-model="field.sd" :err="err?.sd" :calcdata="field.sd_value" readonly
-                  must />
+                  placeholder1="Ex: 5214.25" v-model="field.sd" :err="err?.sd" :calcdata="field.sd_value"
+                  @keyup="recompute" must />
               </div>
               <div class="col-4">
                 <InputGroup type="text" category="decimal" label="VAT(%)" maxlength="6" placeholder="Ex: 7.5%"
-                  placeholder1="Ex: 5214.25" v-model="field.vat" :err="err?.vat" :calcdata="field.vat_value" readonly
-                  must />
+                  placeholder1="Ex: 5214.25" v-model="field.vat" :err="err?.vat" :calcdata="field.vat_value"
+                  @keyup="recompute" must />
               </div>
               <div class="col-4">
                 <Input type="text" id="mobile" label="mobile" maxlength="11" placeholder="Ex: 01711000000"
@@ -73,15 +73,15 @@
                 <Input type="text" id="address" label="address" maxlength="150" placeholder="Ex: Tamabil, Sylhet"
                   v-model="field.address" :err="err.address" />
               </div>
-              <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total) }">
+              <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total_note15 || 0) }">
                 <SelectInfinite placeholder="Select..." title="bank" v-model="field.bank" :fetched="fetchedBank"
                   :err="err.bank" must />
               </div>
-              <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total) }">
+              <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total_note15 || 0) }">
                 <Input type="text" id="transaction-no" label="Transaction No" maxlength="20"
                   placeholder="Ex: 512489654654" v-model="field.transaction_no" :err="err.transaction_no" must />
               </div>
-              <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total) }">
+              <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total_note15 || 0) }">
                 <Input type="date" label="transaction date" placeholder="Ex: 2023-01-01"
                   v-model="field.transaction_date" :err="err.transaction_date" must />
               </div>
@@ -124,7 +124,7 @@ const props = defineProps({
 
 const notify = inject('showToast'); // toast
 
-const field = reactive({ id: '', stock: '', invoice_no: '', bin: '', item: '', date: '', mobile: '', name: '', bin_or_nid: '', address: '', grand_total: '', bank: '', transaction_no: '', transaction_date: '', form621_last_date: '', sale_limit: '', isLoading: false });
+const field = reactive({ id: '', stock: '', invoice_no: '', bin: '', item: '', date: '', mobile: '', name: '', bin_or_nid: '', address: '', grand_total: '', bank: '', transaction_no: '', transaction_date: '', form621_last_date: '', sale_limit: '', note15: '', rate_vat: '', isLoading: false });
 
 const err = reactive({ invoice_no: '', bin: '', date: '', mobile: '', name: '', bin_or_nid: '', address: '', grand_total: '', bank: '', transaction_no: '', transaction_date: '' });
 
@@ -135,7 +135,10 @@ const resetForm = () => {
 };
 
 // const last invoice
-const loadSaleLimit = async () => await axios.get(route('sale-limit')).then((res) => field.sale_limit = res.data?.salelimit);
+const loadSaleLimit = async () => await axios.get(route('sale-limit')).then((res) => {
+  field.sale_limit = res.data?.salelimit ?? "";
+  field.note15 = res.data?.note15 ?? "";
+});
 
 // bin dropdown
 const fetchedBin = async () => {
@@ -175,11 +178,11 @@ const fetchedBank = async () => {
   };
 };
 
-// one-liner to blank all calculated fields
-const clearRowCalcs = () => {
-  field.unit = field.stock = field.form621_sale_unit = field.quantity = field.unit_price = field.total_price = field.sd = field.sd_value = field.vat = field.vat_value = field.grand_total = field.mobile = field.bin_or_nid = field.address = field.form621_last_date = "";
-};
 // set and call last client and item data
+const clearRowCalcs = () => {
+  field.unit = field.stock = field.form621_sale_unit = field.quantity = field.unit_price = field.total_price = field.sd = field.sd_value = field.vat = field.vat_value = field.grand_total = field.grand_total_note15 = field.mobile = field.bin_or_nid = field.address = field.form621_last_date = field.rate_vat = "";
+};
+
 const setPromiseData = async () => {
   const param = { client_id: field.bin?.id, item_id: field.item?.id };
 
@@ -198,16 +201,15 @@ const setPromiseData = async () => {
   field.unit = res621?.form621last?.unit ? { id: res621.form621last.unit.id, title: res621.form621last.unit.name } : "";
   field.form621_sale_unit = res621?.form621last?.unit?.name ?? "";
   field.form621_last_date = !empty(res621?.form621last) ? moment(res621?.form621last?.date).format("DD MMM YYYY") : "";
-
   const rate = rRate?.data?.ratelast ?? "";
-  field.unit_price = rate?.unit_price ?? "";
-  field.sd = rate?.sd ?? "";
-  field.sd_value = rate?.sd_value ?? "";
-  field.vat = rate?.vat ?? "";
-  field.vat_value = rate?.vat_value ?? "";
 
+  // 🔹 only keep rate VAT (tare) for Note 15 check
+  field.rate_vat = rate?.vat ?? "";
+
+  // 🔹 do NOT override sale's stored unit_price, sd, vat here
   recompute();
 };
+
 
 /**
  * total_price = quantity * unit_price
@@ -216,17 +218,33 @@ const setPromiseData = async () => {
  */
 const recompute = () => {
   const qty = +(field.quantity) || 0;
-  const price = +(field.unit_price) || 0;
+  const up = +(field.unit_price) || 0;
   const sd = +(field.sd) || 0;
   const vat = +(field.vat) || 0;
+  const tare = +(field.rate_vat) || 0;   // from rate-last
+  const note15 = +(field.note15) || 0;
 
-  field.total_price = (qty * price).toFixed(2);
-  field.sd_value = (+(field.total_price) * (sd / 100)).toFixed(2);
-  field.vat_value = ((+(field.total_price) + +(field.sd_value)) * (vat / 100)).toFixed(2);
-  const gtotal = +(field.total_price) + +(field.sd_value) + +(field.vat_value);
+  // itemPrice = quantity * unit_price
+  const itemPrice = +(qty * up).toFixed(2);
 
-  field.grand_total = gtotal.toFixed(2);
+  // sd_value = itemPrice * (sd / 100)
+  field.sd_value = +(itemPrice * (sd / 100)).toFixed(2);
+
+  // vat_value = (itemPrice + sd_value) * (vat / 100)
+  field.vat_value = +((itemPrice + field.sd_value) * (vat / 100)).toFixed(2);
+
+  // totalPrice = itemPrice + sd_value + vat_value
+  const totalPrice = itemPrice + field.sd_value + field.vat_value;
+
+  field.total_price = itemPrice.toFixed(2);
+  field.grand_total = totalPrice.toFixed(2);
+
+  // 🔹 same Note 15 condition as backend
+  const isVat15 = note15 > 0 && (vat === note15 || tare === note15);
+
+  field.grand_total_note15 = isVat15 ? totalPrice.toFixed(2) : "0.00";
 };
+
 
 // --- Expose API for parent ---
 const setForm = async (row = {}) => {
@@ -290,15 +308,14 @@ const submitData = async () => {
     err.bin = er.client_id;
     err.item = er.item_id;
     err.date = er.date;
-    err.customer_mobile = er.customer_mobile;
+    err.mobile = er.customer_mobile;
     err.name = er.customer_name;
     err.bin_or_nid = er.bin_or_nid;
     err.address = er.address;
     err.bank = er.bank_id;
     err.transaction_no = er.transaction_no;
     err.transaction_date = er.transaction_date;
-    err.item_id = er.item_id;
-    err.unit_id = er.unit_id;
+    err.unit = er.unit_id;
     err.quantity = er.quantity;
     err.unit_price = er.unit_price;
     err.total_price = er.total_price;

@@ -13,14 +13,17 @@ return new class extends Migration
   {
     Schema::create('creditnotes', function (Blueprint $table) {
       $table->id();
+      $table->string('creditnote_invoice', 20)->nullable(false);
       $table->string('lc_or_invoice_no', 20)->nullable(false);
       $table->unsignedBigInteger('client_id')->nullable(false);
       $table->unsignedBigInteger('item_id')->nullable();
       $table->unsignedBigInteger('unit_id')->nullable();
       $table->date('issued_date')->nullable(false);
-      $table->string('vat_challan_no', 16)->nullable(false);
+      $table->double('opening_stock', 23, 2)->nullable(false);
+      $table->double('stock', 23, 2)->nullable(false);
       $table->date('vat_challan_date')->nullable(false);
       $table->string('reason_for_issuance', 250)->nullable(false);
+      $table->double('rate_in_challan', 23, 2)->nullable(false);
       $table->double('value_in_challan', 23, 2)->nullable(false);
       $table->double('quantity_in_challan', 23, 2)->nullable(false);
       $table->double('vat_in_challan', 23, 2)->nullable(false);
@@ -35,6 +38,7 @@ return new class extends Migration
       $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
       $table->index(['lc_or_invoice_no']);
+      $table->index(['client_id', 'item_id', 'lc_or_invoice_no']);
     });
   }
 

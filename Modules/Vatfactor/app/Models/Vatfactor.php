@@ -14,5 +14,5 @@ class Vatfactor extends Model
   /**
    * The attributes that are mass assignable.
    */
-  protected $fillable = ['name', 'value'];
+  protected $fillable = ['name', 'value', 'description'];
 }
