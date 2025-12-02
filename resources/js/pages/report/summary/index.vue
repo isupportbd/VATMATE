@@ -38,7 +38,7 @@
     </div>
     <div :class="props.summary.sale.length > 0 ? 'row mt-2' : 'd-none'">
       <div class="col-12">
-        <p class="fw-bold mb-1 bg-info bg-opacity-25">Sale Summary</p>
+        <p class="fw-bold mb-1 bg-info bg-opacity-25 px-2">Sale Summary</p>
         <div class="table-responsive">
           <table class="table table-sm table-borderless text-center align-middle">
             <thead class="border-0 border-bottom border-secondary">
@@ -77,7 +77,7 @@
     </div>
     <div :class="props.summary.purchase.length > 0 ? 'row mt-2' : 'd-none'">
       <div class="col-12">
-        <p class="fw-bold mb-1 bg-info bg-opacity-25">Purchase Summary</p>
+        <p class="fw-bold mb-1 bg-info bg-opacity-25 px-2">Purchase Summary</p>
         <div class="table-responsive">
           <table class="table table-sm table-borderless text-center align-middle">
             <thead class="border-0 border-bottom border-secondary">
@@ -122,7 +122,7 @@
     </div>
     <div class="row mt-2">
       <div class="col-12 col-xl-12 mb-3 mb-xl-0">
-        <p class="fw-bold mb-1 bg-info bg-opacity-25">Transaction Summary</p>
+        <p class="fw-bold mb-1 bg-info bg-opacity-25 px-2">Transaction Summary</p>
         <div class="row gy-3">
           <div class="col-12 col-sm-6 col-md-4 col-lg-3"
             v-for="(dt, i) in ['Increase', 'Decrease', 'Penalty'].includes(props.summary?.adjustment)" :key="i">
@@ -176,7 +176,7 @@
     </div>
     <div class="row mt-3">
       <div class="col-12 col-xl-12 mb-3 mb-xl-0">
-        <p class="fw-bold mb-1 bg-info bg-opacity-25">Transaction Summary (Final Settlement)</p>
+        <p class="fw-bold mb-1 bg-info bg-opacity-25 px-2">Transaction Summary (Final Settlement)</p>
         <div class="row gy-3">
           <div class="col-12 col-sm-6 col-md-4 col-lg-3"
             v-for="(dt, i) in ['Increase', 'Decrease', 'Penalty'].includes(props.summary?.adjustment)" :key="i">
@@ -240,7 +240,7 @@
   <div class="card card-body border p-5 pp-0">
     <div :class="props.summary.purchaseDetails.length > 0 ? 'row' : 'd-none'">
       <div class="col-12">
-        <p class="m-0 fw-bold bg-info bg-opacity-25">
+        <p class="m-0 px-2 fw-bold bg-info bg-opacity-25">
           Purchage Details <span class="text-danger">(Total BoE: {{ props.summary?.totalBoe }})</span>
         </p>
       </div>
