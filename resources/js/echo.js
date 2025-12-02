@@ -1,8 +1,9 @@
 import Echo from 'laravel-echo';
 
-const isSecure = window.location.protocol === 'https:';
+import Pusher from 'pusher-js';
+window.Pusher = Pusher;
 
-// If you proxy Reverb through 443 when HTTPS is enabled, you might do:
+const isSecure = window.location.protocol === 'https:';
 const port = isSecure ? 443 : 6001;
 
 window.Echo = new Echo({
