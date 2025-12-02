@@ -859,6 +859,97 @@ $sidebar-width: 16.25rem;
   z-index: 1110 !important;
 }
 
+@media print {
+  .d-print-inline {
+    display: inline !important;
+  }
+  .d-print-inline-block {
+    display: inline-block !important;
+  }
+  .d-print-block {
+    display: block !important;
+  }
+  .d-print-grid {
+    display: grid !important;
+  }
+  .d-print-table {
+    display: table !important;
+  }
+  .d-print-table-row {
+    display: table-row !important;
+  }
+  .d-print-table-cell {
+    display: table-cell !important;
+  }
+  .d-print-flex {
+    display: flex !important;
+  }
+  .d-print-inline-flex {
+    display: inline-flex !important;
+  }
+  .d-print-none {
+    display: none !important;
+  }
+
+  .card-body,
+  .content,
+  .content-page,
+  .end-bar,
+  body {
+    padding: 0;
+    margin: 0;
+  }
+
+  .card.border,
+  .card-body.border {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .printarea {
+    border: initial;
+    border-radius: initial;
+    width: 100%;
+    height: initial;
+    box-shadow: initial;
+    background: initial;
+    page-break-after: always;
+    page-break-inside: avoid;
+    overflow: visible !important;
+    margin: 0;
+  }
+
+  .printarea:last-child {
+    page-break-after: auto;
+  }
+
+  table {
+    page-break-after: auto;
+    border-collapse: collapse;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto
+  }
+
+  td {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group
+  }
+
+  tfoot {
+    display: table-footer-group
+  }
+  .removeprintarea {
+    display: none !important
+  }
+}
+
 // theme light or dark
 .theme-light {
   @include theme(light);

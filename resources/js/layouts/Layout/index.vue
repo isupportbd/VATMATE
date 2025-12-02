@@ -12,7 +12,7 @@
         <Header />
         <!-- header end -->
         <!-- content start -->
-        <div class="content">
+        <div class="content printarea">
           <slot></slot>
         </div>
         <!-- content end -->

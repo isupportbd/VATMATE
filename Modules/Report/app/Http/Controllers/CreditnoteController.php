@@ -8,15 +8,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Models\Client;
 use Modules\Creditnote\Models\Creditnote;
+use Modules\Sale\Models\Sale;
 
 class CreditnoteController extends Controller
 {
   public $client;
   public $creditnote;
-  public function __construct(Client $client, Creditnote $creditnote)
+  public $sale;
+  public function __construct(Client $client, Creditnote $creditnote, Sale $sale)
   {
     $this->client = $client;
     $this->creditnote = $creditnote;
+    $this->sale = $sale;
   }
 
   public function index(Request $request, $client_id, $monthYear)
@@ -68,6 +71,8 @@ class CreditnoteController extends Controller
       return back()->with('error', 'Unauthorised');
     }
 
-    return Inertia("report/creditnote/View", ['view' => $creditnote]);
+    $customer = $this->sale->where('client_id', $creditnote->client_id)->where("invoice_no", $creditnote->lc_or_invoice_no)->first();
+
+    return Inertia("report/creditnote/View", ['view' => $creditnote, 'customer' => $customer]);
   }
 }

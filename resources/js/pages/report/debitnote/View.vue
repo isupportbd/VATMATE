@@ -31,22 +31,23 @@
         </div>
         <div class="row my-3">
           <div class="col-12 text-center">
-            <p class="m-0 fw-bold">Tax Challan</p>
+            <p class="m-0 fw-bold">Debit Note</p>
             <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
-            <p class="m-0">Name of Registered Person: {{ props.view?.client?.company_name }}</p>
-            <p class="m-0">BIN of Registered Person: {{ props.view?.client?.bin }}</p>
-            <p class="m-0">Challan Issuing Address: {{ props.view?.client?.address }}</p>
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-12 col-sm-9 col-md-9">
-            <p class="m-0">Name of Purchaser : {{ props.view?.customer_name }}</p>
-            <p class="m-0">BIN of Purchaser : {{ props.view?.bin_or_nid }}</p>
-            <p class="m-0">Destination of Supply : {{ props.view?.address }}</p>
+            <p class="m-0">Name of Registered Person : {{ props.view?.client?.company_name }}</p>
+            <p class="m-0">BIN of Registered Person : {{ props.view?.client?.bin }}</p>
+            <p class="m-0">Address of Registered Person: {{ props.view?.client?.address }}</p>
+            <p class="m-0">Name of Receiver : {{ props.view?.exporter_name }}</p>
+            <p class="m-0">BIN of Receiver : </p>
+            <p class="m-0">Address of Receiver : </p>
+            <p class="m-0">Vehicle Type & Number : </p>
           </div>
           <div class="col-12 col-sm-3 col-md-3">
-            <p class="m-0">Invoice No : {{ props.view?.invoice_no }}</p>
-            <p class="m-0">Date of Issue : {{ moment(props.view?.date).format('DD/MM/YYYY') }}</p>
+            <p class="m-0">Debit Note No : {{ props.view?.debitnote_invoice }}</p>
+            <p class="m-0">Date of Issue : {{ moment(props.view?.issued_date).format('DD/MM/YYYY') }}</p>
             <p class="m-0">Time of Issue : </p>
           </div>
         </div>
@@ -56,30 +57,39 @@
               <table class="table table-bordered border-secondary text-center">
                 <thead class="align-middle">
                   <tr>
-                    <th>Goods/Service Description (Incases with Brand Name)</th>
-                    <th>Unit of Supply</th>
+                    <th rowspan="2">#</th>
+                    <th rowspan="2">BoE Number & Date</th>
+                    <th rowspan="2">Reason for Issuance</th>
+                    <th colspan="4">Delivery information mentioned in the invoice</th>
+                    <th colspan="4">Related to increasing adjustment</th>
+                  </tr>
+                  <tr>
+                    <th>Value</th>
                     <th>Quantity</th>
-                    <th>Unit Value <sup>1</sup> (TAKA)</th>
-                    <th>Total Value <sup>1</sup> (TAKA)</th>
-                    <th>SD Rate (TAKA)</th>
-                    <th>SD (TAKA)</th>
-                    <th>VAT rate/Specific Tax</th>
-                    <th>VAT/Specific Tax Amount(TAKA)</th>
-                    <th>Value all kinds of Duty & Tax</th>
+                    <th>VAT</th>
+                    <th>SD</th>
+                    <th>Value</th>
+                    <th>Quantity</th>
+                    <th>VAT</th>
+                    <th>SD</th>
                   </tr>
                 </thead>
                 <tbody class="align-middle">
                   <tr>
-                    <td>{{ props.view?.item?.name }} <br> ({{ props.view?.item?.hs_code }})</td>
-                    <td>{{ props.view?.unit?.name }}</td>
-                    <td>{{ +(props.view?.quantity)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.unit_price)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.item_price)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.sd)?.toFixed(2) }}%</td>
-                    <td>{{ +(props.view?.sd_value)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.vat)?.toFixed(2) }}%</td>
-                    <td>{{ +(props.view?.vat_value)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.total_price)?.toFixed(2) }}</td>
+                    <td>1</td>
+                    <td>
+                      <p class="m-0">{{ props?.view?.boe }}</p>
+                      <p class="m-0">{{ props?.view?.vat_challan_date }} </p>
+                    </td>
+                    <td>({{ props?.view?.item?.name }}) <br> {{ props?.view?.reason_for_issuance }}</td>
+                    <td>{{ props?.view?.value_in_challan }}</td>
+                    <td>{{ props?.view?.quantity_in_challan }}</td>
+                    <td>{{ props?.view?.vat_in_challan }}</td>
+                    <td>{{ props?.view?.sd_in_challan }}</td>
+                    <td>{{ props?.view?.value_of_increasing_adjustment }}</td>
+                    <td>{{ props?.view?.quantity_of_increasing_adjustment }}</td>
+                    <td>{{ props?.view?.vat_of_increasing_adjustment }}</td>
+                    <td>{{ props?.view?.sd_of_increasing_adjustment }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -96,9 +106,7 @@
         </div>
         <div class="row">
           <div class="col-12">
-            <p class="m-0">* Applicable to the supplies made to the withholding entity only and in that case it will be
-              used as combined tax invoice cum withholding certificate.</p>
-            <p>* Value<sup>1</sup> except all kinds of Tax.</p>
+            <p>* Value except all kinds of Tax.</p>
           </div>
         </div>
       </div>

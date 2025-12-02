@@ -31,23 +31,20 @@
         </div>
         <div class="row my-3">
           <div class="col-12 text-center">
-            <p class="m-0 fw-bold">Tax Challan</p>
-            <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
-            <p class="m-0">Name of Registered Person: {{ props.view?.client?.company_name }}</p>
-            <p class="m-0">BIN of Registered Person: {{ props.view?.client?.bin }}</p>
-            <p class="m-0">Challan Issuing Address: {{ props.view?.client?.address }}</p>
+            <p class="m-0 fw-bold">Application Form for Disposal of Unused or Unusable Materials</p>
+            <p class="m-0">[See Sub-Rule (1) of Rule 24 (A)]</p>
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-12 col-sm-9 col-md-9">
-            <p class="m-0">Name of Purchaser : {{ props.view?.customer_name }}</p>
-            <p class="m-0">BIN of Purchaser : {{ props.view?.bin_or_nid }}</p>
-            <p class="m-0">Destination of Supply : {{ props.view?.address }}</p>
+            <p class="m-0">Name of Registered Person: {{ props.view?.client?.company_name }}</p>
+            <p class="m-0">BIN of Registered Person: {{ props.view?.client?.bin }}</p>
+            <p class="m-0">Challan Issuing Address: {{ props.view?.client?.address }}</p>
           </div>
           <div class="col-12 col-sm-3 col-md-3">
-            <p class="m-0">Invoice No : {{ props.view?.invoice_no }}</p>
+            <p class="m-0">Invoice No : {{ props.view?.form44_invoice }}</p>
             <p class="m-0">Date of Issue : {{ moment(props.view?.date).format('DD/MM/YYYY') }}</p>
-            <p class="m-0">Time of Issue : </p>
+            <p class="m-0">HS Code : {{ props.view?.item?.hs_code }}</p>
           </div>
         </div>
         <div class="row">
@@ -56,30 +53,28 @@
               <table class="table table-bordered border-secondary text-center">
                 <thead class="align-middle">
                   <tr>
-                    <th>Goods/Service Description (Incases with Brand Name)</th>
-                    <th>Unit of Supply</th>
+                    <th>#</th>
+                    <th>Item</th>
+                    <th>BoE</th>
+                    <th>Serial in Mushak 6.2.1</th>
                     <th>Quantity</th>
-                    <th>Unit Value <sup>1</sup> (TAKA)</th>
-                    <th>Total Value <sup>1</sup> (TAKA)</th>
-                    <th>SD Rate (TAKA)</th>
-                    <th>SD (TAKA)</th>
-                    <th>VAT rate/Specific Tax</th>
-                    <th>VAT/Specific Tax Amount(TAKA)</th>
-                    <th>Value all kinds of Duty & Tax</th>
+                    <th>Value</th>
+                    <th>Paid VAT</th>
+                    <th>Proposed Value</th>
+                    <th>Reason of Ineligibility</th>
                   </tr>
                 </thead>
                 <tbody class="align-middle">
                   <tr>
-                    <td>{{ props.view?.item?.name }} <br> ({{ props.view?.item?.hs_code }})</td>
-                    <td>{{ props.view?.unit?.name }}</td>
+                    <td>1</td>
+                    <td>{{ props.view?.item?.name }}</td>
+                    <td>{{ props.view?.boe }}</td>
+                    <td>{{ props.view?.form621_id }}</td>
                     <td>{{ +(props.view?.quantity)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.unit_price)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.item_price)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.sd)?.toFixed(2) }}%</td>
-                    <td>{{ +(props.view?.sd_value)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.vat)?.toFixed(2) }}%</td>
-                    <td>{{ +(props.view?.vat_value)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.total_price)?.toFixed(2) }}</td>
+                    <td>{{ +(props.view?.value)?.toFixed(2) }}</td>
+                    <td>{{ +(props.view?.vat)?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.proposed_value) * +(props.view?.quantity)).toFixed(2) }}</td>
+                    <td>{{ props.view?.reason_ineligibility }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -96,9 +91,8 @@
         </div>
         <div class="row">
           <div class="col-12">
-            <p class="m-0">* Applicable to the supplies made to the withholding entity only and in that case it will be
-              used as combined tax invoice cum withholding certificate.</p>
-            <p>* Value<sup>1</sup> except all kinds of Tax.</p>
+            <p class="m-0">* I declare that all the information provided in this application form is true and correct.
+            </p>
           </div>
         </div>
       </div>

@@ -20,7 +20,7 @@
             min-height: 297mm;
             margin: 0 auto;
             background: #ffffff;
-            padding: 5mm;
+            /* padding: 5mm; */
             box-sizing: border-box;
         }
 
@@ -35,7 +35,7 @@
             transform-origin: top left;
         }
 
-        /* .text-center {
+        .text-center {
             text-align: center;
         }
 
@@ -92,7 +92,7 @@
 
         .footer-text {
             font-size: 10px;
-        } */
+        }
     </style>
 </head>
 
