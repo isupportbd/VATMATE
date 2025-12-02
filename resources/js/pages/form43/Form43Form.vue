@@ -11,24 +11,24 @@
               placeholder="Ex: 00003764658574" autocomplete="off" v-model="field.lc_no" :err="err.lc_no" focus must />
           </div>
           <div class="col-12 col-sm-7">
-            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" :disabled="!empty(field.id)" must />
           </div>
           <div class="col-12 col-sm-8">
-            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
-              :err="err.item" :reset-key="field.bin?.id" must />
+            <SelectInfinite ref="itemDD" placeholder="Select..." title="Item" v-model="field.item"
+              :fetched="fetchedItem" :err="err.item" :reset-key="field.bin?.id" must />
           </div>
           <div class="col-12 col-sm-4">
             <Input type="text" label="Item Code" placeholder="Ex: 001" v-model="field.item_code" :err="err.item_code"
               :hood="last.last_item_code" :readonly="last.last621" must />
           </div>
           <div class="col-6 col-sm-4">
-            <SelectInfinite placeholder="Select..." title="Purchase Unit" v-model="field.purchase_unit"
+            <SelectInfinite ref="punitDD" placeholder="Select..." title="Purchase Unit" v-model="field.purchase_unit"
               :fetched="fetchedPUnit" :err="err.purchase_unit" :disabled="last.last621" must />
           </div>
           <div class="col-6 col-sm-4">
-            <SelectInfinite placeholder="Select..." title="Sale Unit" v-model="field.sale_unit" :fetched="fetchedSUnit"
-              :err="err.sale_unit" :disabled="last.last621" must />
+            <SelectInfinite ref="sunitDD" placeholder="Select..." title="Sale Unit" v-model="field.sale_unit"
+              :fetched="fetchedSUnit" :err="err.sale_unit" :disabled="last.last621" must />
           </div>
           <div class="col-6 col-sm-4">
             <Input type="text" category="decimal" label="factor" placeholder="Ex: 22" v-model="field.factor"
@@ -96,9 +96,10 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, reactive, inject, nextTick } from "vue";
+import { ref, reactive, inject, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
+import { user, role } from "../../composables/user";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -310,4 +311,38 @@ const submitData = async () => {
     });
   }
 };
+
+// const binDD = ref(null);
+// const itemDD = ref(null);
+// const punitDD = ref(null);
+// const sunitDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (itemDD.value?.reload) {
+//       jobs.push(itemDD.value.reload());
+//     }
+
+//     if (punitDD.value?.reload) {
+//       jobs.push(punitDD.value.reload());
+//     }
+
+//     if (sunitDD.value?.reload) {
+//       jobs.push(sunitDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

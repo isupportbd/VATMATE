@@ -150,5 +150,57 @@ php artisan view:clear
 
 **existing database upload from local machine to vps docker(run in powershell)**
 ```
-Get-Content -Raw "$env:USERPROFILE\Desktop\stats_old_db_with_id_for_userarea_&_economicarea.sql" | ssh niyam@YOUR_VPS_IP "docker exec -i mysql mysql -u root -pPASSWORD stats"
+ONE-SHOT IMPORT (PowerShell → VPS → Docker MySQL)
+
+Paste this into PowerShell on your Windows PC:
+
+$backupPath = "$env:USERPROFILE\Desktop\backup sarra\sarra.sql"
+
+Get-Content -Raw $backupPath |
+ssh niyam@YOUR_VPS_IP "docker exec -i mysql-sarra mysql -u root -p'YOUR_ROOT_PASSWORD' sarra"
+
+
+Replace:
+
+YOUR_VPS_IP → VPS IP
+
+YOUR_ROOT_PASSWORD → MYSQL_ROOT_PASSWORD you set in compose
+
+Example:
+
+$backupPath = "$env:USERPROFILE\Desktop\backup sarra\sarra.sql"
+
+Get-Content -Raw $backupPath |
+ssh niyam@198.51.100.25 "docker exec -i mysql-sarra mysql -u root -p'MyRoot123!' sarra"
+```
+
+**Alternative existing database upload from local machine to vps docker(run in powershell)**
+```
+ALTERNATIVE (safer, recommended for large SQL files)
+Step A — Copy SQL file to VPS
+
+Run this in PowerShell:
+
+scp "$env:USERPROFILE\Desktop\backup sarra\sarra.sql" niyam@YOUR_VPS_IP:/home/niyam/sarra.sql
+
+
+Example:
+
+scp "$env:USERPROFILE\Desktop\backup sarra\sarra.sql" niyam@198.51.100.25:/home/niyam/sarra.sql
+
+Step B — SSH into VPS and import
+ssh niyam@YOUR_VPS_IP
+
+
+Then run:
+
+docker exec -i mysql-sarra mysql -u root -p'YOUR_ROOT_PASSWORD' sarra < /home/niyam/sarra.sql
+
+
+Example:
+
+docker exec -i mysql-sarra mysql -u root -p'MyRoot123!' sarra < /home/niyam/sarra.sql
+
+Step C — Remove SQL file (optional)
+rm /home/niyam/sarra.sql
 ```

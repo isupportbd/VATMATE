@@ -2,8 +2,10 @@
 
 namespace Modules\Report\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Modules\Report\Models\Report;
 
@@ -29,6 +31,8 @@ class FileController extends Controller
 
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $request->validate(
       ['file' => 'required|file|mimes:xlsx,xlsb|max:10240'], // 10MB max
       [
@@ -48,13 +52,22 @@ class FileController extends Controller
       'size' => $this->formatSize($file->getSize())
     ]);
 
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'File stored');
   }
 
   public function destroy(Report $file)
   {
+    $user = Auth::user();
+
     Storage::delete($file->path);
     $file->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'File deleted');
   }
 

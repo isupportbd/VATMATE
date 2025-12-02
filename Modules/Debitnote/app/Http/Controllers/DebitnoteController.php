@@ -2,6 +2,7 @@
 
 namespace Modules\Debitnote\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -251,7 +252,7 @@ class DebitnoteController extends Controller
           'issued_date' => $formField['issued_date'],
           'opening_stock' => number_format($form621->stock, 2, ".", ""),
           'stock' => number_format($stockAfter, 2, ".", ""),
-          'vat_challan_date' => number_format($formField['vat_challan_date'], 2, ".", ""),
+          'vat_challan_date' => $formField['vat_challan_date'],
           'rate_in_challan' => number_format($purchaseUnitPrice, 2, ".", ""),
           'value_in_challan' => number_format($formField['value_in_challan'], 2, ".", ""),
           'quantity_in_challan' => number_format($formField['quantity_in_challan'], 2, ".", ""),
@@ -281,6 +282,9 @@ class DebitnoteController extends Controller
           'userid'           => $user->id,
         ]);
       });
+
+      // realtime data
+      event(new CommonEvent($user->id));
 
       return back()->with('message', 'Debit note created');
     } catch (Throwable $e) {
@@ -471,6 +475,9 @@ class DebitnoteController extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Debit note updated');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -513,6 +520,9 @@ class DebitnoteController extends Controller
           $this->form621->where('id', $newLastId)->update(['last' => 1]);
         }
       });
+
+      // realtime data
+      event(new CommonEvent($user->id));
 
       return back()->with('message', 'Debit note deleted');
     } catch (Throwable $e) {

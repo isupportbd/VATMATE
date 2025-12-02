@@ -2,6 +2,7 @@
 
 namespace Modules\Creditnote\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -271,6 +272,9 @@ class CreditnoteController extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Credit note created');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -451,6 +455,9 @@ class CreditnoteController extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Credit note updated');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -493,6 +500,9 @@ class CreditnoteController extends Controller
           $this->form621->where('id', $newLastId)->update(['last' => 1]);
         }
       });
+
+      // realtime data
+      event(new CommonEvent($user->id));
 
       return back()->with('message', 'Credit note deleted');
     } catch (Throwable $e) {

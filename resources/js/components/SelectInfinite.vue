@@ -211,6 +211,19 @@ const fetchedDropdown = async (search, pack = null) => {
 };
 
 /**
+ * This function created for
+ * functionally reset or reload
+ * from without component
+ * like fn.value.reload({reset:true/reload:true/both});
+ * it is exposed, so we can call from with
+ * template ref
+ */
+const reload = async () => {
+  resetMe();                      // clear field.all, page, val
+  await callParentFetched('', { reset: true }); // ask parent to fetch first page again
+};
+
+/**
  * if backend send proper object or null
  * then watch function not get any axios
  * error else axios can send error
@@ -258,7 +271,7 @@ watch(() => props.resetKey, async (newVal, oldVal) => {
 });
 */
 
-defineExpose({ field, fieldData, fetchedDropdown });
+defineExpose({ field, fieldData, fetchedDropdown, reload });
 </script>
 
 <template>

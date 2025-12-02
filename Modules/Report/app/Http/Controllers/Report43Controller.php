@@ -6,25 +6,34 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Client\Models\Client;
 use Modules\Form43\Models\Form43;
 
 class Report43Controller extends Controller
 {
+  public $client;
   public $form43;
-  public function __construct(Form43 $form43)
+  public function __construct(Client $client, Form43 $form43)
   {
+    $this->client = $client;
     $this->form43 = $form43;
   }
 
-  public function index(Request $request, $clientId, $monthYear)
+  public function index(Request $request, $client_id, $monthYear)
   {
     $user   = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
 
-    $query = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions', 'additions.costsheet', 'additionsum'])
-      ->where('client_id', $clientId)
-      ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $monthYear)
+    $client = $this->client->findOrFail($client_id);
+
+    if (!$isAdmin && $client->user_id !== $user->id) {
+      abort(403, 'Unauthorised'); // <-- hard block, no data
+    }
+
+    $query = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
+      ->where('client_id', $client_id)
+      ->where(DB::raw("DATE_FORMAT(submission_date, '%Y-%m')"), $monthYear)
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1))
       ->when($search, function ($query) use ($search) {
         $query->where(function ($q) use ($search) {
@@ -38,19 +47,12 @@ class Report43Controller extends Controller
             $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
           });
         });
-      })->addSelect(DB::raw("
-        EXISTS (
-            SELECT 1
-            FROM form621s f
-            WHERE f.client_id = form43s.client_id
-              AND f.item_id   = form43s.item_id
-        ) AS has_form621
-    "))->orderBy('id', 'desc')
+      })->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
     return Inertia("report/report43/index", [
-      'form43' => $query,
+      'report43' => $query,
       'search' => $search
     ]);
   }
@@ -60,12 +62,26 @@ class Report43Controller extends Controller
     $user    = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $form43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions', 'additions.costsheet', 'additionsum'])->find($id);
+    $report43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])->find($id);
 
-    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
-      return response()->json(['form43' => null, 'err' => 'Unauthorised']);
+    if (!$isAdmin && ($report43->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
     }
 
-    return response()->json(['form43' => $form43, 'err' => null]);
+    return Inertia("report/report43/View", ['report43' => $report43]);
+  }
+
+  public function forwarding($id)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $report43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])->find($id);
+
+    if (!$isAdmin && ($report43->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    return Inertia("report/report43/Forwarding", ['report43' => $report43]);
   }
 }

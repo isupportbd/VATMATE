@@ -9,16 +9,16 @@
                 <Input type="hidden" v-model="field.id" readonly />
               </div>
               <div class="col-12 col-sm-7 col-md-4 col-lg-8">
-                <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
-                  :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
+                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin"
+                  :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
               </div>
               <div class="col-12 col-sm-5 col-md-4 col-lg-4">
-                <SelectInfinite placeholder="Select..." title="invoice" v-model="field.invoice"
+                <SelectInfinite ref="invDD" placeholder="Select..." title="invoice" v-model="field.invoice"
                   :fetched="fetchedInvoice" :err="err.invoice" :reset-key="field.bin?.id" disabled must />
               </div>
               <div class="col-12 col-sm-8 col-md-4 col-lg-8">
-                <SelectInfinite placeholder="Select..." title="item" v-model="field.item" :fetched="fetchedItem"
-                  :reset-key="field.invoice?.title" :err="err.item" disabled must />
+                <SelectInfinite ref="itemDD" placeholder="Select..." title="item" v-model="field.item"
+                  :fetched="fetchedItem" :reset-key="field.invoice?.title" :err="err.item" disabled must />
               </div>
               <div class="col-6 col-sm-4 col-md-3 col-lg-4">
                 <Input type="date" id="issued-date" label="issued date" v-model="field.issued_date"
@@ -100,9 +100,10 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, inject, reactive, nextTick } from "vue";
+import { ref, inject, reactive, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../../helpers/utils";
+import { user, role } from "../../../composables/user";
 
 import Input from "../../../components/Input.vue";
 import Button from "../../../components/Button.vue";
@@ -314,4 +315,39 @@ const submitData = async () => {
     });
   }
 };
+
+// const binDD = ref(null);
+// const invDD = ref(null);
+// const itemDD = ref(null);
+// const unitDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (invDD.value?.reload) {
+//       jobs.push(invDD.value.reload());
+//     }
+
+//     if (itemDD.value?.reload) {
+//       jobs.push(itemDD.value.reload());
+//     }
+
+//     if (unitDD.value?.reload) {
+//       jobs.push(unitDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

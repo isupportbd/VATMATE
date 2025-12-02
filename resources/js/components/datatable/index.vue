@@ -2,11 +2,12 @@
   <div class="card border h-100">
     <div class="card-header" :class="{ 'd-none': !(props.removable || props.searchable || props.optionable) }">
       <div class="row align-items-center gx-1">
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-3">
           <SelectOption :isOptions="props.optionable" :option="props.option" :data="props.data"
             :selectedoption="selectedoption" :search="searchdata" />
         </div>
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-9">
+          <slot name="extra-tools"></slot>
           <div class="d-flex align-items-center justify-content-center justify-content-md-end">
             <div class="me-1" :class="{ 'd-none': !props.removable }" v-if="checked.checkcolumn.length > 0">
               <Button type="button" class="btn btn-outline-danger" @click.prevent="remove">

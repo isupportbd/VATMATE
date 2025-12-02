@@ -7,12 +7,13 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12">
-            <SelectInfinite id="division" placeholder="Select..." title="Division" v-model="field.division"
-              :fetched="fetchedDivision" :err="err.division" must :disabled="field.id ? true : false" />
+            <SelectInfinite ref="divisionDD" id="division" placeholder="Select..." title="Division"
+              v-model="field.division" :fetched="fetchedDivision" :err="err.division" must
+              :disabled="field.id ? true : false" />
           </div>
           <div class="col-12">
-            <SelectInfinite id="bank" placeholder="Select..." title="Bank" v-model="field.bank" :fetched="fetchedBank"
-              :err="err.bank" must :disabled="field.id ? true : false" />
+            <SelectInfinite ref="bankDD" id="bank" placeholder="Select..." title="Bank" v-model="field.bank"
+              :fetched="fetchedBank" :err="err.bank" must :disabled="field.id ? true : false" />
           </div>
           <div class="col-12">
             <Input type="text" id="name" label="Name" placeholder="Ex: Dhaka" maxlength="200" v-model="field.name"
@@ -30,9 +31,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject } from "vue";
+import { ref, reactive, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
+import { user, role } from "../../composables/user";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -126,4 +128,29 @@ const submitData = async () => {
     });
   }
 };
+
+// const divisionDD = ref(null);
+// const bankDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (bankDD.value?.reload) {
+//       jobs.push(bankDD.value.reload());
+//     }
+
+//     if (divisionDD.value?.reload) {
+//       jobs.push(divisionDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

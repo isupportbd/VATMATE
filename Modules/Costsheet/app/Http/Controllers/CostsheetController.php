@@ -2,8 +2,10 @@
 
 namespace Modules\Costsheet\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Modules\Costsheet\Models\Costsheet;
 
@@ -31,6 +33,8 @@ class CostsheetController extends Controller
   // function call from costsheet for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formfield = $request->validate(
       ['name' => 'required|unique:costsheets,name|max:200'],
       [
@@ -42,6 +46,10 @@ class CostsheetController extends Controller
 
     $this->costsheet->create($formfield);
     // return Redirect::route('costsheet')->with('message', 'costsheet created'); // it is fetch again all data
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Costsheet created'); // it is fetch same page not all data
   }
 
@@ -57,6 +65,8 @@ class CostsheetController extends Controller
   // function call form costsheet page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formfield = $request->validate(
       ['name' => 'required|unique:costsheets,name|max:200'],
       [
@@ -67,14 +77,25 @@ class CostsheetController extends Controller
     );
 
     $this->costsheet->where('id', $id)->update($formfield);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Costsheet updated');
   }
 
   // function call from costsheet page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
+
     $this->costsheet->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Costsheet deleted');
   }
 

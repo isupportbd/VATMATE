@@ -2,8 +2,10 @@
 
 namespace Modules\Branch\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Bank\Models\Bank;
 use Modules\Branch\Models\Branch;
@@ -41,6 +43,8 @@ class BranchController extends Controller
   // function call from branch page form create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
@@ -75,6 +79,10 @@ class BranchController extends Controller
       ]
     );
     $this->branch->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Branch created');
   }
 
@@ -90,6 +98,8 @@ class BranchController extends Controller
   // function call from branch page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
@@ -124,14 +134,25 @@ class BranchController extends Controller
       ]
     );
     $this->branch->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Branch updated');
   }
 
   // function call from branch page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
+
     $this->branch->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Branch deleted');
   }
 

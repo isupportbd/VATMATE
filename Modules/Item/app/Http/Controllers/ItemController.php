@@ -2,8 +2,10 @@
 
 namespace Modules\Item\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Item\Models\Item;
 
@@ -32,6 +34,8 @@ class ItemController extends Controller
   // function call from item page for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'name' => 'required|max:250',
@@ -68,6 +72,10 @@ class ItemController extends Controller
       ]
     );
     $this->item->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Item created');
 
     // $dd = $this->item->where([['name', $request->input('name')], ['hs_code', $request->input('hs_code')]])->exists();
@@ -86,6 +94,8 @@ class ItemController extends Controller
   // function call form item page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'name' => 'required|max:250',
@@ -122,14 +132,25 @@ class ItemController extends Controller
       ]
     );
     $this->item->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Item updated');
   }
 
   // function call from item page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
+
     $this->item->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Item deleted');
   }
 

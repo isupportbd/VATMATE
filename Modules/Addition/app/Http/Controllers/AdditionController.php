@@ -2,6 +2,7 @@
 
 namespace Modules\Addition\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -112,6 +113,9 @@ class AdditionController extends Controller
         $this->addition->create($formField);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Addition created');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -188,6 +192,9 @@ class AdditionController extends Controller
         $this->addition->where('id', $id)->update($formField);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Addition updated');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -237,6 +244,9 @@ class AdditionController extends Controller
       Log::error('Failed to delete additions: ' . $e->getMessage());
       return back()->with('error', 'Failed to delete additions. Please try again.');
     }
+
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', 'Addition(s) deleted successfully.');
   }

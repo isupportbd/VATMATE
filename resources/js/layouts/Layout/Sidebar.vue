@@ -54,6 +54,9 @@
             <li class="list-group-item" :class="{ 'active': $page.component === 'stationcode/index' }">
               <Link :href="route('stationcode')">Station Code</Link>
             </li>
+            <li class="list-group-item" :class="{ 'active': $page.component === 'mushaknote/index' }">
+              <Link :href="route('mushaknote')">Mushak Note</Link>
+            </li>
             <li class="list-group-item" :class="{ 'active': $page.component === 'vatfactor/index' }">
               <Link :href="route('vatfactor')">Vat Factor</Link>
             </li>
@@ -145,7 +148,7 @@
           <span class="text-uppercase">Reports</span>
         </li>
         <li class="list-group-item"
-          :class="{ 'active': ['report/index', 'report/ClientDataList', 'report/report621/index'].includes($page.component) }">
+          :class="{ 'active': ['report/index', 'report/ClientDataList', 'report/report621/index', 'report/summary/index', 'report/report63/index', 'report/report63/View', 'report/report43/index', 'report/report43/View', 'report/report43/Forwarding', 'report/report91/index', 'report/settlement91/index', 'report/creditnote/index', 'report/creditnote/View', 'report/debitnote/index', 'report/debitnote/View', 'report/form44/index', 'report/form44/View', 'report/form45/index', 'report/form45/View'].includes($page.component) }">
           <Link :href="route('report')">
           <div class="menu-icon"><i class="bi bi-files"></i></div>
           <span>Reports</span>

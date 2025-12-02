@@ -25,6 +25,11 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '@': '/resources',
+    }
+  },
   css: {
     preprocessorOptions: {
       scss: {

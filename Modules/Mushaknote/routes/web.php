@@ -8,6 +8,8 @@ use Modules\Mushaknote\Http\Controllers\MushaknoteController;
 // });
 
 Route::middleware(['auth'])->group(function () {
+  Route::get('/mushaknote', [MushaknoteController::class, 'index'])->name('mushaknote')->middleware('role:admin');
   Route::get('/mushaknote-dropdown', [MushaknoteController::class, 'mushakDropdown'])->name('mushaknote-dropdown')->middleware('role:admin,manager');
   Route::get('/mushaknote/{id}', [MushaknoteController::class, 'show'])->name('mushaknote-single')->middleware('role:admin,manager');
+  Route::put('/mushaknote/{id}', [MushaknoteController::class, 'update'])->name('mushaknote-update')->middleware('role:admin');
 });

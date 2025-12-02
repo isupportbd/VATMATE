@@ -2,6 +2,7 @@
 
 namespace Modules\Purchase\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -434,6 +435,14 @@ class PurchaseController extends Controller
         ]);
       });
 
+      // find the client to get owner user_id
+      $client    = $this->client->find($formField['client_id']);
+      $actorId   = $user->id;                  // who performed the action (user/admin)
+      $targetId  = $client->user_id ?? $user->id; // whose data this belongs to
+
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with("message", 'Purchase created');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -846,6 +855,9 @@ class PurchaseController extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with("message", 'Purchase updated');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -941,10 +953,11 @@ class PurchaseController extends Controller
         }
       });
 
-      DB::commit();
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Purchase deleted');
     } catch (Throwable $e) {
-      DB::rollBack();
       return back()->with("error", $e->getMessage());
     }
   }

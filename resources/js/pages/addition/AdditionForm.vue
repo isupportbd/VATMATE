@@ -7,8 +7,9 @@
             <Input type="hidden" v-model="field.id" readonly />
           </div>
           <div class="col-12">
-            <SelectInfinite id="costsheet" placeholder="Select..." title="costsheet" v-model="field.costsheet"
-              :fetched="fetchedCostsheet" :err="err.costsheet" :disabled="field.id ? true : false" must />
+            <SelectInfinite id="costsheet" ref="costDD" placeholder="Select..." title="costsheet"
+              v-model="field.costsheet" :fetched="fetchedCostsheet" :err="err.costsheet"
+              :disabled="field.id ? true : false" must />
           </div>
           <div class="col-12">
             <InputGroup type="text" category="decimal" label="Rate" placeholder="Amount: 120" placeholder1="Ex: 5%"
@@ -27,9 +28,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject } from "vue";
+import { ref, reactive, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
+import { user, role } from "../../composables/user";
 
 import Input from "../../components/Input.vue";
 import InputGroup from "../../components/InputGroup.vue";
@@ -134,4 +136,18 @@ const submitData = async () => {
     });
   }
 };
+
+// const costDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     if (!costDD.value) return;
+//     await costDD.value?.reload();
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

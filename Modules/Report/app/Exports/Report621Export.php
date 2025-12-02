@@ -27,7 +27,6 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
   public $clientId;
   public $itemId;
   public $monthYear;
-  public $form621;
 
   use Exportable;
 
@@ -41,37 +40,29 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
   public function headings(): array
   {
     return [
-      'Date',
-      'Item',
-      'Opening Quantity',
-      'Unit',
-      'Purchase Quantity',
-      'Unit',
-      'Purchase Rate',
-      'Purchase Value(Excluding All Type of Taxes)',
-      'Total Stock',
-      'Unit',
-      'Exporter Name',
-      'Exporter Address',
-      'Purchase Challan/Bill Number',
-      'Purchase Challan/Bill Date',
-      'Sold Item',
-      'Sold Quantity',
-      'Unit',
-      'Sold Taxable Value (Excluding All Type of Taxes)',
-      'Sold Rate',
-      'SD Rate(%)',
-      'SD',
-      'VAT Rate(%)',
-      'VAT',
-      'Purchaser Name',
-      'Purchaser Address',
-      'Purchaser BIN/NID',
-      'Sales Invoice Number',
-      'Sales Invoice Date',
-      'Closing Stock',
-      'Unit',
-      'Remarks'
+      "Date",
+      "Item",
+      "Opening Quantity",
+      "Purchase Quantity",
+      "Purchase Value",
+      "Total Stock",
+      "Exporter Name",
+      "Exporter Address",
+      "BIN/NID",
+      "Purchase Challan/Bill Number",
+      "Purchase Challan/Bill Date",
+      "Sold Item",
+      "Sold Quantity",
+      "Sold Taxable Value",
+      "SD",
+      "VAT",
+      "Purchaser Name",
+      "Purchaser Address",
+      "Purchaser BIN/NID",
+      "Sales Invoice Number",
+      "Sales Invoice Date",
+      "Closing Stock",
+      "Remarks",
     ];
   }
 
@@ -81,7 +72,7 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
       ->where('client_id', $this->clientId)
       ->when($this->itemId, fn($q) => $q->where('item_id', $this->itemId))
       ->when($this->monthYear, fn($q) => $q->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $this->monthYear))
-      ->orderBy('id', 'desc');
+      ->orderBy('id', 'asc');
 
     return $form621;
   }
@@ -103,138 +94,116 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
     // 0  Date
     // 1  Item
     // 2  Opening Quantity
-    // 3  Unit
-    // 4  Purchase Quantity
-    // 5  Unit
-    // 6  Purchase Rate
-    // 7  Purchase Value
-    // 8  Total Stock
-    // 9  Unit
-    // 10 Exporter Name
-    // 11 Exporter Address
-    // 12 Purchase Challan/Bill Number
-    // 13 Purchase Challan/Bill Date
-    // 14 Sold Item
-    // 15 Sold Quantity
-    // 16 Unit
-    // 17 Sold Taxable Value
-    // 18 Sold Rate
-    // 19 SD Rate(%)
-    // 20 SD
-    // 21 VAT Rate(%)
-    // 22 VAT
-    // 23 Purchaser Name
-    // 24 Purchaser Address
-    // 25 Purchaser BIN/NID
-    // 26 Sales Invoice Number
-    // 27 Sales Invoice Date
-    // 28 Closing Stock
-    // 29 Unit
-    // 30 Remarks (we’ll keep importable_type here)
+    // 3  Purchase Quantity
+    // 4  Purchase Value
+    // 5  Total Stock
+    // 6  Exporter Name
+    // 7  Exporter Address
+    // 8  BIN/NID
+    // 9 Purchase Challan/Bill Number
+    // 10 Purchase Challan/Bill Date
+    // 11 Sold Item
+    // 12 Sold Quantity
+    // 13 Sold Taxable Value
+    // 14 SD
+    // 15 VAT
+    // 16 Purchaser Name
+    // 17 Purchaser Address
+    // 18 Purchaser BIN/NID
+    // 19 Sales Invoice Number
+    // 20 Sales Invoice Date
+    // 21 Closing Stock
+    // 22 Remarks (we’ll keep importable_type here)
     $row = array_fill(0, 31, '');
 
     // 2) common fields
     $row[0]  = $bulk->date ? date('d/m/Y', strtotime($bulk->date)) : '';
-    $row[1]  = $bulk->item?->name ? $bulk->item->name . '(' . $bulk->item?->hs_code . ')' : '';
-    $row[2]  = $bulk->opening_stock;                                     // Opening Quantity
-    $row[3]  = $bulk->unit?->name;                                       // Unit
-    $row[28] = $bulk->stock;                                             // Closing Stock
-    $row[29] = $bulk->unit?->name;                                       // Unit
-    $row[30] = $bulk->importable_type;                                   // Remarks / type
+    $row[1]  = $bulk->item?->name ? $bulk->item->name . ' (' . $bulk->item?->hs_code . ')' : '';
+    $row[2]  = $bulk->opening_stock . " " . $bulk->unit?->name;                                 // Opening Quantity
+    $row[22] = $bulk->importable_type;                                                          // Remarks / type
 
     // 3) type-specific overrides
 
     // PURCHASE
     if ($bulk->importable_type === 'purchase') {
-      $row[4]  = $bulk->quantity;                         // Purchase Quantity
-      $row[5]  = $bulk->unit?->name;                      // Unit
-      $row[6]  = $bulk->importable?->unit_price;          // Purchase Rate
-      $row[7]  = $bulk->importable?->base_value;          // Purchase Value
-      $row[8]  = $bulk->stock;                            // Total Stock
-      $row[9]  = $bulk->unit?->name;                      // Unit
-      $row[10] = $bulk->importable?->exporter_name;       // Exporter Name
-      $row[11] = $bulk->importable?->address;             // Exporter Address
-      $row[12] = $bulk->importable?->boe;                 // Purchase Challan/Bill Number
-      $row[13] = $bulk->importable?->boe_date ? date('d/m/Y', strtotime($bulk->importable->boe_date)) : '';
+      $row[3]  = $bulk->quantity . " " . $bulk->unit?->name;  // Purchase Quantity
+      $row[4]  = $bulk->importable?->base_value;              // Purchase Value
+      $row[5]  = $bulk->stock . " " . $bulk->unit?->name;     // Total Stock
+      $row[6]  = $bulk->importable?->exporter_name;           // Exporter Name
+      $row[7]  = $bulk->importable?->address;                 // Exporter Address
+      $row[9]  = $bulk->importable?->boe;                     // Purchase Challan/Bill Number
+      $row[10] = $bulk->importable?->boe_date ? date('d/m/Y', strtotime($bulk->importable->boe_date)) : '';
       return $row;
     }
 
     // SALE
     if ($bulk->importable_type === 'sale') {
-      $row[8]  = $bulk->opening_stock;                    // Total Stock (before sale)
-      $row[9]  = $bulk->unit?->name;                      // Unit
-      $row[14] = $bulk->item?->name ? $bulk->item->name . '(' . $bulk->item?->hs_code . ')' : '';
-      $row[15] = $bulk->quantity;                         // Sold Quantity
-      $row[16] = $bulk->unit?->name;                      // Unit
-      $row[17] = $bulk->importable?->total_price;         // Sold Taxable Value
-      $row[18] = $bulk->importable?->unit_price;          // Sold Rate
-      $row[19] = $bulk->importable?->sd;                  // SD Rate(%)
-      $row[20] = $bulk->importable?->sd_value;            // SD
-      $row[21] = $bulk->importable?->vat;                 // VAT Rate(%)
-      $row[22] = $bulk->importable?->vat_value;           // VAT
-      $row[23] = $bulk->importable?->customer_name;       // Purchaser Name
-      $row[24] = $bulk->importable?->address;             // Purchaser Address
-      $row[25] = $bulk->importable?->bin_or_nid;          // Purchaser BIN/NID
-      $row[26] = $bulk->importable?->invoice_no;          // Sales Invoice Number
-      $row[27] = $bulk->importable?->date ? date('d/m/Y', strtotime($bulk->importable->date)) : '';
+      $row[5]  = $bulk->opening_stock . " " . $bulk->unit?->name;     // Total Stock
+      $row[11] = $bulk->item?->name ? $bulk->item->name . ' (' . $bulk->item?->hs_code . ')' : '';
+      $row[12] = $bulk->quantity . " " . $bulk->unit?->name;    // Sold Quantity
+      $row[13] = $bulk->importable?->total_price;               // Sold Taxable Value
+      $row[14] = $bulk->importable?->sd_value;                  // SD
+      $row[15] = $bulk->importable?->vat_value;                 // VAT
+      $row[16] = $bulk->importable?->customer_name;             // Purchaser Name
+      $row[17] = $bulk->importable?->address;                   // Purchaser Address
+      $row[18] = $bulk->importable?->bin_or_nid;                // Purchaser BIN/NID
+      $row[19] = $bulk->importable?->invoice_no;                // Sales Invoice Number
+      $row[20] = $bulk->importable?->date ? date('d/m/Y', strtotime($bulk->importable->date)) : '';
+      $row[21] = $bulk->stock . " " . $bulk->unit?->name;      // Closing Stock
       return $row;
     }
 
     // MUSHAK 6.7 (mushak67)
     if ($bulk->importable_type === 'mushak67') {
-      $row[4]  = $bulk->importable?->quantity_of_decreasing_adjustment; // Purchase Quantity (decreasing adjustment)
-      $row[5]  = $bulk->unit?->name;                                    // Unit
-      $row[6]  = $bulk->importable?->rate_in_challan;                  // Purchase Rate (credit note)
-      $row[7]  = $bulk->importable?->value_of_decreasing_adjustment;   // Purchase Value (decreasing)
-      $row[8]  = $bulk->opening_stock;                                 // Total Stock
-      $row[9]  = $bulk->unit?->name;                                   // Unit
-      $row[12] = $bulk->importable?->creditnote_invoice;               // Purchase Challan/Bill Number
-      $row[13] = $bulk->issued_date ? date('d/m/Y', strtotime($bulk->issued_date)) : '';
+      $row[5]  = $bulk->stock . " " . $bulk->unit?->name;               // Total Stock
+      $row[3]  = $bulk->importable?->quantity_of_decreasing_adjustment . " " . $bulk->unit?->name; // Purchase Quantity (decreasing adjustment)
+      $row[4]  = $bulk->importable?->value_of_decreasing_adjustment;    // Purchase Value (decreasing)
+      $row[5]  = $bulk->stock . " " . $bulk->unit?->name;               // Total Stock
+      $row[9] = $bulk->importable?->creditnote_invoice;                 // Purchase Challan/Bill Number
+      $row[10] = $bulk->importable?->issued_date ? date('d/m/Y', strtotime($bulk->importable?->issued_date)) : '';
+      $row[21]  = $bulk->stock . " " . $bulk->unit?->name;              // Closing Stock
       return $row;
     }
 
     // MUSHAK 6.8 (mushak68)
     if ($bulk->importable_type === 'mushak68') {
-      $row[8]  = $bulk->opening_stock;                                 // Total Stock (before adjustment)
-      $row[9]  = $bulk->unit?->name;                                   // Unit
-      $row[14] = $bulk->item?->name ? $bulk->item->name . '(' . $bulk->item?->hs_code . ')' : '';
-      $row[15] = $bulk->importable?->quantity_of_increasing_adjustment; // Sold Quantity (increasing adj qty)
-      $row[16] = $bulk->unit?->name;                                   // Unit
-      $row[17] = $bulk->importable?->value_of_increasing_adjustment;   // Sold Taxable Value (value)
-      $row[18] = $bulk->importable?->rate_in_challan;                  // Sold Rate
-      // SD Rate, SD, VAT Rate, VAT in adjustment
-      $row[20] = $bulk->importable?->sd_of_increasing_adjustment;      // SD
-      $row[22] = $bulk->importable?->vat_of_increasing_adjustment;     // VAT
-      $row[26] = $bulk->importable?->debitnote_invoice;                // Sales Invoice Number (debit note)
-      $row[27] = $bulk->issued_date ? date('d/m/Y', strtotime($bulk->issued_date)) : '';
+      $row[5]  = $bulk->opening_stock . " " . $bulk->unit?->name;      // Total Stock (before adjustment)
+      $row[11] = $bulk->item?->name ? $bulk->item->name . ' (' . $bulk->item?->hs_code . ')' : '';
+      $row[12] = $bulk->importable?->quantity_of_increasing_adjustment . " " . $bulk->unit?->name; // Sold Quantity (increasing adj qty)
+      $row[13] = $bulk->importable?->value_of_increasing_adjustment;   // Sold Taxable Value (value)
+      $row[14] = $bulk->importable?->sd_of_increasing_adjustment;      // SD
+      $row[15] = $bulk->importable?->vat_of_increasing_adjustment;     // VAT
+      $row[19] = $bulk->importable?->debitnote_invoice;                // Sales Invoice Number (debit note)
+      $row[20] = $bulk->issued_date ? date('d/m/Y', strtotime($bulk->issued_date)) : '';
+      $row[21]  = $bulk->stock . " " . $bulk->unit?->name;      // Closing Stock
       return $row;
     }
 
     // MUSHAK 4.4 (mushak44)
     if ($bulk->importable_type === 'mushak44') {
-      $row[8]  = $bulk->opening_stock;                               // Total Stock
-      $row[9]  = $bulk->unit?->name;                                 // Unit
-      $row[14] = $bulk->item?->name ? $bulk->item->name . '(' . $bulk->item?->hs_code . ')' : '';
-      $row[15] = $bulk->importable?->quantity;                       // Sold Quantity
-      $row[16] = $bulk->unit?->name;                                 // Unit
-      $row[17] = $bulk->importable?->value;                          // Sold Taxable Value
-      $row[22] = $bulk->importable?->vat;                            // VAT
-      $row[26] = $bulk->importable?->form44_invoice;                 // Sales Invoice Number
-      $row[27] = $bulk->importable?->date ? date('d/m/Y', strtotime($bulk->importable->date)) : '';
+      $row[5]  = $bulk->opening_stock . " " > $bulk->unit?->name;                               // Total Stock
+      $row[11] = $bulk->item?->name ? $bulk->item->name . ' (' . $bulk->item?->hs_code . ')' : '';
+      $row[12] = $bulk->importable?->quantity . " " > $bulk->unit?->name;                       // Sold Quantity
+      $row[13] = $bulk->importable?->value;                                                     // Sold Taxable Value
+      $row[14] = $bulk->importable?->sd;                                                        // SD
+      $row[15] = $bulk->importable?->vat;                                                       // VAT
+      $row[19] = $bulk->importable?->form44_invoice;                                            // Sales Invoice Number
+      $row[20] = $bulk->importable?->date ? date('d/m/Y', strtotime($bulk->importable->date)) : '';
+      $row[21] = $bulk->stock . " " > $bulk->unit?->name;                                       // Closing Stock
       return $row;
     }
 
     // MUSHAK 4.5 (mushak45)
     if ($bulk->importable_type === 'mushak45') {
-      $row[8]  = $bulk->opening_stock;                               // Total Stock
-      $row[9]  = $bulk->unit?->name;                                 // Unit
-      $row[14] = $bulk->item?->name ? $bulk->item->name . '(' . $bulk->item?->hs_code . ')' : '';
-      $row[15] = $bulk->importable?->quantity;                       // Sold Quantity
-      $row[16] = $bulk->unit?->name;                                 // Unit
-      $row[17] = $bulk->importable?->value;                          // Sold Taxable Value
-      $row[22] = $bulk->importable?->vat;                            // VAT
-      $row[26] = $bulk->importable?->form45_invoice;                 // Sales Invoice Number
-      $row[27] = $bulk->importable?->date ? date('d/m/Y', strtotime($bulk->importable->date)) : '';
+      $row[5]  = $bulk->opening_stock . " " . $bulk->unit?->name;                               // Total Stock
+      $row[11] = $bulk->item?->name ? $bulk->item->name . ' (' . $bulk->item?->hs_code . ')' : '';
+      $row[12] = $bulk->importable?->quantity . " " . $bulk->unit?->name;                       // Sold Quantity
+      $row[13] = $bulk->importable?->value;                                                     // Sold Taxable Value
+      $row[14] = $bulk->importable?->sd;                                                        // SD
+      $row[15] = $bulk->importable?->vat;                                                       // VAT
+      $row[19] = $bulk->importable?->form45_invoice;                                            // Sales Invoice Number
+      $row[20] = $bulk->importable?->date ? date('d/m/Y', strtotime($bulk->importable->date)) : '';
+      $row[21]  = $bulk->stock . " " . $bulk->unit?->name;                                      // Closing Stock
       return $row;
     }
 
@@ -282,8 +251,8 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
       ['A6', 'Month :',   'C6', date("M Y", strtotime($this->monthYear))],
     ];
 
-    $sheet->getStyle("A4:A11")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
-    $sheet->getStyle("C4:C11")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
+    $sheet->getStyle("A4:A6")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
+    $sheet->getStyle("C4:C6")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
 
     foreach ($meta as [$labelCell, $label, $valueCell, $value]) {
       $row = substr($labelCell, 1);
@@ -313,7 +282,7 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
     $sheet->getStyle("A1:{$lastCol}2")->applyFromArray([
       'font' => ['bold' => true, 'size' => 20],
       'alignment' => [
-        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'horizontal' => Alignment::HORIZONTAL_LEFT,
         'vertical'   => Alignment::VERTICAL_CENTER,
       ],
     ]);

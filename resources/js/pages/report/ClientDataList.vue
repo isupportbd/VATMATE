@@ -34,7 +34,7 @@
       <td>
         <div class="container-fluid">
           <div class="row">
-            <div class="container-fluid p-0 mb-1">
+            <div class="container-fluid p-0">
               <div class="row g-1">
                 <div class="col-3">
                   <Link :href="route('report-621', { client_id: td.client_id })"
@@ -43,59 +43,62 @@
                   </Link>
                 </div>
                 <div class="col-6">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('report-summary', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>Summary</span>
                   </Link>
                 </div>
                 <div class="col-3">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('report-91', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>9.1</span>
                   </Link>
                 </div>
-              </div>
-            </div>
-            <div class="container-fluid p-0 mb-1">
-              <div class="row g-1">
-                <div class="col-4">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
-                  <span>4.3</span>
+                <div class="col-12">
+                  <Link :href="route('settlement-report-91', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
+                  <span>Settlement 9.1</span>
                   </Link>
                 </div>
                 <div class="col-4">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('report-63', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
+                  <span>6.3</span>
+                  </Link>
+                </div>
+                <div class="col-4">
+                  <Link :href="route('report-boe', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>BoE</span>
                   </Link>
                 </div>
                 <div class="col-4">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
-                  <span>6.3</span>
+                  <Link :href="route('report-43', { client_id: td?.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <span>4.3</span>
                   </Link>
                 </div>
-              </div>
-            </div>
-            <div class="container-fluid p-0">
-              <div class="row g-1 mb-1">
                 <div class="col-9">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('debitnote-68', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>Debit Note (6.8)</span>
                   </Link>
                 </div>
                 <div class="col-3">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('form-44', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>4.4</span>
                   </Link>
                 </div>
-              </div>
-            </div>
-            <div class="container-fluid p-0">
-              <div class="row g-1">
                 <div class="col-3">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('form-45', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>4.5</span>
                   </Link>
                 </div>
                 <div class="col-9">
-                  <Link href="#" class="btn btn-outline-dark w-100 rounded-2" title="edit">
+                  <Link :href="route('creditnote-67', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
                   <span>Credit Note (6.7)</span>
                   </Link>
                 </div>
@@ -110,8 +113,10 @@
 
 <script setup>
 import moment from 'moment-timezone';
-import { router } from '@inertiajs/vue3';
+import { onMounted, onBeforeUnmount } from 'vue';
+import { router, Link } from '@inertiajs/vue3';
 import { empty } from '../../helpers/utils';
+import { user, role } from "../../composables/user";
 
 import PageBar from '../../components/PageBar.vue';
 import Refresh from '../../components/Refresh.vue';
@@ -125,6 +130,15 @@ const props = defineProps({
 
 // reload form621
 const refresh = (id) => router.get(route('report-client-data-list', { client_id: id }), {}, { preserveScroll: true });
+
+onMounted(() => {
+  const reload = () => router.reload({ only: ['clientdatalist'], preserveState: true, preserveScroll: true });
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>
 
 <style lang="scss" scoped></style>

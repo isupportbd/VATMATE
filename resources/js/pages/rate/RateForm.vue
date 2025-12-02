@@ -11,9 +11,10 @@
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
           <div class="col-12 col-md-7 col-lg-12">
-            <SelectInfinite placeholder="Select..." title="Item" v-model="field.item" :fetched="fetchedItem"
-              :err="err.item" :hood="`<span class='text-lowercase text-danger'>${field.check43}</span>`"
-              :reset-key="field.bin?.id" must />
+            <SelectInfinite ref="itemDD" placeholder="Select..." title="Item" v-model="field.item"
+              :fetched="fetchedItem" :err="err.item"
+              :hood="`<span class='text-lowercase text-danger'>${field.check43}</span>`" :reset-key="field.bin?.id"
+              must />
           </div>
           <div class="col-6 col-md-3 col-lg-6">
             <Input type="date" id="date" label="date" v-model="field.date" :err="err.date" must />
@@ -44,9 +45,10 @@
 
 <script setup>
 import axios from "axios";
-import { ref, reactive, inject, nextTick } from "vue";
+import { ref, reactive, inject, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
+import { user, role } from "../../composables/user";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -194,4 +196,29 @@ const submitData = async () => {
     });
   }
 };
+
+// const binDD = ref(null);
+// const itemDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (itemDD.value?.reload) {
+//       jobs.push(itemDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

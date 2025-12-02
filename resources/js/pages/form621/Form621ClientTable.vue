@@ -538,8 +538,9 @@
 import moment from 'moment';
 import axios from 'axios';
 import { router } from '@inertiajs/vue3';
-import { reactive, ref, inject } from 'vue';
+import { reactive, ref, inject, onMounted, onBeforeUnmount } from 'vue';
 import { empty } from '../../helpers/utils';
+import { user, role } from "../../composables/user";
 
 import PageBar from "../../components/PageBar.vue";
 import Button from '../../components/Button.vue';
@@ -928,6 +929,15 @@ const delForm45 = async (id) => {
 
 // refresh load
 const refresh = (id) => router.get(route('form621-client-single-index', { client_id: id }), {}, { preserveScroll: true });
+
+onMounted(() => {
+  const reload = () => router.reload({ only: ['Form621ClientTable'], preserveState: true, preserveScroll: true });
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>
 
 <style lang="scss" scoped></style>

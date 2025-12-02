@@ -71,14 +71,26 @@ const updateModel = (e) => {
 
     // Remove everything except digits, decimal point, and minus sign
     val = val.replace(/[^0-9.]/g, '');
-    // val = val.replace(/[^0-9.-]/g, ''); // if need minus sign
 
-    // // Move minus sign to the front if it exists anywhere
-    // const isNegative = val.includes('-');
-    // val = val.replace(/-/g, ''); // remove all minus signs
-    // if (isNegative) {
-    //   val = '-' + val;
-    // }
+    // Allow only one decimal point
+    const parts = val.split('.');
+    if (parts.length > 2) {
+      val = parts[0] + '.' + parts.slice(1).join('');
+    }
+
+    emit('update:modelValue', e.target.value = val);
+  } else if (props.category === '+decimal-') {
+    let val = e.target.value;
+
+    // Remove everything except digits, decimal point, and minus sign
+    val = val.replace(/[^0-9.-]/g, ''); // if need minus sign
+
+    // Move minus sign to the front if it exists anywhere
+    const isNegative = val.includes('-');
+    val = val.replace(/-/g, ''); // remove all minus signs
+    if (isNegative) {
+      val = '-' + val;
+    }
 
     // Allow only one decimal point
     const parts = val.split('.');

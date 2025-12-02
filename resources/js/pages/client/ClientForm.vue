@@ -9,7 +9,7 @@
           <div class="col-12">
             <Checkbox label="Release Client" id="release" v-model="field.release_client" />
             <div class="col-12 mt-1" v-if="field.release_client">
-              <SelectInfinite parentclass="m-0" placeholder="Select..." v-model="field.client"
+              <SelectInfinite ref="releaseDD" parentclass="m-0" placeholder="Select..." v-model="field.client"
                 :fetched="fetchedClient" />
             </div>
           </div>
@@ -78,7 +78,7 @@
 
 <script setup>
 import axios from "axios";
-import { ref, reactive, watchEffect, inject } from "vue";
+import { ref, reactive, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { user, role } from '../../composables/user';
 import { empty } from "../../helpers/utils";
@@ -246,4 +246,34 @@ const submitData = async () => {
     });
   }
 };
+
+// const divisionDD = ref(null);
+// const releaseDD = ref(null);
+// const userDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (userDD.value?.reload) {
+//       jobs.push(userDD.value.reload());
+//     }
+
+//     if (releaseDD.value?.reload) {
+//       jobs.push(releaseDD.value.reload());
+//     }
+
+//     if (divisionDD.value?.reload) {
+//       jobs.push(divisionDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

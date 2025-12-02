@@ -2,8 +2,10 @@
 
 namespace Modules\Vatfactor\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Modules\Vatfactor\Models\Vatfactor;
 
 class VatfactorController extends Controller
@@ -38,6 +40,8 @@ class VatfactorController extends Controller
   // function call form vcatfactor page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'name' => 'required|max:20',
@@ -57,6 +61,10 @@ class VatfactorController extends Controller
 
     unset($formField['name']);
     $this->vatfactor->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Vat factor updated');
   }
 

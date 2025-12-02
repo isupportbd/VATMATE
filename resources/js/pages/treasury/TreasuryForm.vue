@@ -19,11 +19,11 @@
               maxlength="7" v-model="field.tax_period" :err="err.tax_period" must />
           </div>
           <div class="col-7">
-            <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
+            <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
               :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
           <div class="col-12">
-            <SelectInfinite id="branch" placeholder="Select..." title="branch" v-model="field.branch"
+            <SelectInfinite ref="branchDD" id="branch" placeholder="Select..." title="branch" v-model="field.branch"
               :fetched="fetchedBranch" :err="err.branch" must />
           </div>
           <div class="col-12">
@@ -42,9 +42,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject } from "vue";
+import { ref, reactive, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
+import { user, role } from "../../composables/user";
 
 import Input from "../../components/Input.vue";
 import Button from "../../components/Button.vue";
@@ -148,4 +149,29 @@ const submitData = async () => {
     });
   }
 };
+
+// const binDD = ref(null);
+// const branchDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (branchDD.value?.reload) {
+//       jobs.push(branchDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

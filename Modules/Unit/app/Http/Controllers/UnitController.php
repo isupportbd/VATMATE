@@ -2,8 +2,10 @@
 
 namespace Modules\Unit\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Modules\Unit\Models\Unit;
 
 class UnitController extends Controller
@@ -29,6 +31,8 @@ class UnitController extends Controller
   // function call from unit page for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       ['name' => 'required|unique:units,name|max:50'],
       [
@@ -38,6 +42,10 @@ class UnitController extends Controller
       ]
     );
     $this->unit->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Unit created');
   }
 
@@ -53,6 +61,8 @@ class UnitController extends Controller
   // function call form unit page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       ['name' => 'required|unique:units,name|max:50'],
       [
@@ -62,13 +72,23 @@ class UnitController extends Controller
       ]
     );
     $this->unit->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Unit updated');
   }
 
   // function call from unit page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     $this->unit->whereIn('id', $ids)->delete();
     return back()->with('message', 'Unit deleted');
   }

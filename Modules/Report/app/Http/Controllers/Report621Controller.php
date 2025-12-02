@@ -29,9 +29,16 @@ class Report621Controller extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
     $itemId = $request->input('item_id');
     $fromDate = $request->input('from_date');
     $toDate = $request->input('to_date');
+
+    $client = $this->client->findOrFail($client_id);
+
+    if (!$isAdmin && $client->user_id !== $user->id) {
+      abort(403, 'Unauthorised'); // <-- hard block, no data
+    }
 
     if ($request->has('filter')) {
       $request->validate([
@@ -52,11 +59,9 @@ class Report621Controller extends Controller
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
-    $clientDetail = $this->form621->select('id', 'client_id')->with(['client:id,bin,company_name'])->where('client_id', $client_id)->first();
-
     return Inertia("report/report621/index", [
       'Report621' => $form621,
-      'clientdetail' => $clientDetail,
+      'clientdetail' => $client,
       'item_id' => request('item_id'),
       'from_date' => request('from_date'),
       'to_date' => request('to_date')

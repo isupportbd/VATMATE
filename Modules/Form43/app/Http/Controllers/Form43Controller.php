@@ -2,6 +2,7 @@
 
 namespace Modules\Form43\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -252,6 +253,9 @@ class Form43Controller extends Controller
         $this->form43->create($formField);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Form 4.3 created');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -452,6 +456,9 @@ class Form43Controller extends Controller
         $this->form43->where('id', $id)->update($formField);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Form 4.3 updated');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -489,7 +496,7 @@ class Form43Controller extends Controller
     }
 
     // 4) Delete + maintain "last" in a transaction
-    DB::transaction(function () use ($form43) {
+    DB::transaction(function () use ($user, $form43) {
       $clientId = $form43->client_id;
       $itemId   = $form43->item_id;
 
@@ -503,6 +510,9 @@ class Form43Controller extends Controller
         $this->form43->where('id', $newLastId)->update(['last' => 1]);
       }
     });
+
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', 'Form 4.3 deleted');
   }

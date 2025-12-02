@@ -9,13 +9,13 @@
                 <Input type="hidden" v-model="field.id" readonly />
               </div>
               <div class="col-4">
-                <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
-                  :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
+                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin"
+                  :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
               </div>
               <div class="col-5">
-                <SelectInfinite placeholder="Select..." title="item" v-model="field.item" :fetched="fetchedItem"
-                  :hood="`<span class='text-danger text-lowercase'>${field.form43_check}</span>`" :err="err.item"
-                  :reset-key="field.bin?.id" disabled must />
+                <SelectInfinite ref="itemDD" placeholder="Select..." title="item" v-model="field.item"
+                  :fetched="fetchedItem" :hood="`<span class='text-danger text-lowercase'>${field.form43_check}</span>`"
+                  :err="err.item" :reset-key="field.bin?.id" disabled must />
               </div>
               <div class="col-3">
                 <Input type="text" id="lc" label="LC no" maxlength="20" placeholder="Ex: 5124845487"
@@ -38,7 +38,7 @@
                   :err="err.entry_date" :hood="field.form621_last_date" must />
               </div>
               <div class="col-3">
-                <SelectInfinite placeholder="Select..." title="station" v-model="field.stationcode"
+                <SelectInfinite ref="stationDD" placeholder="Select..." title="station" v-model="field.stationcode"
                   :fetched="fetchedStationcode" :err="err.stationcode" must />
               </div>
               <div class="col-3">
@@ -74,8 +74,8 @@
                   @keyup="recompute" must readonly />
               </div>
               <div class="col-3">
-                <SelectInfinite placeholder="Select..." title="unit" v-model="field.unit" :fetched="fetchedUnit"
-                  :err="err.unit" must disabled />
+                <SelectInfinite ref="unitDD" placeholder="Select..." title="unit" v-model="field.unit"
+                  :fetched="fetchedUnit" :err="err.unit" must disabled />
               </div>
               <div class="col-3">
                 <Input type="text" category="decimal" label="base value" placeholder="Ex: 521423.215"
@@ -157,12 +157,13 @@
 </template>
 
 <script setup>
+import { ref, reactive, inject, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
 import moment from "moment-timezone";
 import axios from "axios";
-import { ref, reactive, inject, computed, nextTick } from "vue";
+import { debounce } from "lodash-es";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../../helpers/utils";
-import { debounce } from "lodash-es";
+import { user, role } from "../../../composables/user";
 
 import Button from "../../../components/Button.vue";
 import Input from "../../../components/Input.vue";
@@ -510,4 +511,39 @@ const submitData = async () => {
     });
   }
 };
+
+// const binDD = ref(null);
+// const itemDD = ref(null);
+// const stationDD = ref(null);
+// const unitDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (itemDD.value?.reload) {
+//       jobs.push(itemDD.value.reload());
+//     }
+
+//     if (stationDD.value?.reload) {
+//       jobs.push(stationDD.value.reload());
+//     }
+
+//     if (unitDD.value?.reload) {
+//       jobs.push(unitDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

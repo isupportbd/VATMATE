@@ -2,8 +2,10 @@
 
 namespace Modules\Stationcode\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Modules\Stationcode\Models\Stationcode;
 
 class StationcodeController extends Controller
@@ -29,6 +31,8 @@ class StationcodeController extends Controller
   // function call from statiocode page for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       ['code' => 'required|unique:stationcodes,code|max:10'],
       [
@@ -38,6 +42,10 @@ class StationcodeController extends Controller
       ]
     );
     $this->stationcode->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Stationcode created');
   }
 
@@ -53,6 +61,8 @@ class StationcodeController extends Controller
   // function call form stationcode page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       ['code' => 'required|unique:stationcodes,code|max:10'],
       [
@@ -62,13 +72,23 @@ class StationcodeController extends Controller
       ]
     );
     $this->stationcode->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Stationcode updated');
   }
 
   // function call from stationcode page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     $this->stationcode->whereIn('id', $ids)->delete();
     return back()->with('message', 'Stationcode deleted');
   }

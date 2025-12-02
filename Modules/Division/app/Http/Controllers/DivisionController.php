@@ -2,8 +2,10 @@
 
 namespace Modules\Division\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Modules\Division\Models\Division;
 
 class DivisionController extends Controller
@@ -29,6 +31,8 @@ class DivisionController extends Controller
   // function call from division for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formfield = $request->validate(
       ['name' => 'required|unique:divisions,name|max:30'],
       [
@@ -37,6 +41,9 @@ class DivisionController extends Controller
         'name.max' => 'Max 30 char'
       ]
     );
+
+    // realtime data
+    event(new CommonEvent($user->id));
 
     $this->division->create($formfield);
     // return Redirect::route('division')->with('message', 'Division created'); // it is fetch again all data
@@ -55,6 +62,8 @@ class DivisionController extends Controller
   // function call form division page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formfield = $request->validate(
       ['name' => 'required|unique:divisions,name|max:30'],
       [
@@ -65,14 +74,24 @@ class DivisionController extends Controller
     );
 
     $this->division->where('id', $id)->update($formfield);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Division updated');
   }
 
   // function call from division page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
     $this->division->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Division deleted');
   }
 

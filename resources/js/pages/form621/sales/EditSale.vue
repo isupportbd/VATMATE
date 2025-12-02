@@ -10,12 +10,12 @@
                   :err="err.invoice_no" must readonly />
               </div>
               <div class="col-8">
-                <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
-                  :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
+                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin"
+                  :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
               </div>
               <div class="col-8">
-                <SelectInfinite placeholder="Select..." title="item" v-model="field.item" :fetched="fetchedItem"
-                  :err="err?.item" :reset-key="field.bin?.id" disabled must />
+                <SelectInfinite ref="itemDD" placeholder="Select..." title="item" v-model="field.item"
+                  :fetched="fetchedItem" :err="err?.item" :reset-key="field.bin?.id" disabled must />
               </div>
               <div class="col-4">
                 <Input type="date" label="date" placeholder="Ex: 2023-01-01" v-model="field.date" :err="err.date"
@@ -44,8 +44,8 @@
                   v-model="field.total_price" :err="err?.total_price" must readonly />
               </div>
               <div class="col-4">
-                <SelectInfinite placeholder="Select..." title="unit" v-model="field.unit" :fetched="fetchedUnit"
-                  :err="err?.unit" must disabled />
+                <SelectInfinite ref="unitDD" placeholder="Select..." title="unit" v-model="field.unit"
+                  :fetched="fetchedUnit" :err="err?.unit" must disabled />
               </div>
               <div class="col-4">
                 <InputGroup type="text" category="decimal" label="SD(%)" maxlength="6" placeholder="Ex: 5%"
@@ -74,8 +74,8 @@
                   v-model="field.address" :err="err.address" />
               </div>
               <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total_note15 || 0) }">
-                <SelectInfinite placeholder="Select..." title="bank" v-model="field.bank" :fetched="fetchedBank"
-                  :err="err.bank" must />
+                <SelectInfinite ref="bankDD" placeholder="Select..." title="bank" v-model="field.bank"
+                  :fetched="fetchedBank" :err="err.bank" must />
               </div>
               <div class="col-4" :class="{ 'd-none': +(field.sale_limit) > +(field.grand_total_note15 || 0) }">
                 <Input type="text" id="transaction-no" label="Transaction No" maxlength="20"
@@ -105,9 +105,10 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, reactive, inject, onMounted, nextTick } from "vue";
+import { ref, reactive, inject, onMounted, nextTick, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../../helpers/utils";
+import { user, role } from "../../../composables/user";
 
 import Button from "../../../components/Button.vue";
 import Input from "../../../components/Input.vue";
@@ -342,5 +343,40 @@ const submitData = async () => {
   }
 };
 
-onMounted(() => loadSaleLimit());
+// const binDD = ref(null);
+// const itemDD = ref([]);
+// const unitDD = ref([]);
+// const bankDD = ref(null);
+// onMounted(async () => {
+//   await loadSaleLimit();
+
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (itemDD.value?.reload) {
+//       jobs.push(itemDD.value.reload());
+//     }
+
+//     if (unitDD.value?.reload) {
+//       jobs.push(unitDD.value.reload());
+//     }
+
+//     if (bankDD.value?.reload) {
+//       jobs.push(bankDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

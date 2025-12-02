@@ -2,6 +2,7 @@
 
 namespace Modules\Form44\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -266,6 +267,9 @@ class Form44Controller extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Form 4.4 created');
     } catch (\Throwable $e) {
       return back()->with('error', $e->getMessage());
@@ -476,6 +480,9 @@ class Form44Controller extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Form 4.4 updated');
     } catch (\Throwable $e) {
       return back()->with('error', $e->getMessage());
@@ -518,6 +525,9 @@ class Form44Controller extends Controller
           $this->form621->where('id', $newLastId)->update(['last' => 1]);
         }
       });
+
+      // realtime data
+      event(new CommonEvent($user->id));
 
       return back()->with('message', 'Form 4.4 deleted');
     } catch (Throwable $e) {

@@ -17,8 +17,8 @@
               :err="err.role" must />
           </div>
           <div class="col-6">
-            <Input type="text" id="mobile" label="Mobile" placeholder="Ex: +8801711000000" maxlength="14"
-              v-model="field.mobile" :err="err.mobile" must />
+            <Input type="text" category="mobile" id="mobile" label="mobile" placeholder="Ex: +8801711000000"
+              maxlength="14" v-model="field.mobile" :err="err.mobile" must />
           </div>
           <div class="col-6">
             <Input type="password" id="password" label="Password" placeholder="Ex: ********" maxlength="255"
@@ -56,9 +56,7 @@ const notify = inject('showToast'); // toast message
 // props define
 const props = defineProps({
   data: { type: [Array, Object] },
-  modify: { type: Object, default: {} },
-  isEdited: { type: Boolean },
-  isDeleted: { type: Boolean },
+  modify: { type: Object, default: {} }
 });
 
 // user field

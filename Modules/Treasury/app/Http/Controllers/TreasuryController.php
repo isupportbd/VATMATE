@@ -2,6 +2,7 @@
 
 namespace Modules\Treasury\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -95,6 +96,10 @@ class TreasuryController extends Controller
     );
 
     $this->treasury->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Treasury created');
   }
 
@@ -158,6 +163,10 @@ class TreasuryController extends Controller
       ]
     );
     $this->treasury->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Treasury updated');
   }
 
@@ -186,6 +195,10 @@ class TreasuryController extends Controller
     }
 
     $this->treasury->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Treasury deleted');
   }
 }

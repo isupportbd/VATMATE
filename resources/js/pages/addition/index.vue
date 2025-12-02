@@ -25,8 +25,9 @@
 
 <script setup>
 import axios from "axios";
-import { ref, inject } from "vue";
+import { ref, inject, onMounted, onBeforeUnmount } from "vue";
 import { router, Link } from "@inertiajs/vue3";
+import { user, role } from "../../composables/user";
 
 import PageBar from "../../components/PageBar.vue";
 import Refresh from "../../components/Refresh.vue";
@@ -79,4 +80,13 @@ const del = async (ids) => {
 
 // reload addition
 const refresh = (id) => router.get(route('addition', { id: id }), {}, { preserveScroll: true });
+
+onMounted(() => {
+  const reload = (e) => router.reload({ only: ['addition', 'form43'], preserveState: true, preserveScroll: true });
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>

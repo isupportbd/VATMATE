@@ -20,15 +20,15 @@
                   :err="err.invoice_no" must readonly />
               </div>
               <div class="col-12 col-sm-8">
-                <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
-                  :hood="field.bin?.val?.company_name" :err="err.bin" must />
+                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin"
+                  :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" must />
               </div>
               <div class="col-6 col-sm-4">
                 <Input type="date" label="date" placeholder="Ex: 2023-01-01" v-model="field.date" :err="err.date"
                   :hood="field.form621_last_date" must />
               </div>
               <div class="col-6 col-sm-4">
-                <SelectInfinite placeholder="Select..." title="customer" v-model="field.customer"
+                <SelectInfinite ref="custDD" placeholder="Select..." title="customer" v-model="field.customer"
                   :fetched="fetchedCustomer" :err="err.customer" />
               </div>
               <div class="col-6 col-sm-4">
@@ -74,9 +74,10 @@
         <div class=" card card-body h-100">
           <div class="row gx-1">
             <div class="col-12 col-sm-8">
-              <SelectInfinite placeholder="Select..." title="item" v-model="row.item" :fetched="fetchedItem(index)"
+              <SelectInfinite ref="itemsDD" placeholder="Select..." title="item" v-model="row.item"
+                :fetched="fetchedItem(index)" :err="itemErr[index]?.item"
                 :hood="!empty(row.check43) ? `<span class='text-danger text-lowercase'>${row.check43}</span>` : ''"
-                :err="itemErr[index]?.item" :reset-key="field.bin?.id" must />
+                :reset-key="field.bin?.id" must />
             </div>
             <div class="col-6 col-sm-4">
               <Input type="text" category="decimal" label="stock" placeholder="Ex: 541.216" v-model="row.stock"
@@ -97,8 +98,8 @@
                 v-model="row.total_price" :err="itemErr[index]?.total_price" must readonly />
             </div>
             <div class="col-6 col-sm-4">
-              <SelectInfinite placeholder="Select..." title="unit" v-model="row.unit" :fetched="fetchedUnit"
-                :err="itemErr[index]?.unit" must disabled />
+              <SelectInfinite ref="unitsDD" placeholder="Select..." title="unit" v-model="row.unit"
+                :fetched="fetchedUnit" :err="itemErr[index]?.unit" must disabled />
             </div>
             <div class="col-6 col-sm-4">
               <InputGroup type="text" category="decimal" label="SD(%)" maxlength="6" placeholder="Ex: 5%"
@@ -134,9 +135,10 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, reactive, inject, onMounted } from "vue";
+import { ref, reactive, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
+import { user, role } from "../../composables/user";
 
 import PageBar from "../../components/PageBar.vue";
 import Refresh from "../../components/Refresh.vue";
@@ -429,5 +431,49 @@ const submitData = async () => {
 // reload sale
 const refresh = () => router.get(route('sale'), {}, { preserveScroll: true });
 
-onMounted(() => loadSaleLimit());
+// const binDD = ref(null);
+// const custDD = ref(null);
+// const itemsDD = ref([]);
+// const unitsDD = ref([]);
+// onMounted(async () => {
+//   await loadSaleLimit();
+
+//   const reloadAll = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (custDD.value?.reload) {
+//       jobs.push(custDD.value.reload());
+//     }
+
+//     if (Array.isArray(itemsDD.value)) {
+//       itemsDD.value.forEach(item => {
+//         if (item?.reload) {
+//           jobs.push(item.reload());
+//         }
+//       });
+//     }
+
+//     if (Array.isArray(unitsDD.value)) {
+//       unitsDD.value.forEach(item => {
+//         if (item?.reload) {
+//           jobs.push(item.reload());
+//         }
+//       });
+//     }
+
+//     if (jobs.length) {
+//       await Promise.all(jobs);
+//     }
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reloadAll);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>

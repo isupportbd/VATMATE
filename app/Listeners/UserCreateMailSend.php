@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\UserCreateMailEvent;
+use App\Events\MailEvent;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,7 +22,7 @@ class UserCreateMailSend implements ShouldQueue
   /**
    * Handle the event.
    */
-  public function handle(UserCreateMailEvent $event): void
+  public function handle(MailEvent $event): void
   {
     // $userData = User::where('id', $event->user->id)->first();
     // $event->user->makeVisible(['forget_password']);

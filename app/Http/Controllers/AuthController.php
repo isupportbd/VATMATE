@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\MailSendEvent;
-use App\Events\UserCreateMailEvent;
-use App\Events\UserDeleteEvent;
-use App\Events\UserForgetPasswordMailEvent;
-use App\Events\UserProfileMailEvent;
-use App\Events\UserStatusUpdateEvent;
-use App\Events\UserUpdateMailEvent;
+use App\Events\APIMailEvent;
+use App\Events\CommonEvent;
+use App\Events\MailEvent;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -91,14 +87,10 @@ class AuthController extends Controller
   {
     $formField = $request->validate(
       [
-        'email' => [
-          'required',
-          'email',
-          function ($attribute, $value, $fail) {
-            $result = $this->user->where('email', $value)->exists();
-            (!$result) && $fail('Not found in system');
-          }
-        ]
+        'email' => ['required', 'email', function ($attribute, $value, $fail) {
+          $result = $this->user->where('email', $value)->exists();
+          (!$result) && $fail('Not found in system');
+        }]
       ],
       [
         'email.required' => 'Registered email required',
@@ -108,7 +100,7 @@ class AuthController extends Controller
 
     // send from queue
     $user = $this->user->where('email', $formField['email'])->first();
-    event(new UserForgetPasswordMailEvent($user));
+    event(new MailEvent($user));
 
     return Redirect::route('forget-password')->with('message', 'Check your email');
   }
@@ -129,7 +121,7 @@ class AuthController extends Controller
       ]
     );
 
-    event(new MailSendEvent($formField['mailbody'], $formField['email']));
+    event(new APIMailEvent($formField['email'], $formField['mailbody']));
 
     return response()->json(['msg' => 'Sent']);
   }
@@ -153,7 +145,7 @@ class AuthController extends Controller
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
-    return Inertia('authentication/index', ['user' => $query, 'search' => $search]);
+    return Inertia('authentication/index', ['users' => $query, 'search' => $search]);
   }
 
   // function call from user page create user
@@ -195,7 +187,7 @@ class AuthController extends Controller
     );
 
     try {
-      DB::transaction(function () use ($formField, $request) {
+      DB::transaction(function () use ($formField, $request, $user) {
         unset($formField['confirm_password']);
         $formField['forget_password'] = $request->input('password');
         $formField['status'] = '1';
@@ -203,7 +195,8 @@ class AuthController extends Controller
         $result = $this->user->create($formField);
 
         // for general application events that may or may not broadcast
-        event(new UserCreateMailEvent($result));
+        event(new MailEvent($result));
+        event(new CommonEvent($user->id));
       });
 
       return back()->with('message', 'User created');
@@ -295,9 +288,12 @@ class AuthController extends Controller
         );
 
         // real time data update
-        $userUpdate = $this->user->with(['role'])->where('id', $id)->first();
-        event(new UserUpdateMailEvent($userUpdate));
+        $userUpdate = $this->user->where('id', $id)->first();
+        event(new MailEvent($userUpdate));
       });
+
+      // realtime data
+      event(new CommonEvent($userSession->id));
 
       return back()->with('message', 'User updated');
     } catch (Throwable $e) {
@@ -322,8 +318,8 @@ class AuthController extends Controller
 
     $result = $query->delete();
 
-    // realtime data create
-    event(new UserDeleteEvent($result));
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', "Deleted {$result} user(s)");
   }
@@ -349,8 +345,8 @@ class AuthController extends Controller
 
     $this->user->with(['role'])->where('id', $id)->update($formField);
 
-    $userStatusUpdate = $this->user->where('id', $id)->first();
-    event(new UserStatusUpdateEvent($userStatusUpdate));
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', 'User status updated');
   }
@@ -399,13 +395,14 @@ class AuthController extends Controller
 
         // send from queue
         $user = $this->user->where('email', $request->input('email'))->first();
-        event(new UserProfileMailEvent($user));
+        event(new MailEvent($user));
       });
 
-      DB::commit();
+      // realtime data
+      event(new CommonEvent($userSession->id));
+
       return Redirect::route('profile-get')->with('message', 'Profile updated');
     } catch (Throwable $e) {
-      DB::rollBack();
       return back()->with("error", $e->getMessage());
     }
   }

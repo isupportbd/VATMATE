@@ -22,6 +22,7 @@ return new class extends Migration
       $table->foreign('expense_id')->references('id')->on('expenses')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
       $table->index(['tax_period']);
+      $table->index(['client_id', 'expense_id', 'tax_period']);
     });
   }
 

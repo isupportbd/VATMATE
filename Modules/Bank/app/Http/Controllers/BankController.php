@@ -2,8 +2,10 @@
 
 namespace Modules\Bank\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Modules\Bank\Models\Bank;
 
 class BankController extends Controller
@@ -29,6 +31,8 @@ class BankController extends Controller
   // function call from bank for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       ['name' => 'required|unique:banks,name|max:200'],
       [
@@ -39,6 +43,10 @@ class BankController extends Controller
     );
 
     $this->bank->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Bank created');
   }
 
@@ -54,6 +62,8 @@ class BankController extends Controller
   // function call form bank page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       ['name' => 'required|unique:banks,name|max:200'],
       [
@@ -64,14 +74,25 @@ class BankController extends Controller
     );
 
     $this->bank->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Bank updated');
   }
 
   // function call from bank page for delete
   public function destroy($id)
   {
+    $user = Auth::user();
+
     $ids = explode(',', $id);
+
     $this->bank->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Bank deleted');
   }
 

@@ -14,15 +14,17 @@
       <UserForm ref="formRef" />
     </div>
     <div class="col-12 col-lg-7">
-      <UserTable :data="props.user" :search="props.search" :edit="edit" :del="del" :statusUpdate="statusUpdate" />
+      <UserTable :data="props.users" :search="props.search" :edit="edit" :del="del" :statusUpdate="statusUpdate" />
     </div>
   </div>
 </template>
 
 <script setup>
 import axios from "axios";
-import { ref, inject } from "vue";
+import { ref, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from '@inertiajs/vue3';
+import { user } from "../../composables/user";
+
 import PageBar from '../../components/PageBar.vue';
 import Refresh from '../../components/Refresh.vue';
 import Button from '../../components/Button.vue';
@@ -32,7 +34,7 @@ import UserTable from "./UserTable.vue";
 import Confirm from "../../helpers/customConfirm";
 
 const props = defineProps({
-  user: { type: Object },
+  users: { type: Object },
   search: { type: String }
 });
 
@@ -94,6 +96,16 @@ const statusUpdate = async (id, status) => {
 
 // reload user
 const refresh = () => router.get(route('user'), {}, { preserveScroll: true });
+
+onMounted(() => {
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', () => {
+    router.reload({ only: ['users'], preserveState: true, preserveScroll: true });
+  });
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>
 
 <style lang="scss" scoped></style>

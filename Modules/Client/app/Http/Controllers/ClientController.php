@@ -2,6 +2,7 @@
 
 namespace Modules\Client\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
@@ -52,6 +53,7 @@ class ClientController extends Controller
   public function store(Request $request)
   {
     $user = $this->user->find($request->input('user_id'));
+
     $formField = $request->validate(
       [
         'division_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
@@ -72,7 +74,7 @@ class ClientController extends Controller
         'vat_password' => 'required',
         'user_id' => ['nullable', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           if (in_array($user->role->name, ['superadmin', 'admin'])) {
-            return $fail('Not assignable to ' . $user->role->name);
+            return $fail('Not assignable to ' . $user->role?->name);
           }
         }]
       ],
@@ -104,6 +106,9 @@ class ClientController extends Controller
 
     $formField['status'] = '1';
     $this->client->create($formField);
+    // realtime data
+    event(new CommonEvent(Auth::id()));
+
     return back()->with('message', 'Client created');
   }
 
@@ -184,6 +189,9 @@ class ClientController extends Controller
 
     $this->client->where('id', $id)->update($formField);
 
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Client updated');
   }
 
@@ -211,6 +219,10 @@ class ClientController extends Controller
     }
 
     $this->client->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', "Client deleted");
   }
 
@@ -249,6 +261,10 @@ class ClientController extends Controller
     }
 
     $client->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Client status updated');
   }
 
@@ -269,6 +285,9 @@ class ClientController extends Controller
     }
 
     $this->client->where('id', $id)->update(['user_id' => null, 'status' => ['0']]);
+
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', "Client released");
   }

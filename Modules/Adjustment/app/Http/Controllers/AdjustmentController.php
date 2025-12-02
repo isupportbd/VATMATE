@@ -2,6 +2,7 @@
 
 namespace Modules\Adjustment\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,8 +53,11 @@ class AdjustmentController extends Controller
   // function call from adjustment page for create
   public function store(Request $request)
   {
-    $user = Auth::user();
+    $user    = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    // Find Closing Balance expense id once
+    $closingExpenseId = $this->expense->where('name', 'Closing Balance')->value('id');
 
     $formField = $request->validate(
       [
@@ -61,36 +65,43 @@ class AdjustmentController extends Controller
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
-
           if ($client->status == 0) return $fail('BIN inactive');
-
           if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
-        'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
+        'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($closingExpenseId, $request) {
           $expense = $this->expense->find($value);
-          if (!$expense) return $fail('Not exists');
+          if (!$expense) {
+            return $fail('Not exists');
+          }
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
-        'amount' => 'required|numeric|gt:0',
-        'remarks' => 'nullable'
+        'amount'     => 'required|numeric',
+        'remarks'    => 'nullable'
       ],
       [
         'client_id.required' => 'BIN required',
-        'client_id.numeric' => 'Number only',
-        'client_id.gt' => 'Number > 0',
+        'client_id.numeric'  => 'Number only',
+        'client_id.gt'       => 'Number > 0',
+
         'expense_id.required' => 'Expense required',
-        'expense_id.numeric' => 'Number only',
-        'expense_id.gt' => 'Number > 0',
-        'tax_period.required' =>  'Tax period required',
-        'tax_period.date_format' =>  'Invalid tax period',
-        'tax_period.max' =>  'Max 7 char',
-        'amount.required' =>  'Amount required',
-        'amount.numeric' =>  'Number only',
-        'amount.gt' =>  'Number > 0',
+        'expense_id.numeric'  => 'Number only',
+        'expense_id.gt'       => 'Number > 0',
+
+        'tax_period.required'    => 'Tax period required',
+        'tax_period.date_format' => 'Invalid tax period',
+        'tax_period.max'         => 'Max 7 char',
+
+        'amount.required' => 'Amount required',
+        'amount.numeric'  => 'Number only',
       ]
     );
 
+    // Insert (Closing Balance is also blocked here if already exists)
     $this->adjustment->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Adjustment created');
   }
 
@@ -131,7 +142,7 @@ class AdjustmentController extends Controller
           if (!$expense) return $fail('Not exists');
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
-        'amount' => 'required|numeric|gt:0',
+        'amount' => 'required|numeric',
         'remarks' => 'nullable'
       ],
       [
@@ -146,27 +157,35 @@ class AdjustmentController extends Controller
         'tax_period.max' =>  'Max 7 char',
         'amount.required' =>  'Amount required',
         'amount.numeric' =>  'Number only',
-        'amount.gt' =>  'Number > 0',
       ]
     );
 
     $this->adjustment->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Adjustment updated');
   }
 
   // function call from adjustment page for delete
   public function destroy($id)
   {
-    $user = Auth::user();
+    $user    = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $ids = explode(',', $id);
+    $ids     = explode(',', $id);
 
-    $adjustment = $this->adjustment->with(['client'])->whereIn('id', $ids)->get();
+    // Load adjustments with client + expense
+    $adjustment = $this->adjustment
+      ->with(['client', 'expense'])
+      ->whereIn('id', $ids)
+      ->get();
 
     if ($adjustment->isEmpty()) {
       return back()->with('error', 'No data found');
     }
 
+    // Authorisation for non-admin
     if (!$isAdmin) {
       $permission = $adjustment->filter(function ($row) use ($user) {
         return $row->client?->user_id !== $user->id;
@@ -178,8 +197,12 @@ class AdjustmentController extends Controller
     }
 
     // Now safe to delete
-    $this->adjustment->whereIn('id', $ids)->delete();
-    return back()->with('message', 'Adjustment deleted');
+    $deleted = $this->adjustment->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
+    return back()->with('message', "Adjustment deleted ({$deleted})");
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response

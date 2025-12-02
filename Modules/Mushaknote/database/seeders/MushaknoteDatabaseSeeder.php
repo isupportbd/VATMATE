@@ -17,7 +17,7 @@ class MushaknoteDatabaseSeeder extends Seeder
     DB::table('mushaknotes')->insert([
       ['name_note_no' => 'note_13', 'percent' => 0, 'created_at' => Carbon::now()],
       ['name_note_no' => 'note_15', 'percent' => 15, 'created_at' => Carbon::now()],
-      ['name_note_no' => 'note_22', 'percent' => 5, 'created_at' => Carbon::now()],
+      ['name_note_no' => 'note_22', 'percent' => 7.5, 'created_at' => Carbon::now()],
     ]);
   }
 }

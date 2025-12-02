@@ -1,0 +1,57 @@
+name: Deploy vatmate-app to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🔐 Write .env.prod to .env
+        run: cp .env.prod .env
+
+      - name: Install PHP dependencies (optional if done in Dockerfile)
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: 📦 Install frontend deps and build (optional if done in Dockerfile)
+        run: |
+          npm ci
+          npm run build
+
+      - name: 📂 Upload project to VPS
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "."
+          target: "/home/${{ secrets.VPS_USER }}/apps/vatmate-app"
+
+      - name: 🐳 Deploy Docker
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.VPS_USER }}/apps/vatmate-app
+
+            echo "🛠 Checking if nginx-proxy network exists..."
+            if ! docker network ls --format '{{.Name}}' | grep -qw nginx-proxy; then
+              echo "🛠 Creating nginx-proxy network..."
+              docker network create nginx-proxy
+            else
+              echo "✅ nginx-proxy network already exists"
+            fi
+
+            echo "🐳 Stopping old containers..."
+            docker compose -f docker-compose.prod.yml down --remove-orphans
+
+            echo "🚀 Starting containers..."
+            docker compose -f docker-compose.prod.yml up -d --build

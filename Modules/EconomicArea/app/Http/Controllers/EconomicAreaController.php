@@ -2,6 +2,7 @@
 
 namespace Modules\EconomicArea\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,13 +60,8 @@ class EconomicAreaController extends Controller
       // Avoid duplicate insert because of composite unique key
       EconomicArea::firstOrCreate($formField);
 
-      // find the client to get owner user_id
-      $client    = $this->client->find($formField['client_id']);
-      $actorId   = $user->id;                  // who performed the action (user/admin)
-      $targetId  = $client->user_id ?? $user->id; // whose data this belongs to
-
-      // realtime update: notify BOTH (user + admin if different)
-      event(new EconomicAreaEvent($actorId, $targetId));
+      // realtime data
+      event(new CommonEvent($user->id));
 
       return back()->with('message', 'Economic area created');
     } catch (Throwable $e) {
@@ -141,18 +137,10 @@ class EconomicAreaController extends Controller
     DB::transaction(function () use ($client_id, $item_id) {
       // either delete from pivot table...
       EconomicArea::where('client_id', $client_id)->where('item_id', $item_id)->delete();
-
-      // ...or, if you prefer via relation:
-      // $client->items()->detach($item_id);
-      // find the client to get owner user_id
     });
 
-    $client    = $this->client->find($client_id);
-    $actorId   = $user->id;                  // who performed the action (user/admin)
-    $targetId  = $client->user_id ?? $user->id; // whose data this belongs to
-
-    // realtime update: notify BOTH (user + admin if different)
-    event(new EconomicAreaEvent($actorId, $targetId));
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', 'Economic area link deleted.');
   }

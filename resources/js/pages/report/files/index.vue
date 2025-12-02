@@ -50,10 +50,12 @@
 </template>
 
 <script setup>
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted, onBeforeUnmount } from 'vue';
+import moment from 'moment-timezone';
 import { router } from '@inertiajs/vue3';
 import { useForm } from '@inertiajs/vue3';
-import moment from 'moment-timezone';
+import { empty } from '../../../helpers/utils';
+import { user, role } from '../../../composables/user';
 
 import PageBar from '../../../components/PageBar.vue';
 import Refresh from '../../../components/Refresh.vue';
@@ -63,8 +65,6 @@ import DataTable from '../../../components/datatable/index.vue';
 import Input from '../../../components/Input.vue';
 import Button from '../../../components/Button.vue';
 import Href from '../../../components/Href.vue';
-import { empty } from '../../../helpers/utils';
-import { user, role } from '../../../composables/user';
 
 const props = defineProps({
   files: { type: [Array, Object] },
@@ -171,6 +171,15 @@ const resetForm = () => {
 
 // reload item
 const refresh = () => router.get(route('report-files'), {}, { preserveScroll: true });
+
+onMounted(() => {
+  const reload = () => router.reload({ only: ['files'], preserveState: true, preserveScroll: true });
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>
 
 <style lang="scss" scoped></style>

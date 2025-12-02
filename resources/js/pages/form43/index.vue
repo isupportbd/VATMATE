@@ -30,8 +30,10 @@
 
 <script setup>
 import axios from "axios";
-import { ref, inject } from "vue";
+import { ref, inject, onMounted, onBeforeUnmount, computed } from "vue";
 import { router, Link } from "@inertiajs/vue3";
+import { user, role } from "../../composables/user";
+import { empty } from "../../helpers/utils";
 
 import PageBar from "../../components/PageBar.vue";
 import Refresh from "../../components/Refresh.vue";
@@ -87,6 +89,7 @@ const del = async (id) => {
 };
 
 // for single view popup
+
 const form43Single = ref();
 const view = async (id) => {
   const { data } = await axios.get(route('form43-single', { id }));
@@ -101,4 +104,16 @@ const view = async (id) => {
 
 // reload form43
 const refresh = () => router.get(route('form43'), {}, { preserveScroll: true });
+
+onMounted(() => {
+  const reload = async () => {
+    router.reload({ only: ['form43'], preserveState: true, preserveScroll: true });
+  };
+
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>

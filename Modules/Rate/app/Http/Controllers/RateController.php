@@ -2,6 +2,7 @@
 
 namespace Modules\Rate\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -167,6 +168,9 @@ class RateController extends Controller
         $this->rate->create($formField);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Rate created');
     } catch (Throwable $e) {
       return back()->with("error", $e->getMessage());
@@ -291,6 +295,10 @@ class RateController extends Controller
     // }
 
     $this->rate->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Rate updated');
   }
 
@@ -329,6 +337,9 @@ class RateController extends Controller
           $this->rate->where('id', $newLastId)->update(['last' => 1]);
         }
       });
+
+      // realtime data
+      event(new CommonEvent($user->id));
 
       return back()->with('message', 'Rate deleted');
     } catch (Throwable $e) {

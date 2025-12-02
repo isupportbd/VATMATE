@@ -2,6 +2,7 @@
 
 namespace Modules\CustomerManagement\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,8 @@ class CustomerManagementController extends Controller
   // function call from adjustment page for create
   public function store(Request $request)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'mobile' => 'required|unique:customer_management,mobile|max:11',
@@ -55,6 +58,10 @@ class CustomerManagementController extends Controller
     );
 
     $this->customer->create($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Customer created');
   }
 
@@ -68,6 +75,8 @@ class CustomerManagementController extends Controller
   // function call form adjustment page for update
   public function update(Request $request, $id)
   {
+    $user = Auth::user();
+
     $formField = $request->validate(
       [
         'mobile' => 'required|unique:customer_management,mobile|max:11',
@@ -88,6 +97,10 @@ class CustomerManagementController extends Controller
 
     unset($formField['mobile']);
     $this->customer->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
+
     return back()->with('message', 'Customer updated');
   }
 
@@ -111,6 +124,9 @@ class CustomerManagementController extends Controller
 
     // Admin is allowed — delete now
     $this->customer->whereIn('id', $ids)->delete();
+
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('success', 'Deleted successfully');
   }

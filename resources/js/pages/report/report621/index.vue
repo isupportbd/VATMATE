@@ -419,18 +419,21 @@ const exportFile = async () => {
   }
 };
 
+// refresh load
+const refresh = (id) => router.get(route('report-621', { client_id: id }), {}, { preserveScroll: true });
+
 onMounted(() => {
-  window.Echo.private(`App.Models.User.${user.id}`).listen('.excelready', (e) => {
+  const reload = (e) => {
     field.isLoading = false;
-    downloadExcel('report-621-download-excel', e.fileName);
-  });
+    e.fileName && downloadExcel('report-621-download-excel', e.fileName);
+    router.reload({ only: ['Report621'], preserveState: true, preserveScroll: true })
+  };
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.excelready', reload);
 });
 
 onBeforeUnmount(() => {
-  window.Echo.leave(`private-App.Models.User.${user.id}`);
+  window.Echo.leave(`App.Models.User.${user.id}`);
 });
-// refresh load
-const refresh = (id) => router.get(route('report-621', { client_id: id }), {}, { preserveScroll: true });
 </script>
 
 <style lang="scss" scoped></style>

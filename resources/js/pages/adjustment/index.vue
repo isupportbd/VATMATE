@@ -21,8 +21,9 @@
 
 <script setup>
 import axios from "axios";
-import { ref, inject } from "vue";
+import { ref, inject, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
+import { user, role } from "../../composables/user";
 
 import PageBar from "../../components/PageBar.vue";
 import Refresh from "../../components/Refresh.vue";
@@ -73,4 +74,13 @@ const del = async (ids) => {
 
 // reload branch
 const refresh = () => router.get(route('adjustment'), {}, { preserveScroll: true });
+
+onMounted(() => {
+  const reload = () => router.reload({ only: ['adjustment'], preserveState: true, preserveScroll: true });
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+});
+
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>

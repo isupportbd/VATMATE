@@ -9,20 +9,20 @@
                 <Input type="hidden" v-model="field.id" readonly />
               </div>
               <div class="col-12 col-sm-7 col-md-7 col-lg-7">
-                <SelectInfinite placeholder="Select..." title="BIN" v-model="field.bin" :fetched="fetchedBin"
-                  :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
+                <SelectInfinite ref="binDD" placeholder="Select..." title="BIN" v-model="field.bin"
+                  :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" disabled must />
               </div>
               <div class="col-12 col-sm-5 col-md-5 col-lg-5">
-                <SelectInfinite placeholder="Select..." title="LC" v-model="field.lc" :fetched="fetchedLC" :err="err.lc"
-                  :reset-key="field.bin?.id" disabled must />
+                <SelectInfinite ref="lcDD" placeholder="Select..." title="LC" v-model="field.lc" :fetched="fetchedLC"
+                  :err="err.lc" :reset-key="field.bin?.id" disabled must />
               </div>
               <div class="col-12 col-sm-8 col-md-8 col-lg-5">
-                <SelectInfinite placeholder="Select..." title="item" v-model="field.item" :fetched="fetchedItem"
-                  :reset-key="field.lc?.title" :err="err.item" disabled must />
+                <SelectInfinite ref="itemDD" placeholder="Select..." title="item" v-model="field.item"
+                  :fetched="fetchedItem" :reset-key="field.lc?.title" :err="err.item" disabled must />
               </div>
               <div class="col-12 col-sm-4 col-md-4 col-lg-3">
-                <SelectInfinite placeholder="Select..." title="BoE" v-model="field.boe" :fetched="fetchedBoe"
-                  :reset-key="field.item?.id" :err="err.boe" must />
+                <SelectInfinite ref="boeDD" placeholder="Select..." title="BoE" v-model="field.boe"
+                  :fetched="fetchedBoe" :reset-key="field.item?.id" :err="err.boe" must />
               </div>
               <div class="col-6 col-sm-4 col-md-3 col-lg-4">
                 <Input type="date" id="issued-date" label="issued date" v-model="field.issued_date"
@@ -104,9 +104,10 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, inject, reactive, nextTick } from "vue";
+import { ref, inject, reactive, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../../helpers/utils";
+import { user, role } from "../../../composables/user";
 
 import Input from "../../../components/Input.vue";
 import Button from "../../../components/Button.vue";
@@ -331,4 +332,44 @@ const submitData = async () => {
     });
   }
 };
+
+// const binDD = ref(null);
+// const lcDD = ref(null);
+// const itemDD = ref(null);
+// const boeDD = ref(null);
+// const unitDD = ref(null);
+// onMounted(() => {
+//   const reload = async () => {
+//     const jobs = [];
+
+//     if (binDD.value?.reload) {
+//       jobs.push(binDD.value.reload());
+//     }
+
+//     if (lcDD.value?.reload) {
+//       jobs.push(lcDD.value.reload());
+//     }
+
+//     if (itemDD.value?.reload) {
+//       jobs.push(itemDD.value.reload());
+//     }
+
+//     if (boeDD.value?.reload) {
+//       jobs.push(boeDD.value.reload());
+//     }
+
+//     if (unitDD.value?.reload) {
+//       jobs.push(unitDD.value.reload());
+//     }
+
+//     // run all reloads in parallel
+//     await Promise.all(jobs);
+//   };
+
+//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
+// });
+
+// onBeforeUnmount(() => {
+//   window.Echo.leave(`App.Models.User.${user.id}`);
+// });
 </script>
