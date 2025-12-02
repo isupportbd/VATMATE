@@ -891,13 +891,63 @@ $sidebar-width: 16.25rem;
     display: none !important;
   }
 
-  .card-body,
-  .content,
-  .content-page,
-  .end-bar,
-  body {
-    padding: 0;
-    margin: 0;
+  .theme-dark,
+  .theme-light {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  html,
+  body,
+  #app,
+  .wrapper,
+  .main,
+  .content-wrapper,
+  .content {
+    height: auto !important;
+    min-height: 0 !important;
+    background: #FFFFFF !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .content-wrapper > header,
+  .content-wrapper > footer,
+  .PageBar,
+  .Refresh {
+    display: none !important;
+  }
+
+  /* let content start at very top */
+  .content {
+    min-height: auto !important;
+  }
+
+  /* Hide sidebar completely for print */
+  .sidebar,footer {
+    display: none !important;
+  }
+
+  /* Let main content use full width on print */
+  .main {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    .content{
+      margin: 12mm;
+    }
+  }
+
+  /* Optional: avoid weird extra height */
+  .wrapper {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .pp-0, .pm-0{
+    padding: 0 !important;
   }
 
   .card.border,
@@ -909,18 +959,18 @@ $sidebar-width: 16.25rem;
   .printarea {
     border: initial;
     border-radius: initial;
-    width: 100%;
+    width: initial;
     height: initial;
     box-shadow: initial;
     background: initial;
-    page-break-after: always;
+    page-break-after: auto !important;
     page-break-inside: avoid;
     overflow: visible !important;
     margin: 0;
   }
 
-  .printarea:last-child {
-    page-break-after: auto;
+  .printarea:not(:last-of-type) {
+    page-break-after: always !important;
   }
 
   table {
@@ -944,9 +994,6 @@ $sidebar-width: 16.25rem;
 
   tfoot {
     display: table-footer-group
-  }
-  .removeprintarea {
-    display: none !important
   }
 }
 

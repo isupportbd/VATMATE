@@ -1,5 +1,5 @@
 <template>
-  <header class="removeprintarea">
+  <header>
     <nav class="navbar bg-transparent p-0 row-gap-1 column-gap-1">
       <button type="button" class="nav-btn order-0" id="off-canvas" title="Toggle Button">
         <i class="bi bi-layout-text-sidebar-reverse"></i>

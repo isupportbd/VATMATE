@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar removeprintarea">
+  <div class="sidebar">
     <a href="#" role="button"
       class="sidebar-toggle card card-body rounded-circle position-absolute top-0 end-0 d-xl-none"
       title="sidebar-toggle">

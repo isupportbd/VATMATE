@@ -15,16 +15,16 @@
     </Link>
   </Refresh>
 
-  <div class="row printarea">
+  <div class="row">
     <div class="col-12">
-      <div class="card card-body border p-5">
+      <div class="card card-body border p-5 pp-0">
         <div class="row">
           <div class="col-12">
             <div class="fw-bold text-center position-relative">
-              <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0">
+              <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0" style="top: 75%">
                 Mushak 6.3
               </label>
-              <div v-if="!pdfMode" class="toolbar">
+              <div v-if="!pdfMode" class="position-absolute removeprintarea" style="top: 75%">
                 <Button class="btn btn-outline-secondary" icon="bi bi-file-earmark-pdf" @click="openPdf" />
               </div>
               <p class="m-0">Government of the People's Republic of Bangladesh</p>

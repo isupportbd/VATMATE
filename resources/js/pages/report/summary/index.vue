@@ -14,7 +14,7 @@
     </Link>
   </Refresh>
 
-  <div class="card card-body border mb-2">
+  <div class="card card-body border mb-2 p-5 pp-0">
     <div class="row">
       <div class="col-12">
         <h3 class="text-center">SUMMARY BY BIN</h3>
@@ -121,8 +121,8 @@
       </div>
     </div>
     <div class="row mt-2">
-      <p class="fw-bold mb-1 bg-info bg-opacity-25">Transaction Summary</p>
       <div class="col-12 col-xl-12 mb-3 mb-xl-0">
+        <p class="fw-bold mb-1 bg-info bg-opacity-25">Transaction Summary</p>
         <div class="row gy-3">
           <div class="col-12 col-sm-6 col-md-4 col-lg-3"
             v-for="(dt, i) in ['Increase', 'Decrease', 'Penalty'].includes(props.summary?.adjustment)" :key="i">
@@ -175,8 +175,8 @@
       </div>
     </div>
     <div class="row mt-3">
-      <p class="fw-bold mb-1 bg-info bg-opacity-25">Transaction Summary (Final Settlement)</p>
       <div class="col-12 col-xl-12 mb-3 mb-xl-0">
+        <p class="fw-bold mb-1 bg-info bg-opacity-25">Transaction Summary (Final Settlement)</p>
         <div class="row gy-3">
           <div class="col-12 col-sm-6 col-md-4 col-lg-3"
             v-for="(dt, i) in ['Increase', 'Decrease', 'Penalty'].includes(props.summary?.adjustment)" :key="i">
@@ -237,10 +237,10 @@
       </div>
     </div>
   </div>
-  <div class="card card-body border">
+  <div class="card card-body border p-5 pp-0">
     <div :class="props.summary.purchaseDetails.length > 0 ? 'row' : 'd-none'">
       <div class="col-12">
-        <p class="m-0 fw-bold bg-info bg-opacity-25 px-1">
+        <p class="m-0 fw-bold bg-info bg-opacity-25">
           Purchage Details <span class="text-danger">(Total BoE: {{ props.summary?.totalBoe }})</span>
         </p>
       </div>
