@@ -174,68 +174,6 @@
         </div>
       </div>
     </div>
-    <div class="row mt-3">
-      <div class="col-12 col-xl-12 mb-3 mb-xl-0">
-        <p class="fw-bold mb-1 bg-info bg-opacity-25 px-2">Transaction Summary (Final Settlement)</p>
-        <div class="row gy-3">
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3"
-            v-for="(dt, i) in ['Increase', 'Decrease', 'Penalty'].includes(props.summary?.adjustment)" :key="i">
-            <span class="fw-bold">{{ dt?.expense?.name }} : </span> {{ dt?.amount }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Treasury : </span>
-            <span>{{ props.summary?.treasury?.amount }}</span>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Note 52 : </span>
-            {{ props.summary?.prevNetPayable }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Net Payable VAT :</span>
-            {{ props.summary?.netPayableSettlement }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Note 65 :</span>
-            {{ props.summary?.closignBalanceCurrentSettlement ? props.summary?.closignBalanceCurrentSettlement : 0 }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">MCU :</span> {{ props.summary?.totalMcu }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Debit Note : </span>
-            <span>{{ props.summary?.totalDebitnote?.increase_vat }}</span>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Credit Note : </span>
-            {{ props.summary?.totalCreditnote?.decrease_vat }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Mushak 4.4 :</span>
-            {{ props.summary?.totalForm44?.increase_vat }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Mushak 4.5 :</span>
-            {{ props.summary?.totalForm45?.increase_vat }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-danger">
-            <span class="fw-bold">Note 22 AT :</span>
-            {{ props.summary?.note22Purchase }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-danger">
-            <span class="fw-bold">Note 27 VAT :</span>
-            {{ props.summary?.note22Sale }}
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Note 28 : </span>
-            <span>{{ props.summary?.totalIncAdj }}</span>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <span class="fw-bold">Note 33 : </span>
-            {{ props.summary?.totalDecAdj }}
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
   <div class="card card-body border p-5 pp-0">
     <div :class="props.summary.purchaseDetails.length > 0 ? 'row' : 'd-none'">

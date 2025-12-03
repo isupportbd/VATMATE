@@ -49,24 +49,6 @@
                   </Link>
                 </div>
                 <div class="col-3">
-                  <Link :href="route('report-91', { client_id: td.client_id, monthYear: td?.tax_period })"
-                    class="btn btn-outline-dark w-100 rounded-2">
-                  <span>9.1</span>
-                  </Link>
-                </div>
-                <div class="col-12">
-                  <Link :href="route('settlement-report-91', { client_id: td.client_id, monthYear: td?.tax_period })"
-                    class="btn btn-outline-dark w-100 rounded-2">
-                  <span>Settlement 9.1</span>
-                  </Link>
-                </div>
-                <div class="col-4">
-                  <Link :href="route('report-63', { client_id: td.client_id, monthYear: td?.tax_period })"
-                    class="btn btn-outline-dark w-100 rounded-2">
-                  <span>6.3</span>
-                  </Link>
-                </div>
-                <div class="col-4">
                   <Link :href="route('report-boe', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
                   <span>BoE</span>
@@ -78,28 +60,40 @@
                   <span>4.3</span>
                   </Link>
                 </div>
-                <div class="col-9">
-                  <Link :href="route('debitnote-68', { client_id: td.client_id, monthYear: td?.tax_period })"
-                    class="btn btn-outline-dark w-100 rounded-2">
-                  <span>Debit Note (6.8)</span>
-                  </Link>
-                </div>
-                <div class="col-3">
+                <div class="col-4">
                   <Link :href="route('form-44', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
                   <span>4.4</span>
                   </Link>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                   <Link :href="route('form-45', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
                   <span>4.5</span>
                   </Link>
                 </div>
-                <div class="col-9">
+                <div class="col-3">
+                  <Link :href="route('report-63', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
+                  <span>6.3</span>
+                  </Link>
+                </div>
+                <div class="col-3">
                   <Link :href="route('creditnote-67', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>Credit Note (6.7)</span>
+                  <span>6.7</span>
+                  </Link>
+                </div>
+                <div class="col-3">
+                  <Link :href="route('debitnote-68', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
+                  <span>6.8</span>
+                  </Link>
+                </div>
+                <div class="col-3">
+                  <Link :href="route('report-91', { client_id: td.client_id, monthYear: td?.tax_period })"
+                    class="btn btn-outline-dark w-100 rounded-2">
+                  <span>9.1</span>
                   </Link>
                 </div>
               </div>

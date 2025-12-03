@@ -859,144 +859,6 @@ $sidebar-width: 16.25rem;
   z-index: 1110 !important;
 }
 
-@media print {
-  .d-print-inline {
-    display: inline !important;
-  }
-  .d-print-inline-block {
-    display: inline-block !important;
-  }
-  .d-print-block {
-    display: block !important;
-  }
-  .d-print-grid {
-    display: grid !important;
-  }
-  .d-print-table {
-    display: table !important;
-  }
-  .d-print-table-row {
-    display: table-row !important;
-  }
-  .d-print-table-cell {
-    display: table-cell !important;
-  }
-  .d-print-flex {
-    display: flex !important;
-  }
-  .d-print-inline-flex {
-    display: inline-flex !important;
-  }
-  .d-print-none {
-    display: none !important;
-  }
-
-  .theme-dark,
-  .theme-light {
-    background: #fff !important;
-    color: #000 !important;
-  }
-
-  html,
-  body,
-  #app,
-  .wrapper,
-  .main,
-  .content-wrapper,
-  .content {
-    height: auto !important;
-    min-height: 0 !important;
-    background: #FFFFFF !important;
-  }
-
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  .content-wrapper > header,
-  .content-wrapper > footer,
-  .PageBar,
-  .Refresh {
-    display: none !important;
-  }
-
-  /* let content start at very top */
-  .content {
-    min-height: auto !important;
-  }
-
-  /* Hide sidebar completely for print */
-  .sidebar,footer {
-    display: none !important;
-  }
-
-  /* Let main content use full width on print */
-  .main {
-    padding-left: 0 !important;
-    margin-left: 0 !important;
-    .content{
-      margin: 12mm;
-    }
-  }
-
-  /* Optional: avoid weird extra height */
-  .wrapper {
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  .pp-0, .pm-0{
-    padding: 0 !important;
-  }
-
-  .card.border,
-  .card-body.border {
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  .printarea {
-    border: initial;
-    border-radius: initial;
-    width: initial;
-    height: initial;
-    box-shadow: initial;
-    background: initial;
-    page-break-after: auto !important;
-    page-break-inside: avoid;
-    overflow: visible !important;
-    margin: 0;
-  }
-
-  .printarea:not(:last-of-type) {
-    page-break-after: always !important;
-  }
-
-  table {
-    page-break-after: auto;
-    border-collapse: collapse;
-  }
-
-  tr {
-    page-break-inside: avoid;
-    page-break-after: auto
-  }
-
-  td {
-    page-break-inside: avoid;
-    page-break-after: auto;
-  }
-
-  thead {
-    display: table-header-group
-  }
-
-  tfoot {
-    display: table-footer-group
-  }
-}
-
 // theme light or dark
 .theme-light {
   @include theme(light);
@@ -1012,5 +874,156 @@ $sidebar-width: 16.25rem;
   }
   @media (prefers-color-scheme: light) {
     @include theme(light);
+  }
+}
+
+// this is section for print media
+/* PAGE MARGINS — DO NOT USE size: so Firefox shows orientation */
+@page {
+  margin: 12mm;
+}
+
+@media print {
+
+  /***************
+   GLOBAL RESET
+  ***************/
+  html,
+  body,
+  #app,
+  .wrapper,
+  .main,
+  .content-wrapper,
+  .content,
+  .card, table {
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+    color: #000000 !important;
+
+    /* kill theme variables (dark mode fix) */
+    --app-bg: #ffffff !important;
+    --app-surface: #ffffff !important;
+    --app-text: #000000 !important;
+    --app-text-muted: #000000 !important;
+    --bs-body-bg: #ffffff !important;
+    --bs-body-color: #000000 !important;
+    --bs-card-bg: #ffffff !important;
+    --bs-card-color: #000000 !important;
+    --bs-table-bg: #ffffff !important;
+    --bs-table-color: #000000 !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+
+  /***************
+    REMOVE NON-PRINT ELEMENTS
+  ***************/
+  .content-wrapper > header,
+  .content-wrapper > footer,
+  .PageBar,
+  .Refresh,
+  .sidebar,
+  footer {
+    display: none !important;
+  }
+
+  /* remove left space from sidebar */
+  .main {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .wrapper {
+    height: auto !important;
+    overflow: visible !important;
+    font-size: 12px !important;
+  }
+
+
+  /***************
+    PRINT UTILITY RESET
+  ***************/
+  .pp-0, .pm-0 {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  @each $name, $size in $spacers {
+
+    /* Padding */
+    .pp-#{$name}   { padding:        $size !important; }
+    .ppt-#{$name}  { padding-top:    $size !important; }
+    .ppe-#{$name}  { padding-right:  $size !important; }
+    .ppb-#{$name}  { padding-bottom: $size !important; }
+    .pps-#{$name}  { padding-left:   $size !important; }
+
+    /* Margin */
+    .pm-#{$name}   { margin:         $size !important; }
+    .pmt-#{$name}  { margin-top:     $size !important; }
+    .pme-#{$name}  { margin-right:   $size !important; }
+    .pmb-#{$name}  { margin-bottom:  $size !important; }
+    .pms-#{$name}  { margin-left:    $size !important; }
+  }
+
+  /* Remove all card borders completely */
+  .card.border,
+  .card-body,
+  .card-body.border {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+
+  /***************
+    RESPONSIVE TABLE FIX
+    (NO SCROLL, SHRINK TO FIT)
+  ***************/
+  .table-responsive {
+    overflow: visible !important;
+  }
+
+  .table-responsive > table {
+    width: 100% !important;
+    table-layout: fixed !important; 
+  }
+
+  .table-responsive th,
+  .table-responsive td {
+    padding: 2px 4px !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+  }
+
+
+  /***************
+    PAGE BREAK & TABLE SPLIT FIX
+  ***************/
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+
+  tr, th, td {
+    page-break-inside: avoid !important;     /* do not split ROWS */
+    break-inside: avoid-page !important;
+    page-break-after: auto !important;
   }
 }

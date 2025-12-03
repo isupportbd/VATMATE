@@ -5,93 +5,167 @@
     <meta charset="utf-8">
     <title>Mushak 6.3</title>
     <style>
-        /* For browser preview only (ignored by dompdf's @page) */
+        /* DomPDF supports @page — good for margins */
+
+        /* Reset */
+        html,
         body {
             margin: 0;
-            padding: 0;
-            background: #e0e0e0;
-            /* grey so you can see the page */
+            padding: 15mm;
+            background: #ffffff !important;
             font-family: DejaVu Sans, sans-serif;
+            /* full unicode support */
             font-size: 12px;
+            color: #000000;
         }
 
-        .page {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            background: #ffffff;
-            /* padding: 5mm; */
-            box-sizing: border-box;
+        /* Remove shadows/borders like cards */
+        .card,
+        .card *,
+        .panel,
+        .panel * {
+            border: none !important;
+            box-shadow: none !important;
+            background: #ffffff !important;
         }
 
-        /* For PDF: dompdf uses @page */
-        @page {
-            size: A4;
-            margin: 12mm;
-        }
-
-        .scale {
-            transform: scale(0.90);
-            transform-origin: top left;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .fw-bold {
+        /* Headings */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            margin: 0 0 6px 0;
             font-weight: bold;
         }
 
-        .m-0 {
-            margin: 0;
+        /* Utility spacing */
+        .mt-0 {
+            margin-top: 0 !important;
         }
 
-        .mb-1 {
-            margin-bottom: 4px;
+        .mb-0 {
+            margin-bottom: 0 !important;
         }
 
-        .mb-2 {
-            margin-bottom: 8px;
+        .pt-0 {
+            padding-top: 0 !important;
         }
 
-        .mb-3 {
-            margin-bottom: 12px;
+        .pb-0 {
+            padding-bottom: 0 !important;
         }
 
-        .my-3 {
-            margin-top: 12px;
-            margin-bottom: 12px;
+        /* Layout blocks */
+        .container {
+            width: 100%;
+            margin: 0 auto;
         }
 
+        .row {
+            width: 100%;
+            display: block;
+            /* dompdf doesn't support flex */
+        }
+
+        .col {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        /* Force dompdf table behavior */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
+            background: #ffffff !important;
+            page-break-inside: auto;
+        }
+
+        thead {
+            display: table-header-group;
+            /* repeat header */
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+
+        tbody {
+            display: table-row-group;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            break-inside: avoid-page;
         }
 
         th,
         td {
-            border: 1px solid #444;
-            padding: 3px 4px;
+            border: 1px solid #cccccc;
+            padding: 6px 8px;
+            font-size: 11px;
+            vertical-align: top;
         }
 
-        .no-border-table th,
-        .no-border-table td {
-            border: none;
-            padding: 0;
+        th {
+            background: #f3f3f3 !important;
+            font-weight: bold;
         }
 
-        .header-block {
-            margin-bottom: 12px;
+        /* Responsive fix: dompdf does NOT support table-responsive */
+        .table-responsive {
+            width: 100% !important;
+            overflow: visible !important;
         }
 
-        .info-table td {
-            padding: 2px 0;
+        /* Smaller text utilities */
+        .text-sm {
+            font-size: 10px !important;
         }
 
-        .footer-text {
-            font-size: 10px;
+        .text-xs {
+            font-size: 9px !important;
+        }
+
+        /* Alignment */
+        .text-left {
+            text-align: left !important;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        /* Page break classes */
+        .page-break {
+            page-break-after: always;
+        }
+
+        .no-page-break {
+            page-break-inside: avoid !important;
+        }
+
+        /* Remove dark mode support completely */
+        .theme-dark,
+        [data-theme="dark"] {
+            background: #ffffff !important;
+            color: #000 !important;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Fix large elements splitting */
+        .block {
+            page-break-inside: avoid;
         }
     </style>
 </head>

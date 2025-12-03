@@ -60,7 +60,7 @@ class Report91Controller extends Controller
 
     // 2) Periods: current + previous month
     $period     = date('Y-m', strtotime($monthYear));
-    $prevPeriod = date('Y-m', strtotime("$period-01 -1 month"));
+    $prevPeriod = date('Y-m', strtotime($period . '-01 -1 month'));
 
     // 3) Expenses Ids
     $expenseIds = $this->expense->whereIn('name', ['Closing Balance', 'Increase', 'Decrease', 'Penalty'])->pluck('id', 'name');
@@ -77,7 +77,7 @@ class Report91Controller extends Controller
 
       return $this->sale
         ->selectRaw("
-          ROUND(COALESCE(SUM(total_price), 0), 2) AS total_price,
+          ROUND(COALESCE(SUM(item_price), 0), 2) AS item_price,
           ROUND(COALESCE(SUM(sd_value), 0), 2)    AS sd_value,
           ROUND(COALESCE(SUM(vat_value), 0), 2)   AS vat_value
         ")
@@ -137,9 +137,9 @@ class Report91Controller extends Controller
     $getSaleField = fn($row, $field) => $row->{$field} ?? 0;
 
     // Map to your existing variable names (0 / 7.5 / 15)
-    $totalSaleValueSum13  = $getSaleField($sale13, 'total_price');
-    $totalSaleValueSum15  = $getSaleField($sale15, 'total_price');
-    $totalSaleValueSum22  = $getSaleField($sale22, 'total_price');
+    $totalSaleValueSum13  = $getSaleField($sale13, 'item_price');
+    $totalSaleValueSum15  = $getSaleField($sale15, 'item_price');
+    $totalSaleValueSum22  = $getSaleField($sale22, 'item_price');
 
     $totalSaleSdSum13  = $getSaleField($sale13, 'sd_value');
     $totalSaleSdSum15  = $getSaleField($sale15, 'sd_value');
@@ -149,9 +149,9 @@ class Report91Controller extends Controller
     $totalSaleVatSum15  = $getSaleField($sale15, 'vat_value');
     $totalSaleVatSum22  = $getSaleField($sale22, 'vat_value');
 
-    $totalValue = $totalSaleValueSum13 + $totalSaleValueSum15 + $totalSaleValueSum22;
-    $totalSd    = $totalSaleSdSum13 + $totalSaleSdSum15 + $totalSaleSdSum22;
-    $totalVat   = $totalSaleVatSum13 + $totalSaleVatSum15 + $totalSaleVatSum22;
+    $totalSaleValue = $totalSaleValueSum13 + $totalSaleValueSum15 + $totalSaleValueSum22;
+    $totalSaleSd    = $totalSaleSdSum13 + $totalSaleSdSum15 + $totalSaleSdSum22;
+    $totalSaleVat   = $totalSaleVatSum13 + $totalSaleVatSum15 + $totalSaleVatSum22;
 
     /*
     |--------------------------------------------------------------------------
@@ -175,9 +175,8 @@ class Report91Controller extends Controller
     | calculated earlier in your method. If not, you can plug them in here.
     */
 
-    $totalPurchaseValue = (!empty($purchase13) ? $purchase13->base_value : 0) + (!empty($purchase15) ? $purchase15->base_value : 0) + (!empty($purchase22) ? $purchase22->base_value : 0);
-
-    $totalPurchaseVat = (!empty($purchase15) ? $purchase15->vat : 0);
+    $totalPurchaseValue = (optional($purchase13)->base_value + optional($purchase15)->base_value + optional($purchase22)->base_value) ?? 0;
+    $totalPurchaseVat = optional($purchase15)->vat ?? 0;
 
     /*
     |--------------------------------------------------------------------------
@@ -200,7 +199,9 @@ class Report91Controller extends Controller
       ->groupBy('client_id')
       ->first();
 
-    $totalDecreasingAt = (!empty($totalAtValue) ? $totalAtValue->at_value : 0) + (!empty($totalDecreasing) ? $totalDecreasing->amount : 0);
+    $totalAtValue = optional($totalAtValue)->at_value ?? 0;
+
+    $totalDecreasingAt = (!empty($totalAtValue) ? $totalAtValue : 0) + (!empty($totalDecreasing) ? $totalDecreasing->amount : 0);
 
     // Treasury for this period
     $treasury = $this->treasury
@@ -219,122 +220,134 @@ class Report91Controller extends Controller
     // ----- TOTAL CREDITNOTE -----
     $totalCreditnote = $this->creditnote
       ->selectRaw("
-        client_id,
-        DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value_of_decreasing_adjustment), 0), 2) AS value
-      ")->where('client_id', $client_id)
-      ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
-      ->first();
-
-    $totalCreditnote = $totalCreditnote ?: (object)['value' => 0];
-
-    // ----- TOTAL DEBITNOTE -----
-    $totalDebitnote = $this->debitnote
-      ->selectRaw("
-        client_id,
-        DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value_of_increasing_adjustment), 0), 2) AS value
-      ")->where('client_id', $client_id)
+      client_id,
+      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      ROUND(COALESCE(SUM(vat_of_decreasing_adjustment), 0), 2) AS decrease_vat,
+      ROUND(COALESCE(SUM(sd_of_decreasing_adjustment), 0), 2) AS decrease_sd
+    ")
+      ->where('client_id', $client_id)
       ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
       ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
       ->first();
 
-    $totalDebitnote = $totalDebitnote ?: (object)['value' => 0];
+    // ----- TOTAL DEBITNOTE -----
+    $totalDebitnote = $this->debitnote
+      ->selectRaw("
+      client_id,
+      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      ROUND(COALESCE(SUM(vat_of_increasing_adjustment), 0), 2) AS increase_vat,
+      ROUND(COALESCE(SUM(sd_of_increasing_adjustment), 0), 2) AS increase_sd
+    ")
+      ->where('client_id', $client_id)
+      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
+      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->first();
 
     // ----- TOTAL FORM 4.4 -----
     $totalForm44 = $this->form44
       ->selectRaw("
-        client_id,
-        DATE_FORMAT(date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value), 0), 2) AS value
-      ")->where('client_id', $client_id)
+      client_id,
+      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
+    ")
+      ->where('client_id', $client_id)
       ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
       ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
       ->first();
 
-    $totalForm44 = $totalForm44 ?: (object)['value' => 0];
+    $totalForm44 = $totalForm44 ?: (object)['increase_vat' => 0];
 
     // ----- TOTAL FORM 4.5 -----
     $totalForm45 = $this->form45
       ->selectRaw("
-        client_id,
-        DATE_FORMAT(date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value), 0), 2) AS value
-      ")->where('client_id', $client_id)
+      client_id,
+      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
+    ")
+      ->where('client_id', $client_id)
       ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
       ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
       ->first();
 
-    $totalForm45 = $totalForm45 ?: (object)['value' => 0];
+    $totalForm45 = $totalForm45 ?: (object)['increase_vat' => 0];
 
-    // Closing balance (previous tax period)
-    $closing = $this->expense->where('name', 'Closing Balance')->first();
-    $closignBalance = null;
+    // ----- EXPENSE IDs -----
+    $expenseIds = $this->expense->whereIn('name', ['Closing Balance', 'Increase', 'Decrease', 'Penalty'])->pluck('id', 'name');
 
-    if ($closing) {
-      $closignBalance = $this->adjustment
-        ->selectRaw("
-          client_id,
-          expense_id,
-          tax_period,
-          ROUND(COALESCE(SUM(amount), 0), 2) AS amount
-        ")
-        ->leftJoin('expenses as expense', 'expense_id', '=', 'expense.id')
-        ->with(['expense'])
-        ->where('expense_id', $closing->id)
+    // ----- PREVIOUS CLOSING BALANCE -----
+    $closingId      = $expenseIds['Closing Balance'] ?? null;
+    $prevNetPayable = 0;
+    if ($closingId) {
+      // Get the LATEST closing balance whose tax_period is <= prevPeriod
+      // For first month (July) this will pick June  (your 664.18)
+      // For August it will pick July (saved by system), etc.
+      $prevClosing = $this->adjustment
+        ->select('client_id', 'expense_id', 'tax_period', 'amount')
         ->where('client_id', $client_id)
-        ->where('tax_period', $prevPeriod)
-        ->groupBy('client_id', 'expense_id', 'tax_period')
+        ->where('expense_id', $closingId)
+        ->where('tax_period', '<=', $prevPeriod)
+        ->orderBy('tax_period', 'desc')
         ->first();
+
+      $prevNetPayable = optional($prevClosing)->amount ?? 0;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | NET PAYABLE & NOTE 34
-    |--------------------------------------------------------------------------
-    |
-    | Net Payable VAT:
-    | Total Sales VAT (local+import)
-    | – (Total Purchase VAT)
-    | + Total Increasing Adjustment
-    | – Total Decreasing Adjustment + Penalty
-    | – Total AT – Closing Balance of Last Tax Period – Treasury
-    */
+    // ----- NOTE CALCULATION -----
+    // | Net Payable VAT:
+    // | Total Sales VAT (local+import)
+    // | – (Total Purchase VAT)
+    // | + Total Increasing Adjustment
+    // | – Total Decreasing Adjustment + Penalty
+    // | – Total AT – Closing Balance of Last Tax Period – Treasury
 
-    if (!$client_id || !$monthYear) {
-      $netPayable = 0;
-    } else {
-      $vatTotal          = $totalVat;
-      $purchaseVat       = $totalPurchaseVat;
-      $incAmount         = optional($totalIncreasing)->amount ?? 0;
-      $decAmountWithAt   = $totalDecreasingAt;
-      $penAmount         = optional($totalPenalty)->amount ?? 0;
-      $treasuryAmount    = optional($treasury)->amount ?? 0;
-      $creditnoteAmount  = optional($totalCreditnote)->value ?? 0;
-      $debitnoteAmount   = optional($totalDebitnote)->value ?? 0;
-      $form44Amount      = optional($totalForm44)->value ?? 0;
-      $form45Amount      = optional($totalForm45)->value ?? 0;
+    $note3    = $totalSaleValueSum13 ?? 0;
+    $note4a   = $totalSaleValueSum15 ?? 0;
+    $note4b   = $totalSaleSdSum15 ?? 0;
+    $note4c   = $totalSaleVatSum15 ?? 0;
+    $note8a   = $totalSaleValueSum22 ?? 0;
+    $note8b   = $totalSaleSdSum22 ?? 0;
+    $note8c   = $totalSaleVatSum22 ?? 0;
+    $note9a   = $totalSaleValue ?? 0;
+    $note9b   = $totalSaleSd ?? 0;
+    $note9c   = $totalSaleVat ?? 0;
+    $note13a  = optional($purchase13)->base_value ?? 0;
+    $note13b  = optional($purchase13)->vat_value ?? 0;
+    $note15a  = optional($purchase15)->base_value ?? 0;
+    $note15b  = optional($purchase15)->vat_value ?? 0;
+    $note22a  = optional($purchase22)->base_value ?? 0;
+    $note22b  = optional($purchase22)->vat_value ?? 0;
+    $note23a  = $totalPurchaseValue ?? 0;
+    $note23b  = $totalPurchaseVat ?? 0;
+    $note26   = optional($totalDebitnote)->increase_vat ?? 0;
+    $note27   = optional($totalIncreasing)->amount + optional($totalForm44)->increase_vat + optional($totalForm45)->increase_vat ?? 0;
+    $note28   = ($note26 + $note27) ?? 0;
+    $note30   = $totalAtValue ?? 0;
+    $note31   = optional($totalCreditnote)->decrease_vat ?? 0;
+    $note32   = optional($totalDecreasing)->amount ?? 0;
+    $note33   = ($note30 + $note31 + $note32) ?? 0;
+    $note34   = ($note9c - $note23b + $note28 - $note33) ?? 0;
+    $note35   = ($note34 - $prevNetPayable) ?? 0;
+    $note38   = optional($totalDebitnote)->increase_sd ?? 0;
+    $note39   = optional($totalCreditnote)->decrease_sd ?? 0;
+    $note44   = optional($totalPenalty)->amount ?? 0;
+    $note50   = ($note35 + $note44) ?? 0;
+    $note52   = $prevNetPayable ?? 0;
+    $note58   = optional($treasury)->amount ?? 0;
+    $note65   = ($note58 - $note50) ?? 0;
 
-      $netPayable = round($vatTotal - $purchaseVat + $incAmount - $decAmountWithAt + $penAmount - $treasuryAmount - $creditnoteAmount + $debitnoteAmount + $form44Amount + $form45Amount, 2);
-
-      // 🔹 CONDITIONAL PREVIOUS MONTH NET
-      $prevClosingAmount = optional($closignBalance)->amount;
-
-      if (!is_null($prevClosingAmount) && $prevClosingAmount != 0) {
-        // if we already have closing for previous month, use that
-        $prevNetPayable = $prevClosingAmount;
-      } else {
-        // first month (or no closing) → fallback to full recalculation
-        $prevNetPayable = $this->calculateNetPayableForPeriod($client_id, $prevPeriod, $expenseIds);
-      }
-
-      // 🔹 CURRENT MONTH CLOSING (to show/use)
-      $closignBalanceCurrent = round($netPayable - $prevNetPayable, 2);
-
-      // note34 = without closing & treasury
-      $note34 = $vatTotal - $purchaseVat + $incAmount - $decAmountWithAt;
+    if ($closingId) {
+      $this->adjustment->updateOrCreate(
+        [
+          'client_id'  => $client_id,
+          'expense_id' => $closingId,
+          'tax_period' => $period, // current month
+        ],
+        [
+          'amount'     => $note65,
+        ]
+      );
     }
+
     /*
     |--------------------------------------------------------------------------
     | RESPONSE
@@ -342,45 +355,41 @@ class Report91Controller extends Controller
     */
     return Inertia::render('report/report91/index', [
       'report91' => [
-        'client' => $client,
-
-        'totalSaleValueSum13'   => number_format($totalSaleValueSum13, 2, '.', ''),
-        'totalSaleValueSum15'   => number_format($totalSaleValueSum15, 2, '.', ''),
-        'totalSaleValueSum22'   => number_format($totalSaleValueSum22, 2, '.', ''),
-
-        'totalSaleSdSum13'      => number_format($totalSaleSdSum13, 2, '.', ''),
-        'totalSaleSdSum15'      => number_format($totalSaleSdSum15, 2, '.', ''),
-        'totalSaleSdSum22'      => number_format($totalSaleSdSum22, 2, '.', ''),
-
-        'totalSaleVatSum13'     => number_format($totalSaleVatSum13, 2, '.', ''),
-        'totalSaleVatSum15'     => number_format($totalSaleVatSum15, 2, '.', ''),
-        'totalSaleVatSum22'     => number_format($totalSaleVatSum22, 2, '.', ''),
-
-        'totalValue'            => number_format($totalValue, 2, '.', ''),
-        'totalSd'               => number_format($totalSd, 2, '.', ''),
-        'totalVat'              => number_format($totalVat, 2, '.', ''),
-
-        'purchase13'            => $purchase13,
-        'purchase15'            => $purchase15,
-        'purchase22'            => $purchase22,
-
-        'totalCreditnote'       => $totalCreditnote,
-        'totalDebitnote'        => $totalDebitnote,
-        'totalForm44'           => $totalForm44,
-        'totalForm45'           => $totalForm45,
-
-        'totalIncreasing'       => $totalIncreasing,
-        'totalDecreasing'       => $totalDecreasing,
-        'totalPurchaseValue'    => number_format($totalPurchaseValue, 2, '.', ''),
-        'totalPurchaseVat'      => number_format($totalPurchaseVat, 2, '.', ''),
-        'totalAtValue'          => $totalAtValue,
-        'totalDecreasingAt'     => number_format($totalDecreasingAt, 2, '.', ''),
-        'totalPenalty'          => $totalPenalty,
-        'closignBalance'        => $closignBalance,
-        'treasury'              => $treasury,
-        'note34'                => number_format($note34, 2, '.', ''),
-        'prevNetPayable'        => number_format($prevNetPayable, 2, '.', ''),
-        'closignBalanceCurrent' => number_format(-$closignBalanceCurrent, 2, '.', ''),
+        'client'  => $client,
+        'note3'   => number_format($note3, 2, ".", ""),
+        'note4a'  => number_format($note4a, 2, ".", ""),
+        'note4b'  => number_format($note4b, 2, ".", ""),
+        'note4c'  => number_format($note4c, 2, ".", ""),
+        'note8a'  => number_format($note8a, 2, ".", ""),
+        'note8b'  => number_format($note8b, 2, ".", ""),
+        'note8c'  => number_format($note8c, 2, ".", ""),
+        'note9a'  => number_format($note9a, 2, ".", ""),
+        'note9b'  => number_format($note9b, 2, ".", ""),
+        'note9c'  => number_format($note9c, 2, ".", ""),
+        'note13a' => number_format($note13a, 2, ".", ""),
+        'note13b' => number_format($note13b, 2, ".", ""),
+        'note15a' => number_format($note15a, 2, ".", ""),
+        'note15b' => number_format($note15b, 2, ".", ""),
+        'note22a' => number_format($note22a, 2, ".", ""),
+        'note22b' => number_format($note22b, 2, ".", ""),
+        'note23a' => number_format($note23a, 2, ".", ""),
+        'note23b' => number_format($note23b, 2, ".", ""),
+        'note26'  => number_format($note26, 2, ".", ""),
+        'note27'  => number_format($note27, 2, ".", ""),
+        'note28'  => number_format($note28, 2, ".", ""),
+        'note30'  => number_format($note30, 2, ".", ""),
+        'note31'  => number_format($note31, 2, ".", ""),
+        'note32'  => number_format($note32, 2, ".", ""),
+        'note33'  => number_format($note33, 2, ".", ""),
+        'note34'  => number_format($note34, 2, ".", ""),
+        'note35'  => number_format($note35, 2, ".", ""),
+        'note38'  => number_format($note38, 2, ".", ""),
+        'note39'  => number_format($note39, 2, ".", ""),
+        'note44'  => number_format($note44, 2, ".", ""),
+        'note50'  => number_format($note50, 2, ".", ""),
+        'note52'  => number_format($note52, 2, ".", ""),
+        'note58'  => number_format($note58, 2, ".", ""),
+        'note65'  => number_format($note65, 2, ".", ""),
       ],
     ]);
   }
@@ -396,227 +405,227 @@ class Report91Controller extends Controller
    *   'Closing Balance' => id,
    * ]
    */
-  protected function calculateNetPayableForPeriod(int $client_id, string $period, $expenseIds): float
-  {
-    $prevPeriod = date('Y-m', strtotime($period . '-01 -1 month'));
+  // protected function calculateNetPayableForPeriod(int $client_id, string $period, $expenseIds): float
+  // {
+  //   $prevPeriod = date('Y-m', strtotime($period . '-01 -1 month'));
 
-    // ---- helpers ----
-    $saleSummaryByVatRate = function ($vatRate) use ($client_id, $period) {
-      if (!$vatRate) return null;
+  //   // ---- helpers ----
+  //   $saleSummaryByVatRate = function ($vatRate) use ($client_id, $period) {
+  //     if (!$vatRate) return null;
 
-      return $this->sale
-        ->selectRaw("
-          ROUND(COALESCE(SUM(total_price), 0), 2) AS total_price,
-          ROUND(COALESCE(SUM(sd_value), 0), 2)    AS sd_value,
-          ROUND(COALESCE(SUM(vat_value), 0), 2)   AS vat_value
-        ")
-        ->where('client_id', $client_id)
-        ->where('vat', $vatRate)
-        ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
-        ->first();
-    };
+  //     return $this->sale
+  //       ->selectRaw("
+  //         ROUND(COALESCE(SUM(total_price), 0), 2) AS total_price,
+  //         ROUND(COALESCE(SUM(sd_value), 0), 2)    AS sd_value,
+  //         ROUND(COALESCE(SUM(vat_value), 0), 2)   AS vat_value
+  //       ")
+  //       ->where('client_id', $client_id)
+  //       ->where('vat', $vatRate)
+  //       ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
+  //       ->first();
+  //   };
 
-    $purchaseSummaryByNote = function ($mushaknoteId) use ($client_id, $period) {
-      if (!$mushaknoteId) return null;
+  //   $purchaseSummaryByNote = function ($mushaknoteId) use ($client_id, $period) {
+  //     if (!$mushaknoteId) return null;
 
-      return $this->purchase
-        ->selectRaw("
-          ROUND(COALESCE(SUM(base_value), 0), 2) AS base_value,
-          ROUND(COALESCE(SUM(vat_value), 0), 2)  AS vat_value
-        ")
-        ->where('client_id', $client_id)
-        ->where('mushaknote_id', $mushaknoteId)
-        ->whereRaw("DATE_FORMAT(entry_date, '%Y-%m') = ?", [$period])
-        ->first();
-    };
+  //     return $this->purchase
+  //       ->selectRaw("
+  //         ROUND(COALESCE(SUM(base_value), 0), 2) AS base_value,
+  //         ROUND(COALESCE(SUM(vat_value), 0), 2)  AS vat_value
+  //       ")
+  //       ->where('client_id', $client_id)
+  //       ->where('mushaknote_id', $mushaknoteId)
+  //       ->whereRaw("DATE_FORMAT(entry_date, '%Y-%m') = ?", [$period])
+  //       ->first();
+  //   };
 
-    // ---- SALES (note_13, 15, 22) ----
-    $notePercents = $this->mushaknote
-      ->whereIn('name_note_no', ['note_13', 'note_15', 'note_22'])
-      ->pluck('percent', 'name_note_no');
+  //   // ---- SALES (note_13, 15, 22) ----
+  //   $notePercents = $this->mushaknote
+  //     ->whereIn('name_note_no', ['note_13', 'note_15', 'note_22'])
+  //     ->pluck('percent', 'name_note_no');
 
-    $sale13 = $saleSummaryByVatRate($notePercents['note_13'] ?? null);
-    $sale15 = $saleSummaryByVatRate($notePercents['note_15'] ?? null);
-    $sale22 = $saleSummaryByVatRate($notePercents['note_22'] ?? null);
+  //   $sale13 = $saleSummaryByVatRate($notePercents['note_13'] ?? null);
+  //   $sale15 = $saleSummaryByVatRate($notePercents['note_15'] ?? null);
+  //   $sale22 = $saleSummaryByVatRate($notePercents['note_22'] ?? null);
 
-    $getSaleField = fn($row, $field) => $row->{$field} ?? 0;
+  //   $getSaleField = fn($row, $field) => $row->{$field} ?? 0;
 
-    $totalSaleVatSum13 = $getSaleField($sale13, 'vat_value');
-    $totalSaleVatSum15 = $getSaleField($sale15, 'vat_value');
-    $totalSaleVatSum22 = $getSaleField($sale22, 'vat_value');
+  //   $totalSaleVatSum13 = $getSaleField($sale13, 'vat_value');
+  //   $totalSaleVatSum15 = $getSaleField($sale15, 'vat_value');
+  //   $totalSaleVatSum22 = $getSaleField($sale22, 'vat_value');
 
-    $vatTotal = $totalSaleVatSum13 + $totalSaleVatSum15 + $totalSaleVatSum22;
+  //   $vatTotal = $totalSaleVatSum13 + $totalSaleVatSum15 + $totalSaleVatSum22;
 
-    // ---- PURCHASES (note_13, 15, 22) ----
-    $note13 = $this->mushaknote->where('name_note_no', 'note_13')->first();
-    $note15 = $this->mushaknote->where('name_note_no', 'note_15')->first();
-    $note22 = $this->mushaknote->where('name_note_no', 'note_22')->first();
+  //   // ---- PURCHASES (note_13, 15, 22) ----
+  //   $note13 = $this->mushaknote->where('name_note_no', 'note_13')->first();
+  //   $note15 = $this->mushaknote->where('name_note_no', 'note_15')->first();
+  //   $note22 = $this->mushaknote->where('name_note_no', 'note_22')->first();
 
-    $purchase13 = $note13 ? $purchaseSummaryByNote($note13->id) : null;
-    $purchase15 = $note15 ? $purchaseSummaryByNote($note15->id) : null;
-    $purchase22 = $note22 ? $purchaseSummaryByNote($note22->id) : null;
+  //   $purchase13 = $note13 ? $purchaseSummaryByNote($note13->id) : null;
+  //   $purchase15 = $note15 ? $purchaseSummaryByNote($note15->id) : null;
+  //   $purchase22 = $note22 ? $purchaseSummaryByNote($note22->id) : null;
 
-    $totalPurchaseVat = (!empty($purchase15) ? $purchase15->vat_value : 0);
+  //   $totalPurchaseVat = (!empty($purchase15) ? $purchase15->vat_value : 0);
 
-    // ---- INCREASE / DECREASE / PENALTY (from $expenseIds) ----
-    $increasingId = $expenseIds['Increase']        ?? null;
-    $decreasingId = $expenseIds['Decrease']        ?? null;
-    $penaltyId    = $expenseIds['Penalty']         ?? null;
-    $closingId    = $expenseIds['Closing Balance'] ?? null;
+  //   // ---- INCREASE / DECREASE / PENALTY (from $expenseIds) ----
+  //   $increasingId = $expenseIds['Increase']        ?? null;
+  //   $decreasingId = $expenseIds['Decrease']        ?? null;
+  //   $penaltyId    = $expenseIds['Penalty']         ?? null;
+  //   $closingId    = $expenseIds['Closing Balance'] ?? null;
 
-    $incAmount = $increasingId ? optional(
-      $this->adjustment
-        ->selectRaw("
-          client_id,
-          expense_id,
-          tax_period,
-          ROUND(COALESCE(SUM(amount), 0), 2) AS amount
-        ")
-        ->where('client_id', $client_id)
-        ->where('tax_period', $period)
-        ->where('expense_id', $increasingId)
-        ->groupBy('client_id', 'expense_id', 'tax_period')
-        ->first()
-    )->amount ?? 0 : 0;
+  //   $incAmount = $increasingId ? optional(
+  //     $this->adjustment
+  //       ->selectRaw("
+  //         client_id,
+  //         expense_id,
+  //         tax_period,
+  //         ROUND(COALESCE(SUM(amount), 0), 2) AS amount
+  //       ")
+  //       ->where('client_id', $client_id)
+  //       ->where('tax_period', $period)
+  //       ->where('expense_id', $increasingId)
+  //       ->groupBy('client_id', 'expense_id', 'tax_period')
+  //       ->first()
+  //   )->amount ?? 0 : 0;
 
-    $decAmount = $decreasingId ? optional(
-      $this->adjustment
-        ->selectRaw("
-          client_id,
-          expense_id,
-          tax_period,
-          ROUND(COALESCE(SUM(amount), 0), 2) AS amount
-        ")
-        ->where('client_id', $client_id)
-        ->where('tax_period', $period)
-        ->where('expense_id', $decreasingId)
-        ->groupBy('client_id', 'expense_id', 'tax_period')
-        ->first()
-    )->amount ?? 0 : 0;
+  //   $decAmount = $decreasingId ? optional(
+  //     $this->adjustment
+  //       ->selectRaw("
+  //         client_id,
+  //         expense_id,
+  //         tax_period,
+  //         ROUND(COALESCE(SUM(amount), 0), 2) AS amount
+  //       ")
+  //       ->where('client_id', $client_id)
+  //       ->where('tax_period', $period)
+  //       ->where('expense_id', $decreasingId)
+  //       ->groupBy('client_id', 'expense_id', 'tax_period')
+  //       ->first()
+  //   )->amount ?? 0 : 0;
 
-    $penAmount = $penaltyId ? optional(
-      $this->adjustment
-        ->selectRaw("
-          client_id,
-          expense_id,
-          tax_period,
-          ROUND(COALESCE(SUM(amount), 0), 2) AS amount
-        ")
-        ->where('client_id', $client_id)
-        ->where('tax_period', $period)
-        ->where('expense_id', $penaltyId)
-        ->groupBy('client_id', 'expense_id', 'tax_period')
-        ->first()
-    )->amount ?? 0 : 0;
+  //   $penAmount = $penaltyId ? optional(
+  //     $this->adjustment
+  //       ->selectRaw("
+  //         client_id,
+  //         expense_id,
+  //         tax_period,
+  //         ROUND(COALESCE(SUM(amount), 0), 2) AS amount
+  //       ")
+  //       ->where('client_id', $client_id)
+  //       ->where('tax_period', $period)
+  //       ->where('expense_id', $penaltyId)
+  //       ->groupBy('client_id', 'expense_id', 'tax_period')
+  //       ->first()
+  //   )->amount ?? 0 : 0;
 
-    // ---- AT ----
-    $totalAtValueRow = $this->purchase
-      ->selectRaw("
-        client_id,
-        ROUND(COALESCE(SUM(at_value), 0), 2) AS at_value
-      ")
-      ->where('client_id', $client_id)
-      ->whereRaw("DATE_FORMAT(entry_date, '%Y-%m') = ?", [$period])
-      ->groupBy('client_id')
-      ->first();
+  //   // ---- AT ----
+  //   $totalAtValueRow = $this->purchase
+  //     ->selectRaw("
+  //       client_id,
+  //       ROUND(COALESCE(SUM(at_value), 0), 2) AS at_value
+  //     ")
+  //     ->where('client_id', $client_id)
+  //     ->whereRaw("DATE_FORMAT(entry_date, '%Y-%m') = ?", [$period])
+  //     ->groupBy('client_id')
+  //     ->first();
 
-    $atAmount = !empty($totalAtValueRow) ? $totalAtValueRow->at_value : 0;
+  //   $atAmount = !empty($totalAtValueRow) ? $totalAtValueRow->at_value : 0;
 
-    $decAmountWithAt = $atAmount + $decAmount;
+  //   $decAmountWithAt = $atAmount + $decAmount;
 
-    // ---- Closing balance (prev period, using $closingId) ----
-    $closeAmount = 0;
-    if ($closingId) {
-      $closignBalance = $this->adjustment
-        ->selectRaw("
-          client_id,
-          expense_id,
-          tax_period,
-          ROUND(COALESCE(SUM(amount), 0), 2) AS amount
-        ")
-        ->where('client_id', $client_id)
-        ->where('expense_id', $closingId)
-        ->where('tax_period', $prevPeriod)
-        ->groupBy('client_id', 'expense_id', 'tax_period')
-        ->first();
+  //   // ---- Closing balance (prev period, using $closingId) ----
+  //   $closeAmount = 0;
+  //   if ($closingId) {
+  //     $closignBalance = $this->adjustment
+  //       ->selectRaw("
+  //         client_id,
+  //         expense_id,
+  //         tax_period,
+  //         ROUND(COALESCE(SUM(amount), 0), 2) AS amount
+  //       ")
+  //       ->where('client_id', $client_id)
+  //       ->where('expense_id', $closingId)
+  //       ->where('tax_period', $prevPeriod)
+  //       ->groupBy('client_id', 'expense_id', 'tax_period')
+  //       ->first();
 
-      $closeAmount = optional($closignBalance)->amount ?? 0;
-    }
+  //     $closeAmount = optional($closignBalance)->amount ?? 0;
+  //   }
 
-    // ---- Treasury ----
-    $treasury = $this->treasury
-      ->selectRaw("
-        client_id,
-        branch_id,
-        tax_period,
-        ROUND(COALESCE(SUM(amount), 0), 2) AS amount
-      ")
-      ->where('client_id', $client_id)
-      ->where('tax_period', $period)
-      ->groupBy('client_id', 'branch_id', 'tax_period')
-      ->first();
+  //   // ---- Treasury ----
+  //   $treasury = $this->treasury
+  //     ->selectRaw("
+  //       client_id,
+  //       branch_id,
+  //       tax_period,
+  //       ROUND(COALESCE(SUM(amount), 0), 2) AS amount
+  //     ")
+  //     ->where('client_id', $client_id)
+  //     ->where('tax_period', $period)
+  //     ->groupBy('client_id', 'branch_id', 'tax_period')
+  //     ->first();
 
-    $treasuryAmount = optional($treasury)->amount ?? 0;
+  //   $treasuryAmount = optional($treasury)->amount ?? 0;
 
-    // ---- Credit note ----
-    $totalCreditnote = $this->creditnote
-      ->selectRaw("
-        client_id,
-        DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value_of_decreasing_adjustment), 0), 2) AS value
-      ")
-      ->where('client_id', $client_id)
-      ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
-      ->first();
+  //   // ---- Credit note ----
+  //   $totalCreditnote = $this->creditnote
+  //     ->selectRaw("
+  //       client_id,
+  //       DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+  //       ROUND(COALESCE(SUM(value_of_decreasing_adjustment), 0), 2) AS value
+  //     ")
+  //     ->where('client_id', $client_id)
+  //     ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+  //     ->first();
 
-    $creditnoteAmount = optional($totalCreditnote)->value ?? 0;
+  //   $creditnoteAmount = optional($totalCreditnote)->value ?? 0;
 
-    // ---- Debit note ----
-    $totalDebitnote = $this->debitnote
-      ->selectRaw("
-        client_id,
-        DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value_of_increasing_adjustment), 0), 2) AS value
-      ")
-      ->where('client_id', $client_id)
-      ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
-      ->first();
+  //   // ---- Debit note ----
+  //   $totalDebitnote = $this->debitnote
+  //     ->selectRaw("
+  //       client_id,
+  //       DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+  //       ROUND(COALESCE(SUM(value_of_increasing_adjustment), 0), 2) AS value
+  //     ")
+  //     ->where('client_id', $client_id)
+  //     ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+  //     ->first();
 
-    $debitnoteAmount = optional($totalDebitnote)->value ?? 0;
+  //   $debitnoteAmount = optional($totalDebitnote)->value ?? 0;
 
-    // ---- Form 4.4 ----
-    $totalForm44 = $this->form44
-      ->selectRaw("
-        client_id,
-        DATE_FORMAT(date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value), 0), 2) AS value
-      ")
-      ->where('client_id', $client_id)
-      ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
-      ->first();
+  //   // ---- Form 4.4 ----
+  //   $totalForm44 = $this->form44
+  //     ->selectRaw("
+  //       client_id,
+  //       DATE_FORMAT(date, '%Y-%m') AS tax_period,
+  //       ROUND(COALESCE(SUM(value), 0), 2) AS value
+  //     ")
+  //     ->where('client_id', $client_id)
+  //     ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+  //     ->first();
 
-    $form44Amount = optional($totalForm44)->value ?? 0;
+  //   $form44Amount = optional($totalForm44)->value ?? 0;
 
-    // ---- Form 4.5 ----
-    $totalForm45 = $this->form45
-      ->selectRaw("
-        client_id,
-        DATE_FORMAT(date, '%Y-%m') AS tax_period,
-        ROUND(COALESCE(SUM(value), 0), 2) AS value
-      ")
-      ->where('client_id', $client_id)
-      ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
-      ->first();
+  //   // ---- Form 4.5 ----
+  //   $totalForm45 = $this->form45
+  //     ->selectRaw("
+  //       client_id,
+  //       DATE_FORMAT(date, '%Y-%m') AS tax_period,
+  //       ROUND(COALESCE(SUM(value), 0), 2) AS value
+  //     ")
+  //     ->where('client_id', $client_id)
+  //     ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+  //     ->first();
 
-    $form45Amount = optional($totalForm45)->value ?? 0;
+  //   $form45Amount = optional($totalForm45)->value ?? 0;
 
-    // ---- Final Net Payable (for this helper) ----
-    $netPayable = $vatTotal - $totalPurchaseVat + $incAmount - $decAmountWithAt + $penAmount - $closeAmount - $treasuryAmount - $creditnoteAmount + $debitnoteAmount + $form44Amount + $form45Amount;
+  //   // ---- Final Net Payable (for this helper) ----
+  //   $netPayable = $vatTotal - $totalPurchaseVat + $incAmount - $decAmountWithAt + $penAmount - $closeAmount - $treasuryAmount - $creditnoteAmount + $debitnoteAmount + $form44Amount + $form45Amount;
 
-    return round(-$netPayable, 2);
-  }
+  //   return round(-$netPayable, 2);
+  // }
 }

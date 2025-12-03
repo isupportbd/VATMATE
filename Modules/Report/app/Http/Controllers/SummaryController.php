@@ -360,15 +360,10 @@ class SummaryController extends Controller
 
     $netPayableRegular = round(
       $salesVatValue - $note15Vat
-        + optional($totalIncreasing)->amount
-        - optional($totalDecreasing)->amount
+        + optional($totalIncreasing)->amount + $dbn + $f44 + $f45
+        - optional($totalDecreasing)->amount - $at - $crn
         + $pen
-        - $at
-        - $treas
-        - $crn
-        + $dbn
-        + $f44
-        + $f45,
+        - $treas,
       2
     ) ?? 0;
 

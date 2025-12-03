@@ -150,16 +150,16 @@
               <tr>
                 <td colspan="2" class="text-start">Exempted Goods/Service</td>
                 <td>3</td>
-                <td>{{ props.report91?.totalSaleValueSum13 }}</td>
+                <td>{{ props.report91?.note3 }}</td>
                 <td></td>
                 <td></td>
               </tr>
               <tr>
                 <td colspan="2" class="text-start">Standard Rated Goods/Service</td>
                 <td>4</td>
-                <td>{{ props.report91?.totalSaleValueSum15 }}</td>
-                <td>{{ props.report91?.totalSaleSdSum15 }}</td>
-                <td>{{ props.report91?.totalSaleVatSum15 }}</td>
+                <td>{{ props.report91?.note4a }}</td>
+                <td>{{ props.report91?.note4b }}</td>
+                <td>{{ props.report91?.note4c }}</td>
               </tr>
               <tr>
                 <td colspan="2" class="text-start">Goods Based on MRP</td>
@@ -185,16 +185,16 @@
               <tr>
                 <td colspan="2" class="text-start">Retail/Wholesale/Trade Based Supply</td>
                 <td>8</td>
-                <td>{{ props.report91?.totalSaleValueSum22 }}</td>
-                <td>{{ props.report91?.totalSaleSdSum22 }}</td>
-                <td>{{ props.report91?.totalSaleVatSum22 }}</td>
+                <td>{{ props.report91?.note8a }}</td>
+                <td>{{ props.report91?.note8b }}</td>
+                <td>{{ props.report91?.note8c }}</td>
               </tr>
               <tr class="fw-bold">
                 <td colspan="2" class="text-start">Total Sales Value & Total Payable Taxes</td>
                 <td>9</td>
-                <td>{{ props.report91?.totalValue }}</td>
-                <td>{{ props.report91?.totalSd }}</td>
-                <td>{{ props.report91?.totalVat }}</td>
+                <td>{{ props.report91?.note9a }}</td>
+                <td>{{ props.report91?.note9b }}</td>
+                <td>{{ props.report91?.note9c }}</td>
               </tr>
             </tbody>
           </table>
@@ -238,8 +238,8 @@
               <tr>
                 <td class="text-start">Import</td>
                 <td>13</td>
-                <td>{{ props.report91?.purchase13?.base_value }}</td>
-                <td></td>
+                <td>{{ props.report91?.note13a }}</td>
+                <td>{{ props.report91?.note13b }}</td>
               </tr>
               <tr>
                 <td rowspan="2" class="text-start">Standard Rated Goods/Service</td>
@@ -251,8 +251,8 @@
               <tr>
                 <td class="text-start">Import</td>
                 <td>15</td>
-                <td>{{ props.report91?.purchase15?.base_value }}</td>
-                <td>{{ props.report91?.purchase15?.vat }}</td>
+                <td>{{ props.report91?.note15a }}</td>
+                <td>{{ props.report91?.note15b }}</td>
               </tr>
               <tr>
                 <td rowspan="2" class="text-start">Goods/Service Other than Standard Rate</td>
@@ -300,14 +300,14 @@
               <tr>
                 <td class="text-start">Import</td>
                 <td>22</td>
-                <td>{{ props.report91?.purchase22?.base_value }}</td>
-                <td></td>
+                <td>{{ props.report91?.note22a }}</td>
+                <td>{{ props.report91?.note22b }}</td>
               </tr>
               <tr>
                 <td colspan="2" class="text-start fw-bold">Total Input Tax Credit</td>
                 <td>23</td>
-                <td>{{ props.report91?.totalPurchaseValue }}</td>
-                <td>{{ props.report91?.totalPurchaseVat }}</td>
+                <td>{{ props.report91?.note23a }}</td>
+                <td>{{ props.report91?.note23b }}</td>
               </tr>
             </tbody>
           </table>
@@ -340,17 +340,17 @@
               <tr>
                 <td class="text-start">Issuance of Debit Note</td>
                 <td>26</td>
-                <td></td>
+                <td>{{ props.report91?.note26 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Any Other Adjustments</td>
                 <td>27</td>
-                <td>{{ props.report91?.totalIncreasing?.amount }}</td>
+                <td>{{ props.report91?.note27 }}</td>
               </tr>
               <tr class="fw-bold">
                 <td class="text-start">Total Increasing Adjustment</td>
                 <td>28</td>
-                <td>{{ props.report91?.totalIncreasing?.amount }}</td>
+                <td>{{ props.report91?.note28 }}</td>
               </tr>
             </tbody>
           </table>
@@ -378,22 +378,22 @@
               <tr>
                 <td class="text-start">Advance Tax Paid at Import Stage</td>
                 <td>30</td>
-                <td>{{ props.report91?.totalAtValue?.at_value }}</td>
+                <td>{{ props.report91?.note30 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Issuance of Credit Note</td>
                 <td>31</td>
-                <td></td>
+                <td>{{ props.report91?.note31 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Any Other Adjustments</td>
                 <td>32</td>
-                <td>{{ props.report91?.totalDecreasing?.amount }}</td>
+                <td>{{ props.report91?.note32 }}</td>
               </tr>
               <tr class="fw-bold">
                 <td class="text-start">Total Decreasing Adjustment</td>
                 <td>33</td>
-                <td>{{ props.report91?.totalDecreasingAt }}</td>
+                <td>{{ props.report91?.note33 }}</td>
               </tr>
             </tbody>
           </table>
@@ -422,7 +422,7 @@
                 <td class="text-start">Net Payable VAT for the Tax Period after Adjustment with Closing Balance and
                   balance of form 18.6 [34- (52+56)]</td>
                 <td>35</td>
-                <td></td>
+                <td>{{ props.report91?.note35 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Net Payable Supplementary Duty for the Tax Period (Before adjustment with
@@ -440,12 +440,12 @@
               <tr>
                 <td class="text-start">Supplementary Duty Against Issuance of Debit Note</td>
                 <td>38</td>
-                <td>{{ props.report91?.totalDebitnote?.value }}</td>
+                <td>{{ props.report91?.note38 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Supplementary Duty Against Issuance of Credit Note</td>
                 <td>39</td>
-                <td>{{ props.report91?.totalCreditnote?.value }}</td>
+                <td>{{ props.report91?.note39 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Supplementary Duty Paid on Inputs Against Exports</td>
@@ -470,7 +470,7 @@
               <tr>
                 <td class="text-start">Other Fine/Penalty/Interest</td>
                 <td>44</td>
-                <td>{{ props.report91?.totalPenalty?.amount }}</td>
+                <td>{{ props.report91?.note44 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Payable Excise Duty</td>
@@ -500,7 +500,7 @@
               <tr>
                 <td class="text-start">Net Payable VAT for Treasury Deposit (35+41+43+44)</td>
                 <td>50</td>
-                <td></td>
+                <td>{{ props.report91?.note50 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Net Payable SD for Treasury Deposit (37+42)</td>
@@ -510,7 +510,7 @@
               <tr>
                 <td class="text-start">Closing Balance of Last Tax Period (VAT)</td>
                 <td>52</td>
-                <td>{{ props.report91?.prevNetPayable }}</td>
+                <td>{{ props.report91?.note52 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Closing Balance of Last Tax Period (SD)</td>
@@ -578,7 +578,7 @@
                 <td class="text-start">VAT Deposit for the Current Tax Period</td>
                 <td>58</td>
                 <td>1 / 1133 / 0018 / 0311</td>
-                <td>{{ props.report91?.treasury?.amount }}</td>
+                <td>{{ props.report91?.note58 }}</td>
               </tr>
               <tr>
                 <td class="text-start">SD Deposit for the Current Tax Period</td>
@@ -638,7 +638,7 @@
                 <td class="text-start">Closing Balance (VAT) (58-50-67+Not Approved Amount of VAT in Refund Module (If
                   any))</td>
                 <td>65</td>
-                <td>{{ props.report91?.closignBalanceCurrent }}</td>
+                <td>{{ props.report91?.note65 }}</td>
               </tr>
               <tr>
                 <td class="text-start">Closing Balance (SD) [59-51-68+Not Approved Amount of SD in Refund Module (If

@@ -15,17 +15,17 @@
   </Refresh>
   <div class="card card-body">
     <div class="row m-4">
-      <div class="col-12 text-center position-relative">
-        <img :src="logo" width="90" alt="bd_logo" class="fw-bold position-absolute start-0 ms-2">
-        <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0 me-3"
-          style="top: 25%">Mushak-4.3</label>
+      <div class="col-12 text-center position-relative mb-3">
+        <img :src="logo" width="70" alt="bd_logo" class="fw-bold position-absolute start-0">
+        <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0"
+          style="top: 10%">Mushak-4.3</label>
         <p>Government of the People's Republic of Bangladesh</p>
         <p>National Board of Revenue</p>
         <p class="fw-bold m-0">Mushak-4.3 Material-Product Coefficient (Input-Output Coefficient) Declaration</p>
         <p>[See Rule 21]</p>
         <p>[Please read the instructions before filling up this form]</p>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <div class="table-responsive">
           <table class="table table-bordered border-secondary align-middle align-middle">
             <thead>
@@ -69,7 +69,7 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <div class="table-responsive">
           <table class="table table-bordered border-secondary align-middle align-middle">
             <thead>
@@ -116,7 +116,7 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <div class="table-responsive">
           <table class="table table-bordered border-secondary align-middle">
             <thead>
@@ -168,36 +168,19 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
-        <div class="table-responsive">
-          <table class="table border border-secondary table-borderless fst-italic">
-            <thead>
-              <tr>
-                <th colspan="2">Special Notes:</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="col-1 fw-bold text-center">1.</td>
-                <td class="col-11">Within 15 working days prior to the first delivery of any product or service, the
-                  declaration of materials-production co-declaration must be submitted online to the VAT computer system
-                  or to the office of the concerned departmental officer.</td>
-              </tr>
-              <tr>
-                <td class="col-1 fw-bold text-center">2.</td>
-                <td class="col-11">If the price of the product or the total material / raw material changes by more than
-                  7.5%, a new declaration has to be submitted.</td>
-              </tr>
-              <tr>
-                <td class="col-1 fw-bold text-center">3.</td>
-                <td class="col-11">A copy of the bill of entry or invoice should be attached as an authentic document in
-                  support of the purchase of materials.</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="col-12 mb-2">
+        <div class="border border-secondary p-3">
+          <p>Special Notes:</p>
+          <p>1. Within 15 working days prior to the first delivery of any product or service, the
+            declaration of materials-production co-declaration must be submitted online to the VAT computer system
+            or to the office of the concerned departmental officer.</p>
+          <p>2. If the price of the product or the total material / raw material changes by more than
+            7.5%, a new declaration has to be submitted.</p>
+          <p>3. A copy of the bill of entry or invoice should be attached as an authentic document in
+            support of the purchase of materials.</p>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <h4>Sub-form of PART - 2: f. Details of Raw Materials</h4>
         <div class="table-responsive">
           <table class="table table-bordered border-secondary text-center">
@@ -247,7 +230,7 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <h4>Divisional Officer Observation:</h4>
         <div class="table-responsive">
           <table class="table table-bordered border-secondary text-center">
@@ -297,7 +280,7 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <h4>Commissioner Observation:</h4>
         <div class="table-responsive">
           <table class="table table-bordered border-secondary text-center">
@@ -347,7 +330,7 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-2">
         <h4>Sub-form of PART - 2: g. Details of Value Additions</h4>
         <div class="table-responsive">
           <table class="table table-bordered border-secondary align-middle">
@@ -373,7 +356,7 @@
           </table>
         </div>
       </div>
-      <div class="col-12">
+      <div class="col-12 pmt-5">
         <h4>Divisional Officer Observation:</h4>
         <div class="table-responsive">
           <table class="table table-bordered border-secondary">

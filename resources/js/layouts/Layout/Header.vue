@@ -5,7 +5,7 @@
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
       <div id="pagebar" class="card card-body nav-card order-5 order-sm-1"></div>
-      <div class="btn-group order-3 order-sm-3">
+      <div class="btn-group order-3 order-sm-3 order-md-4">
         <button type="button" class="nav-btn w-100" data-bs-toggle="dropdown" data-bs-display="static"
           aria-expanded="false" aria-label="button">
           <i class="bi bi-person-circle"></i>
@@ -39,8 +39,8 @@
           </li>
         </ul>
       </div>
-      <div id="refresh" class="order-4 order-sm-2 d-flex row-gap-1 column-gap-1"></div>
-      <button type="button" class="nav-btn order-1 order-sm-4" id="theme-switch" title="mode" aria-label="button">
+      <div id="refresh" class="order-4 order-sm-5 order-md-3 d-flex row-gap-1 column-gap-1 mx-auto mx-sm-start"></div>
+      <button type="button" class="nav-btn order-1 order-sm-5" id="theme-switch" title="mode" aria-label="button">
         <i class="bi bi-circle-half"></i>
       </button>
     </nav>

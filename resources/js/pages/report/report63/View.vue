@@ -6,6 +6,8 @@
   </PageBar>
 
   <Refresh>
+    <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
+    <Button class="nav-btn" icon="bi bi-printer-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
@@ -24,9 +26,6 @@
               <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0" style="top: 75%">
                 Mushak 6.3
               </label>
-              <div v-if="!pdfMode" class="position-absolute removeprintarea" style="top: 75%">
-                <Button class="btn btn-outline-secondary" icon="bi bi-file-earmark-pdf" @click="openPdf" />
-              </div>
               <p class="m-0">Government of the People's Republic of Bangladesh</p>
               <p class="m-0">National Board of Revenue</p>
             </div>
