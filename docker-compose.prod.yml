@@ -31,8 +31,8 @@ services:
       QUEUE_CONNECTION: redis
       BROADCAST_CONNECTION: reverb
 
-      VIRTUAL_HOST: vatmate.org,www.vatmate.org,reverb.vatmate.org
-      LETSENCRYPT_HOST: vatmate.org,www.vatmate.org,reverb.vatmate.org
+      VIRTUAL_HOST: vatmate.org,www.vatmate.org
+      LETSENCRYPT_HOST: vatmate.org,www.vatmate.org
       LETSENCRYPT_EMAIL: niyamulahsan@gmail.com
     networks:
       - laravel
