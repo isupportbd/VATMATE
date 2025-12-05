@@ -7,8 +7,9 @@
 
   <Refresh>
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
-      @click="refresh(route().params.id, route().params.id, route().params.monthYear)" />
-    <Link title="back" :href="route('report-43', { client_id: route().params.id, monthYear: route().params.monthYear })"
+      @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
+    <Link title="back"
+      :href="route('report-43', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
     <i class="bi bi-chevron-left"></i>
     </Link>
