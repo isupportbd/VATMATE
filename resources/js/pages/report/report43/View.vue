@@ -6,20 +6,22 @@
   </PageBar>
 
   <Refresh>
+    <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
       :href="route('report-43', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
   <div class="card card-body">
     <div class="row m-4">
       <div class="col-12 text-center position-relative mb-3">
-        <img :src="logo" width="70" alt="bd_logo" class="fw-bold position-absolute start-0">
-        <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0"
-          style="top: 10%">Mushak-4.3</label>
+        <img :src="logo" width="60" alt="bd_logo" class="fw-bold position-absolute start-0 ms-3 mt-3">
+        <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0 top-50 me-3">
+          Mushak-4.3
+        </label>
         <p>Government of the People's Republic of Bangladesh</p>
         <p>National Board of Revenue</p>
         <p class="fw-bold m-0">Mushak-4.3 Material-Product Coefficient (Input-Output Coefficient) Declaration</p>
@@ -28,7 +30,7 @@
       </div>
       <div class="col-12 mb-2">
         <div class="table-responsive">
-          <table class="table table-bordered border-secondary align-middle align-middle">
+          <table class="table table-bordered border-secondary align-middle">
             <thead>
               <tr class="table-success border-secondary">
                 <th colspan="3">PART - 1: APPLICANT'S INFORMATION</th>
@@ -38,22 +40,22 @@
               <tr>
                 <td class="col-4">Name of the Entity</td>
                 <td class="text-center">:</td>
-                <td class="col-8">{{ props.report43?.client?.company_name }}</td>
+                <td class="col-8">{{ props.view?.client?.company_name }}</td>
               </tr>
               <tr>
                 <td>Address</td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.client?.address }}</td>
+                <td>{{ props.view?.client?.address }}</td>
               </tr>
               <tr>
                 <td>BIN</td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.client?.bin }}</td>
+                <td>{{ props.view?.client?.bin }}</td>
               </tr>
               <tr>
                 <td>Date of Submission</td>
                 <td class="text-center">:</td>
-                <td>{{ moment(props.report43?.submission_date).format("DD/MM/YYY") }}</td>
+                <td>{{ moment(props.view?.submission_date).format("DD/MM/YYYY") }}</td>
               </tr>
               <tr>
                 <td>Date of First Delivery of Goods /
@@ -61,7 +63,7 @@
                 <td class="text-center">:</td>
                 <td>
                   {{
-                    props.report43?.first_delivery_date ? moment(props.report43?.first_delivery_date).format("DD/MM/YYY")
+                    props.view?.first_delivery_date ? moment(props.view?.first_delivery_date).format("DD/MM/YYYY")
                       : ""
                   }}
                 </td>
@@ -72,7 +74,7 @@
       </div>
       <div class="col-12 mb-2">
         <div class="table-responsive">
-          <table class="table table-bordered border-secondary align-middle align-middle">
+          <table class="table table-bordered border-secondary align-middle">
             <thead>
               <tr class="table-success border-secondary">
                 <th colspan="3">PART - 2: INFORMATION OF INPUT-OUTPUT COEFFICIENT <span class="text-danger">*</span>
@@ -83,27 +85,27 @@
               <tr>
                 <td class="col-4">a. Goods HS Code <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td class="col-8">{{ props.report43?.item?.hs_code }}</td>
+                <td class="col-8">{{ props.view?.item?.hs_code }}</td>
               </tr>
               <tr>
                 <td>b. Description of Goods <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.item?.description }}</td>
+                <td>{{ props.view?.item?.description }}</td>
               </tr>
               <tr>
                 <td>c. Commercial Description (including Brand Name if applicable)</td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.item?.name }}</td>
+                <td>{{ props.view?.item?.name }}</td>
               </tr>
               <tr>
                 <td>d. Item Code <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.item_code }}</td>
+                <td>{{ props.view?.item_code }}</td>
               </tr>
               <tr>
                 <td>Unit of Supplies <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.saleunit?.name }}</td>
+                <td>{{ props.view?.saleunit?.name }}</td>
               </tr>
               <tr>
                 <td colspan="3">f. Please click here to fill in the table of “Details of Raw Materials” <span
@@ -130,7 +132,7 @@
               <tr>
                 <td class="col-4">Name <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td class="col-8">{{ props.report43?.client?.name }}</td>
+                <td class="col-8">{{ props.view?.client?.name }}</td>
               </tr>
               <tr>
                 <td>Designation <span class="text-danger">*</span></td>
@@ -140,7 +142,7 @@
               <tr>
                 <td>Mobile Number <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.client?.mobile }}</td>
+                <td>{{ props.view?.client?.mobile }}</td>
               </tr>
               <tr>
                 <td>National ID/Passport Number <span class="text-danger">*</span></td>
@@ -150,7 +152,7 @@
               <tr>
                 <td>Email <span class="text-danger">*</span></td>
                 <td class="text-center">:</td>
-                <td>{{ props.report43?.client?.email }}</td>
+                <td>{{ props.view?.client?.email }}</td>
               </tr>
               <tr>
                 <td colspan="3">
@@ -158,8 +160,10 @@
                     <input type="checkbox" checked>
                     <p class="m-0 ms-3">
                       <span class="text-danger">*</span> I hereby declare that all information provided in this Refund
-                      Form are complete, true & accurate. In case of any untrue/incomplete statement, I may be subjected
-                      to penal action under The Value Added Tax and Supplementary Duty Act, 2012 or any other applicable
+                      Form are complete, true & accurate. In case of any untrue/incomplete statement, I may be
+                      subjected
+                      to penal action under The Value Added Tax and Supplementary Duty Act, 2012 or any other
+                      applicable
                       Act prevailing at present.
                     </p>
                   </div>
@@ -201,18 +205,18 @@
             </thead>
             <tbody class="align-middle">
               <tr>
-                <td>{{ props.report43?.item?.hs_code }}</td>
-                <td>{{ props.report43?.item?.description }}</td>
-                <td>{{ props.report43?.item?.name }}</td>
-                <td>{{ props.report43?.saleunit?.name }}</td>
-                <td>{{ props.report43?.item?.name }}</td>
-                <td>{{ props.report43?.purchase_unit_total }}</td>
-                <td>{{ props.report43?.unit_price }}</td>
-                <td>{{ `${+(props.report43?.purchase_unit_total) * +(+(props.report43?.wastage) / 100)}` }}</td>
-                <td>{{ props.report43?.wastage }}%</td>
+                <td>{{ props.view?.item?.hs_code }}</td>
+                <td>{{ props.view?.item?.description }}</td>
+                <td>{{ props.view?.item?.name }}</td>
+                <td>{{ props.view?.saleunit?.name }}</td>
+                <td>{{ props.view?.item?.name }}</td>
+                <td>{{ props.view?.purchase_unit_total }}</td>
+                <td>{{ props.view?.unit_price }}</td>
+                <td>{{ `${+(props.view?.purchase_unit_total) * +(+(props.view?.wastage) / 100)}` }}</td>
+                <td>{{ props.view?.wastage }}%</td>
                 <td>
-                  <p class="m-0">BoE: {{ props.report43?.boe_no }}</p>
-                  <p class="m-0">Date: {{ moment(props.report43?.boe_date).format("DD/MM/YYYY") }}</p>
+                  <p class="m-0">BoE: {{ props.view?.boe_no }}</p>
+                  <p class="m-0">Date: {{ moment(props.view?.boe_date).format("DD/MM/YYYY") }}</p>
                 </td>
               </tr>
               <tr>
@@ -222,7 +226,7 @@
                 <td>Total</td>
                 <td></td>
                 <td></td>
-                <td>{{ props.report43?.unit_price }}</td>
+                <td>{{ props.view?.unit_price }}</td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -243,10 +247,12 @@
                 <th>Unit of Supplies <span class="text-danger">*</span></th>
                 <th>Divisional Officer - Status <span class="text-danger">*</span></th>
                 <th>Divisional Officer - Product Description <span class="text-danger">*</span></th>
-                <th>Divisional Officer - Per Unit Product Qty. including Wastage <span class="text-danger">*</span></th>
+                <th>Divisional Officer - Per Unit Product Qty. including Wastage <span class="text-danger">*</span>
+                </th>
                 <th>Divisional Officer - Per Unit Product Purchase Price <span class="text-danger">*</span></th>
                 <th>Divisional Officer - Per Unit Product Qty. of Wastage <span class="text-danger">*</span></th>
-                <th>Divisional Officer - Per Unit Product Wastage Percentage (%) <span class="text-danger">*</span></th>
+                <th>Divisional Officer - Per Unit Product Wastage Percentage (%) <span class="text-danger">*</span>
+                </th>
                 <th>Divisional Officer - Notes</th>
               </tr>
             </thead>
@@ -343,15 +349,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="dt in props.report43?.additions">
+              <tr v-for="dt in props.view?.additions">
                 <td>{{ dt?.costsheet?.name }}</td>
                 <td>{{ dt?.value }}</td>
                 <td>{{ dt?.rate }}%</td>
               </tr>
               <tr>
                 <td>Total</td>
-                <td>{{ props.report43?.additionsum[0]?.valuesum }}</td>
-                <td>{{ props.report43?.additionsum[0]?.ratesum }}%</td>
+                <td>{{ props.view?.additionsum[0]?.valuesum }}</td>
+                <td>{{ props.view?.additionsum[0]?.ratesum }}%</td>
               </tr>
             </tbody>
           </table>
@@ -425,12 +431,20 @@ import { role } from '../../../composables/user';
 import { empty } from '../../../helpers/utils';
 import { router, Link } from '@inertiajs/vue3';
 
-import logo from "@/assets/images/Government_of_Bangladesh_Logo_(unofficial_and_fictional_logo).png";
+import logo from "@/assets/images/gov.png";
 import PageBar from '../../../components/PageBar.vue';
 import Refresh from '../../../components/Refresh.vue';
 import Button from '../../../components/Button.vue';
 
-const props = defineProps({ report43: { type: Object } });
+const props = defineProps({ view: { type: Object } });
+
+const openPdf = () => {
+  if (typeof window !== 'undefined') {
+    const id = route().params.id;
+    // downloadPdf('report-63-pdf', { id }, `report63-${id}.pdf`);
+    window.open(route('report-43-pdf', { id: id, bin: props.view?.client?.bin }), '_blank');
+  }
+};
 
 const refresh = (id, client_id, monthYear) => router.get(route('report-43-view', { id }), { client_id, monthYear }, { preserveScroll: true });
 </script>

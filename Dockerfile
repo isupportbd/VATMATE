@@ -22,7 +22,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /var/www/html
 COPY .env /var/www/html/.env
 
-
 # Working directory
 WORKDIR /var/www/html
 
@@ -39,6 +38,27 @@ RUN composer install --no-dev --optimize-autoloader && \
   chown -R www-data:www-data /var/www/html && \
   chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Install Chrome + dependencies for Browsershot/dompdf
+RUN apt-get update \
+  && apt-get install -y \
+  chromium \
+  chromium-driver \
+  fonts-liberation \
+  libnss3 \
+  libatk1.0-0 \
+  libatk-bridge2.0-0 \
+  libgtk-3-0 \
+  libx11-xcb1 \
+  libxcb1 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libgbm1 \
+  libasound2 \
+  libxshmfence1 \
+  wget \
+  nodejs \
+  && rm -rf /var/lib/apt/lists/*
 
 # Create log directories and set permissions
 RUN mkdir -p /var/log/apache2 /var/log/horizon /var/log/reverb /var/log/scheduler /var/log/supervisord \

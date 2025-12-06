@@ -29,25 +29,24 @@ Route::middleware(['auth'])->group(function () {
   Route::get('/report-621-download-excel/{file_name}', [Report621Controller::class, 'Report621DownloadExcel'])->name('report-621-download-excel')->middleware('role:admin,manager');
 
   // summary report
+  Route::get('/report-summary-pdf', [SummaryController::class, 'pdf'])->name('report-summary-pdf')->middleware('role:admin,manager');
   Route::get('/report-summary/{client_id}/{monthYear}', [SummaryController::class, 'index'])->name('report-summary')->middleware('role:admin,manager');
 
   // report 9.1
   Route::get('/report-91/{client_id}/{monthYear}', [Report91Controller::class, 'index'])->name('report-91')->middleware('role:admin,manager');
-  Route::get('/settlement-report-91/{client_id}/{monthYear}', [Settlement91Controller::class, 'index'])->name('settlement-report-91')->middleware('role:admin,manager');
 
   // boe report
   Route::get('/report-boe/{client_id}/{monthYear}', [BoeController::class, 'index'])->name('report-boe')->middleware('role:admin,manager');
 
   // report 6.3
+  Route::get('/report-63-pdf', [Report63Controller::class, 'pdf'])->name('report-63-pdf')->middleware('role:admin,manager');
   Route::get('/report-63-view/{id}', [Report63Controller::class, 'show'])->name('report-63-view')->middleware('role:admin,manager');
-  Route::get('/report-63-view/{id}/pdf', [Report63Controller::class, 'downloadPdf'])->name('report-63-pdf')->middleware('role:admin,manager');
-  Route::get('/report-63-preview/{id}', [Report63Controller::class, 'preview'])->name('report-63-preview')->middleware('role:admin,manager');
-
   Route::get('/report-63/{client_id}/{monthYear}', [Report63Controller::class, 'index'])->name('report-63')->middleware('role:admin,manager');
   Route::post('/report-63-excel', [Report63Controller::class, 'Report63Excel'])->name('report-63-excel')->middleware('role:admin,manager');
   Route::get('/report-63-download-excel/{file_name}', [Report63Controller::class, 'Report63DownloadExcel'])->name('report-63-download-excel')->middleware('role:admin,manager');
 
   // report 4.3
+  Route::get('/report-43-pdf', [Report43Controller::class, 'pdf'])->name('report-43-pdf')->middleware('role:admin,manager');
   Route::get('/report-43-view/{id}', [Report43Controller::class, 'show'])->name('report-43-view')->middleware('role:admin,manager');
   Route::get('/report-43-forwarding/{id}', [Report43Controller::class, 'forwarding'])->name('report-43-forwarding')->middleware('role:admin,manager');
   Route::get('/report-43/{client_id}/{monthYear}', [Report43Controller::class, 'index'])->name('report-43')->middleware('role:admin,manager');

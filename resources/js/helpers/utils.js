@@ -82,27 +82,27 @@ export function capitalizeLine(str = '') {
   return str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export async function downloadPdf(routeName, params = {}, fileName = 'report.pdf') {
-  try {
-    const response = await axios.get(route(routeName, params), {
-      responseType: 'blob',
-    });
+// export async function downloadPdf(routeName, params = {}, fileName = 'report.pdf') {
+//   try {
+//     const response = await axios.get(route(routeName, params), {
+//       responseType: 'blob',
+//     });
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (e) {
-    // If IDM grabbed the download, Axios sees ERR_NETWORK
-    if (e.code === 'ERR_NETWORK') {
-      // optional: console.log('Download handled by IDM, ignoring Axios error');
-      return;
-    }
-    console.error('PDF download failed:', e);
-  }
-}
+//     const url = window.URL.createObjectURL(new Blob([response.data]));
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.setAttribute('download', fileName);
+//     document.body.appendChild(link);
+//     link.click();
+//     link.remove();
+//     window.URL.revokeObjectURL(url);
+//   } catch (e) {
+//     // If IDM grabbed the download, Axios sees ERR_NETWORK
+//     if (e.code === 'ERR_NETWORK') {
+//       // optional: console.log('Download handled by IDM, ignoring Axios error');
+//       return;
+//     }
+//     console.error('PDF download failed:', e);
+//   }
+// }
 

@@ -4,6 +4,7 @@ namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,7 @@ use Inertia\Inertia;
 use Modules\Client\Models\Client;
 use Modules\Report\Jobs\Report63ExportJob;
 use Modules\Sale\Models\Sale;
+use Spatie\Browsershot\Browsershot;
 
 class Report63Controller extends Controller
 {
@@ -66,44 +68,47 @@ class Report63Controller extends Controller
     return Inertia("report/report63/View", ['view' => $query]);
   }
 
-  // in Report63Controller
-  public function preview($id)
+  /**
+   * This is for 4.3 pdf shows
+   */
+  public function pdf(Request $request)
   {
     $user    = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $sale = $this->sale->with(['client', 'item', 'unit', 'bank'])->findOrFail($id);
+    $sale = $this->sale->with(['client', 'item', 'unit', 'bank'])
+      ->findOrFail($request->query('id'));
 
     if (!$isAdmin && ($sale->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
-    return view('pdf.report63', [
+    $html = view('pdf.report63', [
       'view' => $sale,
-    ]);
-  }
+    ])->render();
 
-  public function downloadPdf(Request $request, $id)
-  {
-    $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+    $browser = Browsershot::html($html)
+      ->showBackground()
+      ->margins(10, 10, 10, 10)
+      ->format('A4')
+      ->emulateMedia('print');
 
-    $sale = $this->sale->with(['client', 'item', 'unit', 'bank'])->findOrFail($id);
-
-    if (!$isAdmin && ($sale->client?->user_id !== $user->id)) {
-      return back()->with('error', 'Unauthorised');
+    // 👇 only uses the path when it exists (on server)
+    if ($path = env('BROWSERSHOT_CHROME_PATH')) {
+      $browser->setChromePath($path);
     }
 
-    $pdf = Pdf::loadView('pdf.report63', [
-      'view' => $sale,
-    ])->setPaper('a4', 'portrait');
+    $pdfData = $browser->pdf();
+    $fileName = "report63-{$sale?->client->bin}" . Carbon::parse($sale?->date_of_submmission)->format('M-Y');
 
-    // For design / test:
-    return $pdf->stream("report63-{$id}.pdf");
-
-    // return $pdf->download("report63-{$id}.pdf");
+    return response($pdfData)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', "inline; $fileName");
   }
 
+  /**
+   * This is for excel check
+   */
   public function Report63Excel(Request $request)
   {
     $user     = Auth::user();
@@ -133,6 +138,9 @@ class Report63Controller extends Controller
     return response()->json(['file' => $fileName]);
   }
 
+  /**
+   * This is for excel download
+   */
   public function Report63DownloadExcel($file_name)
   {
     if (!str_contains($file_name, "report63_")) {

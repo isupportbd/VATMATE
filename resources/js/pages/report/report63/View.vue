@@ -7,13 +7,12 @@
 
   <Refresh>
     <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
-    <Button class="nav-btn" icon="bi bi-printer-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
       :href="route('report-63', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -111,8 +110,8 @@
 <script setup>
 import moment from 'moment-timezone';
 import { onMounted, onBeforeUnmount, computed } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
-import { empty, downloadPdf } from '../../../helpers/utils';
+import { Link, router } from '@inertiajs/vue3';
+import { empty } from '../../../helpers/utils';
 import { user, role } from "../../../composables/user";
 
 import PageBar from '../../../components/PageBar.vue';
@@ -121,13 +120,11 @@ import Button from '../../../components/Button.vue';
 
 const props = defineProps({ view: { type: Object } });
 
-const page = usePage();
-const pdfMode = computed(() => page.props.pdfMode);
-
 const openPdf = () => {
   if (typeof window !== 'undefined') {
     const id = route().params.id;
-    downloadPdf('report-63-pdf', { id }, `report63-${id}.pdf`);
+    // downloadPdf('report-63-pdf', { id }, `report63-${id}.pdf`);
+    window.open(route('report-63-pdf', { id: id, bin: props.view?.client?.bin }), '_blank');
   }
 };
 

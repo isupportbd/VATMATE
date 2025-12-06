@@ -10,7 +10,7 @@
       @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -755,7 +755,7 @@ import { empty } from '../../../helpers/utils';
 import { user, role } from '../../../composables/user';
 import { Link, router } from '@inertiajs/vue3';
 
-import logo from "@/assets/images/Government_of_Bangladesh_Logo_(unofficial_and_fictional_logo).png";
+import logo from "@/assets/images/gov.png";
 import Button from "../../../components/Button.vue";
 import PageBar from '../../../components/PageBar.vue';
 import Refresh from '../../../components/Refresh.vue';
