@@ -1056,7 +1056,12 @@ class SummaryController extends Controller
       ->margins(10, 10, 10, 10)
       ->format('A4')
       ->landscape()
-      ->emulateMedia('print');
+      ->emulateMedia('print')
+      ->addChromiumArguments([
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ]);
 
     // 👇 only uses the path when it exists (on server)
     if ($path = env('BROWSERSHOT_CHROME_PATH')) {
