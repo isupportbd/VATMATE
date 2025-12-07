@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y \
   libasound2 \
   libxshmfence1 \
   wget \
+  nodejs \
+  npm \
   && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------------------
