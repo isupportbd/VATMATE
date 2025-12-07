@@ -3,16 +3,16 @@
     <div class="card-body">
       <form @submit.prevent="submitData">
         <div class="row gx-1">
-          <div class="col-4">
+          <div class="col-12 col-lg-4 col-xl-4">
             <SelectInfinite parentclass="m-0" placeholder="Select..." title="BIN" v-model="field.bin"
               :fetched="fetchedBin" :hood="field.bin?.val?.company_name" :err="err.bin" must />
           </div>
-          <div class="col-6">
+          <div class="col-12 col-lg-5 col-xl-6">
             <SelectInfinite parentclass="m-0" placeholder="Item..." title="item" v-model="field.item"
               :fetched="fetchedItem" :err="err.item" must />
           </div>
-          <div class="col-2">
-            <div class="d-flex align-items-center justify-content-end gap-1 mt-4 pt-1">
+          <div class="col-12 col-lg-3 col-xl-2">
+            <div class="d-flex align-items-center justify-content-end gap-1 mt-2 mt-lg-4 pt-lg-1">
               <Button type="submit" class="btn btn-primary" label="Save" icon="bi bi-save"
                 :disabled="field.isLoading" />
               <Button type="button" class="btn btn-secondary" label="Reset" icon="bi bi-stars" @click="resetForm" />

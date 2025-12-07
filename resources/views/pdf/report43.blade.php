@@ -53,7 +53,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 11px;
+            font-size: 14px;
             margin: 15px;
         }
     </style>
@@ -65,7 +65,7 @@
             <div class="col-12 text-center position-relative mb-2">
                 <img src="{{ resource_path('/assets/images/gov.png') }}" class="fw-bold position-absolute ms-3 start-0"
                     width="60" alt="bd_logo">
-                <label class="fw-bold border border-secondary border-1 position-absolute p-1 top-50 me-3 end-0">
+                <label class="fw-bold border border-secondary border-1 position-absolute p-1 top-0 me-3 end-0">
                     Mushak-4.3
                 </label>
                 <p class="m-0">Government of the People's Republic of Bangladesh</p>
@@ -244,7 +244,7 @@
             </div>
 
             {{-- Special Notes --}}
-            <div class="col-12 mb-2">
+            <div class="col-12 mb-5">
                 <div class="border border-secondary p-2">
                     <p>Special Notes:</p>
                     <p>1. Within 15 working days prior to the first delivery of any product or service, the
@@ -260,8 +260,8 @@
             </div>
 
             {{-- Sub-form f: Details of Raw Materials --}}
-            <div class="col-12 mb-2">
-                <h5>Sub-form of PART - 2: f. Details of Raw Materials</h5>
+            <div class="col-12 mb-2" style="font-size: 11px">
+                <h6>Sub-form of PART - 2: f. Details of Raw Materials</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">
                         <thead class="align-middle">
@@ -314,8 +314,8 @@
             </div>
 
             {{-- Divisional Officer Observation (Raw) --}}
-            <div class="col-12 mb-2">
-                <h5>Divisional Officer Observation:</h5>
+            <div class="col-12 mb-2" style="font-size: 11px">
+                <h6>Divisional Officer Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">
                         <thead class="align-middle">
@@ -370,8 +370,8 @@
             </div>
 
             {{-- Commissioner Observation (Raw) --}}
-            <div class="col-12 mb-2">
-                <h5>Commissioner Observation:</h5>
+            <div class="col-12 mb-2" style="font-size: 11px">
+                <h6>Commissioner Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">
                         <thead class="align-middle">
@@ -426,8 +426,8 @@
             </div>
 
             {{-- Sub-form g: Value Additions --}}
-            <div class="col-12 mb-2">
-                <h5>Sub-form of PART - 2: g. Details of Value Additions</h5>
+            <div class="col-12 mb-2" style="font-size: 11px">
+                <h6>Sub-form of PART - 2: g. Details of Value Additions</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary align-middle">
                         <thead>
@@ -457,8 +457,8 @@
             </div>
 
             {{-- Divisional Officer Observation (Value Additions) --}}
-            <div class="col-12 mb-2">
-                <h5>Divisional Officer Observation:</h5>
+            <div class="col-12 mb-2" style="font-size: 11px">
+                <h6>Divisional Officer Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary">
                         <thead class="align-middle">
@@ -488,8 +488,8 @@
             </div>
 
             {{-- Commissioner Observation (Value Additions) --}}
-            <div class="col-12">
-                <h5>Commissioner Observation:</h5>
+            <div class="col-12" style="font-size: 11px">
+                <h6>Commissioner Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary">
                         <thead class="align-middle">

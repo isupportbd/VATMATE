@@ -16,10 +16,10 @@ jobs:
       - name: 🔐 Write .env.prod to .env
         run: cp .env.prod .env
 
-      - name: Install PHP dependencies (optional if done in Dockerfile)
+      - name: 🧰 Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      - name: 📦 Install frontend deps and build (optional if done in Dockerfile)
+      - name: 📦 Install frontend deps and build
         run: |
           npm ci
           npm run build

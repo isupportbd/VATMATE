@@ -1,46 +1,11 @@
 FROM php:8.2-apache
 
-# Install system dependencies
+# --------------------------------------------------
+# 1. System dependencies
+# --------------------------------------------------
 RUN apt-get update && apt-get install -y \
   git curl zip unzip libzip-dev libpng-dev libonig-dev \
-  libcurl4-openssl-dev pkg-config libssl-dev supervisor redis-tools iputils-ping
-
-# Apache + PHP extensions
-RUN a2enmod rewrite
-
-# Redis PHP extension
-RUN docker-php-ext-install pdo pdo_mysql zip gd pcntl \
-  && pecl install redis && docker-php-ext-enable redis
-
-# Copy custom php.ini
-COPY docker/php/php.ini /usr/local/etc/php/php.ini
-
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy Laravel code into container
-COPY . /var/www/html
-COPY .env /var/www/html/.env
-
-# Working directory
-WORKDIR /var/www/html
-
-# Apache config
-COPY docker/apache-vhost/vhost.conf /etc/apache2/sites-available/000-default.conf
-
-# Supervisor config
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Install Composer dependencies
-RUN composer install --no-dev --optimize-autoloader && \
-  mkdir -p /var/www/html/storage/app/public/temp_exports && \
-  mkdir -p /var/www/html/storage/app/public/uploads && \
-  chown -R www-data:www-data /var/www/html && \
-  chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Install Chrome + dependencies for Browsershot/dompdf
-RUN apt-get update \
-  && apt-get install -y \
+  libcurl4-openssl-dev pkg-config libssl-dev supervisor redis-tools iputils-ping \
   chromium \
   chromium-driver \
   fonts-liberation \
@@ -57,20 +22,54 @@ RUN apt-get update \
   libasound2 \
   libxshmfence1 \
   wget \
-  nodejs \
   && rm -rf /var/lib/apt/lists/*
 
-# Create log directories and set permissions
+# --------------------------------------------------
+# 2. Apache + PHP extensions
+# --------------------------------------------------
+RUN a2enmod rewrite
+
+RUN docker-php-ext-install pdo pdo_mysql zip gd pcntl \
+  && pecl install redis \
+  && docker-php-ext-enable redis
+
+# Custom php.ini
+COPY docker/php/php.ini /usr/local/etc/php/php.ini
+
+# --------------------------------------------------
+# 3. App code (already built in CI: vendor + public/build)
+# --------------------------------------------------
+COPY . /var/www/html
+COPY .env /var/www/html/.env
+
+WORKDIR /var/www/html
+
+# Apache vhost
+COPY docker/apache-vhost/vhost.conf /etc/apache2/sites-available/000-default.conf
+
+# Supervisor config (your file)
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# --------------------------------------------------
+# 4. Create/cache dirs (storage handled by volume + storage-link)
+# --------------------------------------------------
+RUN mkdir -p /var/www/html/bootstrap/cache \
+  && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+  && chmod -R 755 /var/www/html/bootstrap/cache
+
+# Log directories
 RUN mkdir -p /var/log/apache2 /var/log/horizon /var/log/reverb /var/log/scheduler /var/log/supervisord \
-  && chown -R www-data:www-data /var/log/apache2 /var/log/horizon /var/log/reverb /var/log/scheduler /var/log/supervisord \
+  && chown -R www-data:www-data /var/log \
   && chmod -R 755 /var/log
 
-# Laravel optimization commands
+# --------------------------------------------------
+# 5. Laravel optimization (vendor already exists from CI)
+# --------------------------------------------------
 RUN php artisan config:cache \
   && php artisan route:cache \
   && php artisan view:cache
 
 EXPOSE 80 6001
 
-# Start supervisor (which manages nginx + php-fpm + reverb + horizon)
+# Supervisor will run storage-link, apache, reverb, horizon, scheduler
 CMD ["/usr/bin/supervisord"]

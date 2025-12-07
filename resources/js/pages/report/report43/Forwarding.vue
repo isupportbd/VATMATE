@@ -6,12 +6,13 @@
   </PageBar>
 
   <Refresh>
+    <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
       :href="route('report-43', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -81,6 +82,13 @@ import Button from '../../../components/Button.vue';
 import { Link, Head, router } from '@inertiajs/vue3';
 
 const props = defineProps({ report43: Object });
+
+const openPdf = () => {
+  if (typeof window !== 'undefined') {
+    const id = route().params.id;
+    window.open(route('report-43-pdf-forwarding', { id: id, bin: props.view?.client?.bin }), '_blank');
+  }
+};
 
 const refresh = (id, client_id, monthYear) => router.get(route('report-43-forwarding', { id, client_id, monthYear }), {}, { preserveScroll: true });
 

@@ -301,7 +301,7 @@
                 <td class="text-start">Import</td>
                 <td>22</td>
                 <td>{{ props.report91?.note22a }}</td>
-                <td>{{ props.report91?.note22b }}</td>
+                <td></td>
               </tr>
               <tr>
                 <td colspan="2" class="text-start fw-bold">Total Input Tax Credit</td>

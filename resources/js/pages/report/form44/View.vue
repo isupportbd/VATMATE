@@ -6,12 +6,13 @@
   </PageBar>
 
   <Refresh>
+    <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
       :href="route('form-44', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -112,6 +113,13 @@ import Refresh from '../../../components/Refresh.vue';
 import Button from '../../../components/Button.vue';
 
 const props = defineProps({ view: { type: Object } });
+
+const openPdf = () => {
+  if (typeof window !== 'undefined') {
+    const id = route().params.id;
+    window.open(route('report-44-pdf', { id: id, bin: props.view?.client?.bin }), '_blank');
+  }
+};
 
 // reload report 63
 const refresh = (id, client_id, monthYear) => router.get(route('form-44-view', { id: id }), { client_id: client_id, monthYear: monthYear }, { preserveScroll: true });

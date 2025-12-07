@@ -248,7 +248,6 @@ const notify = inject('showToast'); // toast
 const openPdf = () => {
   if (typeof window !== 'undefined') {
     const id = route().params.id;
-    // downloadPdf('report-63-pdf', { id }, `report63-${id}.pdf`);
     window.open(route('report-summary-pdf', { client_id: route().params.client_id, monthYear: route().params.monthYear }), '_blank');
   }
 };

@@ -128,7 +128,45 @@ class Report43Controller extends Controller
     }
 
     $pdfData = $browser->pdf();
-    $fileName = "filename='report43-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y');
+    $fileName = "filename=report43-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y');
+
+    return response($pdfData)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', "inline; $fileName");
+  }
+
+  /**
+   * This is for 4.3 pdf shows
+   */
+  public function pdfForwarding(Request $request)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $form43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
+      ->findOrFail($request->query('id'));
+
+    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    $html = view('pdf.report43-forwarding', [
+      'view' => $form43,
+    ])->render();
+
+    $browser = Browsershot::html($html)
+      ->showBackground()
+      ->margins(10, 10, 10, 10)
+      ->format('A4')
+      ->emulateMedia('print');
+
+    // 👇 only uses the path when it exists (on server)
+    if ($path = env('BROWSERSHOT_CHROME_PATH')) {
+      $browser->setChromePath($path);
+    }
+
+    $pdfData = $browser->pdf();
+    $fileName = "filename=report43-forwarding-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y');
 
     return response($pdfData)
       ->header('Content-Type', 'application/pdf')

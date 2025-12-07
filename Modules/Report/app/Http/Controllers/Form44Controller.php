@@ -3,11 +3,13 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Models\Client;
 use Modules\Form44\Models\Form44;
+use Spatie\Browsershot\Browsershot;
 
 class Form44Controller extends Controller
 {
@@ -69,5 +71,43 @@ class Form44Controller extends Controller
     }
 
     return Inertia("report/form44/View", ['view' => $form44]);
+  }
+
+  /**
+   * This is for 4.4 pdf shows
+   */
+  public function pdf(Request $request)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $form44 = $this->form44->with(['client', 'item', 'unit', 'bank'])
+      ->findOrFail($request->query('id'));
+
+    if (!$isAdmin && ($form44->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    $html = view('pdf.report44', [
+      'view' => $form44,
+    ])->render();
+
+    $browser = Browsershot::html($html)
+      ->showBackground()
+      ->margins(10, 10, 10, 10)
+      ->format('A4')
+      ->emulateMedia('print');
+
+    // 👇 only uses the path when it exists (on server)
+    if ($path = env('BROWSERSHOT_CHROME_PATH')) {
+      $browser->setChromePath($path);
+    }
+
+    $pdfData = $browser->pdf();
+    $fileName = "filename=report44-{$form44?->client->bin}" . Carbon::parse($form44?->date_of_submmission)->format('M-Y');
+
+    return response($pdfData)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', "inline; $fileName");
   }
 }

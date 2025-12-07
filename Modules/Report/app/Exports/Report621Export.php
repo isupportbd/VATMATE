@@ -70,8 +70,8 @@ class Report621Export implements FromQuery, WithHeadings, WithMapping, ShouldAut
   {
     $form621 = Form621::with(['importable', 'item', 'unit', 'client', 'form43'])
       ->where('client_id', $this->clientId)
-      ->when($this->itemId, fn($q) => $q->where('item_id', $this->itemId))
-      ->when($this->monthYear, fn($q) => $q->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $this->monthYear))
+      ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $this->monthYear)
+      ->where('item_id', $this->itemId)
       ->orderBy('id', 'asc');
 
     return $form621;

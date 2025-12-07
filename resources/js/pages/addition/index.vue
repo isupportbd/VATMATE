@@ -8,7 +8,7 @@
   <Refresh>
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat' @click="refresh(route().params.id)" />
     <Link class="nav-btn" title="back" :href="route('form43')">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 

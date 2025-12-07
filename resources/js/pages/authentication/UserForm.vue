@@ -6,11 +6,11 @@
         <div class="row gx-1">
           <div class="col-6">
             <Input type="text" id="name" label="Name" placeholder="Ex: Jhon Doe" maxlength="100" v-model="field.name"
-              focus />
+              focus autocomplete="off" />
           </div>
           <div class="col-6">
             <Input type="text" id="email" label="Email" placeholder="Ex: jhondoe@gmail.com" maxlength="255"
-              v-model="field.email" :err="err.email" must :disabled="field.id ? true : false" />
+              v-model="field.email" :err="err.email" must :disabled="field.id ? true : false" autocomplete="off" />
           </div>
           <div class="col-6">
             <SelectInfinite id="role" placeholder="Select..." title="role" v-model="field.role" :fetched="fetchedRole"

@@ -123,7 +123,6 @@ const props = defineProps({ view: { type: Object } });
 const openPdf = () => {
   if (typeof window !== 'undefined') {
     const id = route().params.id;
-    // downloadPdf('report-63-pdf', { id }, `report63-${id}.pdf`);
     window.open(route('report-63-pdf', { id: id, bin: props.view?.client?.bin }), '_blank');
   }
 };

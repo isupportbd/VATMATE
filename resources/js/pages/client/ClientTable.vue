@@ -3,8 +3,8 @@
   <DataTable :data="props.data" :search="props.search" :option="[5, 10, 15]" @remove="props.del"
     :removable="role('admin') ? true : false" v-else>
     <template #thead>
-      <th>Details</th>
-      <th>Contact</th>
+      <th class="col-5">Details</th>
+      <th class="col-7">Contact</th>
       <th :class="{ 'd-none': !role('admin') }">Status</th>
       <th class="text-center">Action</th>
     </template>

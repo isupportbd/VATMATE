@@ -59,7 +59,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 12px;
+            font-size: 14px;
             margin: 15px;
         }
     </style>
@@ -226,7 +226,7 @@
         <div class="row mb-2">
             <div class="col-12">
                 <p class="fw-bold mb-1 bg-info bg-opacity-25 px-2">Transaction Summary</p>
-                <div class="row gy-3">
+                <div class="row gy-3 px-2">
                     {{-- If you have adjustments array, you can loop; for now we stick to fixed items below --}}
 
                     <div class="col-12 col-sm-3">
@@ -291,7 +291,7 @@
     {{-- ========================= --}}
     {{--   PURCHASE DETAILS       --}}
     {{-- ========================= --}}
-    <div class="card card-body border" style="margin-top: 15% !important;">
+    <div class="card card-body border" style="margin-top: 15% !important; font-size: 13px">
         @if (count($purchaseDetails) > 0)
             <div class="row">
                 <div class="col-12">

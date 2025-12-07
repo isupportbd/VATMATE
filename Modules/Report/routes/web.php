@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
 
   // report 4.3
   Route::get('/report-43-pdf', [Report43Controller::class, 'pdf'])->name('report-43-pdf')->middleware('role:admin,manager');
+  Route::get('/report-43-pdf-forwarding', [Report43Controller::class, 'pdfForwarding'])->name('report-43-pdf-forwarding')->middleware('role:admin,manager');
   Route::get('/report-43-view/{id}', [Report43Controller::class, 'show'])->name('report-43-view')->middleware('role:admin,manager');
   Route::get('/report-43-forwarding/{id}', [Report43Controller::class, 'forwarding'])->name('report-43-forwarding')->middleware('role:admin,manager');
   Route::get('/report-43/{client_id}/{monthYear}', [Report43Controller::class, 'index'])->name('report-43')->middleware('role:admin,manager');

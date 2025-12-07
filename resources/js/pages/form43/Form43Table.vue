@@ -46,7 +46,7 @@
           <Link :href="route('addition', { id: td.id })"
             :class="['btn', 'rounded-2', td?.has_form621 ? 'btn-outline-secondary disabled' : 'btn-outline-dark']"
             title="addition">
-          <i class="bi bi-plus-circle"></i>
+            <i class="bi bi-plus-circle"></i>
           </Link>
           <Button type="button"
             :class="['btn', 'rounded-2', td?.has_form621 ? 'btn-outline-secondary disabled' : 'btn-outline-danger']"

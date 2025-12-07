@@ -62,9 +62,10 @@ class AdditionController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array($user->role->name, ['admin']);
+    $form43Id = $request->input('form43_id');
 
-    $permission = $this->addition->with(['form43.client'])->whereHas('form43', fn($q) => $q->where('id', $request->input('form43_id')))->first();
-    if (!$isAdmin && $permission?->form43?->client->user_id !== $user->id) {
+    $permission = $this->form43->with(['client'])->where('id', $form43Id)->first();
+    if (!$isAdmin && ($permission?->client->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
