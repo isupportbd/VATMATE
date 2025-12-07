@@ -1057,7 +1057,7 @@ class SummaryController extends Controller
       ->format('A4')
       ->landscape()
       ->emulateMedia('print')
-      ->addChromiumArguments([
+      ->setOption('args', [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',

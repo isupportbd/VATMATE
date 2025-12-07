@@ -121,7 +121,7 @@ class Report43Controller extends Controller
       ->margins(10, 10, 10, 10)
       ->format('A4')
       ->emulateMedia('print')
-      ->addChromiumArguments([
+      ->setOption('args', [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
@@ -164,7 +164,7 @@ class Report43Controller extends Controller
       ->margins(10, 10, 10, 10)
       ->format('A4')
       ->emulateMedia('print')
-      ->addChromiumArguments([
+      ->setOption('args', [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
