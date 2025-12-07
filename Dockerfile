@@ -44,6 +44,9 @@ COPY docker/php/php.ini /usr/local/etc/php/php.ini
 COPY . /var/www/html
 COPY .env /var/www/html/.env
 
+# ❗ Install Puppeteer’s Chrome into container cache
+RUN npx puppeteer browsers install chrome-headless-shell
+
 WORKDIR /var/www/html
 
 # Apache vhost
