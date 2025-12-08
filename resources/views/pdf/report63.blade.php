@@ -62,13 +62,13 @@
         }
 
         .copy-section {
-            padding-bottom: 20px;
+            padding-bottom: 0;
             page-break-inside: avoid;
         }
 
         .cut-line {
             border-top: 1px dashed #000;
-            margin: 10px 0;
+            margin: 15px 0;
             text-align: center;
             position: relative;
         }
