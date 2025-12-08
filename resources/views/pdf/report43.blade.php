@@ -287,10 +287,10 @@
                                 <td>{{ $item->name ?? '' }}</td>
                                 <td>{{ $saleunit->name ?? '' }}</td>
                                 <td>{{ $item->name ?? '' }}</td>
-                                <td>{{ $view->purchase_unit_total ?? '' }}</td>
-                                <td>{{ $view->unit_price ?? '' }}</td>
-                                <td>{{ $wastageQty }}</td>
-                                <td>{{ $view->wastage ?? '' }}%</td>
+                                <td>{{ number_format($view->purchase_unit_total, 2, '.', '') ?? '' }}</td>
+                                <td>{{ number_format($view->unit_price, 2, '.', '') ?? '' }}</td>
+                                <td>{{ number_format($wastageQty, 2, '.', '') }}</td>
+                                <td>{{ number_format($view->wastage, 2, '.', '') ?? '' }}%</td>
                                 <td>
                                     <p class="m-0">BoE: {{ $view->boe_no ?? '' }}</p>
                                     <p class="m-0">Date: {{ $boeDate }}</p>

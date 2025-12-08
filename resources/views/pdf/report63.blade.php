@@ -10,14 +10,14 @@
 
     $date = $view->date ? Carbon::parse($view->date)->format('d/m/Y') : '';
 
-    $quantity = $view->quantity !== null ? number_format($view->quantity, 2) : '';
-    $unitPrice = $view->unit_price !== null ? number_format($view->unit_price, 2) : '';
-    $itemPrice = $view->item_price !== null ? number_format($view->item_price, 2) : '';
-    $sd = $view->sd !== null ? number_format($view->sd, 2) : '';
-    $sdValue = $view->sd_value !== null ? number_format($view->sd_value, 2) : '';
-    $vat = $view->vat !== null ? number_format($view->vat, 2) : '';
-    $vatValue = $view->vat_value !== null ? number_format($view->vat_value, 2) : '';
-    $totalPrice = $view->total_price !== null ? number_format($view->total_price, 2) : '';
+    $quantity = $view->quantity !== null ? number_format($view->quantity, 2, '.', '') : '';
+    $unitPrice = $view->unit_price !== null ? number_format($view->unit_price, 2, '.', '') : '';
+    $itemPrice = $view->item_price !== null ? number_format($view->item_price, 2, '.', '') : '';
+    $sd = $view->sd !== null ? number_format($view->sd, 2, '.', '') : '';
+    $sdValue = $view->sd_value !== null ? number_format($view->sd_value, 2, '.', '') : '';
+    $vat = $view->vat !== null ? number_format($view->vat, 2, '.', '') : '';
+    $vatValue = $view->vat_value !== null ? number_format($view->vat_value, 2, '.', '') : '';
+    $totalPrice = $view->total_price !== null ? number_format($view->total_price, 2, '.', '') : '';
 @endphp
 
 <!doctype html>
@@ -165,7 +165,7 @@
                         <table class="table table-bordered border-secondary text-center">
                             <thead class="align-middle">
                                 <tr>
-                                    <th>Goods/Service Description (In cases with Brand Name)</th>
+                                    <th>Goods/Service Description</th>
                                     <th>Unit of Supply</th>
                                     <th>Quantity</th>
                                     <th>Unit Value <sup>1</sup> (TAKA)</th>
@@ -308,7 +308,7 @@
                         <table class="table table-bordered border-secondary text-center">
                             <thead class="align-middle">
                                 <tr>
-                                    <th>Goods/Service Description (In cases with Brand Name)</th>
+                                    <th>Goods/Service Description</th>
                                     <th>Unit of Supply</th>
                                     <th>Quantity</th>
                                     <th>Unit Value <sup>1</sup> (TAKA)</th>

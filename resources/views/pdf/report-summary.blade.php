@@ -143,19 +143,19 @@
                                         <td>{{ $dt->item->hs_code ?? '' }}</td>
                                         <td>{{ $dt->item->name ?? '' }}</td>
                                         <td>
-                                            {{ $dt->quantity ?? 0 }}
+                                            {{ number_format($dt->quantity, 2, '.', '') ?? 0 }}
                                             {{ $dt->unit->name ?? '' }}
                                         </td>
-                                        <td>{{ $dt->item_price ?? 0 }}</td>
-                                        <td>{{ $dt->sd_value ?? 0 }}</td>
-                                        <td>{{ $dt->vat_value ?? 0 }}</td>
+                                        <td>{{ number_format($dt->item_price, 2, '.', '') ?? 0 }}</td>
+                                        <td>{{ number_format($dt->sd_value, 2, '.', '') ?? 0 }}</td>
+                                        <td>{{ number_format($dt->vat_value, 2, '.', '') ?? 0 }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="border-0 border-top border-secondary">
                                     <td colspan="5" class="text-end">Total = </td>
-                                    <td>{{ $saleSum->item_price_sum ?? 0 }}</td>
-                                    <td>{{ $saleSum->sd_value_sum ?? 0 }}</td>
-                                    <td>{{ $saleSum->vat_value_sum ?? 0 }}</td>
+                                    <td>{{ number_format($saleSum->item_price_sum, 2, '.', '') ?? 0 }}</td>
+                                    <td>{{ number_format($saleSum->sd_value_sum, 2, '.', '') ?? 0 }}</td>
+                                    <td>{{ number_format($saleSum->vat_value_sum, 2, '.', '') ?? 0 }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -195,23 +195,23 @@
                                         <td>{{ $dt->item->hs_code ?? '' }}</td>
                                         <td>{{ $dt->item->name ?? '' }}</td>
                                         <td>
-                                            {{ $dt->total_quantity ?? 0 }}
+                                            {{ number_format($dt->total_quantity, 2, '.', '') ?? 0 }}
                                             {{ $dt->unit->name ?? '' }}
                                         </td>
-                                        <td>{{ $dt->assessable_value ?? 0 }}</td>
-                                        <td>{{ $dt->base_value ?? 0 }}</td>
-                                        <td>{{ $dt->sd_value ?? 0 }}</td>
-                                        <td>{{ $dt->vat_value ?? 0 }}</td>
-                                        <td>{{ $dt->at_value ?? 0 }}</td>
+                                        <td>{{ number_format($dt->assessable_value, 2, '.', '') ?? 0 }}</td>
+                                        <td>{{ number_format($dt->base_value, 2, '.', '') ?? 0 }}</td>
+                                        <td>{{ number_format($dt->sd_value, 2, '.', '') ?? 0 }}</td>
+                                        <td>{{ number_format($dt->vat_value, 2, '.', '') ?? 0 }}</td>
+                                        <td>{{ number_format($dt->at_value, 2, '.', '') ?? 0 }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="border-0 border-top border-secondary">
                                     <td colspan="5" class="text-end">Total = </td>
-                                    <td>{{ $purchaseSum->assessable_value_sum ?? 0 }}</td>
-                                    <td>{{ $purchaseSum->base_value_sum ?? 0 }}</td>
-                                    <td>{{ $purchaseSum->sd_value_sum ?? 0 }}</td>
-                                    <td>{{ $purchaseSum->vat_value_sum ?? 0 }}</td>
-                                    <td>{{ $purchaseSum->at_value_sum ?? 0 }}</td>
+                                    <td>{{ number_format($purchaseSum->assessable_value_sum, 2, '.', '') ?? 0 }}</td>
+                                    <td>{{ number_format($purchaseSum->base_value_sum, 2, '.', '') ?? 0 }}</td>
+                                    <td>{{ number_format($purchaseSum->sd_value_sum, 2, '.', '') ?? 0 }}</td>
+                                    <td>{{ number_format($purchaseSum->vat_value_sum, 2, '.', '') ?? 0 }}</td>
+                                    <td>{{ number_format($purchaseSum->at_value_sum, 2, '.', '') ?? 0 }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -231,57 +231,57 @@
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Treasury : </span>
-                        <span>{{ $summary?->treasury?->amount ?? 0 }}</span>
+                        <span>{{ number_format($summary?->treasury?->amount, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Note 52 : </span>
-                        <span>{{ $summary?->prevNetPayable ?? 0 }}</span>
+                        <span>{{ number_format($summary?->prevNetPayable, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Net Payable VAT : </span>
-                        <span>{{ $summary?->netPayableRegular ?? 0 }}</span>
+                        <span>{{ number_format($summary?->netPayableRegular, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Note 65 : </span>
-                        <span>{{ $summary?->closignBalanceCurrentRegular ?? 0 }}</span>
+                        <span>{{ number_format($summary?->closignBalanceCurrentRegular, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">MCU : </span>
-                        <span>{{ $summary?->totalMcu ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalMcu, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Debit Note : </span>
-                        <span>{{ $summary?->totalDebitnote?->increase_vat ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalDebitnote?->increase_vat, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Credit Note : </span>
-                        <span>{{ $summary?->totalCreditnote?->decrease_vat ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalCreditnote?->decrease_vat, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Mushak 4.4 : </span>
-                        <span>{{ $summary?->totalForm44?->increase_vat ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalForm44?->increase_vat, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Mushak 4.5 : </span>
-                        <span>{{ $summary?->totalForm45?->increase_vat ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalForm45?->increase_vat, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Note 28 : </span>
-                        <span>{{ $summary?->totalIncAdj ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalIncAdj, 2, '.', '') ?? 0 }}</span>
                     </div>
 
                     <div class="col-12 col-sm-3">
                         <span class="fw-bold">Note 33 : </span>
-                        <span>{{ $summary?->totalDecAdj ?? 0 }}</span>
+                        <span>{{ number_format($summary?->totalDecAdj, 2, '.', '') ?? 0 }}</span>
                     </div>
                 </div>
             </div>
@@ -291,7 +291,7 @@
     {{-- ========================= --}}
     {{--   PURCHASE DETAILS       --}}
     {{-- ========================= --}}
-    <div class="card card-body border" style="margin-top: 15% !important; font-size: 13px">
+    <div class="card card-body border" style="margin-top: 15% !important; font-size: 12px">
         @if (count($purchaseDetails) > 0)
             <div class="row">
                 <div class="col-12">
@@ -335,14 +335,14 @@
                                         <td>{{ $dt->item->hs_code ?? '' }}</td>
                                         <td>{{ $dt->item->name ?? '' }}</td>
                                         <td>
-                                            {{ $dt->total_quantity ?? 0 }}
+                                            {{ number_format($dt->total_quantity, 2, '.', '') ?? 0 }}
                                             {{ $dt->unit->name ?? '' }}
                                         </td>
-                                        <td>{{ number_format((float) ($dt->assessable_value ?? 0), 2) }}</td>
-                                        <td>{{ number_format((float) ($dt->base_value ?? 0), 2) }}</td>
-                                        <td>{{ number_format((float) ($dt->sd_value ?? 0), 2) }}</td>
-                                        <td>{{ number_format((float) ($dt->vat_value ?? 0), 2) }}</td>
-                                        <td>{{ number_format((float) ($dt->at_value ?? 0), 2) }}</td>
+                                        <td>{{ number_format($dt->assessable_value ?? 0, 2, '.', '') }}</td>
+                                        <td>{{ number_format($dt->base_value ?? 0, 2, '.', '') }}</td>
+                                        <td>{{ number_format($dt->sd_value ?? 0, 2, '.', '') }}</td>
+                                        <td>{{ number_format($dt->vat_value ?? 0, 2, '.', '') }}</td>
+                                        <td>{{ number_format($dt->at_value ?? 0, 2, '.', '') }}</td>
                                         <td>{{ $dt->lc_no ?? '' }}</td>
                                     </tr>
                                 @endforeach
