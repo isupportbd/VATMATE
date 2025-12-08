@@ -68,7 +68,7 @@
 
         .cut-line {
             border-top: 1px dashed #000;
-            margin: 10px 0 15px 0;
+            margin: 10px 0;
             text-align: center;
             position: relative;
         }
