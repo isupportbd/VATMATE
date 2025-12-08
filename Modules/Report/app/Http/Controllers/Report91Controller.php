@@ -176,7 +176,7 @@ class Report91Controller extends Controller
     */
 
     $totalPurchaseValue = (optional($purchase13)->base_value + optional($purchase15)->base_value + optional($purchase22)->base_value) ?? 0;
-    $totalPurchaseVat = optional($purchase15)->vat ?? 0;
+    $totalPurchaseVat = optional($purchase15)->vat_value ?? 0;
 
     /*
     |--------------------------------------------------------------------------
