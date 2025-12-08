@@ -131,7 +131,7 @@
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Treasury : </span>
-            <span>{{ props.summary?.treasury?.amount }}</span>
+            <span>{{ props.summary?.treasury }}</span>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Note 52 : </span>
@@ -150,19 +150,19 @@
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Debit Note : </span>
-            <span>{{ props.summary?.totalDebitnote?.increase_vat }}</span>
+            <span>{{ props.summary?.totalDebitnote }}</span>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Credit Note : </span>
-            {{ props.summary?.totalCreditnote?.decrease_vat }}
+            {{ props.summary?.totalCreditnote }}
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Mushak 4.4 :</span>
-            {{ props.summary?.totalForm44?.increase_vat }}
+            {{ props.summary?.totalForm44 }}
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Mushak 4.5 :</span>
-            {{ props.summary?.totalForm45?.increase_vat }}
+            {{ props.summary?.totalForm45 }}
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <span class="fw-bold">Note 28 : </span>

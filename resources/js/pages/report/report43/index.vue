@@ -10,7 +10,7 @@
       @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -51,19 +51,19 @@
         </div>
       </td>
       <td class="text-center" :class="((td.last == 1) && role('admin')) && 'text-primary'">
-        {{ moment(td?.submission_date).format("MMM YYYY") }}
+        {{ moment(td?.boe_date).format("MMM YYYY") }}
       </td>
       <td class="text-center">
         <div class="btn-group" role="group">
           <Link
             :href="route('report-43-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
             class="btn btn-outline-dark w-100 rounded-2" title="view">
-          <i class="bi bi-eye"></i>
+            <i class="bi bi-eye"></i>
           </Link>
           <Link
             :href="route('report-43-forwarding', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
             class="btn btn-outline-dark w-100 rounded-2" title="forwarding">
-          <i class="bi bi-file-earmark-text"></i>
+            <i class="bi bi-file-earmark-text"></i>
           </Link>
         </div>
       </td>

@@ -39,7 +39,7 @@ class Report43Controller extends Controller
 
     $query = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
       ->where('client_id', $client_id)
-      ->where(DB::raw("DATE_FORMAT(submission_date, '%Y-%m')"), $monthYear)
+      ->where(DB::raw("DATE_FORMAT(boe_date, '%Y-%m')"), $monthYear)
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1))
       ->when($search, function ($query) use ($search) {
         $query->where(function ($q) use ($search) {

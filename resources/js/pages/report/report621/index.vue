@@ -56,8 +56,8 @@
       <thead>
         <tr>
           <th colspan="28" class="text-center fw-semibold">
-            <p class="m-0">{{ props.clientdetail?.client?.company_name }}</p>
-            <p class="m-0">{{ props.clientdetail?.client?.bin }}</p>
+            <p class="m-0">{{ props.clientdetail?.company_name }}</p>
+            <p class="m-0">{{ props.clientdetail?.bin }}</p>
           </th>
         </tr>
         <tr class="align-middle text-center fw-normal">

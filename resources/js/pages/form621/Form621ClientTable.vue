@@ -194,7 +194,7 @@
     <template #customhead>
       <thead>
         <tr>
-          <th colspan="28" class="text-center fw-semibold">
+          <th colspan="29" class="text-center fw-semibold">
             <p class="m-0">{{ props.clientdetail?.client?.company_name }}</p>
             <p class="m-0">{{ props.clientdetail?.client?.bin }}</p>
           </th>
