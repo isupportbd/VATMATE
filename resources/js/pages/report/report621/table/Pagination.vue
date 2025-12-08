@@ -12,7 +12,7 @@
           <li :class="['page-item', { disabled: noPreviousPage }]">
             <Link class="page-link" href="#" role="button" :aria-disabled="noPreviousPage ? 'true' : 'false'"
               :tabindex="noPreviousPage ? -1 : 0" @click.prevent="!noPreviousPage && loadPage(1)">
-            <i class="bi bi-chevron-double-left"></i>
+              <i class="bi bi-chevron-double-left"></i>
             </Link>
           </li>
 
@@ -21,18 +21,20 @@
             <Link class="page-link" href="#" :aria-disabled="noPreviousPage ? 'true' : 'false'"
               :tabindex="noPreviousPage ? -1 : 0"
               @click.prevent="!noPreviousPage && loadPage(props.data.current_page - 1)">
-            <i class="bi bi-chevron-left"></i>
+              <i class="bi bi-chevron-left"></i>
             </Link>
           </li>
 
           <li class="page-item">
-            <Input type="text" category="number" class="form-control shadow-none text-center"
-              style="width: 100px; line-height: 1;" v-model="page.page" @keyup.enter="loadPage(page.page)" />
+            <div class="input-group input-group-sm">
+              <Input type="text" category="number" topclass="m-0" class="text-center" style="width: 100px"
+                v-model="page.page" @keyup.enter="loadPage(page.page)" />
+            </div>
           </li>
 
           <li class="page-item lastpage">
             <Link class="page-link text-nowrap" href="#">
-            of {{ nFormatter(props.data.last_page) }}
+              of {{ nFormatter(props.data.last_page) }}
             </Link>
           </li>
 
@@ -40,7 +42,7 @@
           <li :class="['page-item', { disabled: noNextPage }]">
             <Link class="page-link" href="#" :aria-disabled="noNextPage ? 'true' : 'false'"
               :tabindex="noNextPage ? -1 : 0" @click.prevent="!noNextPage && loadPage(props.data.current_page + 1)">
-            <i class="bi bi-chevron-right"></i>
+              <i class="bi bi-chevron-right"></i>
             </Link>
           </li>
 
@@ -48,7 +50,7 @@
           <li :class="['page-item', { disabled: noNextPage }]">
             <Link class="page-link" href="#" :aria-disabled="noNextPage ? 'true' : 'false'"
               :tabindex="noNextPage ? -1 : 0" @click.prevent="!noNextPage && loadPage(props.data.last_page)">
-            <i class="bi bi-chevron-double-right"></i>
+              <i class="bi bi-chevron-double-right"></i>
             </Link>
           </li>
         </ul>

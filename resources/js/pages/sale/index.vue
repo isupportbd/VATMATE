@@ -208,6 +208,7 @@ const fetchedBin = async () => {
         axios.get(route('form621-last'), { params: { client_id: row?.id } })
       ]);
 
+      field.date = r621.data?.lastdate ?? "";
       field.form621_last_date = !empty(r621.data?.lastdate) ? moment(r621.data?.lastdate).format("DD MMM YYYY") : "";
       field.invoice_no = rLastInv?.data?.lastinvoice ?? ""; // reset invoice no on bin change
     }
@@ -431,49 +432,12 @@ const submitData = async () => {
 // reload sale
 const refresh = () => router.get(route('sale'), {}, { preserveScroll: true });
 
-// const binDD = ref(null);
-// const custDD = ref(null);
-// const itemsDD = ref([]);
-// const unitsDD = ref([]);
-// onMounted(async () => {
-//   await loadSaleLimit();
+onMounted(async () => {
+  await loadSaleLimit();
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reloadAll);
+});
 
-//   const reloadAll = async () => {
-//     const jobs = [];
-
-//     if (binDD.value?.reload) {
-//       jobs.push(binDD.value.reload());
-//     }
-
-//     if (custDD.value?.reload) {
-//       jobs.push(custDD.value.reload());
-//     }
-
-//     if (Array.isArray(itemsDD.value)) {
-//       itemsDD.value.forEach(item => {
-//         if (item?.reload) {
-//           jobs.push(item.reload());
-//         }
-//       });
-//     }
-
-//     if (Array.isArray(unitsDD.value)) {
-//       unitsDD.value.forEach(item => {
-//         if (item?.reload) {
-//           jobs.push(item.reload());
-//         }
-//       });
-//     }
-
-//     if (jobs.length) {
-//       await Promise.all(jobs);
-//     }
-//   };
-
-//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reloadAll);
-// });
-
-// onBeforeUnmount(() => {
-//   window.Echo.leave(`App.Models.User.${user.id}`);
-// });
+onBeforeUnmount(() => {
+  window.Echo.leave(`App.Models.User.${user.id}`);
+});
 </script>

@@ -425,10 +425,11 @@ const refresh = (id) => router.get(route('report-621', { client_id: id }), {}, {
 onMounted(() => {
   const reload = (e) => {
     field.isLoading = false;
-    e.fileName && downloadExcel('report-621-download-excel', e.fileName);
-    router.reload({ only: ['Report621'], preserveState: true, preserveScroll: true })
+    !empty(e.fileName) && downloadExcel('report-621-download-excel', e.fileName);
+    router.reload({ only: ['Report621'], preserveState: true, preserveScroll: true });
   };
   window.Echo.private(`App.Models.User.${user.id}`).listen('.excelready', reload);
+  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
 });
 
 onBeforeUnmount(() => {

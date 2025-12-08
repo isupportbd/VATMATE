@@ -2,6 +2,7 @@
 
 namespace Modules\Sale\Http\Controllers;
 
+use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -422,6 +423,9 @@ class SaleController extends Controller
         }
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Sale created');
     } catch (Throwable $e) {
       return back()->with('error', $e->getMessage());
@@ -637,6 +641,9 @@ class SaleController extends Controller
         ]);
       });
 
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Sale updated');
     } catch (Throwable $e) {
       return back()->with('error', $e->getMessage());
@@ -680,10 +687,11 @@ class SaleController extends Controller
         }
       });
 
-      DB::commit();
+      // realtime data
+      event(new CommonEvent($user->id));
+
       return back()->with('message', 'Sale deleted');
     } catch (Throwable $e) {
-      DB::rollBack();
       return back()->with("error", $e->getMessage());
     }
   }
@@ -716,6 +724,9 @@ class SaleController extends Controller
     );
 
     $this->sale->where('id', $id)->update($formField);
+
+    // realtime data
+    event(new CommonEvent($user->id));
 
     return back()->with('message', 'Customer updated');
   }

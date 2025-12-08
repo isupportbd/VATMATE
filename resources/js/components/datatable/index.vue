@@ -65,8 +65,8 @@
     </div>
     <div class="card-footer" :class="{ 'd-none': props.data.total <= props.data.data?.length }">
       <Pagination :data="props.data" :selectedoption="selectedoption" :search="searchdata" />
-      {{ props.data.total <= props.data.data?.length }} </div>
     </div>
+  </div>
 </template>
 
 <script setup>
