@@ -230,7 +230,8 @@
 
     {{-- ===== Scissor line between copies ===== --}}
     <div class="cut-line">
-        <span>✄</span>
+        {{-- <span>✄</span> --}}
+        <span>&#x2704;</span>
     </div>
 
     {{-- ===================== --}}

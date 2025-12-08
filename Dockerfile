@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
   chromium \
   chromium-driver \
   fonts-liberation \
+  fonts-dejavu-core \
+  fonts-dejavu-extra \
+  fonts-symbola \
   libnss3 \
   libatk1.0-0 \
   libatk-bridge2.0-0 \
