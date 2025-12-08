@@ -91,7 +91,6 @@ class Report63Controller extends Controller
       ->showBackground()
       ->margins(10, 10, 10, 10)
       ->windowSize(1200, 1800)        // force wide viewport so Bootstrap doesn't stack
-      ->scale(0.9)                    // shrink a bit so 2 copies fit on 1 page
       ->format('A4')
       ->emulateMedia('print')
       ->setOption('args', [
