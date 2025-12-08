@@ -103,7 +103,7 @@ class Report63Export implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     $row[6]  = $bulk->vat_value;
     $row[7]  = $bulk->total_price;
     $row[8]  = $bulk->customer_name;
-    $row[9]  = $bulk->customer_address;
+    $row[9]  = $bulk->address;
     $row[10] = $bulk->customer_mobile;
 
     return $row;
