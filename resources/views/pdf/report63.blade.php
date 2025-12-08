@@ -68,7 +68,7 @@
 
         .cut-line {
             border-top: 1px dashed #000;
-            margin: 15px 0;
+            margin: 10px 0;
             text-align: center;
             position: relative;
         }
@@ -91,138 +91,134 @@
     {{--      FIRST COPY      --}}
     {{-- ===================== --}}
     <div class="copy-section">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-body border p-5 pp-0">
-                    {{-- Header --}}
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="fw-bold text-center position-relative">
-                                <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0"
-                                    style="top: 75%">
-                                    Mushak 6.3
-                                </label>
-                                <p class="m-0">Government of the People's Republic of Bangladesh</p>
-                                <p class="m-0">National Board of Revenue</p>
-                            </div>
-                        </div>
+        <div class="container-fluid">
+            {{-- Header --}}
+            <div class="row">
+                <div class="col-12">
+                    <div class="fw-bold text-center position-relative">
+                        <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0"
+                            style="top: 75%">
+                            Mushak 6.3
+                        </label>
+                        <p class="m-0">Government of the People's Republic of Bangladesh</p>
+                        <p class="m-0">National Board of Revenue</p>
                     </div>
+                </div>
+            </div>
 
-                    {{-- Registered person info --}}
-                    <div class="row my-3">
-                        <div class="col-12 text-center">
-                            <p class="m-0 fw-bold">Tax Challan</p>
-                            <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
-                            <p class="m-0">
-                                Name of Registered Person:
-                                {{ $client->company_name ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                BIN of Registered Person:
-                                {{ $client->bin ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                Challan Issuing Address:
-                                {{ $client->address ?? '' }}
-                            </p>
-                        </div>
-                    </div>
+            {{-- Registered person info --}}
+            <div class="row my-2">
+                <div class="col-12 text-center">
+                    <p class="m-0 fw-bold">Tax Challan</p>
+                    <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
+                    <p class="m-0">
+                        Name of Registered Person:
+                        {{ $client->company_name ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        BIN of Registered Person:
+                        {{ $client->bin ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        Challan Issuing Address:
+                        {{ $client->address ?? '' }}
+                    </p>
+                </div>
+            </div>
 
-                    {{-- Purchaser + invoice info --}}
-                    <div class="row mb-3">
-                        <div class="col-12 col-sm-9 col-md-9">
-                            <p class="m-0">
-                                Name of Purchaser :
-                                {{ $view->customer_name ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                BIN of Purchaser :
-                                {{ $view->bin_or_nid ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                Destination of Supply :
-                                {{ $view->address ?? '' }}
-                            </p>
-                        </div>
-                        <div class="col-12 col-sm-3 col-md-3">
-                            <p class="m-0">
-                                Invoice No :
-                                {{ $view->invoice_no ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                Date of Issue :
-                                {{ $date }}
-                            </p>
-                            <p class="m-0">
-                                Time of Issue :
-                                {{-- leave blank or format a time field if you have one --}}
-                            </p>
-                        </div>
-                    </div>
+            {{-- Purchaser + invoice info --}}
+            <div class="row mb-2">
+                <div class="col-12 col-sm-9 col-md-9">
+                    <p class="m-0">
+                        Name of Purchaser :
+                        {{ $view->customer_name ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        BIN of Purchaser :
+                        {{ $view->bin_or_nid ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        Destination of Supply :
+                        {{ $view->address ?? '' }}
+                    </p>
+                </div>
+                <div class="col-12 col-sm-3 col-md-3">
+                    <p class="m-0">
+                        Invoice No :
+                        {{ $view->invoice_no ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        Date of Issue :
+                        {{ $date }}
+                    </p>
+                    <p class="m-0">
+                        Time of Issue :
+                        {{-- leave blank or format a time field if you have one --}}
+                    </p>
+                </div>
+            </div>
 
-                    {{-- Main table --}}
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="table-responsive">
-                                <table class="table table-bordered border-secondary text-center">
-                                    <thead class="align-middle">
-                                        <tr>
-                                            <th>Goods/Service Description (In cases with Brand Name)</th>
-                                            <th>Unit of Supply</th>
-                                            <th>Quantity</th>
-                                            <th>Unit Value <sup>1</sup> (TAKA)</th>
-                                            <th>Total Value <sup>1</sup> (TAKA)</th>
-                                            <th>SD Rate (TAKA)</th>
-                                            <th>SD (TAKA)</th>
-                                            <th>VAT rate/Specific Tax</th>
-                                            <th>VAT/Specific Tax Amount (TAKA)</th>
-                                            <th>Value all kinds of Duty &amp; Tax</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="align-middle">
-                                        <tr>
-                                            <td>
-                                                {{ $item->name ?? '' }}<br>
-                                                ({{ $item->hs_code ?? '' }})
-                                            </td>
-                                            <td>{{ $unit->name ?? '' }}</td>
-                                            <td>{{ $quantity }}</td>
-                                            <td>{{ $unitPrice }}</td>
-                                            <td>{{ $itemPrice }}</td>
-                                            <td>{{ $sd }}%</td>
-                                            <td>{{ $sdValue }}</td>
-                                            <td>{{ $vat }}%</td>
-                                            <td>{{ $vatValue }}</td>
-                                            <td>{{ $totalPrice }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+            {{-- Main table --}}
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered border-secondary text-center">
+                            <thead class="align-middle">
+                                <tr>
+                                    <th>Goods/Service Description (In cases with Brand Name)</th>
+                                    <th>Unit of Supply</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Value <sup>1</sup> (TAKA)</th>
+                                    <th>Total Value <sup>1</sup> (TAKA)</th>
+                                    <th>SD Rate (TAKA)</th>
+                                    <th>SD (TAKA)</th>
+                                    <th>VAT rate/Specific Tax</th>
+                                    <th>VAT/Specific Tax Amount (TAKA)</th>
+                                    <th>Value all kinds of Duty &amp; Tax</th>
+                                </tr>
+                            </thead>
+                            <tbody class="align-middle">
+                                <tr>
+                                    <td>
+                                        {{ $item->name ?? '' }}<br>
+                                        ({{ $item->hs_code ?? '' }})
+                                    </td>
+                                    <td>{{ $unit->name ?? '' }}</td>
+                                    <td>{{ $quantity }}</td>
+                                    <td>{{ $unitPrice }}</td>
+                                    <td>{{ $itemPrice }}</td>
+                                    <td>{{ $sd }}%</td>
+                                    <td>{{ $sdValue }}</td>
+                                    <td>{{ $vat }}%</td>
+                                    <td>{{ $vatValue }}</td>
+                                    <td>{{ $totalPrice }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
 
-                    {{-- Footer --}}
-                    <div class="row my-3">
-                        <div class="col-12">
-                            <p class="m-0">Authorised Person:</p>
-                            <p class="m-0">Designation:</p>
-                            <p class="m-0">Signature:</p>
-                            <p class="m-0">Seal:</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <p class="m-0">
-                                * Applicable to the supplies made to the withholding entity only and in that case it
-                                will
-                                be
-                                used as combined tax invoice cum withholding certificate.
-                            </p>
-                            <p class="m-0">
-                                * Value<sup>1</sup> except all kinds of Tax.
-                            </p>
-                        </div>
-                    </div>
+            {{-- Footer --}}
+            <div class="row my-2">
+                <div class="col-12">
+                    <p class="m-0">Authorised Person:</p>
+                    <p class="m-0">Designation:</p>
+                    <p class="m-0">Signature:</p>
+                    <p class="m-0">Seal:</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <p class="m-0">
+                        * Applicable to the supplies made to the withholding entity only and in that case it
+                        will
+                        be
+                        used as combined tax invoice cum withholding certificate.
+                    </p>
+                    <p class="m-0">
+                        * Value<sup>1</sup> except all kinds of Tax.
+                    </p>
                 </div>
             </div>
         </div>
@@ -238,137 +234,134 @@
     {{--     SECOND COPY      --}}
     {{-- ===================== --}}
     <div class="copy-section">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-body border p-5 pp-0">
-                    {{-- Header --}}
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="fw-bold text-center position-relative">
-                                <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0"
-                                    style="top: 75%">
-                                    Mushak 6.3
-                                </label>
-                                <p class="m-0">Government of the People's Republic of Bangladesh</p>
-                                <p class="m-0">National Board of Revenue</p>
-                            </div>
-                        </div>
+        <div class="container-fluid">
+            {{-- Header --}}
+            <div class="row">
+                <div class="col-12">
+                    <div class="fw-bold text-center position-relative">
+                        <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0"
+                            style="top: 75%">
+                            Mushak 6.3
+                        </label>
+                        <p class="m-0">Government of the People's Republic of Bangladesh</p>
+                        <p class="m-0">National Board of Revenue</p>
                     </div>
+                </div>
+            </div>
 
-                    {{-- Registered person info --}}
-                    <div class="row my-3">
-                        <div class="col-12 text-center">
-                            <p class="m-0 fw-bold">Tax Challan</p>
-                            <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
-                            <p class="m-0">
-                                Name of Registered Person:
-                                {{ $client->company_name ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                BIN of Registered Person:
-                                {{ $client->bin ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                Challan Issuing Address:
-                                {{ $client->address ?? '' }}
-                            </p>
-                        </div>
-                    </div>
+            {{-- Registered person info --}}
+            <div class="row my-2">
+                <div class="col-12 text-center">
+                    <p class="m-0 fw-bold">Tax Challan</p>
+                    <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
+                    <p class="m-0">
+                        Name of Registered Person:
+                        {{ $client->company_name ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        BIN of Registered Person:
+                        {{ $client->bin ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        Challan Issuing Address:
+                        {{ $client->address ?? '' }}
+                    </p>
+                </div>
+            </div>
 
-                    {{-- Purchaser + invoice info --}}
-                    <div class="row mb-3">
-                        <div class="col-12 col-sm-9 col-md-9">
-                            <p class="m-0">
-                                Name of Purchaser :
-                                {{ $view->customer_name ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                BIN of Purchaser :
-                                {{ $view->bin_or_nid ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                Destination of Supply :
-                                {{ $view->address ?? '' }}
-                            </p>
-                        </div>
-                        <div class="col-12 col-sm-3 col-md-3">
-                            <p class="m-0">
-                                Invoice No :
-                                {{ $view->invoice_no ?? '' }}
-                            </p>
-                            <p class="m-0">
-                                Date of Issue :
-                                {{ $date }}
-                            </p>
-                            <p class="m-0">
-                                Time of Issue :
-                            </p>
-                        </div>
-                    </div>
+            {{-- Purchaser + invoice info --}}
+            <div class="row mb-2">
+                <div class="col-12 col-sm-9 col-md-9">
+                    <p class="m-0">
+                        Name of Purchaser :
+                        {{ $view->customer_name ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        BIN of Purchaser :
+                        {{ $view->bin_or_nid ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        Destination of Supply :
+                        {{ $view->address ?? '' }}
+                    </p>
+                </div>
+                <div class="col-12 col-sm-3 col-md-3">
+                    <p class="m-0">
+                        Invoice No :
+                        {{ $view->invoice_no ?? '' }}
+                    </p>
+                    <p class="m-0">
+                        Date of Issue :
+                        {{ $date }}
+                    </p>
+                    <p class="m-0">
+                        Time of Issue :
+                        {{-- leave blank or format a time field if you have one --}}
+                    </p>
+                </div>
+            </div>
 
-                    {{-- Main table --}}
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="table-responsive">
-                                <table class="table table-bordered border-secondary text-center">
-                                    <thead class="align-middle">
-                                        <tr>
-                                            <th>Goods/Service Description (In cases with Brand Name)</th>
-                                            <th>Unit of Supply</th>
-                                            <th>Quantity</th>
-                                            <th>Unit Value <sup>1</sup> (TAKA)</th>
-                                            <th>Total Value <sup>1</sup> (TAKA)</th>
-                                            <th>SD Rate (TAKA)</th>
-                                            <th>SD (TAKA)</th>
-                                            <th>VAT rate/Specific Tax</th>
-                                            <th>VAT/Specific Tax Amount (TAKA)</th>
-                                            <th>Value all kinds of Duty &amp; Tax</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="align-middle">
-                                        <tr>
-                                            <td>
-                                                {{ $item->name ?? '' }}<br>
-                                                ({{ $item->hs_code ?? '' }})
-                                            </td>
-                                            <td>{{ $unit->name ?? '' }}</td>
-                                            <td>{{ $quantity }}</td>
-                                            <td>{{ $unitPrice }}</td>
-                                            <td>{{ $itemPrice }}</td>
-                                            <td>{{ $sd }}%</td>
-                                            <td>{{ $sdValue }}</td>
-                                            <td>{{ $vat }}%</td>
-                                            <td>{{ $vatValue }}</td>
-                                            <td>{{ $totalPrice }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+            {{-- Main table --}}
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered border-secondary text-center">
+                            <thead class="align-middle">
+                                <tr>
+                                    <th>Goods/Service Description (In cases with Brand Name)</th>
+                                    <th>Unit of Supply</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Value <sup>1</sup> (TAKA)</th>
+                                    <th>Total Value <sup>1</sup> (TAKA)</th>
+                                    <th>SD Rate (TAKA)</th>
+                                    <th>SD (TAKA)</th>
+                                    <th>VAT rate/Specific Tax</th>
+                                    <th>VAT/Specific Tax Amount (TAKA)</th>
+                                    <th>Value all kinds of Duty &amp; Tax</th>
+                                </tr>
+                            </thead>
+                            <tbody class="align-middle">
+                                <tr>
+                                    <td>
+                                        {{ $item->name ?? '' }}<br>
+                                        ({{ $item->hs_code ?? '' }})
+                                    </td>
+                                    <td>{{ $unit->name ?? '' }}</td>
+                                    <td>{{ $quantity }}</td>
+                                    <td>{{ $unitPrice }}</td>
+                                    <td>{{ $itemPrice }}</td>
+                                    <td>{{ $sd }}%</td>
+                                    <td>{{ $sdValue }}</td>
+                                    <td>{{ $vat }}%</td>
+                                    <td>{{ $vatValue }}</td>
+                                    <td>{{ $totalPrice }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
 
-                    {{-- Footer --}}
-                    <div class="row my-3">
-                        <div class="col-12">
-                            <p class="m-0">Authorised Person:</p>
-                            <p class="m-0">Designation:</p>
-                            <p class="m-0">Signature:</p>
-                            <p class="m-0">Seal:</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <p class="m-0">
-                                * Applicable to the supplies made to the withholding entity only and in that case it
-                                will
-                                be
-                                used as combined tax invoice cum withholding certificate.
-                            </p>
-                            <p class="m-0">
-                                * Value<sup>1</sup> except all kinds of Tax.
-                            </p>
-                        </div>
-                    </div>
+            {{-- Footer --}}
+            <div class="row my-2">
+                <div class="col-12">
+                    <p class="m-0">Authorised Person:</p>
+                    <p class="m-0">Designation:</p>
+                    <p class="m-0">Signature:</p>
+                    <p class="m-0">Seal:</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <p class="m-0">
+                        * Applicable to the supplies made to the withholding entity only and in that case it
+                        will
+                        be
+                        used as combined tax invoice cum withholding certificate.
+                    </p>
+                    <p class="m-0">
+                        * Value<sup>1</sup> except all kinds of Tax.
+                    </p>
                 </div>
             </div>
         </div>
