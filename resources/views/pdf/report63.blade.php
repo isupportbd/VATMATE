@@ -68,7 +68,7 @@
 
         .cut-line {
             border-top: 1px dashed #000;
-            margin: 10px 0 25px 0;
+            margin: 10px 0 15px 0;
             text-align: center;
             position: relative;
         }
@@ -230,8 +230,8 @@
 
     {{-- ===== Scissor line between copies ===== --}}
     <div class="cut-line">
-        {{-- <span>✄</span> --}}
-        <span>&#x2704;</span>
+        <span>✄</span>
+        {{-- <span>&#x2704;</span> --}}
     </div>
 
     {{-- ===================== --}}
