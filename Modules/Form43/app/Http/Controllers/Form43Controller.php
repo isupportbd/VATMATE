@@ -41,7 +41,7 @@ class Form43Controller extends Controller
 
     $query = $this->form43->with(['client', 'item', 'additionsum'])
       ->select('id', 'client_id', 'item_id', 'last')
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1))
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search, function ($query) use ($search) {
         $query->where(function ($q) use ($search) {
           $q->whereHas('client', function ($query) use ($search) {
@@ -498,10 +498,10 @@ class Form43Controller extends Controller
       return back()->with('error', 'Cannot delete: Already used in Form 6.2.1');
     }
 
-    // can delete last combination only
-    if ($form43->last != 1) {
-      return back()->with('error', 'Can not delete: not last combination');
-    }
+    // // can delete last combination only
+    // if ($form43->last != 1) {
+    //   return back()->with('error', 'Can not delete: not last combination');
+    // }
 
     // 4) Delete + maintain "last" in a transaction
     DB::transaction(function () use ($user, $form43) {

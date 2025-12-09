@@ -25,7 +25,7 @@ class Report43Controller extends Controller
   /**
    * This is for all pdf shows
    */
-  public function index(Request $request, $client_id, $monthYear)
+  public function index(Request $request, $client_id)
   {
     $user   = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
@@ -39,8 +39,7 @@ class Report43Controller extends Controller
 
     $query = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
       ->where('client_id', $client_id)
-      ->where(DB::raw("DATE_FORMAT(boe_date, '%Y-%m')"), $monthYear)
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id))->where('last', 1))
+      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search, function ($query) use ($search) {
         $query->where(function ($q) use ($search) {
           $q->whereHas('client', function ($query) use ($search) {
