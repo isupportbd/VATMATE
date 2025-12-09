@@ -210,10 +210,10 @@
                 <td>{{ props.view?.item?.name }}</td>
                 <td>{{ props.view?.saleunit?.name }}</td>
                 <td>{{ props.view?.item?.name }}</td>
-                <td>{{ props.view?.purchase_unit_total }}</td>
-                <td>{{ props.view?.unit_price }}</td>
-                <td>{{ `${+(props.view?.purchase_unit_total) * +(+(props.view?.wastage) / 100)}` }}</td>
-                <td>{{ props.view?.wastage }}%</td>
+                <td>{{ (props.view?.purchase_unit_total).toFixed(2) }}</td>
+                <td>{{ (props.view?.unit_price).toFixed(2) }}</td>
+                <td>{{ `${(+(props.view?.purchase_unit_total) * +(+(props.view?.wastage) / 100)).toFixed(2)}` }}</td>
+                <td>{{ (props.view?.wastage).toFixed(2) }}%</td>
                 <td>
                   <p class="m-0">BoE: {{ props.view?.boe_no }}</p>
                   <p class="m-0">Date: {{ moment(props.view?.boe_date).format("DD/MM/YYYY") }}</p>

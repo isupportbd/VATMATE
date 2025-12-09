@@ -75,7 +75,7 @@
         </div>
       </div>
     </div>
-    <!-- <div class="col-12" :class="{ 'd-none': !(props.view?.additions.length > 0) }">
+    <div class="col-12" :class="{ 'd-none': !(props.view?.additions.length > 0) }">
       <div class="card border m-0">
         <div class="card-header text-uppercase fw-bold">
           <span>{{ props.view?.item?.name }}</span><span class="px-1">|</span>
@@ -102,7 +102,7 @@
           </div>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
