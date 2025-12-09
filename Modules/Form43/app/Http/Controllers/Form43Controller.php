@@ -60,8 +60,10 @@ class Form43Controller extends Controller
         EXISTS (
             SELECT 1
             FROM form621s f
-            WHERE f.client_id = form43s.client_id
+            WHERE f.lc_or_invoice_no   = form43s.lc_no
+              AND f.client_id = form43s.client_id
               AND f.item_id   = form43s.item_id
+              AND f.boe   = form43s.boe_no
         ) AS has_form621
     "))->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
@@ -82,7 +84,7 @@ class Form43Controller extends Controller
     $formField = $request->validate(
       [
         'lc_no' => ['required', 'max:50', function ($attribute, $value, $fail) use ($request) {
-          $exists = $this->form43->where([['lc_no', $value], ['client_id', $request->client_id], ['item_id', $request->item_id]])->exists();
+          $exists = $this->form43->where([['lc_no', $value], ['boe_no', $request->boe_no], ['client_id', $request->client_id], ['item_id', $request->item_id]])->exists();
 
           if ($exists) {
             return $fail('Exists, change your input');
@@ -297,7 +299,13 @@ class Form43Controller extends Controller
 
     $formField = $request->validate(
       [
-        'lc_no' => 'required|max:50',
+        'lc_no' => ['required', 'max:50', function ($attribute, $value, $fail) use ($request) {
+          $exists = $this->form43->where([['lc_no', $value], ['boe_no', $request->boe_no], ['client_id', $request->client_id], ['item_id', $request->item_id]])->exists();
+
+          if ($exists) {
+            return $fail('Exists, change your input');
+          }
+        }],
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
           $client = $this->client->find($value);
 
