@@ -69,16 +69,23 @@ class AdjustmentController extends Controller
           if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($closingExpenseId, $request) {
+          // expense must exist
           $expense = $this->expense->find($value);
           if (!$expense) return $fail('Not exists');
 
-          $closing = $this->adjustment->query()
+          // If this is NOT Closing Balance → do nothing extra
+          if (!$closingExpenseId || (int)$value !== (int)$closingExpenseId) return;
+
+          // Only for Closing Balance: check if already added for this client + month
+          $closingExists = $this->adjustment->query()
             ->where('expense_id', $closingExpenseId)
             ->where('client_id', $request->input('client_id'))
             ->where('tax_period', $request->input('tax_period'))
             ->exists();
 
-          if ($closing) return $fail('Already exists');
+          if ($closingExists) {
+            $fail('Already exists');
+          }
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
         'amount'     => 'required|numeric',
@@ -102,7 +109,7 @@ class AdjustmentController extends Controller
       ]
     );
 
-    // Insert (Closing Balance is also blocked here if already exists)
+    // Insert
     $this->adjustment->create($formField);
 
     // realtime data
@@ -132,6 +139,9 @@ class AdjustmentController extends Controller
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
+    // Find Closing Balance expense id once
+    $closingExpenseId = $this->expense->where('name', 'Closing Balance')->value('id');
+
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
@@ -143,9 +153,24 @@ class AdjustmentController extends Controller
 
           if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
-        'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
+        'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($closingExpenseId, $request) {
+          // expense must exist
           $expense = $this->expense->find($value);
           if (!$expense) return $fail('Not exists');
+
+          // If this is NOT Closing Balance → do nothing extra
+          if (!$closingExpenseId || (int)$value !== (int)$closingExpenseId) return;
+
+          // Only for Closing Balance: check if already added for this client + month
+          $closingExists = $this->adjustment->query()
+            ->where('expense_id', $closingExpenseId)
+            ->where('client_id', $request->input('client_id'))
+            ->where('tax_period', $request->input('tax_period'))
+            ->exists();
+
+          if ($closingExists) {
+            $fail('Already exists');
+          }
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
         'amount' => 'required|numeric',
