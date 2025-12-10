@@ -550,13 +550,13 @@ class Form43Controller extends Controller
       ->where('last', 1)
       ->first();
 
-    $additionSum = optional($form43->additionsum())->first();
-    $unitPrice = optional($form43)->unit_price;
-    $form43ForFactor = ($unitPrice + optional($additionSum)->valuesum);
-
     if (!$form43) {
       return response()->json(['form43last' => $form43, 'unitprice' => null, 'max_item_code' => $maxItemCode, 'has_addition' => false, 'message' => '4.3 not found']);
     }
+
+    $additionSum = optional($form43->additionsum())->first();
+    $unitPrice = optional($form43)->unit_price;
+    $form43ForFactor = ($unitPrice + optional($additionSum)->valuesum);
 
     // use your simple additions() relation here
     $hasAddition = $form43->additions()->exists();
@@ -565,6 +565,12 @@ class Form43Controller extends Controller
       return response()->json(['form43last' => $form43, 'unitprice' => null, 'max_item_code' => $maxItemCode, 'has_addition' => $hasAddition, 'message' => '4.3 has no addition']);
     }
 
-    return response()->json(['form43last' => $form43, 'unitprice' => $form43ForFactor, 'max_item_code' => $maxItemCode, 'has_addition' => $hasAddition, 'message' => null]);
+    return response()->json([
+      'form43last' => $form43,
+      'unitprice' => number_format($form43ForFactor, 2, '.', ''),
+      'max_item_code' => $maxItemCode,
+      'has_addition' => $hasAddition,
+      'message' => null
+    ]);
   }
 }

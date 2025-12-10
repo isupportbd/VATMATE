@@ -3,14 +3,16 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Models\Client;
 use Modules\Creditnote\Models\Creditnote;
 use Modules\Sale\Models\Sale;
+use Spatie\Browsershot\Browsershot;
 
-class CreditnoteController extends Controller
+class Report67Controller extends Controller
 {
   public $client;
   public $creditnote;
@@ -54,7 +56,7 @@ class CreditnoteController extends Controller
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
-    return Inertia("report/creditnote/index", [
+    return Inertia("report/report67/index", [
       'creditnote' => $query,
       'search' => $search
     ]);
@@ -73,6 +75,49 @@ class CreditnoteController extends Controller
 
     $customer = $this->sale->where('client_id', $creditnote->client_id)->where("invoice_no", $creditnote->lc_or_invoice_no)->first();
 
-    return Inertia("report/creditnote/View", ['view' => $creditnote, 'customer' => $customer]);
+    return Inertia("report/report67/View", ['view' => $creditnote, 'customer' => $customer]);
+  }
+
+  /**
+   * This is for 6.7 pdf shows
+   */
+  public function pdf(Request $request)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $creditnote = $this->creditnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])
+      ->findOrFail($request->query('id'));
+
+    if (!$isAdmin && ($creditnote->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    $html = view('pdf.report67', [
+      'view' => $creditnote,
+    ])->render();
+
+    $browser = Browsershot::html($html)
+      ->showBackground()
+      ->margins(10, 10, 10, 10)
+      ->format('A4')
+      ->emulateMedia('print')
+      ->setOption('args', [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ]);
+
+    // 👇 only uses the path when it exists (on server)
+    if ($path = env('BROWSERSHOT_CHROME_PATH')) {
+      $browser->setChromePath($path);
+    }
+
+    $pdfData = $browser->pdf();
+    $fileName = "filename=report67-{$creditnote?->client->bin}" . Carbon::parse($creditnote?->date_of_submmission)->format('M-Y');
+
+    return response($pdfData)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', "inline; $fileName");
   }
 }

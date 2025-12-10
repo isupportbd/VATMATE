@@ -1,17 +1,18 @@
 <template>
 
-  <Head title="Creditnote 6.7" />
+  <Head title="Report 6.8" />
   <PageBar>
-    <p class="m-0 fs-4">Creditnote 6.7</p>
+    <p class="m-0 fs-4">Report 6.8</p>
   </PageBar>
 
   <Refresh>
+    <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
-      :href="route('creditnote-67', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
+      :href="route('report-68', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -21,8 +22,8 @@
         <div class="row">
           <div class="col-12">
             <div class="fw-bold text-center position-relative">
-              <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0">
-                Mushak-6.7
+              <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0" style="top:75%">
+                Mushak-6.8
               </label>
               <p class="m-0">Government of the People's Republic of Bangladesh</p>
               <p class="m-0">National Board of Revenue</p>
@@ -31,7 +32,7 @@
         </div>
         <div class="row my-3">
           <div class="col-12 text-center">
-            <p class="m-0 fw-bold">Credit Note</p>
+            <p class="m-0 fw-bold">Debit Note</p>
             <p class="m-0">[See Clauses (C) and (f) of Sub-Rule (1) of Rule 40]</p>
           </div>
         </div>
@@ -40,13 +41,13 @@
             <p class="m-0">Name of Registered Person : {{ props.view?.client?.company_name }}</p>
             <p class="m-0">BIN of Registered Person : {{ props.view?.client?.bin }}</p>
             <p class="m-0">Address of Registered Person: {{ props.view?.client?.address }}</p>
-            <p class="m-0">Name of Receiver : {{ props.customer?.customer_name }}</p>
-            <p class="m-0">BIN of Receiver : {{ props.customer?.customer_mobile }}</p>
-            <p class="m-0">Address of Receiver : {{ props.customer?.customer_address }}</p>
+            <p class="m-0">Name of Receiver : {{ props.view?.exporter_name }}</p>
+            <p class="m-0">BIN of Receiver : </p>
+            <p class="m-0">Address of Receiver : </p>
             <p class="m-0">Vehicle Type & Number : </p>
           </div>
           <div class="col-12 col-sm-3 col-md-3">
-            <p class="m-0">Credit Note No : {{ props.view?.creditnote_invoice }}</p>
+            <p class="m-0">Debit Note : {{ props.view?.debitnote_invoice }}</p>
             <p class="m-0">Date of Issue : {{ moment(props.view?.issued_date).format('DD/MM/YYYY') }}</p>
             <p class="m-0">Time of Issue : </p>
           </div>
@@ -58,10 +59,10 @@
                 <thead class="align-middle">
                   <tr>
                     <th rowspan="2">#</th>
-                    <th rowspan="2">Challan Number & Date</th>
+                    <th rowspan="2">BoE Number & Date</th>
                     <th rowspan="2">Reason for Issuance</th>
                     <th colspan="4">Delivery information mentioned in the invoice</th>
-                    <th colspan="4">Related to decreasing adjustment</th>
+                    <th colspan="4">Related to increasing adjustment</th>
                   </tr>
                   <tr>
                     <th>Value</th>
@@ -78,7 +79,7 @@
                   <tr>
                     <td>1</td>
                     <td>
-                      <p class="m-0">{{ props?.view?.lc_or_invoice_no }}</p>
+                      <p class="m-0">{{ props?.view?.boe }}</p>
                       <p class="m-0">{{ props?.view?.vat_challan_date }} </p>
                     </td>
                     <td>({{ props?.view?.item?.name }}) <br> {{ props?.view?.reason_for_issuance }}</td>
@@ -86,10 +87,10 @@
                     <td>{{ props?.view?.quantity_in_challan }}</td>
                     <td>{{ props?.view?.vat_in_challan }}</td>
                     <td>{{ props?.view?.sd_in_challan }}</td>
-                    <td>{{ props?.view?.value_of_decreasing_adjustment }}</td>
-                    <td>{{ props?.view?.quantity_of_decreasing_adjustment }}</td>
-                    <td>{{ props?.view?.vat_of_decreasing_adjustment }}</td>
-                    <td>{{ props?.view?.sd_of_decreasing_adjustment }}</td>
+                    <td>{{ props?.view?.value_of_increasing_adjustment }}</td>
+                    <td>{{ props?.view?.quantity_of_increasing_adjustment }}</td>
+                    <td>{{ props?.view?.vat_of_increasing_adjustment }}</td>
+                    <td>{{ props?.view?.sd_of_increasing_adjustment }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -125,10 +126,17 @@ import PageBar from '../../../components/PageBar.vue';
 import Refresh from '../../../components/Refresh.vue';
 import Button from '../../../components/Button.vue';
 
-const props = defineProps({ view: { type: Object }, customer: { type: Object } });
+const props = defineProps({ view: { type: Object } });
+
+const openPdf = () => {
+  if (typeof window !== 'undefined') {
+    const id = route().params.id;
+    window.open(route('report-68-pdf', { id: id, bin: props.view?.client?.bin }), '_blank');
+  }
+};
 
 // reload report 63
-const refresh = (id, client_id, monthYear) => router.get(route('creditnote-67-view', { id: id }), { client_id: client_id, monthYear: monthYear }, { preserveScroll: true });
+const refresh = (id, client_id, monthYear) => router.get(route('report-68-view', { id: id }), { client_id: client_id, monthYear: monthYear }, { preserveScroll: true });
 
 onMounted(() => {
   const reload = () => router.reload({ only: ['view'], preserveState: true, preserveScroll: true });

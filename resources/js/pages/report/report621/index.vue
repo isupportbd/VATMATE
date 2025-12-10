@@ -6,7 +6,8 @@
   </PageBar>
 
   <Refresh>
-    <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat' @click="refresh(route().params.client_id)" />
+    <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
+      @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
       class="nav-btn">
     <i class="bi bi-chevron-left"></i>
@@ -23,12 +24,6 @@
             <SelectInfinite parentclass="m-0 p-0" :class="{ 'border border-danger rounded-2': !empty(err.item) }"
               placeholder="Select..." v-model="field.item" :fetched="fetchedItem" />
           </div>
-          <div class="col-12 col-sm-8 col-lg-5 col-xl-4 mb-2 mb-lg-0">
-            <div class="input-group" :class="{ 'border border-danger': !empty(err.from_date) }" role="group">
-              <input type="date" class="form-control" placeholder="Ex: 2025-07" v-model="field.from_date" />
-              <input type="date" class="form-control" placeholder="Ex: 2025-10" v-model="field.to_date" />
-            </div>
-          </div>
           <div class="col-12 col-sm-4 col-lg-3 col-xl-2">
             <div class="btn-group gap-1 w-100">
               <Button type="button" class="btn btn-outline-secondary rounded-2" title="filter" @click="filterData">
@@ -44,7 +39,7 @@
                 </span>
               </Button>
               <Button type="button" class="btn btn-outline-secondary rounded-2" title="reset"
-                @click="refresh(route().params.client_id)">
+                @click="refresh(route().params.client_id, route().params.monthYear)">
                 <i class="bi bi-stars"></i>
               </Button>
             </div>
@@ -343,8 +338,7 @@ const props = defineProps({
   Report621: { type: [Object, Array] },
   clientdetail: { type: Object },
   item_id: { type: [String, Number] },
-  from_date: { type: String },
-  to_date: { type: String },
+  monthYear: { type: String },
 });
 
 // item dropdown
@@ -362,24 +356,18 @@ const filterData = () => {
   const filters = {
     filter: true,
     item_id: field.item?.id ?? "",
-    from_date: field.from_date ?? "",
-    to_date: field.to_date ?? "",
   };
   // Clean out null/''/undefined
   const params = Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== null && v !== '' && v !== undefined));
 
-  router.get(route('report-621', { client_id: route().params.client_id ?? "" }), filters, {
+  router.get(route('report-621', { client_id: route().params.client_id ?? "", monthYear: route().params.monthYear }), filters, {
     onSuccess: (e) => {
       err.item = "";
-      err.from_date = "";
-      err.to_date = "";
     },
     onError: (errors) => {
       let er = {};
       Object.keys(errors).map((key) => er[key] = errors[key].toString());
       err.item = er.item_id;
-      err.from_date = er.from_date;
-      err.to_date = er.to_date;
     },
     // only: ['form621-client-single-index'],
     preserveScroll: true,
@@ -389,14 +377,10 @@ const filterData = () => {
 };
 
 const exportFile = async () => {
-  err.item = err.from_date = err.to_date = "";
+  err.item = "";
   field.isLoading = true;
 
-  const param = { filter: true, client_id: route().params.client_id, item_id: field.item?.id };
-
-  // send only if not empty
-  if (field.from_date) param.from_date = field.from_date;
-  if (field.to_date) param.to_date = field.to_date;
+  const param = { filter: true, client_id: route().params.client_id, monthYear: route().params.monthYear, item_id: field.item?.id };
 
   try {
     await axios.post(route('report-621-excel'), param);
@@ -409,8 +393,6 @@ const exportFile = async () => {
     }
 
     err.item = errors.item_id?.[0] || "";
-    err.from_date = errors.from_date?.[0] || "";
-    err.to_date = errors.to_date?.[0] || "";
 
     if (Object.keys(errors).length) {
       err.notfound = true;
@@ -420,7 +402,7 @@ const exportFile = async () => {
 };
 
 // refresh load
-const refresh = (id) => router.get(route('report-621', { client_id: id }), {}, { preserveScroll: true });
+const refresh = (id, monthYear) => router.get(route('report-621', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
 
 onMounted(() => {
   const reload = (e) => {

@@ -3,13 +3,15 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Models\Client;
 use Modules\Debitnote\Models\Debitnote;
+use Spatie\Browsershot\Browsershot;
 
-class DebitnoteController extends Controller
+class Report68Controller extends Controller
 {
   public $client;
   public $debitnote;
@@ -51,7 +53,7 @@ class DebitnoteController extends Controller
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
-    return Inertia("report/debitnote/index", [
+    return Inertia("report/report68/index", [
       'debitnote' => $query,
       'search' => $search
     ]);
@@ -68,6 +70,49 @@ class DebitnoteController extends Controller
       return back()->with('error', 'Unauthorised');
     }
 
-    return Inertia("report/debitnote/View", ['view' => $debitnote]);
+    return Inertia("report/report68/View", ['view' => $debitnote]);
+  }
+
+  /**
+   * This is for 6.8 pdf shows
+   */
+  public function pdf(Request $request)
+  {
+    $user    = Auth::user();
+    $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $debitnote = $this->debitnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])
+      ->findOrFail($request->query('id'));
+
+    if (!$isAdmin && ($debitnote->client?->user_id !== $user->id)) {
+      return back()->with('error', 'Unauthorised');
+    }
+
+    $html = view('pdf.report68', [
+      'view' => $debitnote,
+    ])->render();
+
+    $browser = Browsershot::html($html)
+      ->showBackground()
+      ->margins(10, 10, 10, 10)
+      ->format('A4')
+      ->emulateMedia('print')
+      ->setOption('args', [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ]);
+
+    // 👇 only uses the path when it exists (on server)
+    if ($path = env('BROWSERSHOT_CHROME_PATH')) {
+      $browser->setChromePath($path);
+    }
+
+    $pdfData = $browser->pdf();
+    $fileName = "filename=report68-{$debitnote?->client->bin}" . Carbon::parse($debitnote?->date_of_submmission)->format('M-Y');
+
+    return response($pdfData)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', "inline; $fileName");
   }
 }

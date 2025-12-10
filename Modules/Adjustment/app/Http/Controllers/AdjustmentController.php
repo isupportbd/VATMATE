@@ -70,9 +70,15 @@ class AdjustmentController extends Controller
         }],
         'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($closingExpenseId, $request) {
           $expense = $this->expense->find($value);
-          if (!$expense) {
-            return $fail('Not exists');
-          }
+          if (!$expense) return $fail('Not exists');
+
+          $closing = $this->adjustment->query()
+            ->where('expense_id', $closingExpenseId)
+            ->where('client_id', $request->input('client_id'))
+            ->where('tax_period', $request->input('tax_period'))
+            ->exists();
+
+          if ($closing) return $fail('Already exists');
         }],
         'tax_period' => 'required|date_format:"Y-m"|max:7',
         'amount'     => 'required|numeric',

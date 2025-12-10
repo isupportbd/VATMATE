@@ -64,23 +64,28 @@ class Form621Controller extends Controller
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
+    $itemId = $request->input('item_id');
+
     if ($request->has('filter')) {
       $request->validate(['item_id' => 'nullable|numeric|gt:0']);
     }
 
     $form621 = $this->form621->with(['importable', 'item', 'unit', 'client', 'form43'])
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($request->input('item_id'), fn($q) => $q->where([
-        ['client_id', $client_id],
-        ['item_id', $request->input('item_id')]
-      ]));
+      ->when($itemId, fn($q) => $q->where('item_id', $itemId))
+      ->where('client_id', $client_id)
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
-    $result = $form621->where('client_id', $client_id)->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
-
-    $clientDetail = $this->form621->select('id', 'client_id')->with(['client:id,bin,company_name'])->where('client_id', $client_id)->first();
+    $clientDetail = $this->form621->query()
+      ->select('id', 'client_id')
+      ->with(['client:id,bin,company_name'])
+      ->where('client_id', $client_id)
+      ->first();
 
     return Inertia("form621/Form621ClientTable", [
-      'Form621ClientTable' => $result,
+      'Form621ClientTable' => $form621,
       'clientdetail' => $clientDetail,
       'item_id' => request('item_id')
     ]);

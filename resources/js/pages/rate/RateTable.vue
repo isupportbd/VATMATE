@@ -3,7 +3,7 @@
   <DataTable :data="props.data" :search="props.search" :option="[5, 10, 15]" :removable="false" v-else>
     <template #thead>
       <th class="col-3">Details</th>
-      <th class="col-4">Item | Date | Unit Price</th>
+      <th class="col-3">Item | Date | Unit Price</th>
       <th class="text-center">Action</th>
     </template>
     <template #tbody="{ td }">

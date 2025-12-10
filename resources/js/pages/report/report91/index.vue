@@ -6,6 +6,7 @@
   </PageBar>
 
   <Refresh>
+    <Button class="nav-btn" icon="bi bi-file-earmark-pdf-fill" @click="openPdf" />
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
@@ -767,6 +768,13 @@ const props = defineProps({
 });
 
 const notify = inject('showToast'); // toast
+
+const openPdf = () => {
+  if (typeof window !== 'undefined') {
+    const id = route().params.id;
+    window.open(route('report-91-pdf', { client_id: route().params.client_id, monthYear: route().params.monthYear }), '_blank');
+  }
+};
 
 // reload summary 43
 const refresh = (id, monthYear) => router.get(route('report-91', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });

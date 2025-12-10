@@ -8,7 +8,7 @@
   <Refresh>
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat' @click="refresh(route().params.client_id)" />
     <Link title="back" :href="route('report')" class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -37,63 +37,63 @@
             <div class="container-fluid p-0">
               <div class="row g-1">
                 <div class="col-3">
-                  <Link :href="route('report-621', { client_id: td.client_id })"
+                  <Link :href="route('report-621', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>6.2.1</span>
+                    <span>6.2.1</span>
                   </Link>
                 </div>
                 <div class="col-6">
                   <Link :href="route('report-summary', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>Summary</span>
+                    <span>Summary</span>
                   </Link>
                 </div>
                 <div class="col-3">
                   <Link :href="route('report-boe', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>BoE</span>
+                    <span>BoE</span>
                   </Link>
                 </div>
                 <div class="col-4">
                   <Link :href="route('report-43', { client_id: td?.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2" title="edit">
-                  <span>4.3</span>
+                    <span>4.3</span>
                   </Link>
                 </div>
                 <div class="col-4">
-                  <Link :href="route('form-44', { client_id: td.client_id, monthYear: td?.tax_period })"
+                  <Link :href="route('report-44', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>4.4</span>
+                    <span>4.4</span>
                   </Link>
                 </div>
                 <div class="col-4">
-                  <Link :href="route('form-45', { client_id: td.client_id, monthYear: td?.tax_period })"
+                  <Link :href="route('report-45', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>4.5</span>
+                    <span>4.5</span>
                   </Link>
                 </div>
                 <div class="col-3">
                   <Link :href="route('report-63', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>6.3</span>
+                    <span>6.3</span>
                   </Link>
                 </div>
                 <div class="col-3">
-                  <Link :href="route('creditnote-67', { client_id: td.client_id, monthYear: td?.tax_period })"
+                  <Link :href="route('report-67', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>6.7</span>
+                    <span>6.7</span>
                   </Link>
                 </div>
                 <div class="col-3">
-                  <Link :href="route('debitnote-68', { client_id: td.client_id, monthYear: td?.tax_period })"
+                  <Link :href="route('report-68', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>6.8</span>
+                    <span>6.8</span>
                   </Link>
                 </div>
                 <div class="col-3">
                   <Link :href="route('report-91', { client_id: td.client_id, monthYear: td?.tax_period })"
                     class="btn btn-outline-dark w-100 rounded-2">
-                  <span>9.1</span>
+                    <span>9.1</span>
                   </Link>
                 </div>
               </div>

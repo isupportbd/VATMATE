@@ -49,7 +49,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 14px;
+            font-size: 12px;
             margin: 15px;
         }
     </style>
@@ -64,9 +64,9 @@
                     <h5 class="m-0">
                         {{ $client->company_name ?? '' }}
                     </h5>
-                    <h6 class="m-0">
+                    <p class="m-0">
                         {{ $client->address ?? '' }}
-                    </h6>
+                    </p>
                     <p class="m-0">
                         BIN: {{ $client->bin ?? '' }}
                     </p>

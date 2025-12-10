@@ -12,12 +12,20 @@
   <div class="card card-body mb-2" :class="{ 'd-none': !role('admin') }">
     <form class="mx-auto" @submit.prevent="uploadFile">
       <div :class="{ 'border border-danger rounded-2': err }">
-        <div class="input-group" role="group">
+        <!-- <div class="input-group" role="group">
           <Input type="file" @change="handleFileChange" topclass="mb-0" :disabled="form.processing" />
           <Button type="submit" class="btn btn-outline-secondary py-0 px-3" title="upload" :disabled="form.processing">
             <span v-if="form.progress">{{ form.progress.percentage }}%</span>
             <span class="fw-bold" v-else><i class="bi bi-upload fs-4"></i></span>
           </Button>
+          <Button type="button" @click="resetForm" class="btn btn-outline-secondary" icon="bi bi-stars" title="reset" />
+        </div> -->
+        <div class="input-group">
+          <input type="file" @change="handleFileChange" class="form-control" id="upload" :disabled="form.processing" />
+          <button class="btn btn-outline-secondary" type="submit" id="upload">
+            <span v-if="form.progress">{{ form.progress.percentage }}%</span>
+            <span class="fw-bold" v-else><i class="bi bi-upload"></i></span>
+          </button>
           <Button type="button" @click="resetForm" class="btn btn-outline-secondary" icon="bi bi-stars" title="reset" />
         </div>
       </div>

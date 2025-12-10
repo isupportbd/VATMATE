@@ -1048,7 +1048,7 @@ class SummaryController extends Controller
         'note34'                         => $note34,
         'note35'                         => $note35,
         'note36'                         => $note36,
-      ],
+      ]
     ])->render();
 
     $browser = Browsershot::html($html)

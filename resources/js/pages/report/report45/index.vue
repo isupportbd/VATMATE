@@ -10,7 +10,7 @@
       @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -44,14 +44,14 @@
         </p>
       </td>
       <td class="text-center" :class="((td.last == 1) && role('admin')) && 'text-primary'">
-        {{ moment(td?.issued_date).format("MMM YYYY") }}
+        {{ moment(td?.date).format("MMM YYYY") }}
       </td>
       <td class="text-center">
         <div class="btn-group" role="group">
           <Link
-            :href="route('form-45-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
+            :href="route('report-45-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
             class="btn btn-outline-dark w-100 rounded-2">
-          <i class="bi bi-eye"></i>
+            <i class="bi bi-eye"></i>
           </Link>
         </div>
       </td>
@@ -80,7 +80,7 @@ const props = defineProps({
 const notify = inject('showToast'); // toast
 
 // reload report 43
-const refresh = (id, monthYear) => router.get(route('form-45', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
+const refresh = (id, monthYear) => router.get(route('report-45', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
 
 onMounted(() => {
   const reload = () => router.reload({ only: ['form45'], preserveState: true, preserveScroll: true });

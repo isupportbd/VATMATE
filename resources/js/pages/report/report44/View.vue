@@ -10,7 +10,7 @@
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat'
       @click="refresh(route().params.id, route().params.client_id, route().params.monthYear)" />
     <Link title="back"
-      :href="route('form-44', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
+      :href="route('report-44', { client_id: route().params.client_id, monthYear: route().params.monthYear })"
       class="nav-btn">
       <i class="bi bi-chevron-left"></i>
     </Link>
@@ -22,7 +22,7 @@
         <div class="row">
           <div class="col-12">
             <div class="fw-bold text-center position-relative">
-              <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0">
+              <label class="fw-bold border border-secondary border-2 position-absolute p-2 end-0" style="top: 75%">
                 Mushak-4.4
               </label>
               <p class="m-0">Government of the People's Republic of Bangladesh</p>
@@ -68,7 +68,7 @@
                 <tbody class="align-middle">
                   <tr>
                     <td>1</td>
-                    <td>{{ props.view?.item?.name }}</td>
+                    <td>{{ props.view?.item?.name }} <br /> {{ props.view?.item?.hs_code }}</td>
                     <td>{{ props.view?.boe }}</td>
                     <td>{{ props.view?.form621_id }}</td>
                     <td>{{ +(props.view?.quantity)?.toFixed(2) }}</td>
@@ -122,7 +122,7 @@ const openPdf = () => {
 };
 
 // reload report 63
-const refresh = (id, client_id, monthYear) => router.get(route('form-44-view', { id: id }), { client_id: client_id, monthYear: monthYear }, { preserveScroll: true });
+const refresh = (id, client_id, monthYear) => router.get(route('report-44-view', { id: id }), { client_id: client_id, monthYear: monthYear }, { preserveScroll: true });
 
 onMounted(() => {
   const reload = () => router.reload({ only: ['view'], preserveState: true, preserveScroll: true });

@@ -69,7 +69,7 @@ class Report63Controller extends Controller
   }
 
   /**
-   * This is for 4.3 pdf shows
+   * This is for 6.3 pdf shows
    */
   public function pdf(Request $request)
   {

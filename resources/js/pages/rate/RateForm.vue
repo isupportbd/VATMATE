@@ -16,21 +16,27 @@
               :hood="`<span class='text-lowercase text-danger'>${field.check43}</span>`" :reset-key="field.bin?.id"
               must />
           </div>
-          <div class="col-6 col-md-3 col-lg-6">
+          <div class="col-6 col-md-6 col-lg-6">
             <Input type="date" id="date" label="date" v-model="field.date" :err="err.date" must />
           </div>
-          <div class="col-6 col-md-3 col-lg-6">
-            <InputGroup type="text" category="decimal" label="unit price" placeholder="Ex: 5412"
-              placeholder1="Ex: 46.60%" v-model="field.unit_price" :err="err.unit_price"
-              :hood="field.last_purchase_rate" :calcdata="field.percent_gap" @keyup="recompute" half must />
+          <div class="col-6 col-md-6 col-lg-6">
+            <Input type="text" category="decimal" id="value"
+              label="value<sup class='text-danger' style='font-size:8.5px'>(With Vat)</sup>" placeholder="Ex: 2848.75"
+              v-model="field.value" :err="err.value" @keyup="recompute" must />
           </div>
-          <div class="col-6 col-md-3 col-lg-6">
+          <div class="col-6 col-sm-3 col-md-3 col-lg-3">
             <Input type="text" category="decimal" id="sd" label="SD(%)" placeholder="Ex: 5%" maxlength="6"
-              v-model="field.sd" :err="err.sd" must />
+              v-model="field.sd" :err="err.sd" @keyup="recompute" must />
           </div>
-          <div class="col-6 col-md-3 col-lg-6">
+          <div class="col-6 col-sm-3 col-md-3 col-lg-3">
             <Input type="text" category="decimal" id="vat" label="VAT(%)" placeholder="Ex: 15%" maxlength="6"
-              v-model="field.vat" :err="err.vat" must />
+              v-model="field.vat" :err="err.vat" @keyup="recompute" must />
+          </div>
+          <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+            <InputGroup type="text" category="decimal"
+              label="unit price<sup class='text-danger' style='font-size:8.5px'>(Without Vat)</sup>"
+              placeholder="Ex: 5412" placeholder1="Ex: 46.60%" v-model="field.unit_price" :err="err.unit_price"
+              :hood="field.last_purchase_rate" :calcdata="field.percent_gap" @keyup="recompute" half must readonly />
           </div>
         </div>
         <div class="d-flex align-items-center">
@@ -63,8 +69,8 @@ const props = defineProps({
 });
 
 // rate field
-const field = reactive({ id: '', bin: '', item: '', date: '', unit_price: '', sd: '', vat: '', last_purchase_rate: '', form43_unit_price: '', percent_gap: '', check43: '', isLoading: false });
-const err = reactive({ bin: '', item: '', date: '', unit_price: '', sd: '', vat: '' });
+const field = reactive({ id: '', bin: '', item: '', date: '', value: '', unit_price: '', sd: '', vat: '', last_purchase_rate: '', form43_unit_price: '', percent_gap: '', check43: '', isLoading: false });
+const err = reactive({ bin: '', item: '', date: '', value: '', unit_price: '', sd: '', vat: '' });
 
 // bin dropdown
 const fetchedBin = async () => {
@@ -89,8 +95,7 @@ const fetchedItem = async () => {
 const lastForm43Load = async () => {
   const param = { client_id: field.bin?.id, item_id: field.item?.id };
   if (!param.client_id || !param.item_id) {
-    field.last_purchase_rate = "";
-    field.check43 = "";
+    field.last_purchase_rate = field.check43 = field.unit_price = field.value = field.vat = field.sd = field.percent_gap = "";
     return;
   }
 
@@ -103,21 +108,27 @@ const lastForm43Load = async () => {
   field.form43_unit_price = res43.data?.form43last?.unit_price ?? "";
   field.check43 = rRate.data?.message ?? "";
 
-  field.percent_gap = (((+(field.last_purchase_rate) - +(field.form43_unit_price)) / +(field.form43_unit_price)) * 100).toFixed(2) + "%" ?? "";
+  field.percent_gap = (field.form43_unit_price) ? (((+(field.last_purchase_rate) - +(field.form43_unit_price)) / +(field.form43_unit_price)) * 100).toFixed(2) + "%" : "";
 };
 
 const recompute = () => {
-  const unitPrice = Number(field.unit_price);
-  const from43UnitPrice = Number(field.form43_unit_price);
+  const val = +(field.value);
+  const sd = +(field.sd);
+  const vat = +(field.vat);
+  const from43UnitPrice = +(field.form43_unit_price);
 
   // If cleared → clear percent_gap
-  if (!unitPrice || !from43UnitPrice) {
+  if (!from43UnitPrice || !val) {
     field.percent_gap = "";
+    field.unit_price = "";
     return;
   }
 
-  const gap = ((unitPrice - from43UnitPrice) / from43UnitPrice) * 100;
+  const uprice = (val - (val * (vat / (100 + vat)))) - ((val - (val * (vat / (100 + vat)))) * (sd / (100 + sd)));
+  const gap = ((uprice - from43UnitPrice) / from43UnitPrice) * 100;
+
   field.percent_gap = `${gap.toFixed(2)}%`;
+  field.unit_price = +uprice.toFixed(2);
 };
 
 // --- Expose API for parent ---
@@ -131,6 +142,7 @@ const setForm = async (data = {}) => {
   field.last_purchase_rate = data?.form43last?.unit_price_with_addition ?? "";
   field.date = row.date ?? "";
   field.unit_price = row.unit_price ?? "";
+  field.value = (+(row.unit_price) + (+(row.unit_price) * (+(row.sd) / 100)) + ((+(row.unit_price) + (+(row.unit_price) * (+(row.sd) / 100))) * (row.vat / 100))).toFixed(2) ?? "";
   field.sd = row.sd ?? "";
   field.vat = row.vat ?? "";
   // clear previous errors when setting a record
@@ -142,7 +154,7 @@ const setForm = async (data = {}) => {
 
 // reset form
 const resetForm = () => {
-  field.id = field.bin = field.item = field.date = field.unit_price = field.sd = field.vat = err.bin = err.item = err.date = err.unit_price = err.sd = err.vat = field.last_purchase_rate = field.check43 = field.percent_gap = "";
+  field.id = field.bin = field.item = field.date = field.value = field.unit_price = field.sd = field.vat = err.bin = err.item = err.date = err.value = err.unit_price = err.sd = err.vat = field.last_purchase_rate = field.check43 = field.percent_gap = "";
 };
 
 defineExpose({ setForm, resetForm });
@@ -155,6 +167,7 @@ const submitData = async () => {
     client_id: field.bin?.id,
     item_id: field.item?.id,
     date: field.date,
+    value: field.value,
     unit_price: field.unit_price,
     sd: field.sd,
     vat: field.vat
@@ -166,6 +179,7 @@ const submitData = async () => {
     err.bin = er.client_id;
     err.item = er.item_id;
     err.date = er.date;
+    err.value = er.value;
     err.unit_price = er.unit_price;
     err.sd = er.sd;
     err.vat = er.vat;

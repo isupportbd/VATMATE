@@ -1,8 +1,8 @@
 <template>
 
-  <Head title="Creditnote 6.7" />
+  <Head title="Report 6.7" />
   <PageBar>
-    <p class="m-0 fs-4">Creditnote 6.7</p>
+    <p class="m-0 fs-4">Report 6.7</p>
   </PageBar>
 
   <Refresh>
@@ -10,7 +10,7 @@
       @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
@@ -49,9 +49,9 @@
       <td class="text-center">
         <div class="btn-group" role="group">
           <Link
-            :href="route('creditnote-67-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
+            :href="route('report-67-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
             class="btn btn-outline-dark w-100 rounded-2">
-          <i class="bi bi-eye"></i>
+            <i class="bi bi-eye"></i>
           </Link>
         </div>
       </td>
@@ -80,7 +80,7 @@ const props = defineProps({
 const notify = inject('showToast'); // toast
 
 // reload report 43
-const refresh = (id, monthYear) => router.get(route('creditnote-67', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
+const refresh = (id, monthYear) => router.get(route('report-67', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
 
 onMounted(() => {
   const reload = () => router.reload({ only: ['creditnote'], preserveState: true, preserveScroll: true });

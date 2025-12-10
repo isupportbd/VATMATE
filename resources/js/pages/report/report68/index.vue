@@ -1,8 +1,8 @@
 <template>
 
-  <Head title="Report 4.4" />
+  <Head title="Debitnote 6.8" />
   <PageBar>
-    <p class="m-0 fs-4">Report 4.4</p>
+    <p class="m-0 fs-4">Debitnote 6.8</p>
   </PageBar>
 
   <Refresh>
@@ -10,12 +10,12 @@
       @click="refresh(route().params.client_id, route().params.monthYear)" />
     <Link title="back" :href="route('report-client-data-list', { client_id: route().params.client_id })"
       class="nav-btn">
-    <i class="bi bi-chevron-left"></i>
+      <i class="bi bi-chevron-left"></i>
     </Link>
   </Refresh>
 
-  <DataTableSkeleton row="5" col="4" v-if="empty(props.form44)" />
-  <DataTable :data="props.form44" :search="props.search" :option="[5, 10, 15]" :removable="false" v-else>
+  <DataTableSkeleton row="5" col="4" v-if="empty(props.debitnote)" />
+  <DataTable :data="props.debitnote" :search="props.search" :option="[5, 10, 15]" :removable="false" v-else>
     <template #thead>
       <th class="col-5">Client</th>
       <th class="col-4">Item</th>
@@ -49,9 +49,9 @@
       <td class="text-center">
         <div class="btn-group" role="group">
           <Link
-            :href="route('form-44-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
+            :href="route('report-68-view', { id: td?.id, client_id: route().params.client_id, monthYear: route().params.monthYear })"
             class="btn btn-outline-dark w-100 rounded-2">
-          <i class="bi bi-eye"></i>
+            <i class="bi bi-eye"></i>
           </Link>
         </div>
       </td>
@@ -73,17 +73,17 @@ import Refresh from '../../../components/Refresh.vue';
 import moment from 'moment-timezone';
 
 const props = defineProps({
-  form44: { type: Object },
+  debitnote: { type: Object },
   search: { type: String }
 });
 
 const notify = inject('showToast'); // toast
 
 // reload report 43
-const refresh = (id, monthYear) => router.get(route('form-44', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
+const refresh = (id, monthYear) => router.get(route('debitnote-68', { client_id: id, monthYear: monthYear }), {}, { preserveScroll: true });
 
 onMounted(() => {
-  const reload = () => router.reload({ only: ['form44'], preserveState: true, preserveScroll: true });
+  const reload = () => router.reload({ only: ['debitnote'], preserveState: true, preserveScroll: true });
   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
 });
 

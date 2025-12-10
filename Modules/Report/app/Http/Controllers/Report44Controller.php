@@ -11,7 +11,7 @@ use Modules\Client\Models\Client;
 use Modules\Form44\Models\Form44;
 use Spatie\Browsershot\Browsershot;
 
-class Form44Controller extends Controller
+class Report44Controller extends Controller
 {
   public $client;
   public $form44;
@@ -53,7 +53,7 @@ class Form44Controller extends Controller
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
-    return Inertia("report/form44/index", [
+    return Inertia("report/report44/index", [
       'form44' => $query,
       'search' => $search
     ]);
@@ -70,7 +70,7 @@ class Form44Controller extends Controller
       return back()->with('error', 'Unauthorised');
     }
 
-    return Inertia("report/form44/View", ['view' => $form44]);
+    return Inertia("report/report44/View", ['view' => $form44]);
   }
 
   /**
@@ -81,7 +81,7 @@ class Form44Controller extends Controller
     $user    = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $form44 = $this->form44->with(['client', 'item', 'unit', 'bank'])
+    $form44 = $this->form44->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])
       ->findOrFail($request->query('id'));
 
     if (!$isAdmin && ($form44->client?->user_id !== $user->id)) {
@@ -96,7 +96,12 @@ class Form44Controller extends Controller
       ->showBackground()
       ->margins(10, 10, 10, 10)
       ->format('A4')
-      ->emulateMedia('print');
+      ->emulateMedia('print')
+      ->setOption('args', [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ]);
 
     // 👇 only uses the path when it exists (on server)
     if ($path = env('BROWSERSHOT_CHROME_PATH')) {

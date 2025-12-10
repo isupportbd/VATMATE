@@ -135,7 +135,7 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, reactive, inject, onMounted, onBeforeUnmount } from "vue";
+import { ref, reactive, inject, onMounted } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../helpers/utils";
 import { user, role } from "../../composables/user";
@@ -432,12 +432,5 @@ const submitData = async () => {
 // reload sale
 const refresh = () => router.get(route('sale'), {}, { preserveScroll: true });
 
-onMounted(async () => {
-  await loadSaleLimit();
-  window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reloadAll);
-});
-
-onBeforeUnmount(() => {
-  window.Echo.leave(`App.Models.User.${user.id}`);
-});
+onMounted(async () => await loadSaleLimit());
 </script>

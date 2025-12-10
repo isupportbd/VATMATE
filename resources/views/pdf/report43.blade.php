@@ -53,7 +53,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 14px;
+            font-size: 12px;
             margin: 15px;
         }
     </style>
@@ -77,7 +77,7 @@
             </div>
 
             {{-- PART - 1 --}}
-            <div class="col-12 mb-2">
+            <div class="col-12 mb-3">
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary align-middle">
                         <colgroup>
@@ -123,7 +123,7 @@
             </div>
 
             {{-- PART - 2 --}}
-            <div class="col-12 mb-2">
+            <div class="col-12 mb-3">
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary align-middle">
                         <colgroup>
@@ -183,7 +183,7 @@
             </div>
 
             {{-- PART - 3 --}}
-            <div class="col-12 mb-2">
+            <div class="col-12 mb-3">
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary align-middle">
                         <colgroup>
@@ -244,7 +244,7 @@
             </div>
 
             {{-- Special Notes --}}
-            <div class="col-12 mb-5">
+            <div class="col-12">
                 <div class="border border-secondary p-2">
                     <p>Special Notes:</p>
                     <p>1. Within 15 working days prior to the first delivery of any product or service, the
@@ -260,7 +260,7 @@
             </div>
 
             {{-- Sub-form f: Details of Raw Materials --}}
-            <div class="col-12 mb-2" style="font-size: 11px">
+            <div class="col-12 mb-2" style="font-size: 11px; margin-top:21%">
                 <h6>Sub-form of PART - 2: f. Details of Raw Materials</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">

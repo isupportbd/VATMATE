@@ -75,6 +75,15 @@ class RateController extends Controller
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
+    $clientId = $request->input('client_id');
+    $itemId = $request->input('item_id');
+
+    $form43 = $this->form43->with(['additionsum'])->where('client_id', $clientId)->where('item_id', $itemId)->where('last', 1)->first();
+
+    if (!$form43) {
+      return back()->withErrors(['item_id' => '4.3 not found'])->withInput();
+    }
+
     $formField = $request->validate(
       [
         'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
@@ -86,14 +95,10 @@ class RateController extends Controller
 
           if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
-        'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
+        'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($form43) {
           // Check if item exists
           $item = $this->item->find($value);
           if (!$item) return $fail('Item not exists');
-
-          $clientId = $request->input('client_id');
-
-          $form43 = $this->form43->where('client_id', $clientId)->where('item_id', $value)->where('last', 1)->first();
 
           if (!$form43) return $fail('4.3 not found');
 
@@ -114,11 +119,10 @@ class RateController extends Controller
             return $fail("Greater than today");
           }
         }],
-        'unit_price' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-          $form43Price = $this->form43->with(['additionsum'])->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->first();
-
-          $additionSum = optional($form43Price->additionsum())->first();
-          $unitPrice = optional($form43Price)->unit_price;
+        'value' => 'required|numeric|gt:0',
+        'unit_price' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($form43) {
+          $additionSum = optional($form43->additionsum())->first();
+          $unitPrice = optional($form43)->unit_price;
           $form43ForFactor = ($unitPrice + $additionSum->valuesum);
 
           $calc = !empty($form43ForFactor) ? ((($value - $form43ForFactor) / $form43ForFactor) * 100) : null;
@@ -142,6 +146,9 @@ class RateController extends Controller
         'item_id.gt' => 'Number > 0',
         'date.required' => 'Date required',
         'date.date_format' => 'Invalid date',
+        'value.required' => 'Value required',
+        'value.numeric' => 'Number only',
+        'value.gt' => 'Number > 0',
         'unit_price.required' => 'Unit price required',
         'unit_price.numeric' => 'Number only',
         'unit_price.gt' => 'Number > 0',
@@ -157,14 +164,22 @@ class RateController extends Controller
     );
 
     try {
-      DB::transaction(function () use ($formField, $request) {
+      DB::transaction(function () use ($formField, $clientId, $itemId, $request) {
+        $val = (float) $request->input('value');
+        $vat = (float) $request->input('vat');
+        $sd  = (float) $request->input('sd');
+
         // last form43 id find out with client_id, item_id
-        $last = $this->rate->where(['client_id' => $request->client_id, 'item_id' => $request->item_id])->groupBy(['client_id', 'item_id'])->max('id');
+        $last = $this->rate->where(['client_id' => $clientId, 'item_id' => $itemId])->groupBy(['client_id', 'item_id'])->max('id');
         // last was 1. in this case update last will be update 0 then created last will be 1
         !empty($this->rate) && $this->rate->where('id', $last)->update(['last' => 0]);
         // last will be one
         $formField['last'] = 1;
 
+        $uprice = ($val - ($val * ($vat / (100 + $vat)))) - (($val - ($val * ($vat / (100 + $vat)))) * ($sd / (100 + $sd)));
+        $formField['unit_price'] = number_format($uprice, 2, '.', '');
+
+        unset($formField['value']);
         $this->rate->create($formField);
       });
 
@@ -201,7 +216,7 @@ class RateController extends Controller
       ->where('client_id', $query->client_id)
       ->where('item_id', $query->item_id)
       ->where('last', 1)
-      ->select('form43s.*', DB::raw('form43s.unit_price + COALESCE(additionsum.valuesum,0) as unit_price_with_addition'))
+      ->select('form43s.*', DB::raw('ROUND(form43s.unit_price + COALESCE(additionsum.valuesum,0),2) as unit_price_with_addition'))
       ->first();
 
     return response()->json(['rate' => $query, 'form43last' => $form43Last]);
@@ -214,6 +229,15 @@ class RateController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
+
+    $clientId = $request->input('client_id');
+    $itemId = $request->input('item_id');
+
+    $form43 = $this->form43->with(['additionsum'])->where('client_id', $clientId)->where('item_id', $itemId)->where('last', 1)->first();
+
+    if (!$form43) {
+      return back()->withErrors(['item_id' => '4.3 not found'])->withInput();
+    }
 
     $formField = $request->validate(
       [
@@ -239,11 +263,10 @@ class RateController extends Controller
             return $fail("Greater than today");
           }
         }],
-        'unit_price' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($request) {
-          $form43Price = $this->form43->with(['additionsum'])->where([['client_id', $request->input('client_id')], ['item_id', $request->input('item_id')], ['last', 1]])->first();
-
-          $additionSum = optional($form43Price->additionsum())->first();
-          $unitPrice = optional($form43Price)->unit_price;
+        'value' => 'required|numeric|gt:0',
+        'unit_price' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($form43) {
+          $additionSum = optional($form43->additionsum())->first();
+          $unitPrice = optional($form43)->unit_price;
           $form43ForFactor = ($unitPrice + $additionSum->valuesum);
 
           $calc = !empty($form43ForFactor) ? ((($value - $form43ForFactor) / $form43ForFactor) * 100) : null;
@@ -267,6 +290,9 @@ class RateController extends Controller
         'item_id.gt' => 'Number > 0',
         'date.required' => 'Date required',
         'date.date_format' => 'Invalid date',
+        'value.required' => 'Value required',
+        'value.numeric' => 'Number only',
+        'value.gt' => 'Number > 0',
         'unit_price.required' => 'Unit price required',
         'unit_price.numeric' => 'Number only',
         'unit_price.gt' => 'Number > 0',
@@ -281,20 +307,21 @@ class RateController extends Controller
       ]
     );
 
-    // try {
-    //   DB::transaction(function () use ($formField, $request, $id) {
-    //     // last form43 id find out with client_id, item_id
-    //     $last = $this->rate->where(['client_id' => $request->client_id, 'item_id' => $request->item_id])->groupBy(['client_id', 'item_id'])->max('id');
-    //     // last was 1. in this case update last will be update 0 then created last will be 1
-    //     !empty($this->rate) && $this->rate->where('id', $last)->update(['last' => 0]);
-    //     // last will be one
-    //     $formField['last'] = 1;
-    //   });
-    // } catch (Throwable $e) {
-    //   return back()->with("error", $e->getMessage());
-    // }
+    try {
+      DB::transaction(function () use ($formField, $request, $id) {
+        $val = (float) $request->input('value');
+        $vat = (float) $request->input('vat');
+        $sd  = (float) $request->input('sd');
 
-    $this->rate->where('id', $id)->update($formField);
+        $uprice = ($val - ($val * ($vat / (100 + $vat)))) - (($val - ($val * ($vat / (100 + $vat)))) * ($sd / (100 + $sd)));
+        $formField['unit_price'] = number_format($uprice, 2, '.', '');
+
+        unset($formField['value']);
+        $this->rate->where('id', $id)->update($formField);
+      });
+    } catch (Throwable $e) {
+      return back()->with("error", $e->getMessage());
+    }
 
     // realtime data
     event(new CommonEvent($user->id));

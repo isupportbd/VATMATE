@@ -105,7 +105,7 @@
 <script setup>
 import axios from "axios";
 import moment from "moment-timezone";
-import { ref, reactive, inject, onMounted, nextTick, onBeforeUnmount } from "vue";
+import { ref, reactive, inject, onMounted, nextTick } from "vue";
 import { router } from "@inertiajs/vue3";
 import { empty } from "../../../helpers/utils";
 import { user, role } from "../../../composables/user";
@@ -343,40 +343,5 @@ const submitData = async () => {
   }
 };
 
-// const binDD = ref(null);
-// const itemDD = ref([]);
-// const unitDD = ref([]);
-// const bankDD = ref(null);
-// onMounted(async () => {
-//   await loadSaleLimit();
-
-//   const reload = async () => {
-//     const jobs = [];
-
-//     if (binDD.value?.reload) {
-//       jobs.push(binDD.value.reload());
-//     }
-
-//     if (itemDD.value?.reload) {
-//       jobs.push(itemDD.value.reload());
-//     }
-
-//     if (unitDD.value?.reload) {
-//       jobs.push(unitDD.value.reload());
-//     }
-
-//     if (bankDD.value?.reload) {
-//       jobs.push(bankDD.value.reload());
-//     }
-
-//     // run all reloads in parallel
-//     await Promise.all(jobs);
-//   };
-
-//   window.Echo.private(`App.Models.User.${user.id}`).listen('.CommonEvent', reload);
-// });
-
-// onBeforeUnmount(() => {
-//   window.Echo.leave(`App.Models.User.${user.id}`);
-// });
+onMounted(async () => await loadSaleLimit());
 </script>

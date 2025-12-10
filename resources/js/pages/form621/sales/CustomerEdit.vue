@@ -14,7 +14,7 @@
                     v-model="field.customer_name" />
                 </div>
                 <div class="col-6">
-                  <Input type="text" label="mobile" maxlength="11" placeholder="Ex: Jhon Doe"
+                  <Input type="text" label="mobile" maxlength="11" placeholder="Ex: 01711000000"
                     v-model="field.customer_mobile" />
                 </div>
                 <div class="col-6">
@@ -117,20 +117,20 @@ const submitData = async () => {
   }
 };
 
-// clientbin
-const binField = reactive({ all: [], val: '', err: '', page: 0, size: 10 });
-const binData = ref({});
-const fetchedBin = async (search) => {
-  binField.page++;
-  search && (binField.all = [], binField.page = 0);
+// // clientbin
+// const binField = reactive({ all: [], val: '', err: '', page: 0, size: 10 });
+// const binData = ref({});
+// const fetchedBin = async (search) => {
+//   binField.page++;
+//   search && (binField.all = [], binField.page = 0);
 
-  await axios.get(route('clientbin-dropdown'), { params: { page: binField.page, size: binField.size, search: search } }).then(async (res) => {
-    binData.value = res.data.clientbin;
-    res.data.clientbin.data.forEach((dt) => {
-      binField.all = [...binField.all, { id: dt.id, title: dt.bin, company: dt }];
-    });
-  });
-};
+//   await axios.get(route('clientbin-dropdown'), { params: { page: binField.page, size: binField.size, search: search } }).then(async (res) => {
+//     binData.value = res.data.clientbin;
+//     res.data.clientbin.data.forEach((dt) => {
+//       binField.all = [...binField.all, { id: dt.id, title: dt.bin, company: dt }];
+//     });
+//   });
+// };
 
 // // reset the form
 // const resetForm = () => {

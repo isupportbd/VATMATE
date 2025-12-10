@@ -19,7 +19,7 @@
     <div class="row m-4">
       <div class="col-12 text-center position-relative mb-3">
         <img :src="logo" width="60" alt="bd_logo" class="fw-bold position-absolute start-0 ms-3 mt-3">
-        <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0 top-50 me-3">
+        <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0 me-3" style="top:30%">
           Mushak-4.3
         </label>
         <p>Government of the People's Republic of Bangladesh</p>

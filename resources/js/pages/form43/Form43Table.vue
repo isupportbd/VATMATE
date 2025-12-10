@@ -8,7 +8,7 @@
     </template>
     <template #tbody="{ td }">
       <!-- {{ td }} -->
-      <td :class="((td.last == 1) && role('admin')) && 'text-primary'">
+      <td :class="(td.last == 1) && 'text-primary'">
         <p class="m-0">
           <span><i class="bi bi-building"></i></span> :
           <span>{{ td?.client?.company_name }}</span>
@@ -18,7 +18,7 @@
           <span>{{ td?.client?.bin }}</span>
         </p>
       </td>
-      <td :class="((td.last == 1) && role('admin')) && 'text-primary'">
+      <td :class="(td.last == 1) && 'text-primary'">
         <p class="m-0">
           <span><i class="bi bi-bookmark"></i></span> :
           <span>{{ td?.item?.name }}</span>
