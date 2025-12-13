@@ -53,7 +53,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 11px;
+            font-size: 8.3pt;
             margin: 15px;
         }
     </style>
