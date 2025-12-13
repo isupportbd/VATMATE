@@ -20,7 +20,7 @@
             {{ max - String(props.modelValue).length }}
           </div>
         </div>
-        <input type="text" class="form-control border-start second-input"
+        <input type="text" class="form-control text-center border-start second-input"
           :style="`${half ? 'width: 50%;' : 'width: 62%;'}`" :placeholder="$attrs.placeholder1" :value="props.calcdata"
           readonly />
         <!-- <input class="form-control" v-model="model" :maxlength="max" v-bind="$attrs"> vue3.3 (2nd way)/3.4 -->

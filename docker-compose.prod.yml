@@ -15,75 +15,32 @@ services:
       - "6001"
     volumes:
       - storage_data:/var/www/html/storage
-    depends_on:
-      - mysql
-      - redis
     environment:
       APP_KEY: ${APP_KEY}
 
-      DB_HOST: mysql
+      DB_HOST: mysql-global
       DB_PORT: 3306
-      DB_DATABASE: ${DB_DATABASE}
+      DB_DATABASE: vatmate
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
 
-      REDIS_HOST: redis
+      REDIS_HOST: redis-global
       QUEUE_CONNECTION: redis
       BROADCAST_CONNECTION: reverb
+      REDIS_PREFIX: vatmate_
 
       VIRTUAL_HOST: vatmate.org,www.vatmate.org
       LETSENCRYPT_HOST: vatmate.org,www.vatmate.org
       LETSENCRYPT_EMAIL: niyamulahsan@gmail.com
     networks:
-      - laravel
       - nginx-proxy
-
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-vatmate
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - laravel
-
-  redis:
-    image: redis:alpine
-    container_name: redis-vatmate
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
-      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
-    networks:
-      - laravel
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin-vatmate
-    restart: unless-stopped
-    environment:
-      PMA_HOST: mysql
-      VIRTUAL_HOST: pma.vatmate.org
-      VIRTUAL_PORT: 80
-      LETSENCRYPT_HOST: pma.vatmate.org
-      LETSENCRYPT_EMAIL: niyamulahsan@gmail.com
-    networks:
-      - laravel
-      - nginx-proxy
+      - infra
 
 volumes:
-  mysql_data:
-  redis_data:
   storage_data:
 
 networks:
-  laravel:
-    driver: bridge
   nginx-proxy:
+    external: true
+  infra:
     external: true

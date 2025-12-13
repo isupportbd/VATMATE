@@ -18,7 +18,7 @@
 
   <div class="row">
     <div class="col-12">
-      <div class="card card-body border p-5 pp-0">
+      <div class="card card-body border p-lg-5 pp-0">
         <div class="row">
           <div class="col-12">
             <div class="fw-bold text-center position-relative">

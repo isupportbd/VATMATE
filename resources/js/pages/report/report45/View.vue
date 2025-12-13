@@ -18,7 +18,7 @@
 
   <div class="row printarea">
     <div class="col-12">
-      <div class="card card-body border p-5">
+      <div class="card card-body border p-lg-5">
         <div class="row">
           <div class="col-12">
             <div class="fw-bold text-center position-relative">

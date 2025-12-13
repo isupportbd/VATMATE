@@ -16,7 +16,7 @@
     </Link>
   </Refresh>
   <div class="card card-body">
-    <div class="row m-4">
+    <div class="row m-lg-4">
       <div class="col-12 text-center position-relative mb-3">
         <img :src="logo" width="60" alt="bd_logo" class="fw-bold position-absolute start-0 ms-3 mt-3">
         <label class="fw-bold border border-secondary border-1 position-absolute p-1 end-0 me-3" style="top:30%">

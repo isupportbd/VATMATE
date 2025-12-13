@@ -16,23 +16,23 @@
               :hood="`<span class='text-lowercase text-danger'>${field.check43}</span>`" :reset-key="field.bin?.id"
               must />
           </div>
-          <div class="col-6 col-md-6 col-lg-6">
+          <div class="col-6 col-md-6">
             <Input type="date" id="date" label="date" v-model="field.date" :err="err.date" must />
           </div>
-          <div class="col-6 col-md-6 col-lg-6">
+          <div class="col-6 col-md-6">
             <Input type="text" category="decimal" id="value"
               label="value<sup class='text-danger' style='font-size:8.5px'>(With Vat)</sup>" placeholder="Ex: 2848.75"
               v-model="field.value" :err="err.value" @keyup="recompute" must />
           </div>
-          <div class="col-6 col-sm-3 col-md-3 col-lg-3">
+          <div class="col-6 col-sm-3 col-md-3 col-lg-6">
             <Input type="text" category="decimal" id="sd" label="SD(%)" placeholder="Ex: 5%" maxlength="6"
               v-model="field.sd" :err="err.sd" @keyup="recompute" must />
           </div>
-          <div class="col-6 col-sm-3 col-md-3 col-lg-3">
+          <div class="col-6 col-sm-3 col-md-3 col-lg-6">
             <Input type="text" category="decimal" id="vat" label="VAT(%)" placeholder="Ex: 15%" maxlength="6"
               v-model="field.vat" :err="err.vat" @keyup="recompute" must />
           </div>
-          <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+          <div class="col-12 col-sm-6 col-md-6 col-lg-12">
             <InputGroup type="text" category="decimal"
               label="unit price<sup class='text-danger' style='font-size:8.5px'>(Without Vat)</sup>"
               placeholder="Ex: 5412" placeholder1="Ex: 46.60%" v-model="field.unit_price" :err="err.unit_price"

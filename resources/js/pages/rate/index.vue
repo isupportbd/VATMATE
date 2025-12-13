@@ -10,10 +10,10 @@
   </Refresh>
 
   <div class="row gx-2">
-    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
+    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
       <RateForm ref="formRef" />
     </div>
-    <div class="col-12 col-lg-7">
+    <div class="col-12 col-lg-8">
       <RateTable :data="props.rate" :search="props.search" :edit="edit" :del="del" />
     </div>
   </div>
