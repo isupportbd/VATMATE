@@ -171,7 +171,7 @@ Example:
 $backupPath = "$env:USERPROFILE\Desktop\backup sarra\sarra.sql"
 
 Get-Content -Raw $backupPath |
-ssh niyam@198.51.100.25 "docker exec -i mysql-sarra mysql -u root -p'MyRoot123!' sarra"
+ssh niyam@198.51.100.25 "docker exec -i mysql-global mysql -u root -p'MyRoot123!' sarra"
 ```
 
 **Alternative existing database upload from local machine to vps docker(run in powershell)**
