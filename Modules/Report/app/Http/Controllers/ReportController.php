@@ -68,15 +68,7 @@ class ReportController extends Controller
         DB::raw("DATE_FORMAT(date, '%Y-%m') as tax_period")
       )
       ->where('client_id', $client->id) // fixed: direct filter by client
-      ->when($search, function ($query) use ($search) {
-        $query->whereHas('client', function ($q) use ($search) {
-          $q->where(function ($q) use ($search) {
-            $q->where('bin', 'like', "%{$search}%")
-              ->orWhere('mobile', 'like', "%{$search}%")
-              ->orWhere('company_name', 'like', "%{$search}%");
-          });
-        });
-      })
+      ->when($search, fn($query) => $query->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), 'like', "%{$search}%"))
       ->orderBy('tax_period', 'desc')
       ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
       ->paginate((int) $request->input('size', 10))

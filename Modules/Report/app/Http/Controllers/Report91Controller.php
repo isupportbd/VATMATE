@@ -745,6 +745,8 @@ class Report91Controller extends Controller
     $browser = Browsershot::html($html)
       ->showBackground()
       ->margins(10, 10, 10, 10)
+      ->windowSize(1200, 1800)
+      ->scale(0.95)
       ->format('A4')
       ->emulateMedia('print')
       ->setOption('args', [

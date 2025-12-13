@@ -163,6 +163,9 @@
                 <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-bordered border-secondary text-center">
+                            <colgroup>
+                                <col style="width:15%" />
+                            </colgroup>
                             <thead class="align-middle">
                                 <tr>
                                     <th>Goods/Service Description</th>
@@ -306,6 +309,9 @@
                 <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-bordered border-secondary text-center">
+                            <colgroup>
+                                <col style="width:15%" />
+                            </colgroup>
                             <thead class="align-middle">
                                 <tr>
                                     <th>Goods/Service Description</th>

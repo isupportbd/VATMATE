@@ -42,15 +42,10 @@ class Report67Controller extends Controller
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search, function ($query) use ($search) {
         $query->where(function ($q) use ($search) {
-          $q->whereHas('client', function ($query) use ($search) {
-            $query->where(function ($q) use ($search) {
-              $q->where('company_name', 'like', "%{$search}%")
-                ->orWhere('bin', 'like', "%{$search}%")
-                ->orWhere('mobile', 'like', "%{$search}%");
+          $q->where(DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"), 'like', "%{$search}%")
+            ->orWhereHas('item', function ($query) use ($search) {
+              $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
             });
-          })->orWhereHas('item', function ($query) use ($search) {
-            $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
-          });
         });
       })->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
