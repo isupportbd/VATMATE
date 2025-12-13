@@ -58,7 +58,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 11px;
+            font-size: 10.5px;
             margin: 15px;
         }
     </style>
@@ -485,7 +485,7 @@
         {{-- PART 7: NET TAX CALCULATION --}}
         <div class="row">
             <div class="col-12">
-                <h6 class="text-center mb-1 mt-2">PART - 7: NET TAX CALCULATION</h6>
+                <h6 class="text-center mb-1 mt-3">PART - 7: NET TAX CALCULATION</h6>
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered border-secondary align-middle">
                         <thead>

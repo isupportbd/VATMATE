@@ -53,7 +53,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             margin: 15px;
         }
     </style>
@@ -244,7 +244,7 @@
             </div>
 
             {{-- Special Notes --}}
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div class="border border-secondary p-2">
                     <p>Special Notes:</p>
                     <p>1. Within 15 working days prior to the first delivery of any product or service, the
@@ -260,7 +260,7 @@
             </div>
 
             {{-- Sub-form f: Details of Raw Materials --}}
-            <div class="col-12 mb-2" style="font-size: 11px; margin-top:21%">
+            <div class="col-12 mb-2">
                 <h6>Sub-form of PART - 2: f. Details of Raw Materials</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">
@@ -314,7 +314,7 @@
             </div>
 
             {{-- Divisional Officer Observation (Raw) --}}
-            <div class="col-12 mb-2" style="font-size: 11px">
+            <div class="col-12 mb-2">
                 <h6>Divisional Officer Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">
@@ -370,7 +370,7 @@
             </div>
 
             {{-- Commissioner Observation (Raw) --}}
-            <div class="col-12 mb-2" style="font-size: 11px">
+            <div class="col-12 mb-2">
                 <h6>Commissioner Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary text-center">
@@ -426,7 +426,7 @@
             </div>
 
             {{-- Sub-form g: Value Additions --}}
-            <div class="col-12 mb-2" style="font-size: 11px">
+            <div class="col-12 mb-2">
                 <h6>Sub-form of PART - 2: g. Details of Value Additions</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary align-middle">
@@ -457,7 +457,7 @@
             </div>
 
             {{-- Divisional Officer Observation (Value Additions) --}}
-            <div class="col-12 mb-2" style="font-size: 11px">
+            <div class="col-12 mb-2">
                 <h6>Divisional Officer Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary">
@@ -488,7 +488,7 @@
             </div>
 
             {{-- Commissioner Observation (Value Additions) --}}
-            <div class="col-12" style="font-size: 11px">
+            <div class="col-12">
                 <h6>Commissioner Observation:</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered border-secondary">

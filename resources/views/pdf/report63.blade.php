@@ -57,7 +57,7 @@
     <style>
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 11px;
+            font-size: 10.5px;
             margin: 15px;
         }
 
@@ -164,7 +164,7 @@
                     <div class="table-responsive">
                         <table class="table table-bordered border-secondary text-center">
                             <colgroup>
-                                <col style="width:15%" />
+                                <col style="width:12%" />
                             </colgroup>
                             <thead class="align-middle">
                                 <tr>
@@ -310,7 +310,7 @@
                     <div class="table-responsive">
                         <table class="table table-bordered border-secondary text-center">
                             <colgroup>
-                                <col style="width:15%" />
+                                <col style="width:12%" />
                             </colgroup>
                             <thead class="align-middle">
                                 <tr>
