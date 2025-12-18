@@ -36,12 +36,13 @@ class AdditionController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array($user->role->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $addition = $this->addition->select('id', 'form43_id', 'costsheet_id', 'rate', 'value')->with(['form43.client:id,bin,company_name', 'form43.item:id,name', 'costsheet:id,name'])
       ->when(!$isAdmin, fn($q) => $q->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->whereHas('costsheet', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+      ->when($search, function ($query) use ($termLike) {
+        $query->whereHas('costsheet', fn($query) => $query->where('name', 'like', $termLike));
       })
       ->where('form43_id', $id)
       ->orderBy('id', 'desc')

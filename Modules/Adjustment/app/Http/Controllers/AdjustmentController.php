@@ -28,18 +28,19 @@ class AdjustmentController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->adjustment->with(['client:id,bin,company_name', 'expense:id,name'])
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          $query->where(DB::raw('tax_period'), 'like', '%' . strtolower($search) . '%')
-            ->orWhereHas('expense', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-            ->orWhereHas('client', function ($query) use ($search) {
-              $query->where(function ($query) use ($search) {
-                $query->where('bin', 'like', '%' . strtolower($search) . '%')
-                  ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($query) use ($termLike) {
+          $query->where(DB::raw('tax_period'), 'like', $termLike)
+            ->orWhereHas('expense', fn($query) => $query->where('name', 'like', $termLike))
+            ->orWhereHas('client', function ($query) use ($termLike) {
+              $query->where(function ($query) use ($termLike) {
+                $query->where('bin', 'like', $termLike)
+                  ->orWhere('company_name', 'like', $termLike);
               });
             });
         });
@@ -241,12 +242,12 @@ class AdjustmentController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim($request->input('search', ''));
 
     $query = $this->adjustment->with(['client', 'expense'])
       ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
       ->when($search, function ($query) use ($search) {
-        $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+        $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', $search . '%'));
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Events\APIMailEvent;
 use App\Events\CommonEvent;
-use App\Events\MailEvent;
+use App\Events\UserCreateMailEvent;
+use App\Events\UserForgetPasswordMailEvent;
+use App\Events\UserProfileMailEvent;
+use App\Events\UserUpdateMailEvent;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -100,7 +103,7 @@ class AuthController extends Controller
 
     // send from queue
     $user = $this->user->where('email', $formField['email'])->first();
-    event(new MailEvent($user));
+    event(new UserForgetPasswordMailEvent($user));
 
     return Redirect::route('forget-password')->with('message', 'Check your email');
   }
@@ -195,7 +198,7 @@ class AuthController extends Controller
         $result = $this->user->create($formField);
 
         // for general application events that may or may not broadcast
-        event(new MailEvent($result));
+        event(new UserCreateMailEvent($result));
         event(new CommonEvent($user->id));
       });
 
@@ -289,7 +292,7 @@ class AuthController extends Controller
 
         // real time data update
         $userUpdate = $this->user->where('id', $id)->first();
-        event(new MailEvent($userUpdate));
+        event(new UserUpdateMailEvent($userUpdate));
       });
 
       // realtime data
@@ -395,7 +398,7 @@ class AuthController extends Controller
 
         // send from queue
         $user = $this->user->where('email', $request->input('email'))->first();
-        event(new MailEvent($user));
+        event(new UserProfileMailEvent($user));
       });
 
       // realtime data

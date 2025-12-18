@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\MailEvent;
+use App\Events\UserForgetPasswordMailEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
@@ -18,7 +18,7 @@ class UserForgetPasswordMailSend implements ShouldQueue
   /**
    * Handle the event.
    */
-  public function handle(MailEvent $event): void
+  public function handle(UserForgetPasswordMailEvent $event): void
   {
     $event->user->makeVisible(['forget_password']);
     $mailData = 'Your password is "' . $event->user->forget_password . '"';
