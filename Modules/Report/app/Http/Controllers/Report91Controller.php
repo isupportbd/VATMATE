@@ -760,7 +760,7 @@ class Report91Controller extends Controller
     }
 
     $pdfData = $browser->pdf();
-    $fileName = "filename=report-91-{$client->bin}" . Carbon::parse($monthYear)->format('M-Y');
+    $fileName = "filename=report-91-{$client->bin}-" . Carbon::parse($monthYear)->format('M-Y') . '.pdf';
 
     return response($pdfData)
       ->header('Content-Type', 'application/pdf')

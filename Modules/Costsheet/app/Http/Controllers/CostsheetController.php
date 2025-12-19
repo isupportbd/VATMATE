@@ -22,10 +22,13 @@ class CostsheetController extends Controller
    */
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $costsheet = $this->costsheet->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $costsheet = $this->costsheet->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
-      ->paginate((int)request('size', 10));
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
     return Inertia("costsheet/index", ['costsheet' => $costsheet, 'search' => $search]);
   }
@@ -102,9 +105,11 @@ class CostsheetController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function costsheetDropdown(Request $request)
   {
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
     $costsheet = $this->costsheet->query()
-      ->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+      ->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'asc')
       ->paginate((int)request('size') ? (int)request('size') : 10);
 

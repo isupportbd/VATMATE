@@ -26,12 +26,14 @@ class BranchController extends Controller
   // function call automatically from branch page
   public function index(Request $request)
   {
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
     $branch = $this->branch->with(['division', 'bank'])
-      ->when($search, function ($query) use ($search) {
-        $query->where('name', 'like', '%' . strtolower($search) . '%')
-          ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('bank', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+      ->when($search, function ($query) use ($termLike) {
+        $query->where('name', 'like', $termLike)
+          ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike))
+          ->orWhereHas('bank', fn($query) => $query->where('name', 'like', $termLike));
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
@@ -159,12 +161,14 @@ class BranchController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function branchDropdown(Request $request)
   {
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
     $branch = $this->branch->with(['division', 'bank'])
-      ->when($search, function ($query) use ($search) {
-        $query->where(DB::raw('lower(name)'), 'like', '%' . strtolower($search) . '%')
-          ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-          ->orWhereHas('bank', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+      ->when($search, function ($query) use ($termLike) {
+        $query->where('name', 'like', $termLike)
+          ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike))
+          ->orWhereHas('bank', fn($query) => $query->where('name', 'like', $termLike));
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 10);

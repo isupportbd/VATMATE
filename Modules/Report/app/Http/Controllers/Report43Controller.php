@@ -30,6 +30,7 @@ class Report43Controller extends Controller
     $user   = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $client = $this->client->findOrFail($client_id);
 
@@ -40,11 +41,11 @@ class Report43Controller extends Controller
     $query = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
       ->where('client_id', $client_id)
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($q) use ($search) {
-          $q->where(DB::raw("DATE_FORMAT(boe_date, '%Y-%m')"), 'like', "%{$search}%")
-            ->orWhereHas('item', function ($query) use ($search) {
-              $query->where('name', 'like', "%{$search}%")->orWhere('hs_code', 'like', "%{$search}%");
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($q) use ($termLike) {
+          $q->where(DB::raw("DATE_FORMAT(boe_date, '%Y-%m')"), 'like', $termLike)
+            ->orWhereHas('item', function ($query) use ($termLike) {
+              $query->where('name', 'like', $termLike)->orWhere('hs_code', 'like', $termLike);
             });
         });
       })->orderBy('id', 'desc')
@@ -128,7 +129,7 @@ class Report43Controller extends Controller
     }
 
     $pdfData = $browser->pdf();
-    $fileName = "filename=report43-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y');
+    $fileName = "filename=report43-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y') . '.pdf';
 
     return response($pdfData)
       ->header('Content-Type', 'application/pdf')
@@ -171,7 +172,7 @@ class Report43Controller extends Controller
     }
 
     $pdfData = $browser->pdf();
-    $fileName = "filename=report43-forwarding-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y');
+    $fileName = "filename=report43-forwarding-{$form43?->client->bin}-" . Carbon::parse($form43?->date_of_submmission)->format('M-Y') . '.pdf';
 
     return response($pdfData)
       ->header('Content-Type', 'application/pdf')

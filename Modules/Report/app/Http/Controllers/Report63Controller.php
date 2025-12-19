@@ -106,7 +106,7 @@ class Report63Controller extends Controller
     }
 
     $pdfData = $browser->pdf();
-    $fileName = "filename=report63-{$sale?->client->bin}" . Carbon::parse($sale?->date_of_submmission)->format('M-Y');
+    $fileName = "filename=report63-{$sale?->client->bin}-" . Carbon::parse($sale?->date_of_submmission)->format('M-Y') . '.pdf';
 
     return response($pdfData)
       ->header('Content-Type', 'application/pdf')
@@ -127,7 +127,7 @@ class Report63Controller extends Controller
     if ($request->has('filter')) {
       $request->validate([
         'client_id'   => 'required|numeric|gt:0',
-        'month_year'  => 'required|date_format:Y-m',
+        'month_year'  => 'nullable|date_format:Y-m',
         'item_id'     => 'nullable|numeric|gt:0',
       ]);
     }

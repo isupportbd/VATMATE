@@ -73,18 +73,19 @@ class EconomicAreaController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = (string) $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client
       ->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          $query->where('company_name', 'like', "%{$search}%")
-            ->orWhere('mobile', 'like', "%{$search}%")
-            ->orWhere('bin', 'like', "%{$search}%")
-            ->orWhereHas('items', function ($q) use ($search) {
-              $q->where('name', 'like', "%{$search}%")
-                ->orWhere('hs_code', 'like', "%{$search}%");
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($query) use ($termLike) {
+          $query->where('company_name', 'like', $termLike)
+            ->orWhere('mobile', 'like', $termLike)
+            ->orWhere('bin', 'like', $termLike)
+            ->orWhereHas('items', function ($q) use ($termLike) {
+              $q->where('name', 'like', $termLike)
+                ->orWhere('hs_code', 'like', $termLike);
             });
         });
       });
@@ -150,8 +151,9 @@ class EconomicAreaController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->query('search');
     $clientId = $request->input('client_id');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     if (!$clientId) {
       $empty = $this->item->whereRaw('1 = 0')->paginate((int)request('size', 10));
@@ -160,7 +162,7 @@ class EconomicAreaController extends Controller
     // parent class
     $client = $this->client->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->findOrFail($clientId);
     // parent to sub class many to many relation
-    $query = $client->items()->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+    $query = $client->items()->when($search, fn($query) => $query->where('name', 'like', $termLike));
 
     $result = $query->orderBy('id', 'desc')->paginate((int)request('size', 10));
 

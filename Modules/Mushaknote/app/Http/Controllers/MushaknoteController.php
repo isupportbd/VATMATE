@@ -20,9 +20,11 @@ class MushaknoteController extends Controller
   // function call automatically from vatfactor page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $mushaknote = $this->mushaknote->when($search, function ($query) use ($search) {
-      $query->where('name)', 'like', '%' . strtolower($search) . '%');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $mushaknote = $this->mushaknote->when($search, function ($query) use ($termLike) {
+      $query->where('name)', 'like', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size', 5))
       ->withQueryString();
@@ -70,10 +72,13 @@ class MushaknoteController extends Controller
   }
 
   // function call from importer puurchase page
-  public function mushakDropdown()
+  public function mushakDropdown(Request $request)
   {
-    $mushaknote = $this->mushaknote->when(request('search'), function ($query, $search) {
-      $query->where('name_note_no', 'like', '%' . strtolower($search) . '%');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $mushaknote = $this->mushaknote->when(request('search'), function ($query) use ($termLike) {
+      $query->where('name_note_no', 'like', $termLike);
     })->orderBy('id', 'asc')
       ->paginate((int)request('size', 5));
 

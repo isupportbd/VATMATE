@@ -47,19 +47,20 @@ class DebitnoteController extends Controller
     $user   = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $debitnote = $this->debitnote->with(['client', 'client.user', 'client.user.role', 'item'])
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          $query->where('lc_or_invoice_no', 'like', "%{$search}%")
-            ->orWhereHas('client', function ($query) use ($search) {
-              $query->where('company_name', 'like', "%{$search}%")
-                ->orWhere('mobile', 'like', "%{$search}%")
-                ->orWhere('bin', 'like', "%{$search}%");
-            })->orWhereHas('item', function ($query) use ($search) {
-              $query->where('name', 'like', "%{$search}%")
-                ->orWhere('hs_code', 'like', "%{$search}%");
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($query) use ($termLike) {
+          $query->where('lc_or_invoice_no', 'like', $termLike)
+            ->orWhereHas('client', function ($query) use ($termLike) {
+              $query->where('company_name', 'like', $termLike)
+                ->orWhere('mobile', 'like', $termLike)
+                ->orWhere('bin', 'like', $termLike);
+            })->orWhereHas('item', function ($query) use ($termLike) {
+              $query->where('name', 'like', $termLike)
+                ->orWhere('hs_code', 'like', $termLike);
             });
         });
       })->orderBy('id', 'desc')

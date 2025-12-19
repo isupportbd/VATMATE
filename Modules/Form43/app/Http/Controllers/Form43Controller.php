@@ -38,22 +38,23 @@ class Form43Controller extends Controller
     $user   = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->form43->with(['client', 'item', 'additionsum'])
       ->select('id', 'client_id', 'item_id', 'last')
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($q) use ($search) {
-          $q->whereHas('client', function ($query) use ($search) {
-            $query->where(function ($q) use ($search) {
-              $q->where('company_name', 'like', "%{$search}%")
-                ->orWhere('bin', 'like', "%{$search}%")
-                ->orWhere('mobile', 'like', "%{$search}%")
-                ->orWhereHas('user', fn($query) => $query->where('email', 'like', "%{$search}%"));
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($q) use ($termLike) {
+          $q->whereHas('client', function ($query) use ($termLike) {
+            $query->where(function ($q) use ($termLike) {
+              $q->where('company_name', 'like', $termLike)
+                ->orWhere('bin', 'like', $termLike)
+                ->orWhere('mobile', 'like', $termLike)
+                ->orWhereHas('user', fn($query) => $query->where('email', 'like', $termLike));
             });
-          })->orWhereHas('item', function ($query) use ($search) {
-            $query->where('name', 'like', "%{$search}%")
-              ->orWhere('hs_code', 'like', "%{$search}%");
+          })->orWhereHas('item', function ($query) use ($termLike) {
+            $query->where('name', 'like', $termLike)
+              ->orWhere('hs_code', 'like', $termLike);
           });
         });
       })->addSelect(DB::raw("

@@ -27,22 +27,23 @@ class TreasuryController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array($user->role->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $treasury = $this->treasury->with(['client.division', 'branch.bank', 'branch.division'])
       ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($query) use ($termLike) {
           $query->query()
-            ->where('tax_period', 'like', '%' . strtolower($search) . '%')
-            ->orWhereHas('client', function ($query) use ($search) {
-              $query->where('bin', 'like', '%' . strtolower($search) . '%')
-                ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
+            ->where('tax_period', 'like', $termLike)
+            ->orWhereHas('client', function ($query) use ($termLike) {
+              $query->where('bin', 'like', $termLike)
+                ->orWhere('company_name', 'like', $termLike);
             })
-            ->orWhereHas('branch', function ($query) use ($search) {
-              $query->where('name', 'like', '%' . strtolower($search) . '%')
-                ->orWhereHas('bank', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-                ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'));
+            ->orWhereHas('branch', function ($query) use ($termLike) {
+              $query->where('name', 'like', $termLike)
+                ->orWhereHas('bank', fn($query) => $query->where('name', 'like', $termLike))
+                ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike));
             });
         });
       })->orderBy('id', 'desc')

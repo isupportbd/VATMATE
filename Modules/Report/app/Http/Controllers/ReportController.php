@@ -24,15 +24,16 @@ class ReportController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $form621 = $this->form621->with(['client', 'client.division', 'client.user.role'])
       ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->whereHas('client', function ($query) use ($search) {
-          $query->where('bin', 'like', '%' . strtolower($search) . '%')
-            ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-            ->orWhere('company_name', 'like', '%' . strtolower($search) . '%');
+      ->when($search, function ($query) use ($termLike) {
+        $query->whereHas('client', function ($query) use ($termLike) {
+          $query->where('bin', 'like', $termLike)
+            ->orWhere('mobile', 'like', $termLike)
+            ->orWhere('company_name', 'like', $termLike);
         });
       })
       ->select('client_id')
@@ -48,7 +49,8 @@ class ReportController extends Controller
   {
     $user    = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search  = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $client = $this->client->findOrFail($client_id);
 
@@ -68,7 +70,7 @@ class ReportController extends Controller
         DB::raw("DATE_FORMAT(date, '%Y-%m') as tax_period")
       )
       ->where('client_id', $client->id) // fixed: direct filter by client
-      ->when($search, fn($query) => $query->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), 'like', "%{$search}%"))
+      ->when($search, fn($query) => $query->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), 'like', $termLike))
       ->orderBy('tax_period', 'desc')
       ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
       ->paginate((int) $request->input('size', 10))

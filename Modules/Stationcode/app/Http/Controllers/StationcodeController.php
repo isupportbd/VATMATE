@@ -19,8 +19,10 @@ class StationcodeController extends Controller
   // function call automatically from stationcode page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $stationcode = $this->stationcode->when($search, fn($query) => $query->where('code', 'like', '%' . strtolower($search) . '%'))
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $stationcode = $this->stationcode->when($search, fn($query) => $query->where('code', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -94,11 +96,14 @@ class StationcodeController extends Controller
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
-  public function stationcodeDropdown()
+  public function stationcodeDropdown(Request $request)
   {
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
     $stationcode = $this->stationcode->query()
-      ->when(request('search'), function ($query, $search) {
-        $query->where('code', 'like', '%' . strtolower($search) . '%');
+      ->when(request('search'), function ($query) use ($termLike) {
+        $query->where('code', 'like', $termLike);
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);

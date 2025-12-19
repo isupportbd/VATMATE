@@ -30,19 +30,20 @@ class ClientController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client->with(['division', 'user.role'])
       ->when(!$isAdmin, fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search, function ($query) use ($search) {
-        $query->where(function ($query) use ($search) {
-          $query->where('company_name', 'like', '%' . strtolower($search) . '%')
-            ->orWhere('bin', 'like', '%' . strtolower($search) . '%')
-            ->orWhere('email', 'like', '%' . strtolower($search) . '%')
-            ->orWhere('mobile', 'like', '%' . strtolower($search) . '%')
-            ->orWhere('reference', 'like', '%' . strtolower($search) . '%')
-            ->orWhereHas('division', fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
-            ->orWhereHas('user', fn($query) => $query->where('email', 'like', '%' . strtolower($search) . '%'));
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(function ($query) use ($termLike) {
+          $query->where('company_name', 'like', $termLike)
+            ->orWhere('bin', 'like', $termLike)
+            ->orWhere('email', 'like', $termLike)
+            ->orWhere('mobile', 'like', $termLike)
+            ->orWhere('reference', 'like', $termLike)
+            ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike))
+            ->orWhereHas('user', fn($query) => $query->where('email', 'like', $termLike));
         })->whereNotIn('user_id', NULL);
       })->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
 
@@ -231,11 +232,12 @@ class ClientController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client->with(['division', 'user.role'])
       ->when(!$isAdmin, fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search, fn($q) => $q->where('bin', 'like', '%' . strtolower($search) . '%'))
+      ->when($search, fn($q) => $q->where('bin', 'like', $termLike))
       ->whereNotIn('status', ['0'])
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));
@@ -297,10 +299,11 @@ class ClientController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client->with(['division', 'user.role'])
-      ->when($search, fn($q) => $q->where('bin', 'like', '%' . strtolower($search) . '%'))
+      ->when($search, fn($q) => $q->where('bin', 'like', $termLike))
       ->where('user_id', NULL)
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

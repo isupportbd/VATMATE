@@ -243,11 +243,12 @@ class AdjustmentController extends Controller
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim($request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->adjustment->with(['client', 'expense'])
       ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($search) {
-        $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', $search . '%'));
+      ->when($search, function ($query) use ($termLike) {
+        $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', $termLike));
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

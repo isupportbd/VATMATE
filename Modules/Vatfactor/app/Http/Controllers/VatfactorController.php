@@ -19,9 +19,11 @@ class VatfactorController extends Controller
   // function call automatically from vatfactor page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $vatfactor = $this->vatfactor->when($search, function ($query) use ($search) {
-      $query->where('name)', 'like', '%' . strtolower($search) . '%');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $vatfactor = $this->vatfactor->when($search, function ($query) use ($termLike) {
+      $query->where('name', 'like', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size', 5))
       ->withQueryString();
@@ -69,10 +71,13 @@ class VatfactorController extends Controller
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
-  public function vatfactorDropdown()
+  public function vatfactorDropdown(Request $request)
   {
-    $vatfactor = $this->vatfactor->when(request('search'), function ($query, $search) {
-      $query->where('name', 'like', '%' . strtolower($search) . '%');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $vatfactor = $this->vatfactor->when(request('search'), function ($query) use ($termLike) {
+      $query->where('name', 'like', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

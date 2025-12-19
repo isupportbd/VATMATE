@@ -20,10 +20,12 @@ class ItemController extends Controller
   // function automatically from item page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $item = $this->item->when($search, function ($query) use ($search) {
-      $query->where(DB::raw('lower(name)'), 'like', '%' . strtolower($search) . '%')
-        ->orWhere(DB::raw('lower(hs_code)'), 'like', '%' . strtolower($search) . '%');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $item = $this->item->when($search, function ($query) use ($termLike) {
+      $query->where(DB::raw('lower(name)'), 'like', $termLike)
+        ->orWhere(DB::raw('lower(hs_code)'), 'like', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -157,12 +159,13 @@ class ItemController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function itemDropdown(Request $request)
   {
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $item = $this->item->query()
-      ->when($search, function ($query, $search) {
-        $query->where(DB::raw('lower(name)'), 'like', '%' . strtolower($search) . '%')
-          ->orWhere(DB::raw('lower(hs_code)'), 'like', '%' . strtolower($search) . '%');
+      ->when($search, function ($query) use ($termLike) {
+        $query->where(DB::raw('lower(name)'), 'like', $termLike)
+          ->orWhere(DB::raw('lower(hs_code)'), 'like', $termLike);
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 10);

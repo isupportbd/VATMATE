@@ -21,16 +21,11 @@
       <div class="row">
         <div class="col-12">
           <div class="row gx-1">
-            <div class="col-12 col-lg-4 col-xl-5 ms-auto mb-2 mb-lg-0">
+            <div class="col-12 col-md-8 col-lg-4 col-xl-5 ms-auto mb-2 mb-lg-0">
               <SelectInfinite parentclass="m-0 p-0" :class="{ 'border border-danger rounded-2': !empty(err.item) }"
                 placeholder="Select..." v-model="field.item" :fetched="fetchedItem" />
             </div>
-            <div class="col-12 col-sm-8 col-lg-5 col-xl-2 mb-2 mb-lg-0">
-              <div class="input-group" :class="{ 'border border-danger': !empty(err.monthYear) }" role="group">
-                <input type="month" class="form-control" placeholder="Ex: 2025-07" v-model="field.monthYear" />
-              </div>
-            </div>
-            <div class="col-12 col-sm-4 col-lg-3 col-xl-2">
+            <div class="col-12 col-sm-4 col-md-4 col-lg-3 col-xl-2">
               <div class="btn-group gap-1 w-100">
                 <Button type="button" class="btn btn-outline-secondary rounded-2" title="filter" @click="filterData">
                   <i class="bi bi-filter"></i>
@@ -188,13 +183,10 @@ const filterData = () => {
 };
 
 const exportFile = async () => {
-  err.item = err.monthYear = "";
+  err.item = "";
   field.isLoading = true;
 
-  const param = { filter: true, client_id: route().params.client_id, item_id: field.item?.id, month_year: field.monthYear };
-
-  // send only if not empty
-  if (field.monthYear) param.month_year = field.monthYear;
+  const param = { filter: true, client_id: route().params.client_id, item_id: field.item?.id, month_year: route().params.monthYear };
 
   try {
     await axios.post(route('report-63-excel'), param);
@@ -207,7 +199,6 @@ const exportFile = async () => {
     }
 
     err.item = errors.item_id?.[0] || "";
-    err.monthYear = errors.month_year?.[0] || "";
 
     if (Object.keys(errors).length) {
       err.notfound = true;

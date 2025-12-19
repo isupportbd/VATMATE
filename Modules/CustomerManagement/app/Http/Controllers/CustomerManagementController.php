@@ -20,12 +20,13 @@ class CustomerManagementController extends Controller
   {
     $user = Auth::user();
     $isAdmin = in_array(optional($user->role)->name, ['admin']);
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->customer->query()
-      ->when($search, function ($query) use ($search) {
-        $query->where('mobile', 'like', '%' . strtolower($search) . '%')
-          ->orWhere('name', 'like', '%' . strtolower($search) . '%');
+      ->when($search, function ($query) use ($termLike) {
+        $query->where('mobile', 'like', $termLike)
+          ->orWhere('name', 'like', $termLike);
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
@@ -135,12 +136,13 @@ class CustomerManagementController extends Controller
   public function customerDropdown(Request $request)
   {
     $user = Auth::user();
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->customer->query()
-      ->when($search, function ($query) use ($search) {
-        $query->where('mobile', 'like', '%' . strtolower($search) . '%')
-          ->orWhere('name', 'like', '%' . strtolower($search) . '%');
+      ->when($search, function ($query) use ($termLike) {
+        $query->where('mobile', 'like', $termLike)
+          ->orWhere('name', 'like', $termLike);
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

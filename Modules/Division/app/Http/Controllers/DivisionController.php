@@ -19,8 +19,10 @@ class DivisionController extends Controller
   // function call automatically from division page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $division = $this->division->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $division = $this->division->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -98,9 +100,11 @@ class DivisionController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function divisionDropdown(Request $request)
   {
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
     $division = $this->division->query()
-      ->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+      ->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

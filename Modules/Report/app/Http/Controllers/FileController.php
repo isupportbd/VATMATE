@@ -19,9 +19,10 @@ class FileController extends Controller
 
   public function index(Request $request)
   {
-    $search = $request->query('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
-    $files = $this->report->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+    $files = $this->report->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->appends($request->all());

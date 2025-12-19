@@ -19,8 +19,10 @@ class UnitController extends Controller
   // function call automatically from unit page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $unit = $this->unit->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $unit = $this->unit->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -94,11 +96,14 @@ class UnitController extends Controller
   }
 
   // function call for dropdown. it needs SelectInfinite component. It is send json response
-  public function unitDropdown()
+  public function unitDropdown(Request $request)
   {
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
     $unit = $this->unit->query()
-      ->when(request('search'), function ($query, $search) {
-        $query->where('name', 'like', '%' . strtolower($search) . '%');
+      ->when(request('search'), function ($query) use ($termLike) {
+        $query->where('name', 'like', $termLike);
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);

@@ -119,7 +119,7 @@ class BoeController extends Controller
     }
 
     $pdfData = $browser->pdf();
-    $fileName = "filename=BoE-{$client->bin}" . Carbon::parse($monthYear)->format('M-Y');
+    $fileName = "filename=BoE-{$client->bin}-" . Carbon::parse($monthYear)->format('M-Y') . '.pdf';
 
     return response($pdfData)
       ->header('Content-Type', 'application/pdf')

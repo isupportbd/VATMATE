@@ -19,8 +19,10 @@ class BankController extends Controller
   // function call automatically from bank page
   public function index(Request $request)
   {
-    $search = $request->input('search');
-    $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -99,8 +101,10 @@ class BankController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function bankDropdown(Request $request)
   {
-    $search = $request->input('search');
-    $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', '%' . strtolower($search) . '%'))
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
+
+    $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 
