@@ -77,5 +77,5 @@ Route::middleware(['auth'])->group(function () {
   Route::get('/report-files', [FileController::class, 'index'])->name('report-files')->middleware('role:admin,manager');
   Route::post('/report-file-store', [FileController::class, 'store'])->name('report-file-store')->middleware('role:admin');
   Route::delete('/report-file-destroy/{file}', [FileController::class, 'destroy'])->name('report-file-destroy')->middleware('role:admin');
-  Route::get('/report-file-download/{file}', [FileController::class, 'download'])->name('report-file-download')->middleware('role:admin');
+  Route::get('/report-file-download/{file}', [FileController::class, 'download'])->name('report-file-download')->middleware('role:admin,manager');
 });
