@@ -21,8 +21,7 @@ body,
 }
 
 $themes: (
-  light: (
-    bg: #f5f5f9,
+  light: (bg: #f5f5f9,
     bg-white: #ffffff,
     text-color: $gray-900,
     gray-700: $gray-700,
@@ -44,13 +43,10 @@ $themes: (
     sidebar-link-bg: rgba(105, 108, 255, 0.16),
     backdrop: rgba(0, 0, 0, 0.5),
     shadow-custom: rgba(34, 48, 62, 0.08),
-    accordion-icon:
-      url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"),
-    accordion-icon-active:
-      url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 0 1 .708-.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3e%3c/svg%3e"),
+    accordion-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"),
+    accordion-icon-active: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 0 1 .708-.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3e%3c/svg%3e"),
   ),
-  dark: (
-    bg: #121212,
+  dark: (bg: #121212,
     bg-white: #1b1b1b,
     text-color: #ffffff,
     // surface
@@ -77,10 +73,8 @@ $themes: (
     sidebar-link-bg: rgba(105, 108, 255, 0.22),
     backdrop: rgba(0, 0, 0, 0.6),
     shadow-custom: rgba(34, 48, 62, 0.08),
-    accordion-icon:
-      url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"),
-    accordion-icon-active:
-      url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 0 1 .708-.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3e%3c/svg%3e"),
+    accordion-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"),
+    accordion-icon-active: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 10.354a.5.5 0 0 1 .708 0L8 4.707l5.646 5.647a.5.5 0 0 1 .708-.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3e%3c/svg%3e"),
   ),
 );
 
@@ -115,7 +109,9 @@ $sidebar-width: 16.25rem;
     --bs-link-color: var(--app-primary);
     --bs-navbar-bg: transparent; // you use transparent
     --bs-secondary-color: #{map.get($theme, gray-500)};
-    --bs-secondary-color-rgb: #{red(map.get($theme, gray-500))}, #{green(map.get($theme, gray-500))}, #{blue(map.get($theme, gray-500))};
+    --bs-secondary-color-rgb: #{red(map.get($theme, gray-500))},
+    #{green(map.get($theme, gray-500))},
+    #{blue(map.get($theme, gray-500))};
   }
 
   & {
@@ -124,9 +120,11 @@ $sidebar-width: 16.25rem;
 
     *::-webkit-scrollbar {
       width: 6px;
+
       &-track {
         background: map.get($theme, gray-200);
       }
+
       &-thumb {
         background: map.get($theme, gray-500);
         border-radius: 0.375rem;
@@ -136,13 +134,14 @@ $sidebar-width: 16.25rem;
 
   // Ensure modal close icon visible in each theme
   .btn-close {
-    @if $theme-name == dark {
+    @if $theme-name ==dark {
       filter: #{if($theme-name == dark, 'invert(1) grayscale(100%) brightness(200%)', 'none')} !important;
       opacity: .85;
-  
+
       &:hover {
         opacity: 1;
       }
+
       &:focus {
         box-shadow: 0 0 0 .20rem color-mix(in srgb, var(--app-primary), transparent 75%);
       }
@@ -152,11 +151,14 @@ $sidebar-width: 16.25rem;
   // Outline-dark becomes warning color
   @each $btn-variant in (primary, secondary, success, danger, warning, info, dark) {
     .btn-outline-#{$btn-variant} {
-      @if $btn-variant == dark {
+      @if $btn-variant ==dark {
         color: map.get($theme, dark-color) !important;
         border-color: map.get($theme, dark-color) !important;
 
-        &:hover, &:focus, &:active, &.active {
+        &:hover,
+        &:focus,
+        &:active,
+        &.active {
           background-color: map.get($theme, dark-color) !important;
           color: map.get($theme, bg-white) !important; // improve contrast
           border-color: map.get($theme, dark-color) !important;
@@ -195,6 +197,7 @@ $sidebar-width: 16.25rem;
     max-width: 460px;
     margin: 0 auto;
     border-radius: 0.375rem;
+
     @include media-breakpoint-down(sm) {
       padding: 3rem 0.5rem;
     }
@@ -202,7 +205,8 @@ $sidebar-width: 16.25rem;
 
   .input-group-text {
     background: map.get($theme, bg-white);
-    &:focus-visible{
+
+    &:focus-visible {
       outline: none;
     }
   }
@@ -213,14 +217,17 @@ $sidebar-width: 16.25rem;
     // line-height: 1.375;
     background: map.get($theme, bg-white);
     color-scheme: dark;
+
     &:hover {
       border: 1px solid map.get($theme, secondary);
     }
+
     &:focus {
       box-shadow: 0 0 1px map.get($theme, primary);
       border: 1px solid map.get($theme, primary);
       background: map.get($theme, bg-white);
     }
+
     &::placeholder {
       color: map.get($theme, gray-500);
     }
@@ -230,23 +237,32 @@ $sidebar-width: 16.25rem;
       border: 1px solid map.get($theme, secondary);
     }
 
-    &:read-only {
-      @if $theme-name == light {
+    &:read-only,
+    &[readonly],
+    &:disabled {
+      @if $theme-name ==light {
         background: #f6f6f6;
       }
+
       @else {
         color: map.get($theme, gray-500);
+        background-color: map.get($theme, gray-200);
       }
     }
-    
+
     &.second-input[readonly]:focus {
       background: #f6f6f6;
       border-left: 1px solid map.get($theme, border-custom) !important;
+
+      @if $theme-name ==dark {
+        background-color: map.get($theme, gray-200);
+      }
     }
   }
 
-  .form-select{
+  .form-select {
     background-color: map.get($theme, bg-white);
+
     &:hover {
       border: 1px solid map.get($theme, secondary);
     }
@@ -272,7 +288,8 @@ $sidebar-width: 16.25rem;
       border: 1px solid map.get($theme, primary);
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
       border: none;
       box-shadow: none;
 
@@ -283,11 +300,11 @@ $sidebar-width: 16.25rem;
       }
     }
 
-    input.form-control:focus:first-child{
+    input.form-control:focus:first-child {
       border-right: 1px solid map.get($theme, border-custom) !important;
     }
 
-    input.form-control + input.form-control {
+    input.form-control+input.form-control {
       border-left: 1px solid map.get($theme, border-custom) !important;
     }
   }
@@ -296,24 +313,29 @@ $sidebar-width: 16.25rem;
     // padding-top: 0.2rem;
     font-weight: 500;
     align-items: center;
+
     // line-height: 1.8;
     &:hover {
       transform: translateY(-0.5px);
-      i{
+
+      i {
         transform: translateY(-1px); // only icon moves slightly upward
       }
     }
+
     transition: all 0.2s ease-in-out;
   }
 
   // select infinite custom
   .v-select {
-    @if $theme-name == dark {
-      --vs-controls-color: #fff;      /* icons (arrow/clear) use this */
+    @if $theme-name ==dark {
+      --vs-controls-color: #fff;
+      /* icons (arrow/clear) use this */
     }
   }
-  
-  .vs__search, .vs__search:focus{
+
+  .vs__search,
+  .vs__search:focus {
     margin: 0;
     padding-top: 2px;
     padding-bottom: 2px;
@@ -324,15 +346,16 @@ $sidebar-width: 16.25rem;
     border-radius: 5px;
     border-color: map.get($theme, border-custom) !important;
   }
-  
-  .vs__dropdown-menu{
+
+  .vs__dropdown-menu {
     background-color: map.get($theme, bg-white) !important;
     border-color: map.get($theme, border-custom) !important;
   }
 
   .vs__selected {
     margin: 0;
-    @if $theme-name == dark {
+
+    @if $theme-name ==dark {
       color: map.get($theme, gray-700) !important;
     }
   }
@@ -349,8 +372,8 @@ $sidebar-width: 16.25rem;
   .vs--disabled .vs__search,
   .vs--disabled .vs__selected,
   .vs--disabled .vs__open-indicator {
-    @if $theme-name == dark {
-      background-color: transparent !important;
+    @if $theme-name ==dark {
+      background-color: map.get($theme, gray-200) !important;
       color: map.get($theme, gray-500) !important;
     }
   }
@@ -362,7 +385,7 @@ $sidebar-width: 16.25rem;
     left: auto !important;
   }
 
-  .fs-mini{
+  .fs-mini {
     font-size: 10px;
   }
 
@@ -403,10 +426,12 @@ $sidebar-width: 16.25rem;
       min-height: 1px;
       overflow: hidden;
       justify-content: center;
-      > a {
+
+      >a {
         text-decoration: none;
         color: map.get($theme, gray-900);
       }
+
       img {
         width: 100%;
         vertical-align: middle;
@@ -424,17 +449,21 @@ $sidebar-width: 16.25rem;
       &::-webkit-scrollbar {
         display: none;
         width: 2px;
+
         &-track {
           background: map.get($theme, gray-200);
         }
+
         &-thumb {
           background: map.get($theme, gray-700);
           border-radius: 0.375rem;
         }
       }
+
       &:hover {
         &::-webkit-scrollbar {
           display: block;
+
           &-thumb {
             background: map.get($theme, gray-700);
           }
@@ -444,8 +473,10 @@ $sidebar-width: 16.25rem;
       // Active state
       & .active {
         background-color: map.get($theme, sidebar-link-bg) !important;
+
         a {
           color: map.get($theme, primary) !important;
+
           &:hover {
             background: none !important;
           }
@@ -462,7 +493,7 @@ $sidebar-width: 16.25rem;
           border-radius: 0.375rem 0 0 0.375rem;
         }
       }
-        
+
       & ul.list-group {
         list-style-type: none;
         padding-left: 1rem;
@@ -519,7 +550,7 @@ $sidebar-width: 16.25rem;
           }
 
           // Normal hover for top-level
-          &:hover > a {
+          &:hover>a {
             background: map.get($theme, gray-200);
             transition: all 0.2s ease-in-out;
             border-radius: 0.375rem;
@@ -529,7 +560,8 @@ $sidebar-width: 16.25rem;
           // Accordion section -> 1st level
           &.accordion-item {
             padding: 0;
-            & > a {
+
+            &>a {
               &:hover {
                 background: map.get($theme, gray-200);
               }
@@ -551,6 +583,7 @@ $sidebar-width: 16.25rem;
 
               &:not(.collapsed) {
                 background: map.get($theme, gray-200);
+
                 &::after {
                   transform: rotate(0deg);
                 }
@@ -558,14 +591,15 @@ $sidebar-width: 16.25rem;
             }
 
             // Nested list hover -> 1nd level
-            & > ul {
+            &>ul {
               padding-left: 0;
               padding-right: 0;
 
-              & > li {
+              &>li {
                 margin-top: 0.25rem;
                 position: relative;
-                & > a {
+
+                &>a {
                   // vertical-align: middle;
                   padding: 0.5rem 1rem 0.5rem 3rem;
                 }
@@ -598,7 +632,7 @@ $sidebar-width: 16.25rem;
                   }
                 }
 
-                > ul li{
+                >ul li {
                   &::after {
                     content: "";
                     position: absolute;
@@ -609,7 +643,7 @@ $sidebar-width: 16.25rem;
                     background-color: map-get($theme, gray-500);
                   }
 
-                  &.active{
+                  &.active {
                     &::after {
                       content: "";
                       position: absolute;
@@ -632,6 +666,7 @@ $sidebar-width: 16.25rem;
   .wrapper {
     overflow: auto;
   }
+
   .main {
     position: relative;
     // background: red;
@@ -681,6 +716,7 @@ $sidebar-width: 16.25rem;
           border-radius: 0.25rem;
           background: map.get($theme, bg-white);
           color: map.get($theme, text-color);
+
           &:hover {
             background: map.get($theme, bg-white);
             color: map.get($theme, primary);
@@ -731,6 +767,7 @@ $sidebar-width: 16.25rem;
       left: 0;
       transition: all 0.3s ease-in-out;
     }
+
     .sidebar.tgl {
       left: -$sidebar-width;
       transition: all 0.3s ease-in-out;
@@ -777,6 +814,7 @@ $sidebar-width: 16.25rem;
       padding-left: 0;
       transition: all 0.3s ease-in-out;
     }
+
     .main.tgl {
       width: none;
       padding-left: 0;
@@ -785,41 +823,43 @@ $sidebar-width: 16.25rem;
   }
 }
 
-.datatable{
-  thead tr > th, tbody tr > td {
+.datatable {
+
+  thead tr>th,
+  tbody tr>td {
     padding: 7.5px 10px;
   }
-  
-  thead{
-    tr > th {
+
+  thead {
+    tr>th {
       padding-top: 7.5px;
       padding-bottom: 7.5px;
     }
-    
-    tr > th:nth-child(-n+2) {
+
+    tr>th:nth-child(-n+2) {
       width: 1%;
       white-space: nowrap;
     }
-    
-    tr > th:nth-child(-n+1) {
+
+    tr>th:nth-child(-n+1) {
       padding-left: 6px !important;
       padding-right: 5px !important;
     }
-    
-    tr > th:last-child {
+
+    tr>th:last-child {
       width: 1%;
       white-space: nowrap;
       text-align: center;
     }
   }
 
-  tbody tr > td:nth-child(-n+1) {
+  tbody tr>td:nth-child(-n+1) {
     padding-left: 6px !important;
     padding-right: 5px !important;
   }
-  
-  .datatable-pagination .page-item{
-    .page-link{
+
+  .datatable-pagination .page-item {
+    .page-link {
       border-radius: 5px;
       margin-left: 0;
       border: 1px solid #DFDFDF;
@@ -829,22 +869,23 @@ $sidebar-width: 16.25rem;
 
 
 // general table
-.datatable-general thead tr > th, .datatable-general tbody tr > td{
+.datatable-general thead tr>th,
+.datatable-general tbody tr>td {
   padding: 7.5px 10px;
 }
 
-.datatable-general thead tr > th{
+.datatable-general thead tr>th {
   padding-top: 15px;
   padding-bottom: 15px;
 }
 
-.datatable-general thead tr > th:nth-child(-n+1) {
+.datatable-general thead tr>th:nth-child(-n+1) {
   width: 1%;
   white-space: nowrap;
 }
 
-.datatable-general-pagination .page-item{
-  .page-link{
+.datatable-general-pagination .page-item {
+  .page-link {
     border-radius: 5px;
     margin-left: 0;
     border: 1px solid #DFDFDF;
@@ -872,6 +913,7 @@ $sidebar-width: 16.25rem;
   @media (prefers-color-scheme: dark) {
     @include theme(dark);
   }
+
   @media (prefers-color-scheme: light) {
     @include theme(light);
   }
@@ -895,7 +937,8 @@ $sidebar-width: 16.25rem;
   .main,
   .content-wrapper,
   .content,
-  .card, table {
+  .card,
+  table {
     height: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
@@ -926,8 +969,8 @@ $sidebar-width: 16.25rem;
   /***************
     REMOVE NON-PRINT ELEMENTS
   ***************/
-  .content-wrapper > header,
-  .content-wrapper > footer,
+  .content-wrapper>header,
+  .content-wrapper>footer,
   .PageBar,
   .Refresh,
   .sidebar,
@@ -951,7 +994,8 @@ $sidebar-width: 16.25rem;
   /***************
     PRINT UTILITY RESET
   ***************/
-  .pp-0, .pm-0 {
+  .pp-0,
+  .pm-0 {
     padding: 0 !important;
     margin: 0 !important;
   }
@@ -959,18 +1003,46 @@ $sidebar-width: 16.25rem;
   @each $name, $size in $spacers {
 
     /* Padding */
-    .pp-#{$name}   { padding:        $size !important; }
-    .ppt-#{$name}  { padding-top:    $size !important; }
-    .ppe-#{$name}  { padding-right:  $size !important; }
-    .ppb-#{$name}  { padding-bottom: $size !important; }
-    .pps-#{$name}  { padding-left:   $size !important; }
+    .pp-#{$name} {
+      padding: $size !important;
+    }
+
+    .ppt-#{$name} {
+      padding-top: $size !important;
+    }
+
+    .ppe-#{$name} {
+      padding-right: $size !important;
+    }
+
+    .ppb-#{$name} {
+      padding-bottom: $size !important;
+    }
+
+    .pps-#{$name} {
+      padding-left: $size !important;
+    }
 
     /* Margin */
-    .pm-#{$name}   { margin:         $size !important; }
-    .pmt-#{$name}  { margin-top:     $size !important; }
-    .pme-#{$name}  { margin-right:   $size !important; }
-    .pmb-#{$name}  { margin-bottom:  $size !important; }
-    .pms-#{$name}  { margin-left:    $size !important; }
+    .pm-#{$name} {
+      margin: $size !important;
+    }
+
+    .pmt-#{$name} {
+      margin-top: $size !important;
+    }
+
+    .pme-#{$name} {
+      margin-right: $size !important;
+    }
+
+    .pmb-#{$name} {
+      margin-bottom: $size !important;
+    }
+
+    .pms-#{$name} {
+      margin-left: $size !important;
+    }
   }
 
   /* Remove all card borders completely */
@@ -990,9 +1062,9 @@ $sidebar-width: 16.25rem;
     overflow: visible !important;
   }
 
-  .table-responsive > table {
+  .table-responsive>table {
     width: 100% !important;
-    table-layout: fixed !important; 
+    table-layout: fixed !important;
   }
 
   .table-responsive th,
@@ -1021,8 +1093,11 @@ $sidebar-width: 16.25rem;
     display: table-footer-group !important;
   }
 
-  tr, th, td {
-    page-break-inside: avoid !important;     /* do not split ROWS */
+  tr,
+  th,
+  td {
+    page-break-inside: avoid !important;
+    /* do not split ROWS */
     break-inside: avoid-page !important;
     page-break-after: auto !important;
   }
