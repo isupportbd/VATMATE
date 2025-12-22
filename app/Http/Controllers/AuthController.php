@@ -411,6 +411,7 @@ class AuthController extends Controller
     $auth   = Auth::user();
     $role   = optional($auth->role)->name;
     $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     // which roles to exclude for this viewer
     $exclude = match ($role) {
@@ -421,8 +422,8 @@ class AuthController extends Controller
 
     $query = $this->user->with(['role:id,name'])
       ->when($exclude, fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', $exclude)))
-      ->when($search, fn($q) => $q->where(
-        fn($q) => $q->where('name',  'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
+      ->when($search !== '', fn($q) => $q->where(
+        fn($q) => $q->where('name',  'like', $termLike)->orWhere('email', 'like', $termLike)
       ))->orderByDesc('id')
       ->paginate((int) $request->input('size', 10))
       ->withQueryString();

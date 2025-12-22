@@ -37,17 +37,20 @@ class ClientController extends Controller
 
     $query = $this->client->with(['division', 'user.role'])
       ->when(!$this->hasRole(['admin']), fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search !== '', function ($query) use ($termLike) {
-        $query->where(function ($query) use ($termLike) {
-          $query->where('company_name', 'like', $termLike)
+      ->when($search !== '', function ($q) use ($termLike) {
+        $q->where(function ($q) use ($termLike) {
+          $q->where('company_name', 'like', $termLike)
             ->orWhere('bin', 'like', $termLike)
             ->orWhere('email', 'like', $termLike)
             ->orWhere('mobile', 'like', $termLike)
             ->orWhere('reference', 'like', $termLike)
-            ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike))
-            ->orWhereHas('user', fn($query) => $query->where('email', 'like', $termLike));
-        })->whereNotIn('user_id', NULL);
-      })->orderBy('id', 'desc')->paginate((int)request('size', 10))->withQueryString();
+            ->orWhereHas('division', fn($q) => $q->where('name', 'like', $termLike))
+            ->orWhereHas('user', fn($q) => $q->where('email', 'like', $termLike));
+        })->whereNotNull('user_id');
+      })
+      ->orderBy('id', 'desc')
+      ->paginate((int)request('size', 10))
+      ->withQueryString();
 
     return Inertia('client/index', ['client' => $query, 'search' => $search]);
   }
