@@ -4,6 +4,7 @@ namespace Modules\Sale\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,8 @@ use Throwable;
 
 class SaleController extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $sale;
   public $purchase;
@@ -56,13 +59,12 @@ class SaleController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $sale = $this->sale->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit', 'bank'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->whereHas('client', function ($query) use ($termLike) {
             $query->where('bin', 'like', $termLike)
@@ -83,7 +85,6 @@ class SaleController extends Controller
   public function store(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $items = collect($request->input('items', []));
 
@@ -155,12 +156,12 @@ class SaleController extends Controller
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
           if ($client && $client->status == 0) return $fail('BIN inactive');
-          if (!$isAdmin && $client && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($request) {
           $entrydate = Carbon::parse($value, 'Asia/Dhaka')->startOfDay();
@@ -298,12 +299,12 @@ class SaleController extends Controller
     );
 
     try {
-      DB::transaction(function () use ($user, $isAdmin, $clientId, $items, $date, $customerMobile, $customerName, $binOrNid, $address, $bankId, $transactionNo, $transactionDate, $note15) {
+      DB::transaction(function () use ($user, $clientId, $items, $date, $customerMobile, $customerName, $binOrNid, $address, $bankId, $transactionNo, $transactionDate, $note15) {
         $currentYear = now('Asia/Dhaka')->format('Y');
 
         // LAST INVOICE FOR THIS BIN + THIS YEAR
         $lastInvoice = $this->sale->query()
-          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
           ->where('client_id', $clientId)
           ->whereYear('date', $currentYear)
           ->orderByDesc('id')
@@ -439,11 +440,10 @@ class SaleController extends Controller
   public function show($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $sale = $this->sale->with(['client.division', 'client.user.role', 'item', 'unit', 'bank'])->find($id);
 
-    if (!$isAdmin && $sale && ($sale->client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && $sale && ($sale->client->user_id !== $user->id)) {
       return response()->json(['sale' => null, 'error' => 'Unauthorized']);
     }
 
@@ -456,7 +456,6 @@ class SaleController extends Controller
   public function update(Request $request, $id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     if (!$this->form621->where('importable_id', $id)->where('importable_type', 'sale')->where('last', 1)->first()) {
       back()->with('error', 'Can not update: not last combination');
@@ -524,11 +523,11 @@ class SaleController extends Controller
     // ───────────── VALIDATION (unchanged except it uses $needPaymentInfo) ─────────────
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($sale, $user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($sale, $user) {
           $client = $this->client->find($value);
           if (!$client) return $fail('Client does not exist');
           if ($client->status == 0) return $fail('BIN inactive');
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
           if ($value != $sale->client_id) return $fail('Not changable');
         }],
         'date' => ['required', 'date_format:"Y-m-d"', function ($attribute, $value, $fail) use ($sale) {
@@ -657,12 +656,11 @@ class SaleController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     try {
-      DB::transaction(function () use ($id, $user, $isAdmin) {
+      DB::transaction(function () use ($id, $user) {
         $permission = $this->form621->with(['client'])->where('id', $id)
-          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
           ->first();
 
         if (!$permission) {
@@ -701,11 +699,10 @@ class SaleController extends Controller
   public function updateCustomer(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $sale = $this->sale->with(['client'])->where('id', $id)->first();
 
-    if (!$isAdmin && ($sale->client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($sale->client->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorized');
     }
 
@@ -741,7 +738,6 @@ class SaleController extends Controller
   public function lastInvoice(Request $request)
   {
     $user       = Auth::user();
-    $isAdmin    = in_array(optional($user->role)->name, ['admin']);
     $clientId   = $request->input('client_id');
     $currentYear = now('Asia/Dhaka')->format('Y');
 
@@ -751,7 +747,7 @@ class SaleController extends Controller
 
     // LAST INVOICE FOR THIS BIN + YEAR
     $lastInvoice = $this->sale->query()
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
       ->whereYear('date', $currentYear)
       ->where('client_id', $clientId)
       ->orderByDesc('id')

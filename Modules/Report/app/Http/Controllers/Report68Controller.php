@@ -3,6 +3,7 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Spatie\Browsershot\Browsershot;
 
 class Report68Controller extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $debitnote;
   public function __construct(Client $client, Debitnote $debitnote)
@@ -24,21 +27,20 @@ class Report68Controller extends Controller
   public function index(Request $request, $client_id, $monthYear)
   {
     $user   = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
     $query = $this->debitnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])
       ->where('client_id', $client_id)
       ->where(DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"), $monthYear)
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($q) use ($termLike) {
           $q->where(DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"), 'like', $termLike)
             ->orWhereHas('item', function ($query) use ($termLike) {
@@ -58,11 +60,10 @@ class Report68Controller extends Controller
   public function show($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $debitnote = $this->debitnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])->find($id);
 
-    if (!$isAdmin && ($debitnote->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($debitnote->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -75,12 +76,11 @@ class Report68Controller extends Controller
   public function pdf(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $debitnote = $this->debitnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])
       ->findOrFail($request->query('id'));
 
-    if (!$isAdmin && ($debitnote->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($debitnote->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 

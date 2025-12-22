@@ -4,6 +4,7 @@ namespace Modules\Rate\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,8 @@ use Throwable;
 
 class RateController extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $item;
   public $rate;
@@ -42,13 +45,12 @@ class RateController extends Controller
   public function index(Request $request)
   {
     $user   = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->rate->with(['client', 'client.user', 'client.user.role', 'item'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id))->where('last', 1))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id))->where('last', 1))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->where('lc_or_invoice_no', 'like', $termLike)
             ->orWhereHas('client', function ($query) use ($termLike) {
@@ -74,7 +76,6 @@ class RateController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $clientId = $request->input('client_id');
     $itemId = $request->input('item_id');
@@ -87,14 +88,14 @@ class RateController extends Controller
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($form43) {
           // Check if item exists
@@ -199,11 +200,10 @@ class RateController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $query = $this->rate->with(['client', 'item'])->find($id);
 
-    if (!$isAdmin && (optional($query->client)->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && (optional($query->client)->user_id !== $user->id)) {
       return response()->json(['error' => 'Unauthorised']);
     }
 
@@ -229,7 +229,6 @@ class RateController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $clientId = $request->input('client_id');
     $itemId = $request->input('item_id');
@@ -242,14 +241,14 @@ class RateController extends Controller
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $item = $this->item->find($value);
@@ -336,17 +335,16 @@ class RateController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     try {
-      DB::transaction(function () use ($id, $user, $isAdmin) {
+      DB::transaction(function () use ($id, $user) {
         $rate = $this->rate->with(['client', 'item'])->find($id);
 
         if (!$rate) {
           return back()->with('error', 'No data found');
         }
 
-        if (!$isAdmin && ($rate->client?->user_id !== $user->id)) {
+        if (!$this->hasRole(['admin']) && ($rate->client?->user_id !== $user->id)) {
           return back()->with('error', 'Unauthorised');
         }
 
@@ -382,14 +380,13 @@ class RateController extends Controller
   public function rateLast(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $clientId = $request->input('client_id');
     $itemId   = $request->input('item_id');
 
     // Step 1: Get the last rate
     $rateLast = $this->rate->with(['client', 'item'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $clientId)
       ->where('item_id', $itemId)
       ->where('last', 1)
@@ -397,7 +394,7 @@ class RateController extends Controller
 
     // Step 2: Get last form43 with additions
     $form43 = $this->form43->with(['client', 'item', 'purchaseunit:id,name', 'saleunit:id,name', 'additions'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $clientId)
       ->where('item_id', $itemId)
       ->where('last', 1)

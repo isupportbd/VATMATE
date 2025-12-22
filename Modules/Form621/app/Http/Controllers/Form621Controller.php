@@ -3,6 +3,7 @@
 namespace Modules\Form621\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -14,6 +15,8 @@ use Modules\Purchase\Models\Purchase;
 
 class Form621Controller extends Controller
 {
+  use ChecksUserRole;
+
   public $form621;
   public $form43;
   public $purchase;
@@ -31,13 +34,12 @@ class Form621Controller extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $form621 = $this->form621->with(['client', 'client.division', 'client.user.role'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->whereHas('client', function ($query) use ($termLike) {
           $query->where(function ($q) use ($termLike) {
             $q->where('bin', 'like', $termLike)
@@ -63,7 +65,6 @@ class Form621Controller extends Controller
   public function clientSingleIndex(Request $request,  $client_id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $itemId = $request->input('item_id');
 
@@ -72,7 +73,7 @@ class Form621Controller extends Controller
     }
 
     $form621 = $this->form621->with(['importable', 'item', 'unit', 'client', 'form43'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($itemId, fn($q) => $q->where('item_id', $itemId))
       ->where('client_id', $client_id)
       ->orderBy('id', 'desc')
@@ -201,28 +202,27 @@ class Form621Controller extends Controller
   public function form621Last(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $client = $request->input('client_id');
     $item = $request->input('item_id');
 
     $query = $this->form621->with(['client', 'item', 'form43', 'form43.purchaseunit', 'form43.saleunit', 'unit', 'user'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client)
       ->where('item_id', $item)
       ->where('last', 1)
       ->first();
 
-    $lastDate = $this->form621->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+    $lastDate = $this->form621->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client)
       ->max('date');
 
-    $itemCode = $this->form43->when(!$isAdmin,  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+    $itemCode = $this->form43->when(!$this->hasRole(['admin']),  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
       ->where('client_id', $client)
       ->where('item_id', $item)
       ->value('item_code');
 
-    $maxItemCode = $this->form43->when(!$isAdmin,  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+    $maxItemCode = $this->form43->when(!$this->hasRole(['admin']),  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
       ->where('client_id', $client)
       ->max('item_code');
 
@@ -240,7 +240,6 @@ class Form621Controller extends Controller
   public function creditnoteResponse(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $clientId = $request->input('client_id');
     $itemId = $request->input('item_id');
     $invNo = $request->input('lc_or_invoice_no');
@@ -248,8 +247,8 @@ class Form621Controller extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $base621 = $this->form621->with(['sale', 'client', 'item', 'form43', 'unit', 'user'])
-      ->when(!$isAdmin,  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
-      ->when($search, fn($q) => $q->where('lc_or_invoice_no', 'like', $termLike))
+      ->when(!$this->hasRole(['admin']),  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+      ->when($search !== '', fn($q) => $q->where('lc_or_invoice_no', 'like', $termLike))
       ->where('client_id', $clientId);
 
     $form621 = (clone $base621)->where('item_id', $itemId)->where('lc_or_invoice_no', $invNo)->first();
@@ -267,7 +266,6 @@ class Form621Controller extends Controller
   public function debitnoteResponse(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $clientId = $request->input('client_id');
     $itemId = $request->input('item_id');
     $invNo = $request->input('lc_or_invoice_no');
@@ -276,7 +274,7 @@ class Form621Controller extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $base621 = $this->form621->with(['purchase', 'client', 'item', 'form43', 'unit', 'user'])
-      ->when(!$isAdmin,  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']),  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
       ->when($search, fn($q) => $q->where('lc_or_invoice_no', 'like', $termLike))
       ->where('client_id', $clientId);
 

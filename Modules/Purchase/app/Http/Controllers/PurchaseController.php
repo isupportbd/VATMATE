@@ -4,6 +4,7 @@ namespace Modules\Purchase\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,8 @@ use Throwable;
 
 class PurchaseController extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $form43;
   public $form621;
@@ -49,13 +52,12 @@ class PurchaseController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $purchase = $this->purchase->with(['client', 'client.division', 'client.user', 'client.user.role', 'stationcode', 'item', 'mushaknote', 'unit'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->whereHas('client', function ($query) use ($termLike) {
             $query->where('bin', 'like', $termLike)
@@ -74,7 +76,6 @@ class PurchaseController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin'], true);
 
     // calculation part for validation and insert data
     $av      = (float) $request->input('assessable_value');
@@ -113,11 +114,11 @@ class PurchaseController extends Controller
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
           if (!$client) return $fail('Client does not exist');
           if ($client->status == 0) return $fail('BIN inactive');
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'integer', 'gt:0', 'bail', Rule::exists('items', 'id'), function ($attribute, $value, $fail) use ($request) {
           $clientId = $request->input('client_id');
@@ -455,11 +456,10 @@ class PurchaseController extends Controller
   public function show($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $purchase = $this->purchase->with(['client.division', 'client.user.role', 'stationcode', 'item', 'mushaknote', 'unit'])->find($id);
 
-    if (!$isAdmin && $purchase && ($purchase->client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && $purchase && ($purchase->client->user_id !== $user->id)) {
       return response()->json(['purchase' => null, 'error' => 'Unauthorized']);
     }
 
@@ -487,7 +487,6 @@ class PurchaseController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     if (!$this->form621->where('importable_id', $id)->where('importable_type', 'purchase')->where('last', 1)->first()) {
       return back()->with('error', 'Can not update: not last combination');
@@ -530,14 +529,14 @@ class PurchaseController extends Controller
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'integer', 'gt:0', 'bail', Rule::exists('items', 'id'), function ($attribute, $value, $fail) use ($request) {
           $item = $this->item->find($value);
@@ -869,11 +868,10 @@ class PurchaseController extends Controller
   public function updateExporter(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $purchase = $this->purchase->with(['client'])->where('id', $id)->first();
 
-    if (!$isAdmin && ($purchase->client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($purchase->client->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorized');
     }
 
@@ -923,12 +921,11 @@ class PurchaseController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     try {
-      DB::transaction(function () use ($id, $user, $isAdmin) {
+      DB::transaction(function () use ($id, $user) {
         $permission = $this->form621->with(['client'])->where('id', $id)
-          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
           ->first();
 
         if (!$permission) {
@@ -972,14 +969,13 @@ class PurchaseController extends Controller
   public function purchaseLcSearch(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $lc = $request->input('lc_no');
     $client = $request->input('client_id');
     $item = $request->input('item_id');
 
     $lcSearch = $this->purchase->with(['stationcode'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->select('id', 'lc_date', 'boe_date', 'entry_date', 'stationcode_id')
       ->where('client_id', $client)
       ->where('item_id', $item)

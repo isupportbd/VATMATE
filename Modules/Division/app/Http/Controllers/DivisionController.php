@@ -22,7 +22,7 @@ class DivisionController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $division = $this->division->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $division = $this->division->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -104,7 +104,7 @@ class DivisionController extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $division = $this->division->query()
-      ->when($search, fn($query) => $query->where('name', 'like', $termLike))
+      ->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

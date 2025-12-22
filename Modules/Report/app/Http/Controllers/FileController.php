@@ -22,7 +22,7 @@ class FileController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $files = $this->report->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $files = $this->report->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->appends($request->all());

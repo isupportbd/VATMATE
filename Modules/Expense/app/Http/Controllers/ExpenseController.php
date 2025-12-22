@@ -22,7 +22,7 @@ class ExpenseController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $expense = $this->expense->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $expense = $this->expense->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'asc')
       ->paginate((int)request('size', 5));
 

@@ -3,6 +3,7 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,8 @@ use Modules\Report\Jobs\Report621ExportJob;
 
 class Report621Controller extends Controller
 {
+  use ChecksUserRole;
+
   public $form621;
   public $client;
   public function __construct(Form621 $form621, Client $client)
@@ -29,13 +32,12 @@ class Report621Controller extends Controller
   public function index(Request $request,  $client_id, $monthYear)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $itemId = $request->input('item_id');
 
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
@@ -44,7 +46,7 @@ class Report621Controller extends Controller
     }
 
     $form621 = $this->form621->with(['importable', 'item', 'unit', 'client', 'form43'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($itemId, fn($q) => $q->where('item_id', $itemId))
       ->where('client_id', $client_id)
       ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $monthYear)
@@ -63,7 +65,6 @@ class Report621Controller extends Controller
   public function Report621Excel(Request $request)
   {
     $user     = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $clientId   = $request->input('client_id');
     $monthYear   = $request->input('monthYear');
     $itemId     = $request->input('item_id');
@@ -76,7 +77,7 @@ class Report621Controller extends Controller
       ]);
     }
 
-    $client = $this->client->where('id', $clientId)->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->first();
+    $client = $this->client->where('id', $clientId)->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))->first();
 
     if (!$client) {
       return response()->json(['err', 'Unauthorized']);

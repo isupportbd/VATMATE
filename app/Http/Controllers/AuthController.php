@@ -10,6 +10,7 @@ use App\Events\UserProfileMailEvent;
 use App\Events\UserUpdateMailEvent;
 use App\Models\Role;
 use App\Models\User;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,8 @@ use Throwable;
 
 class AuthController extends Controller
 {
+  use ChecksUserRole;
+
   public $role;
   public $user;
   public function __construct(Role $role, User $user)
@@ -132,18 +135,20 @@ class AuthController extends Controller
   // function call from user
   public function index(Request $request)
   {
-    $user = Auth::user();
-    $role = optional($user->role)->name;
-    $search = $request->input('search');
+    $search = trim((string) $request->input('search', ''));
+    $termLike   = $search !== '' ? $search . '%' : null;
 
     $exclude = [];
-    if ($role === 'superadmin') $exclude = ['superadmin', 'editor'];
-    if ($role === 'admin')      $exclude = ['superadmin', 'admin'];
+    if ($this->hasRole(['superadmin'])) $exclude = ['superadmin', 'editor'];
+    if ($this->hasRole(['admin']))      $exclude = ['superadmin', 'admin'];
 
-    $query = $this->user
-      ->with('role')
+    $query = $this->user->with('role')
       ->when($exclude, fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', $exclude)))
-      ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
+      ->when($search !== '', function ($query) use ($termLike) {
+        $query->where(function ($q) use ($termLike) {
+          $q->where('name', 'like', $termLike)->orWhere('email', 'like', $termLike);
+        });
+      })
       ->orderByDesc('id')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -162,13 +167,13 @@ class AuthController extends Controller
         'mobile' => 'required|max:14',
         'password' => 'required|max:255',
         'confirm_password' =>  'required|same:password',
-        'role_id' => ['required', function ($attributes, $value, $fail) use ($request, $user) {
+        'role_id' => ['required', function ($attributes, $value, $fail) {
           $role = $this->role->find($value);
-          if ($user->role->name == 'superadmin') {
+          if ($this->hasRole(['superadmin'])) {
             (!in_array($role->name, ['admin'])) &&  $fail("Can't create " . $role->name);
           }
 
-          if ($user->role->name == 'admin') {
+          if ($this->hasRole(['admin'])) {
             (in_array($role->name, ['superadmin', 'admin'])) && $fail("Can't create " . $role->name);
           }
         }],
@@ -212,21 +217,15 @@ class AuthController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $role = optional($user->role)->name;
 
-    $query = $this->user->with('role');
+    $query = $this->user->with('role')
+      ->when($this->hasRole(['superadmin']), fn($q) => $q->whereHas('role', fn($r) => $r->where('name', 'admin')))
+      ->when($this->hasRole(['admin']), fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', ['superadmin', 'admin'])))
+      ->when(!$this->hasRole(['superadmin', 'admin']), fn($q) => $q->where('id', $user->id))
+      ->whereKey($id)
+      ->first();
 
-    if ($role === 'superadmin') {
-      $query->whereHas('role', fn($r) => $r->where('name', 'admin'));
-    } elseif ($role === 'admin') {
-      $query->whereHas('role', fn($r) => $r->whereNotIn('name', ['superadmin', 'admin']));
-    } else {
-      $query->where('id', $user->id);
-    }
-
-    $result = $query->where('id', $id)->first();
-
-    return response()->json(['user' => $result]);
+    return response()->json(['user' => $query]);
   }
 
   // function call from user page for update
@@ -247,11 +246,11 @@ class AuthController extends Controller
         'confirm_password' => 'sometimes|required_with:password|same:password',
         'role_id' => ['required', function ($attributes, $value, $fail) use ($request, $userSession) {
           $role = $this->role->find($value);
-          if ($userSession->role->name == 'superadmin') {
+          if ($this->hasRole(['superadmin'])) {
             (!in_array($role->name, ['admin'])) && $fail("Can't assign " . $role->name);
           }
 
-          if ($userSession->role->name == 'admin') {
+          if ($this->hasRole(['admin'])) {
             (in_array($role->name, ['superadmin', 'admin'])) && $fail("Can't assign " . $role->name);
           }
         }],
@@ -308,37 +307,33 @@ class AuthController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
+
+    abort_unless($this->hasRole(['superadmin', 'admin']), 403);
+
     $ids = explode(',', $id);
-    $query = $this->user->with(['role'])->whereIn('id', $ids);
-
-    if ($user->role->name == 'superadmin') {
-      $query->whereHas('role', fn($query) => $query->whereIn('name', ['admin']));
-    }
-
-    if ($user->role->name == 'admin') {
-      $query->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin']));
-    }
-
-    $result = $query->delete();
+    $query = $this->user->with(['role'])->whereIn('id', $ids)
+      ->when($this->hasRole(['superadmin']), fn($q) => $q->whereHas('role', fn($query) => $query->whereIn('name', ['admin'])))
+      ->when($this->hasRole(['admin']), fn($q) => $q->whereHas('role', fn($query) => $query->whereNotIn('name', ['superadmin', 'admin'])))
+      ->delete();
 
     // realtime data
     event(new CommonEvent($user->id));
 
-    return back()->with('message', "Deleted {$result} user(s)");
+    return back()->with('message', "Deleted {$query} user(s)");
   }
 
   // function call from user page status click
   public function statusUpdate(Request $request, $id)
   {
-    $user = Auth::user();
+    $userSession = Auth::user();
     $formField = $request->validate(
       [
-        'status' => ['required', 'in:0,1', function ($attribute, $value, $fail) use ($id, $user) {
+        'status' => ['required', 'in:0,1', function ($attribute, $value, $fail) use ($id) {
           $user = $this->user->with(['role'])->where('id', $id)->first();
-          if (in_array($user->role->name, ['superadmin'])) {
+          if ($this->hasRole(['superadmin'])) {
             in_array($user->role->name, ['superadmin']) && $fail("Can't update status");
           }
-          if (in_array($user->role->name, ['admin'])) {
+          if ($this->hasRole(['admin'])) {
             in_array($user->role->name, ['superadmin', 'admin']) && $fail("Can't update status");
           }
         }]
@@ -349,7 +344,7 @@ class AuthController extends Controller
     $this->user->with(['role'])->where('id', $id)->update($formField);
 
     // realtime data
-    event(new CommonEvent($user->id));
+    event(new CommonEvent($userSession->id));
 
     return back()->with('message', 'User status updated');
   }

@@ -4,6 +4,7 @@ namespace Modules\EconomicArea\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,8 @@ use Throwable;
 
 class EconomicAreaController extends Controller
 {
+  use ChecksUserRole;
+
   public $economicarea;
   public $client;
   public $item;
@@ -31,15 +34,14 @@ class EconomicAreaController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
           if (!$client) return $fail('Client does not exist');
           if ($client->status == 0) return $fail('BIN inactive');
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $item = $this->item->find($value);
@@ -72,13 +74,12 @@ class EconomicAreaController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client
-      ->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->where('company_name', 'like', $termLike)
             ->orWhere('mobile', 'like', $termLike)
@@ -111,10 +112,9 @@ class EconomicAreaController extends Controller
   public function destroy($client_id, $item_id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     // 1) Authorize: client must belong to current user unless admin
-    $client = $this->client->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->find($client_id);
+    $client = $this->client->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))->find($client_id);
 
     if (!$client) {
       return back()->with('error', 'Unauthorised');
@@ -150,7 +150,6 @@ class EconomicAreaController extends Controller
   public function clientItemDropdown(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $clientId = $request->input('client_id');
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
@@ -160,9 +159,9 @@ class EconomicAreaController extends Controller
       return response(['item' => $empty, 'search' => $search]);
     }
     // parent class
-    $client = $this->client->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->findOrFail($clientId);
+    $client = $this->client->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))->findOrFail($clientId);
     // parent to sub class many to many relation
-    $query = $client->items()->when($search, fn($query) => $query->where('name', 'like', $termLike));
+    $query = $client->items()->when($search !== '', fn($query) => $query->where('name', 'like', $termLike));
 
     $result = $query->orderBy('id', 'desc')->paginate((int)request('size', 10));
 

@@ -22,7 +22,7 @@ class BankController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $bank = $this->bank->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -104,7 +104,7 @@ class BankController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $bank = $this->bank->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $bank = $this->bank->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

@@ -4,6 +4,7 @@ namespace Modules\Report\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,8 @@ use Spatie\Browsershot\Browsershot;
 
 class SummaryController extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $sale;
   public $purchase;
@@ -53,12 +56,11 @@ class SummaryController extends Controller
   public function index(Request $request, $client_id, $monthYear)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     // --------- BLOCK IF CLIENT NOT BELONGS TO USER ----------
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
@@ -647,14 +649,13 @@ class SummaryController extends Controller
   public function pdf(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $client_id = $request->query('client_id');
     $monthYear = $request->query('monthYear');
 
     // --------- BLOCK IF CLIENT NOT BELONGS TO USER ----------
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 

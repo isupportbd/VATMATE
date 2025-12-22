@@ -4,6 +4,7 @@ namespace Modules\Debitnote\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,8 @@ use Throwable;
 
 class DebitnoteController extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $item;
   public $unit;
@@ -45,13 +48,12 @@ class DebitnoteController extends Controller
   public function index(Request $request)
   {
     $user   = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $debitnote = $this->debitnote->with(['client', 'client.user', 'client.user.role', 'item'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->where('lc_or_invoice_no', 'like', $termLike)
             ->orWhereHas('client', function ($query) use ($termLike) {
@@ -79,7 +81,6 @@ class DebitnoteController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
@@ -93,14 +94,14 @@ class DebitnoteController extends Controller
             return $fail("LC number must be digits only");
           }
         }],
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $item = $this->item->find($value);
@@ -196,7 +197,7 @@ class DebitnoteController extends Controller
     );
 
     try {
-      DB::transaction(function () use ($formField, $request, $user, $isAdmin) {
+      DB::transaction(function () use ($formField, $request, $user) {
         $currentYear = now('Asia/Dhaka')->format('Y');
         $clientId = $request->input('client_id');
         $itemId = $request->input('item_id');
@@ -223,7 +224,7 @@ class DebitnoteController extends Controller
 
         // LAST INVOICE FOR THIS BIN + THIS YEAR
         $lastInvoice = $this->debitnote->query()
-          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
           ->where('client_id', $clientId)
           ->whereYear('issued_date', $currentYear)
           ->orderByDesc('id')
@@ -299,11 +300,10 @@ class DebitnoteController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $debitnote = $this->debitnote->with(['client.division', 'client.user', 'client.user.role', 'item', 'unit'])->find($id);
 
-    if (!$isAdmin && $debitnote?->client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $debitnote?->client->user_id !== $user->id) {
       return response()->json(['error' => 'Unauthorised']);
     }
 
@@ -316,7 +316,6 @@ class DebitnoteController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     if (!$this->form621->where('importable_id', $id)->where('importable_type', 'mushak68')->where('last', 1)->first()) {
       throw new \RuntimeException("Can not update: not last combination");
@@ -334,14 +333,14 @@ class DebitnoteController extends Controller
             return $fail("LC number must be digits only");
           }
         }],
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $item = $this->item->find($value);
@@ -437,7 +436,7 @@ class DebitnoteController extends Controller
     );
 
     try {
-      DB::transaction(function () use ($formField, $request, $user, $isAdmin, $id) {
+      DB::transaction(function () use ($formField, $user, $id) {
         $debitnote = $this->debitnote->with('form621')->find($id);
         if (!$debitnote) {
           throw new \RuntimeException('Debit note not found');
@@ -491,12 +490,11 @@ class DebitnoteController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     try {
-      DB::transaction(function () use ($id, $user, $isAdmin) {
+      DB::transaction(function () use ($id, $user) {
         $permission = $this->form621->with(['client'])->where('id', $id)
-          ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
           ->first();
 
         if (!$permission) {

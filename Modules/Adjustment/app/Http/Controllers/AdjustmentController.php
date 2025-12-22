@@ -4,6 +4,7 @@ namespace Modules\Adjustment\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,8 @@ use Modules\Expense\Models\Expense;
 
 class AdjustmentController extends Controller
 {
+  use ChecksUserRole;
+
   public $adjustment;
   public $client;
   public $expense;
@@ -27,13 +30,12 @@ class AdjustmentController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->adjustment->with(['client:id,bin,company_name', 'expense:id,name'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->where(DB::raw('tax_period'), 'like', $termLike)
             ->orWhereHas('expense', fn($query) => $query->where('name', 'like', $termLike))
@@ -55,19 +57,18 @@ class AdjustmentController extends Controller
   public function store(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     // Find Closing Balance expense id once
     $closingExpenseId = $this->expense->where('name', 'Closing Balance')->value('id');
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
           if ($client->status == 0) return $fail('BIN inactive');
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($closingExpenseId, $request) {
           // expense must exist
@@ -123,11 +124,10 @@ class AdjustmentController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $adjustment = $this->adjustment->with(['client.division', 'client.user.role', 'expense'])->find($id);
 
-    if (!$isAdmin && (optional($adjustment->client)->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && (optional($adjustment->client)->user_id !== $user->id)) {
       return response()->json(['error' => 'Unauthorised']);
     }
 
@@ -138,21 +138,20 @@ class AdjustmentController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     // Find Closing Balance expense id once
     $closingExpenseId = $this->expense->where('name', 'Closing Balance')->value('id');
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'expense_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($closingExpenseId, $request) {
           // expense must exist
@@ -204,7 +203,6 @@ class AdjustmentController extends Controller
   public function destroy($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids     = explode(',', $id);
 
     // Load adjustments with client + expense
@@ -218,7 +216,7 @@ class AdjustmentController extends Controller
     }
 
     // Authorisation for non-admin
-    if (!$isAdmin) {
+    if (!$this->hasRole(['admin'])) {
       $permission = $adjustment->filter(function ($row) use ($user) {
         return $row->client?->user_id !== $user->id;
       });
@@ -241,13 +239,12 @@ class AdjustmentController extends Controller
   public function adjustmentDropdown(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim($request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->adjustment->with(['client', 'expense'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', $termLike));
       })
       ->orderBy('id', 'desc')

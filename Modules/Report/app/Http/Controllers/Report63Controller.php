@@ -3,6 +3,7 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,6 +18,8 @@ use Spatie\Browsershot\Browsershot;
 
 class Report63Controller extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $sale;
   public function __construct(Client $client, Sale $sale)
@@ -28,13 +31,12 @@ class Report63Controller extends Controller
   public function index(Request $request, $client_id, $monthYear)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $itemId = $request->input('item_id');
     $period = date('Y-m', strtotime($monthYear));
 
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
@@ -43,7 +45,7 @@ class Report63Controller extends Controller
     }
 
     $query = $this->sale->with(['client', 'item', 'unit', 'bank'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client_id)
       ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
       ->when($itemId, fn($q) => $q->where('item_id', $itemId))
@@ -57,11 +59,10 @@ class Report63Controller extends Controller
   public function show($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $query = $this->sale->with(['client', 'item', 'unit', 'bank'])->find($id);
 
-    if (!$isAdmin && ($query->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($query->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -74,12 +75,10 @@ class Report63Controller extends Controller
   public function pdf(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
-    $sale = $this->sale->with(['client', 'item', 'unit', 'bank'])
-      ->findOrFail($request->query('id'));
+    $sale = $this->sale->with(['client', 'item', 'unit', 'bank'])->findOrFail($request->query('id'));
 
-    if (!$isAdmin && ($sale->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($sale->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -119,7 +118,6 @@ class Report63Controller extends Controller
   public function Report63Excel(Request $request)
   {
     $user     = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $clientId   = $request->input('client_id');
     $itemId     = $request->input('item_id');
     $monthYear   = $request->input('month_year');
@@ -132,7 +130,7 @@ class Report63Controller extends Controller
       ]);
     }
 
-    $client = $this->client->where('id', $clientId)->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->first();
+    $client = $this->client->where('id', $clientId)->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))->first();
 
     if (!$client) {
       return response()->json(['err', 'Unauthorized']);

@@ -25,7 +25,7 @@ class CostsheetController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $costsheet = $this->costsheet->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $costsheet = $this->costsheet->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -109,7 +109,7 @@ class CostsheetController extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $costsheet = $this->costsheet->query()
-      ->when($search, fn($query) => $query->where('name', 'like', $termLike))
+      ->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'asc')
       ->paginate((int)request('size') ? (int)request('size') : 10);
 

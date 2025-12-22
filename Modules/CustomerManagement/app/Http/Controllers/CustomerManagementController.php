@@ -4,12 +4,15 @@ namespace Modules\CustomerManagement\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\CustomerManagement\Models\CustomerManagement;
 
 class CustomerManagementController extends Controller
 {
+  use ChecksUserRole;
+
   public $customer;
   public function __construct(CustomerManagement $customer)
   {
@@ -18,13 +21,11 @@ class CustomerManagementController extends Controller
 
   public function index(Request $request)
   {
-    $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->customer->query()
-      ->when($search, function ($query) use ($termLike) {
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where('mobile', 'like', $termLike)
           ->orWhere('name', 'like', $termLike);
       })
@@ -109,11 +110,10 @@ class CustomerManagementController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = optional($user->role)->name === 'admin';
     $ids = explode(',', $id);
 
     // Block immediately if not admin
-    if (!$isAdmin) {
+    if (!$this->hasRole(['admin'])) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -135,12 +135,11 @@ class CustomerManagementController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function customerDropdown(Request $request)
   {
-    $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->customer->query()
-      ->when($search, function ($query) use ($termLike) {
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where('mobile', 'like', $termLike)
           ->orWhere('name', 'like', $termLike);
       })

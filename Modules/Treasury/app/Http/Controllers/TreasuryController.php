@@ -4,6 +4,7 @@ namespace Modules\Treasury\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\Branch\Models\Branch;
@@ -12,6 +13,8 @@ use Modules\Treasury\Models\Treasury;
 
 class TreasuryController extends Controller
 {
+  use ChecksUserRole;
+
   public $branch;
   public $client;
   public $treasury;
@@ -26,13 +29,12 @@ class TreasuryController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $treasury = $this->treasury->with(['client.division', 'branch.bank', 'branch.division'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->query()
             ->where('tax_period', 'like', $termLike)
@@ -57,18 +59,17 @@ class TreasuryController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'branch_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $branch = $this->branch->find($value);
@@ -108,11 +109,10 @@ class TreasuryController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
 
     $treasury = $this->treasury->with(['client.division', 'client.user', 'branch.bank', 'branch.division'])->find($id);
 
-    if (!$isAdmin && ($treasury?->client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($treasury?->client->user_id !== $user->id)) {
       return response()->json(['error' => 'Unauthorised']);
     }
 
@@ -123,18 +123,17 @@ class TreasuryController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
 
     $formField = $request->validate(
       [
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'branch_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $branch = $this->branch->find($value);
@@ -175,7 +174,6 @@ class TreasuryController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
 
     $ids = explode(',', $id);
 
@@ -185,7 +183,7 @@ class TreasuryController extends Controller
       return back()->with('error', 'No data found');
     }
 
-    if (!$isAdmin) {
+    if (!$this->hasRole(['admin'])) {
       $permission = $treasury->filter(function ($row) use ($user) {
         return $row->client?->user_id !== $user->id;
       });

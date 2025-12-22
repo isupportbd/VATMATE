@@ -22,7 +22,7 @@ class StationcodeController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $stationcode = $this->stationcode->when($search, fn($query) => $query->where('code', 'like', $termLike))
+    $stationcode = $this->stationcode->when($search !== '', fn($query) => $query->where('code', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -102,7 +102,7 @@ class StationcodeController extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $stationcode = $this->stationcode->query()
-      ->when(request('search'), function ($query) use ($termLike) {
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where('code', 'like', $termLike);
       })
       ->orderBy('id', 'desc')

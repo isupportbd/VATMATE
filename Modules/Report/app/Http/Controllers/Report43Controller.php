@@ -3,6 +3,7 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Spatie\Browsershot\Browsershot;
 
 class Report43Controller extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $form43;
   public function __construct(Client $client, Form43 $form43)
@@ -28,20 +31,19 @@ class Report43Controller extends Controller
   public function index(Request $request, $client_id)
   {
     $user   = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
     $query = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
       ->where('client_id', $client_id)
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($q) use ($termLike) {
           $q->where(DB::raw("DATE_FORMAT(boe_date, '%Y-%m')"), 'like', $termLike)
             ->orWhereHas('item', function ($query) use ($termLike) {
@@ -64,11 +66,10 @@ class Report43Controller extends Controller
   public function show($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $report43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])->find($id);
 
-    if (!$isAdmin && ($report43->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($report43->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -81,11 +82,10 @@ class Report43Controller extends Controller
   public function forwarding($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $report43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])->find($id);
 
-    if (!$isAdmin && ($report43->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($report43->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -98,12 +98,11 @@ class Report43Controller extends Controller
   public function pdf(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $form43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
       ->findOrFail($request->query('id'));
 
-    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($form43->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -142,12 +141,11 @@ class Report43Controller extends Controller
   public function pdfForwarding(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $form43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions.costsheet', 'additionsum'])
       ->findOrFail($request->query('id'));
 
-    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($form43->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 

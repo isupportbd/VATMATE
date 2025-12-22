@@ -4,6 +4,7 @@ namespace Modules\Addition\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,8 @@ use Throwable;
 
 class AdditionController extends Controller
 {
+  use ChecksUserRole;
+
   public $addition;
   public $costsheet;
   public $form43;
@@ -35,13 +38,12 @@ class AdditionController extends Controller
   public function index(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $addition = $this->addition->select('id', 'form43_id', 'costsheet_id', 'rate', 'value')->with(['form43.client:id,bin,company_name', 'form43.item:id,name', 'costsheet:id,name'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->whereHas('costsheet', fn($query) => $query->where('name', 'like', $termLike));
       })
       ->where('form43_id', $id)
@@ -51,7 +53,7 @@ class AdditionController extends Controller
 
     // form43 single from form43 class show method. if we want we can move it as a trait
     $form43 = $this->form43->with(['client:id,bin,user_id', 'item:id,name', 'additionsum'])
-      ->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
       ->select('id', 'client_id', 'item_id', 'unit_price')
       ->find($id);
 
@@ -62,11 +64,10 @@ class AdditionController extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
     $form43Id = $request->input('form43_id');
 
     $permission = $this->form43->with(['client'])->where('id', $form43Id)->first();
-    if (!$isAdmin && ($permission?->client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($permission?->client->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -77,7 +78,7 @@ class AdditionController extends Controller
 
     $formField = $request->validate(
       [
-        'form43_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'form43_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $form43 = $this->form43->where('id', $value)->exists();
           if (!$form43) return $fail('Not exists');
         }],
@@ -128,11 +129,10 @@ class AdditionController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array($user->role->name, ['admin']);
 
     $addition = $this->addition->with(['form43.client', 'form43.item', 'costsheet'])->find($id);
 
-    if (!$isAdmin && $addition?->form43?->client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $addition?->form43?->client->user_id !== $user->id) {
       return response()->json(['error' => 'Unauthorised']);
     }
 
@@ -143,10 +143,9 @@ class AdditionController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $permission = $this->addition->with(['form43.client'])->where('id', $id)->first();
-    if (!$isAdmin && $permission?->form43?->client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $permission?->form43?->client->user_id !== $user->id) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -207,7 +206,6 @@ class AdditionController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $ids = explode(',', $id);
 
@@ -218,7 +216,7 @@ class AdditionController extends Controller
     }
 
     // If not admin, ensure all additions belong to the current user's clients
-    if (! $isAdmin) {
+    if (!$this->hasRole(['admin'])) {
       $unauthorized = $additions->filter(function ($row) use ($user) {
         return optional($row->form43?->client)->user_id !== $user->id;
       });

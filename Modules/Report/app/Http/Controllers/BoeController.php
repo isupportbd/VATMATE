@@ -3,6 +3,7 @@
 namespace Modules\Report\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Spatie\Browsershot\Browsershot;
 
 class BoeController extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $purchase;
   public function __construct(Client $client, Purchase $purchase)
@@ -24,19 +27,18 @@ class BoeController extends Controller
   public function index(Request $request, $client_id, $monthYear)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $period = date('Y-m', strtotime($monthYear));
 
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
     $query = $this->purchase
       ->with(['client', 'item', 'mushaknote', 'unit', 'stationcode'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client_id)
       ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
       ->orderBy('id'); // important for chunkById
@@ -64,7 +66,6 @@ class BoeController extends Controller
   public function pdf(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $client_id = $request->query('client_id');
     $monthYear = $request->query('monthYear');
 
@@ -72,13 +73,13 @@ class BoeController extends Controller
 
     $client = $this->client->findOrFail($client_id);
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       abort(403, 'Unauthorised'); // <-- hard block, no data
     }
 
     $query = $this->purchase
       ->with(['client', 'item', 'mushaknote', 'unit', 'stationcode'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client_id)
       ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
       ->orderBy('id'); // important for chunkById

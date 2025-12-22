@@ -22,7 +22,7 @@ class VatfactorController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $vatfactor = $this->vatfactor->when($search, function ($query) use ($termLike) {
+    $vatfactor = $this->vatfactor->when($search !== '', function ($query) use ($termLike) {
       $query->where('name', 'like', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size', 5))

@@ -6,6 +6,7 @@ use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Traits\ChecksUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\Client\Models\Client;
@@ -13,6 +14,8 @@ use Modules\Division\Models\Division;
 
 class ClientController extends Controller
 {
+  use ChecksUserRole;
+
   public $user;
   public $client;
   public $division;
@@ -29,13 +32,12 @@ class ClientController extends Controller
   public function index(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client->with(['division', 'user.role'])
-      ->when(!$isAdmin, fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($q) =>  $q->where('user_id', $user->id))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->where('company_name', 'like', $termLike)
             ->orWhere('bin', 'like', $termLike)
@@ -117,11 +119,10 @@ class ClientController extends Controller
   public function show($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $client = $this->client->with(['division', 'user', 'user.role'])->find($id);
 
-    if (!$isAdmin && (optional($client)->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && (optional($client)->user_id !== $user->id)) {
       return response()->json(['error' => 'Unauthorised']);
     }
 
@@ -132,10 +133,9 @@ class ClientController extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $client = $this->client->find($id);
-    if (!$isAdmin && (optional($client)->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && (optional($client)->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -200,7 +200,6 @@ class ClientController extends Controller
   public function destroy($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $ids = explode(',', $id);
 
     $client = $this->client->with(['user'])->whereIn('id', $ids)->get();
@@ -209,7 +208,7 @@ class ClientController extends Controller
       return back()->with('error', 'No data found');
     }
 
-    if (!$isAdmin) {
+    if (!$this->hasRole(['admin'])) {
       $permission = $client->filter(function ($row) use ($user) {
         return $row->user_id !== $user->id;
       });
@@ -231,13 +230,12 @@ class ClientController extends Controller
   public function clientDropdown(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client->with(['division', 'user.role'])
-      ->when(!$isAdmin, fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search, fn($q) => $q->where('bin', 'like', $termLike))
+      ->when(!$this->hasRole(['admin']), fn($q) =>  $q->where('user_id', $user->id))
+      ->when($search !== '', fn($q) => $q->where('bin', 'like', $termLike))
       ->whereNotIn('status', ['0'])
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));
@@ -249,7 +247,6 @@ class ClientController extends Controller
   public function statusUpdate(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       ['status' => "required|in:0,1"],
@@ -258,7 +255,7 @@ class ClientController extends Controller
 
     $client = $this->client->where('id', $id)->first();
 
-    if (!$isAdmin && $client->user_id !== $user->id) {
+    if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -274,7 +271,6 @@ class ClientController extends Controller
   public function clientRelease($id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $client = $this->client->with(['user'])->find($id);
 
@@ -282,7 +278,7 @@ class ClientController extends Controller
       return back()->with('error', 'No data found');
     }
 
-    if (!$isAdmin && ($client->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($client->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised.');
     }
 
@@ -297,13 +293,11 @@ class ClientController extends Controller
   // function call for dropdown. it needs SelectInfinite component. It is send json response
   public function releaseClientDropdown(Request $request)
   {
-    $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->client->with(['division', 'user.role'])
-      ->when($search, fn($q) => $q->where('bin', 'like', $termLike))
+      ->when($search !== '', fn($q) => $q->where('bin', 'like', $termLike))
       ->where('user_id', NULL)
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

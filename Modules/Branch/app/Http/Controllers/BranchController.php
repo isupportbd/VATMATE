@@ -30,7 +30,7 @@ class BranchController extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $branch = $this->branch->with(['division', 'bank'])
-      ->when($search, function ($query) use ($termLike) {
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where('name', 'like', $termLike)
           ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike))
           ->orWhereHas('bank', fn($query) => $query->where('name', 'like', $termLike));
@@ -165,7 +165,7 @@ class BranchController extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $branch = $this->branch->with(['division', 'bank'])
-      ->when($search, function ($query) use ($termLike) {
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where('name', 'like', $termLike)
           ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike))
           ->orWhereHas('bank', fn($query) => $query->where('name', 'like', $termLike));

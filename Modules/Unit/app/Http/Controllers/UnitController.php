@@ -22,7 +22,7 @@ class UnitController extends Controller
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
-    $unit = $this->unit->when($search, fn($query) => $query->where('name', 'like', $termLike))
+    $unit = $this->unit->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -102,7 +102,7 @@ class UnitController extends Controller
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $unit = $this->unit->query()
-      ->when(request('search'), function ($query) use ($termLike) {
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where('name', 'like', $termLike);
       })
       ->orderBy('id', 'desc')

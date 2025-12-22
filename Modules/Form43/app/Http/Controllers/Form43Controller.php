@@ -4,6 +4,7 @@ namespace Modules\Form43\Http\Controllers;
 
 use App\Events\CommonEvent;
 use App\Http\Controllers\Controller;
+use App\Traits\ChecksUserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,8 @@ use Throwable;
 
 class Form43Controller extends Controller
 {
+  use ChecksUserRole;
+
   public $client;
   public $criteria;
   public $form43;
@@ -36,14 +39,13 @@ class Form43Controller extends Controller
   public function index(Request $request)
   {
     $user   = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
     $search = trim((string) $request->input('search', ''));
     $termLike   = $search !== '' ? $search . '%' : null;
 
     $query = $this->form43->with(['client', 'item', 'additionsum'])
       ->select('id', 'client_id', 'item_id', 'last')
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
-      ->when($search, function ($query) use ($termLike) {
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($q) use ($termLike) {
           $q->whereHas('client', function ($query) use ($termLike) {
             $query->where(function ($q) use ($termLike) {
@@ -80,7 +82,6 @@ class Form43Controller extends Controller
   public function store(Request $request)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $formField = $request->validate(
       [
@@ -91,14 +92,14 @@ class Form43Controller extends Controller
             return $fail('Exists, change your input');
           }
         }],
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $item = $this->item->find($value);
@@ -269,7 +270,6 @@ class Form43Controller extends Controller
   public function show($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $form43 = $this->form43->with(['client.division', 'client.user.role', 'item', 'purchaseunit', 'saleunit', 'additions', 'additions.costsheet', 'additionsum'])->find($id);
 
@@ -277,7 +277,7 @@ class Form43Controller extends Controller
       return response()->json(['form43' => null, 'max_item_code' => null, 'has_form621' => false, 'error' => 'Form 4.3 not found.']);
     }
 
-    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($form43->client?->user_id !== $user->id)) {
       return response()->json(['form43' => null, 'max_item_code' => null, 'has_form621' => false, 'error' => 'Unauthorised']);
     }
 
@@ -292,7 +292,6 @@ class Form43Controller extends Controller
   public function update(Request $request, $id)
   {
     $user = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     if ($this->form621->where('form43_id', $id)->exists()) {
       return back()->with('error', 'Cannot update: used in 6.2.1');
@@ -307,14 +306,14 @@ class Form43Controller extends Controller
             return $fail('Exists, change your input');
           }
         }],
-        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user, $isAdmin) {
+        'client_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) use ($user) {
           $client = $this->client->find($value);
 
           if (!$client) return $fail('Client does not exist');
 
           if ($client->status == 0) return $fail('BIN inactive');
 
-          if (!$isAdmin && $client->user_id !== $user->id) return $fail('Unauthorised');
+          if (!$this->hasRole(['admin']) && $client->user_id !== $user->id) return $fail('Unauthorised');
         }],
         'item_id' => ['required', 'numeric', 'gt:0', function ($attribute, $value, $fail) {
           $item = $this->item->find($value);
@@ -478,7 +477,6 @@ class Form43Controller extends Controller
   public function destroy($id)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     // 1) Load record without user filter first
     $form43 = $this->form43->with('client')->find($id);
@@ -488,7 +486,7 @@ class Form43Controller extends Controller
     }
 
     // Case 2: exists but not his and not admin
-    if (!$isAdmin && ($form43->client?->user_id !== $user->id)) {
+    if (!$this->hasRole(['admin']) && ($form43->client?->user_id !== $user->id)) {
       return back()->with('error', 'Unauthorised');
     }
 
@@ -533,19 +531,18 @@ class Form43Controller extends Controller
   public function form43Last(Request $request)
   {
     $user    = Auth::user();
-    $isAdmin = in_array(optional($user->role)->name, ['admin']);
 
     $client  = $request->query('client_id');
     $item    = $request->query('item_id');
 
     // max item code (keep this, works even if there is no "last")
-    $maxItemCode = $this->form43->when(!$isAdmin, fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+    $maxItemCode = $this->form43->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
       ->where('client_id', $client)
       ->max('item_code');
 
     // last 4.3 for this client+item
     $form43 = $this->form43->with(['client', 'item', 'purchaseunit:id,name', 'saleunit:id,name', 'additions', 'additionsum'])
-      ->when(!$isAdmin, fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+      ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client)
       ->where('item_id', $item)
       ->where('last', 1)
