@@ -31,22 +31,23 @@ class AdjustmentController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $query = $this->adjustment->with(['client:id,bin,company_name', 'expense:id,name'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
-          $query->where(DB::raw('tax_period'), 'like', $termLike)
-            ->orWhereHas('expense', fn($query) => $query->where('name', 'like', $termLike))
+          $query->where(DB::raw('tax_period'), 'ilike', $termLike)
+            ->orWhereHas('expense', fn($query) => $query->where('name', 'ilike', $termLike))
             ->orWhereHas('client', function ($query) use ($termLike) {
               $query->where(function ($query) use ($termLike) {
-                $query->where('bin', 'like', $termLike)
-                  ->orWhere('company_name', 'like', $termLike);
+                $query->where('bin', 'ilike', $termLike)
+                  ->orWhere('company_name', 'ilike', $termLike);
               });
             });
         });
-      })->orderBy('id', 'desc')
+      })
+      ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
@@ -245,7 +246,7 @@ class AdjustmentController extends Controller
     $query = $this->adjustment->with(['client', 'expense'])
       ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
-        $query->orWhereHas('expense', fn($query) => $query->where('name', 'like', $termLike));
+        $query->orWhereHas('expense', fn($query) => $query->where('name', 'ilike', $termLike));
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

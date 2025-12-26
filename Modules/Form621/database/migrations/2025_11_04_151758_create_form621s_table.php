@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,30 +14,48 @@ return new class extends Migration
   {
     Schema::create('form621s', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('client_id')->nullable(false);
-      $table->unsignedBigInteger('item_id')->nullable();
-      $table->unsignedBigInteger('form43_id')->nullable();
-      $table->string("lc_or_invoice_no", 50)->nullable(false);
-      $table->string("boe", 10)->nullable();
-      $table->double('quantity', 23, 3)->nullable(false);
-      $table->unsignedBigInteger('unit_id')->nullable();
-      $table->double('opening_stock', 23, 3)->nullable(false);
-      $table->double('stock', 23, 3)->nullable(false);
-      $table->date('date')->nullable(false);
-      $table->unsignedBigInteger("importable_id")->nullable(false);
-      $table->string("importable_type")->nullable(false);
-      $table->tinyInteger("last")->default(1);
-      $table->unsignedBigInteger("userid")->nullable();
-      $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
-      $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('form43_id')->references('id')->on('form43s')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('userid')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+      $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
+      $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
+      $table->foreignId('form43_id')->nullable()->constrained('form43s')->cascadeOnUpdate()->nullOnDelete();
+      $table->string('lc_or_invoice_no', 50);
+      $table->string('boe', 10)->nullable();
+      // numeric values → MUST be decimal in PG
+      $table->decimal('quantity', 23, 3);
+      $table->decimal('opening_stock', 23, 3);
+      $table->decimal('stock', 23, 3);
+      $table->date('date');
+      // Polymorphic relation (manual version)
+      $table->foreignId('importable_id');
+      $table->string('importable_type');
+      $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
+      // if this is really 0/1
+      $table->smallInteger('last')->default(1);
+      $table->foreignId('userid')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
       $table->timestamps();
-      $table->index(['lc_or_invoice_no']);
+      $table->index('lc_or_invoice_no');
       $table->index(['client_id', 'item_id', 'last']);
       $table->index(['client_id', 'lc_or_invoice_no', 'item_id', 'boe']);
     });
+
+    // Only for PostgreSQL
+    if (DB::getDriverName() === 'pgsql') {
+      DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+
+      // Generated column (STORED)
+      DB::statement("
+        ALTER TABLE form621s
+        ADD COLUMN IF NOT EXISTS search_text text
+        GENERATED ALWAYS AS (
+          lower(trim(
+            coalesce(lc_or_invoice_no,'')  || ' ' ||
+            coalesce(boe,'')
+          ))
+        ) STORED
+      ");
+
+      // One index for “search anywhere”
+      DB::statement('CREATE INDEX form621s_search_text_trgm_idx ON form621s USING GIN (search_text gin_trgm_ops)');
+    }
   }
 
   /**

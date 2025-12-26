@@ -70,8 +70,8 @@
                     <td>{{ props.view?.item?.name }} <br /> {{ props.view?.item?.hs_code }}</td>
                     <td>{{ props.view?.boe }}</td>
                     <td>{{ props.view?.form621_id }}</td>
-                    <td>{{ +(props.view?.quantity)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.value)?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.quantity))?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.value))?.toFixed(2) }}</td>
                     <td>{{ (+(props.view?.proposed_value) * +(props.view?.quantity)).toFixed(2) }}</td>
                     <td>{{ props.view?.reason_ineligibility }}</td>
                   </tr>

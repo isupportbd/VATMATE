@@ -24,7 +24,7 @@
             <div class="fw-bold text-center">
               <h3 class="m-0">{{ props.report43?.client?.company_name }}</h3>
               <p class="m-0">{{ props.report43?.client?.address }}</p>
-              <p class="m-0">BIN: {{ props.report43?.bin }}</p>
+              <p class="m-0">BIN: {{ props.report43?.client?.bin }}</p>
               <p class="m-0">Mobile: {{ props.report43?.client?.mobile }}</p>
             </div>
             <div class="row my-3">

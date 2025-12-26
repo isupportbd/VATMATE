@@ -136,7 +136,7 @@ class AuthController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $exclude = [];
     if ($this->hasRole(['superadmin'])) $exclude = ['superadmin', 'editor'];
@@ -144,11 +144,7 @@ class AuthController extends Controller
 
     $query = $this->user->with('role')
       ->when($exclude, fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', $exclude)))
-      ->when($search !== '', function ($query) use ($termLike) {
-        $query->where(function ($q) use ($termLike) {
-          $q->where('name', 'like', $termLike)->orWhere('email', 'like', $termLike);
-        });
-      })
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->orderByDesc('id')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -411,7 +407,7 @@ class AuthController extends Controller
     $auth   = Auth::user();
     $role   = optional($auth->role)->name;
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     // which roles to exclude for this viewer
     $exclude = match ($role) {
@@ -423,7 +419,7 @@ class AuthController extends Controller
     $query = $this->user->with(['role:id,name'])
       ->when($exclude, fn($q) => $q->whereHas('role', fn($r) => $r->whereNotIn('name', $exclude)))
       ->when($search !== '', fn($q) => $q->where(
-        fn($q) => $q->where('name',  'like', $termLike)->orWhere('email', 'like', $termLike)
+        fn($q) => $q->where('name',  'ilike', $termLike)->orWhere('email', 'ilike', $termLike)
       ))->orderByDesc('id')
       ->paginate((int) $request->input('size', 10))
       ->withQueryString();

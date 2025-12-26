@@ -13,12 +13,10 @@ return new class extends Migration
   {
     Schema::create('additions', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('form43_id')->nullable();
-      $table->unsignedBigInteger('costsheet_id')->nullable();
-      $table->double('value', 23, 2)->nullable(false);
-      $table->double('rate', 5, 2)->nullable(false);
-      $table->foreign('form43_id')->references('id')->on('form43s')->onUpdate('cascade')->onDelete('cascade');
-      $table->foreign('costsheet_id')->references('id')->on('costsheets')->onUpdate('cascade')->onDelete('set null');
+      $table->foreignId('form43_id')->nullable()->constrained('form43s')->cascadeOnUpdate()->cascadeOnDelete();
+      $table->foreignId('costsheet_id')->nullable()->constrained('costsheets')->cascadeOnUpdate()->nullOnDelete();
+      $table->decimal('value', 23, 2);   // numeric(23,2) in PG
+      $table->decimal('rate', 5, 2);     // numeric(5,2) in PG
       $table->timestamps();
     });
   }

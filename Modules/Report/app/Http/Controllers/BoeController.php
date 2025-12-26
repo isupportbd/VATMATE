@@ -40,7 +40,7 @@ class BoeController extends Controller
       ->with(['client', 'item', 'mushaknote', 'unit', 'stationcode'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->orderBy('id'); // important for chunkById
 
     // collect all rows in chunks
@@ -51,7 +51,7 @@ class BoeController extends Controller
     });
 
     // ----- TOTAL BOE COUNT -----
-    $totalBoe = $this->purchase->where('client_id', $client_id)->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])->count('boe');
+    $totalBoe = $this->purchase->where('client_id', $client_id)->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])->count('boe');
 
     return Inertia::render('report/boe/index', ['boe' => [
       'client' => $client,
@@ -81,7 +81,7 @@ class BoeController extends Controller
       ->with(['client', 'item', 'mushaknote', 'unit', 'stationcode'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->orderBy('id'); // important for chunkById
 
     // collect all rows in chunks
@@ -92,7 +92,7 @@ class BoeController extends Controller
     });
 
     // ----- TOTAL BOE COUNT -----
-    $totalBoe = $this->purchase->where('client_id', $client_id)->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])->count('boe');
+    $totalBoe = $this->purchase->where('client_id', $client_id)->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])->count('boe');
 
     $html = view('pdf.boe', [
       'boe' => [

@@ -21,12 +21,10 @@ class ItemController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
-    $item = $this->item->when($search, function ($query) use ($termLike) {
-      $query->where(DB::raw('lower(name)'), 'like', $termLike)
-        ->orWhere(DB::raw('lower(hs_code)'), 'like', $termLike);
-    })->orderBy('id', 'desc')
+    $item = $this->item->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
+      ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
 
@@ -160,13 +158,10 @@ class ItemController extends Controller
   public function itemDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $item = $this->item->query()
-      ->when($search, function ($query) use ($termLike) {
-        $query->where(DB::raw('lower(name)'), 'like', $termLike)
-          ->orWhere(DB::raw('lower(hs_code)'), 'like', $termLike);
-      })
+      ->when($search, fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 10);
 

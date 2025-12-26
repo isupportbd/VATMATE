@@ -20,10 +20,10 @@ class VatfactorController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $vatfactor = $this->vatfactor->when($search !== '', function ($query) use ($termLike) {
-      $query->where('name', 'like', $termLike);
+      $query->where('name', 'ilike', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size', 5))
       ->withQueryString();
@@ -74,10 +74,10 @@ class VatfactorController extends Controller
   public function vatfactorDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $vatfactor = $this->vatfactor->when(request('search'), function ($query) use ($termLike) {
-      $query->where('name', 'like', $termLike);
+      $query->where('name', 'ilike', $termLike);
     })->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

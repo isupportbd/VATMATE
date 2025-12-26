@@ -73,14 +73,14 @@
                   <tr>
                     <td>{{ props.view?.item?.name }} <br> ({{ props.view?.item?.hs_code }})</td>
                     <td>{{ props.view?.unit?.name }}</td>
-                    <td>{{ +(props.view?.quantity)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.unit_price)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.item_price)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.sd)?.toFixed(2) }}%</td>
-                    <td>{{ +(props.view?.sd_value)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.vat)?.toFixed(2) }}%</td>
-                    <td>{{ +(props.view?.vat_value)?.toFixed(2) }}</td>
-                    <td>{{ +(props.view?.total_price)?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.quantity))?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.unit_price))?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.item_price))?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.sd))?.toFixed(2) }}%</td>
+                    <td>{{ (+(props.view?.sd_value))?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.vat))?.toFixed(2) }}%</td>
+                    <td>{{ (+(props.view?.vat_value))?.toFixed(2) }}</td>
+                    <td>{{ (+(props.view?.total_price))?.toFixed(2) }}</td>
                   </tr>
                 </tbody>
               </table>

@@ -39,12 +39,12 @@ class AdditionController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $addition = $this->addition->select('id', 'form43_id', 'costsheet_id', 'rate', 'value')->with(['form43.client:id,bin,company_name', 'form43.item:id,name', 'costsheet:id,name'])
       ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('form43.client', fn($query) => $query->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
-        $query->whereHas('costsheet', fn($query) => $query->where('name', 'like', $termLike));
+        $query->whereHas('costsheet', fn($query) => $query->where('name', 'ilike', $termLike));
       })
       ->where('form43_id', $id)
       ->orderBy('id', 'desc')

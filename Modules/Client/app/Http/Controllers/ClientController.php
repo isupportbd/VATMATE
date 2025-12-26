@@ -33,19 +33,15 @@ class ClientController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->client->with(['division', 'user.role'])
       ->when(!$this->hasRole(['admin']), fn($q) =>  $q->where('user_id', $user->id))
       ->when($search !== '', function ($q) use ($termLike) {
         $q->where(function ($q) use ($termLike) {
-          $q->where('company_name', 'like', $termLike)
-            ->orWhere('bin', 'like', $termLike)
-            ->orWhere('email', 'like', $termLike)
-            ->orWhere('mobile', 'like', $termLike)
-            ->orWhere('reference', 'like', $termLike)
-            ->orWhereHas('division', fn($q) => $q->where('name', 'like', $termLike))
-            ->orWhereHas('user', fn($q) => $q->where('email', 'like', $termLike));
+          $q->whereRaw('search_text ILIKE ?', [$termLike])
+            ->orWhereHas('division', fn($q) => $q->where('name', 'ilike', $termLike))
+            ->orWhereHas('user', fn($q) => $q->where('email', 'ilike', $termLike));
         })->whereNotNull('user_id');
       })
       ->orderBy('id', 'desc')
@@ -234,11 +230,11 @@ class ClientController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $query = $this->client->with(['division', 'user.role'])
       ->when(!$this->hasRole(['admin']), fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search !== '', fn($q) => $q->where('bin', 'like', $termLike))
+      ->when($search !== '', fn($q) => $q->where('bin', 'ilike', $termLike))
       ->whereNotIn('status', ['0'])
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));
@@ -285,7 +281,7 @@ class ClientController extends Controller
       return back()->with('error', 'Unauthorised.');
     }
 
-    $this->client->where('id', $id)->update(['user_id' => null, 'status' => ['0']]);
+    $this->client->where('id', $id)->update(['user_id' => null, 'status' => '0']);
 
     // realtime data
     event(new CommonEvent($user->id));
@@ -297,10 +293,10 @@ class ClientController extends Controller
   public function releaseClientDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $query = $this->client->with(['division', 'user.role'])
-      ->when($search !== '', fn($q) => $q->where('bin', 'like', $termLike))
+      ->when($search !== '', fn($q) => $q->where('bin', 'ilike', $termLike))
       ->where('user_id', NULL)
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

@@ -20,9 +20,9 @@ class DivisionController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
-    $division = $this->division->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
+    $division = $this->division->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -101,10 +101,10 @@ class DivisionController extends Controller
   public function divisionDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $division = $this->division->query()
-      ->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
+      ->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

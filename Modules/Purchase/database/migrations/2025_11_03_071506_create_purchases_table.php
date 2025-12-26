@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,52 +14,55 @@ return new class extends Migration
   {
     Schema::create('purchases', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('client_id')->nullable(false);
-      $table->unsignedBigInteger('item_id')->nullable();
-      $table->unsignedBigInteger('unit_id')->nullable(); // rule: match client_id, item_id and last = 1 from form43 last purchase unit
-      $table->unsignedBigInteger('stationcode_id')->nullable();
-      $table->unsignedBigInteger('mushaknote_id')->nullable();
-      $table->string('lc_no', 20)->nullable(false);
+      $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
+      $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
+      // match client_id,item_id and last=1 from form43 purchase unit
+      $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
+      $table->foreignId('stationcode_id')->nullable()->constrained('stationcodes')->cascadeOnUpdate()->nullOnDelete();
+      $table->foreignId('mushaknote_id')->nullable()->constrained('mushaknotes')->cascadeOnUpdate()->nullOnDelete();
+      $table->string('lc_no', 20);
       $table->date('lc_date')->nullable();
-      $table->string('boe', 10)->nullable(false);
-      $table->date('boe_date')->nullable(false);
-      $table->date('entry_date')->nullable(false);
-      $table->double('df_cvat_cf', 23, 2)->nullable(false);
-      $table->double('assessable_value', 23, 2)->nullable(false);
-      $table->double('factor', 10, 2)->nullable(false);
-      $table->double('opening_stock', 23, 3)->nullable(false);
-      $table->double('stock', 23, 3)->nullable(false);
-      $table->double('quantity', 23, 2)->nullable(false);
-      $table->double('excess_quantity', 23, 2)->nullable(false);
-      $table->double('wastage', 5, 2)->nullable(false);
-      $table->double('total_quantity', 23, 2)->nullable(false);
-      $table->double('base_value', 23, 2)->nullable(false);
-      $table->double('unit_price', 23, 2)->nullable(false);
-      $table->double('cd', 5, 2)->nullable(false);
-      $table->double('cd_value', 23, 2)->nullable(false);
-      $table->double('rd', 5, 2)->nullable(false);
-      $table->double('rd_value', 23, 2)->nullable(false);
-      $table->double('sd', 5, 2)->nullable(false);
-      $table->double('sd_value', 23, 2)->nullable(false);
-      $table->double('vat', 5, 2)->nullable(false);
-      $table->double('vat_value', 23, 2)->nullable(false);
-      $table->double('at', 5, 2)->nullable(false);
-      $table->double('at_value', 23, 2)->nullable(false);
-      $table->double('mcu', 20)->nullable();
-      $table->double('mcu_amount', 23, 2)->nullable();
+      $table->string('boe', 10);
+      $table->date('boe_date');
+      $table->date('entry_date');
+      // amounts / quantities / rates => DECIMAL (numeric) for PG
+      $table->decimal('df_cvat_cf', 23, 2);
+      $table->decimal('assessable_value', 23, 2);
+      $table->decimal('factor', 10, 2);
+      $table->decimal('opening_stock', 23, 3);
+      $table->decimal('stock', 23, 3);
+      $table->decimal('quantity', 23, 2);
+      $table->decimal('excess_quantity', 23, 2);
+      $table->decimal('wastage', 5, 2);
+      $table->decimal('total_quantity', 23, 2);
+      $table->decimal('base_value', 23, 2);
+      $table->decimal('unit_price', 23, 2);
+      $table->decimal('cd', 5, 2);
+      $table->decimal('cd_value', 23, 2);
+      $table->decimal('rd', 5, 2);
+      $table->decimal('rd_value', 23, 2);
+      $table->decimal('sd', 5, 2);
+      $table->decimal('sd_value', 23, 2);
+      $table->decimal('vat', 5, 2);
+      $table->decimal('vat_value', 23, 2);
+      $table->decimal('at', 5, 2);
+      $table->decimal('at_value', 23, 2);
+      // mcu: your original was double('mcu', 20) (no scale)
+      // If it's a rate/value, choose a safe numeric:
+      $table->decimal('mcu', 20, 6)->nullable();
+      $table->decimal('mcu_amount', 23, 2)->nullable();
       $table->string('receipt_number', 20)->nullable();
       $table->date('receipt_date')->nullable();
       $table->string('exporter_name', 100)->nullable();
       $table->string('address', 100)->nullable();
-      $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
-      $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('stationcode_id')->references('id')->on('stationcodes')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('mushaknote_id')->references('id')->on('mushaknotes')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
-      $table->index(['boe']);
-      $table->index(['lc_no']);
+      $table->index('boe');
+      $table->index('lc_no');
     });
+
+    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+    DB::statement('CREATE INDEX purchases_boe_trgm_idx ON purchases USING GIN (boe gin_trgm_ops)');
+    DB::statement('CREATE INDEX purchases_lc_trgm_idx ON purchases USING GIN (lc_no gin_trgm_ops)');
   }
 
   /**

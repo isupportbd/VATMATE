@@ -40,7 +40,7 @@ class Form43Controller extends Controller
   {
     $user   = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $query = $this->form43->with(['client', 'item', 'additionsum'])
       ->select('id', 'client_id', 'item_id', 'last')
@@ -49,14 +49,14 @@ class Form43Controller extends Controller
         $query->where(function ($q) use ($termLike) {
           $q->whereHas('client', function ($query) use ($termLike) {
             $query->where(function ($q) use ($termLike) {
-              $q->where('company_name', 'like', $termLike)
-                ->orWhere('bin', 'like', $termLike)
-                ->orWhere('mobile', 'like', $termLike)
-                ->orWhereHas('user', fn($query) => $query->where('email', 'like', $termLike));
+              $q->where('company_name', 'ilike', $termLike)
+                ->orWhere('bin', 'ilike', $termLike)
+                ->orWhere('mobile', 'ilike', $termLike)
+                ->orWhereHas('user', fn($query) => $query->where('email', 'ilike', $termLike));
             });
           })->orWhereHas('item', function ($query) use ($termLike) {
-            $query->where('name', 'like', $termLike)
-              ->orWhere('hs_code', 'like', $termLike);
+            $query->where('name', 'ilike', $termLike)
+              ->orWhere('hs_code', 'ilike', $termLike);
           });
         });
       })->addSelect(DB::raw("

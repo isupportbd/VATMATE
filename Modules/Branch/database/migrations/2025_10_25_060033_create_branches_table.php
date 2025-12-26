@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,15 +14,17 @@ return new class extends Migration
   {
     Schema::create('branches', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('division_id')->nullable(false);
-      $table->unsignedBigInteger('bank_id')->nullable(false);
-      $table->string('name', 200)->nullable(false);
-      $table->foreign('division_id')->references('id')->on('divisions')->onUpdate('cascade')->onDelete('cascade');
-      $table->foreign('bank_id')->references('id')->on('banks')->onUpdate('cascade')->onDelete('cascade');
+      $table->foreignId('division_id')->constrained('divisions')->cascadeOnUpdate()->cascadeOnDelete();
+      $table->foreignId('bank_id')->constrained('banks')->cascadeOnUpdate()->cascadeOnDelete();
+      $table->string('name', 200); // NOT NULL by default
       $table->timestamps();
-      $table->index(['name']);
+      $table->index('name');
     });
+
+    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+    DB::statement('CREATE INDEX branches_name_trgm_idx ON branches USING GIN (name gin_trgm_ops)');
   }
+
 
   /**
    * Reverse the migrations.

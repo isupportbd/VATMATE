@@ -30,22 +30,21 @@ class TreasuryController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $treasury = $this->treasury->with(['client.division', 'branch.bank', 'branch.division'])
       ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
-          $query->query()
-            ->where('tax_period', 'like', $termLike)
+          $query->where('tax_period', 'ilike', $termLike)
             ->orWhereHas('client', function ($query) use ($termLike) {
-              $query->where('bin', 'like', $termLike)
-                ->orWhere('company_name', 'like', $termLike);
+              $query->where('bin', 'ilike', $termLike)
+                ->orWhere('company_name', 'ilike', $termLike);
             })
             ->orWhereHas('branch', function ($query) use ($termLike) {
-              $query->where('name', 'like', $termLike)
-                ->orWhereHas('bank', fn($query) => $query->where('name', 'like', $termLike))
-                ->orWhereHas('division', fn($query) => $query->where('name', 'like', $termLike));
+              $query->where('name', 'ilike', $termLike)
+                ->orWhereHas('bank', fn($query) => $query->where('name', 'ilike', $termLike))
+                ->orWhereHas('division', fn($query) => $query->where('name', 'ilike', $termLike));
             });
         });
       })->orderBy('id', 'desc')

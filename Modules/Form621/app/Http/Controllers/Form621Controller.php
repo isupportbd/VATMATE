@@ -35,17 +35,17 @@ class Form621Controller extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $form621 = $this->form621->with(['client', 'client.division', 'client.user.role'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->whereHas('client', function ($query) use ($termLike) {
           $query->where(function ($q) use ($termLike) {
-            $q->where('bin', 'like', $termLike)
-              ->orWhere('mobile', 'like', $termLike)
-              ->orWhere('company_name', 'like', $termLike)
-              ->orWHereHas('user', fn($query) => $query->where('email', 'like', $termLike));
+            $q->where('bin', 'ilike', $termLike)
+              ->orWhere('mobile', 'ilike', $termLike)
+              ->orWhere('company_name', 'ilike', $termLike)
+              ->orWHereHas('user', fn($query) => $query->where('email', 'ilike', $termLike));
           });
         });
       })
@@ -100,13 +100,13 @@ class Form621Controller extends Controller
     $size       = (int) $request->input('size', 10);
     $filterType = $request->input('type', 'all'); // 'lc', 'inv', 'all'
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $excludePrefixes = ['CRN', 'DBN', 'F44', 'F45'];
 
     $query = $this->form621->query()
       ->where('client_id', $clientId)
-      ->when($search, fn($q) => $q->where('lc_or_invoice_no', 'like', $termLike))
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->where(function ($q) use ($excludePrefixes) {
         foreach ($excludePrefixes as $prefix) {
           $q->where('lc_or_invoice_no', 'not like', $prefix . '%');
@@ -118,7 +118,7 @@ class Form621Controller extends Controller
       $query->where('lc_or_invoice_no', 'not like', 'INV%');
     } elseif ($filterType === 'inv') {
       // only invoice (INV)
-      $query->where('lc_or_invoice_no', 'like', 'INV%');
+      $query->where('lc_or_invoice_no', 'ilike', 'INV%');
     }
 
     $lcInvs = $query->selectRaw('MAX(id) as id, lc_or_invoice_no')
@@ -148,12 +148,12 @@ class Form621Controller extends Controller
     $lcOrInv = $request->input('lc_or_invoice_no');
     $size     = (int) $request->input('size', 10);
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $query = $this->form621->query()
       ->where('client_id', $clientId)
       ->where('lc_or_invoice_no', $lcOrInv)
-      ->when($search, fn($q) => $q->whereHas('item', fn($q) => $q->where('name', 'like', $termLike)))
+      ->when($search !== '', fn($q) => $q->whereHas('item', fn($q) => $q->where('name', 'ilike', $termLike)))
       ->with('item')
       ->select('item_id')
       ->groupBy('item_id')
@@ -172,7 +172,7 @@ class Form621Controller extends Controller
     $itemId   = $request->input('item_id');
     $size     = (int) $request->input('size', 10);
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     if (str_starts_with($lcOrInv, 'INV')) {
       return response()->json(['boedropdown' => []]); // no BOEs for INV
@@ -182,7 +182,7 @@ class Form621Controller extends Controller
       ->where('client_id', $clientId)
       ->where('lc_or_invoice_no', $lcOrInv)
       ->where('item_id', $itemId)
-      ->when($search, fn($q) => $q->where('boe', 'like', $termLike))
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->select('id', 'boe')
       ->orderBy('id', 'desc');
 
@@ -244,11 +244,11 @@ class Form621Controller extends Controller
     $itemId = $request->input('item_id');
     $invNo = $request->input('lc_or_invoice_no');
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $base621 = $this->form621->with(['sale', 'client', 'item', 'form43', 'unit', 'user'])
       ->when(!$this->hasRole(['admin']),  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
-      ->when($search !== '', fn($q) => $q->where('lc_or_invoice_no', 'like', $termLike))
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->where('client_id', $clientId);
 
     $form621 = (clone $base621)->where('item_id', $itemId)->where('lc_or_invoice_no', $invNo)->first();
@@ -271,11 +271,11 @@ class Form621Controller extends Controller
     $invNo = $request->input('lc_or_invoice_no');
     $boe = $request->input('boe');
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $base621 = $this->form621->with(['purchase', 'client', 'item', 'form43', 'unit', 'user'])
       ->when(!$this->hasRole(['admin']),  fn($q) =>  $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
-      ->when($search, fn($q) => $q->where('lc_or_invoice_no', 'like', $termLike))
+      ->when($search, fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->where('client_id', $clientId);
 
     $form621 = (clone $base621)->where('item_id', $itemId)->where('lc_or_invoice_no', $invNo)->where('boe', $boe)->first();

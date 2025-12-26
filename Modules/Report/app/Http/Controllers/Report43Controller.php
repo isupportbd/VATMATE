@@ -32,7 +32,7 @@ class Report43Controller extends Controller
   {
     $user   = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $client = $this->client->findOrFail($client_id);
 
@@ -45,9 +45,9 @@ class Report43Controller extends Controller
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($q) use ($termLike) {
-          $q->where(DB::raw("DATE_FORMAT(boe_date, '%Y-%m')"), 'like', $termLike)
+          $q->where(DB::raw("TO_CHAR(boe_date, 'YYYY-MM')"), 'ilike', $termLike)
             ->orWhereHas('item', function ($query) use ($termLike) {
-              $query->where('name', 'like', $termLike)->orWhere('hs_code', 'like', $termLike);
+              $query->where('name', 'ilike', $termLike)->orWhere('hs_code', 'ilike', $termLike);
             });
         });
       })->orderBy('id', 'desc')

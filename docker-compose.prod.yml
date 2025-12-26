@@ -18,8 +18,9 @@ services:
     environment:
       APP_KEY: ${APP_KEY}
 
-      DB_HOST: mysql-global
-      DB_PORT: 3306
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres-global
+      DB_PORT: 5432
       DB_DATABASE: vatmate
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}

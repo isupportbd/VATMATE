@@ -68,51 +68,49 @@ class SummaryController extends Controller
     $prevPeriod = date('Y-m', strtotime($period . '-01 -1 month'));
 
     // ----- SALE (grouped) -----
-    $sale = $this->sale
-      ->selectRaw("
-      item_id,
-      unit_id,
+    $sale = $this->sale->selectRaw("
+      MIN(item_id) as item_id,
+      MIN(unit_id) as unit_id,
       sales.vat as vat_rate,
       ROUND(COALESCE(SUM(quantity), 0), 2)      AS quantity,
       ROUND(COALESCE(SUM(item_price), 0), 2)    AS item_price,
       ROUND(COALESCE(SUM(sd_value), 0), 2)      AS sd_value,
       ROUND(COALESCE(SUM(vat_value), 0), 2)     AS vat_value,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period
+      MIN(TO_CHAR(date, 'YYYY-MM')) AS tax_period
     ")
       ->leftJoin('items as item', 'item_id', '=', 'item.id')
       ->with(['item', 'unit'])
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('vat_rate', 'item.hs_code')
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('sales.vat', 'item.hs_code')
       ->get();
 
     // ----- PURCHASE (grouped) -----
-    $purchase = $this->purchase
-      ->selectRaw("
-      item_id,
-      mushaknote_id,
-      unit_id,
-      purchases.vat as vat_rate,
+    $purchase = $this->purchase->selectRaw("
+      MIN(item_id) as item_id,
+      MIN(mushaknote_id) as mushaknote_id,
+      MIN(unit_id) as unit_id,
+      MIN(purchases.vat) as vat_rate,
       ROUND(COALESCE(SUM(total_quantity), 0), 2)   AS total_quantity,
       ROUND(COALESCE(SUM(assessable_value), 0), 2) AS assessable_value,
       ROUND(COALESCE(SUM(base_value), 0), 2)       AS base_value,
       ROUND(COALESCE(SUM(sd_value), 0), 2)         AS sd_value,
       ROUND(COALESCE(SUM(vat_value), 0), 2)        AS vat_value,
       ROUND(COALESCE(SUM(at_value), 0), 2)         AS at_value,
-      DATE_FORMAT(entry_date, '%Y-%m') AS tax_period
+      MIN(TO_CHAR(entry_date, 'YYYY-MM'))          AS tax_period
     ")
       ->leftJoin('items as item', 'item_id', '=', 'item.id')
       ->leftJoin('mushaknotes as mushaknote', 'mushaknote_id', '=', 'mushaknote.id')
       ->with(['item', 'mushaknote', 'unit'])
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->groupBy('mushaknote.name_note_no', 'item.hs_code')
       ->get();
 
     // ----- SALE SUM -----
     $saleSum = $this->sale
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
       ->selectRaw("
       ROUND(COALESCE(SUM(item_price), 0), 2) AS item_price_sum,
       ROUND(COALESCE(SUM(sd_value), 0), 2)   AS sd_value_sum,
@@ -123,7 +121,7 @@ class SummaryController extends Controller
     // ----- PURCHASE SUM -----
     $purchaseSum = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->selectRaw("
       ROUND(COALESCE(SUM(assessable_value), 0), 2) AS assessable_value_sum,
       ROUND(COALESCE(SUM(base_value), 0), 2)       AS base_value_sum,
@@ -172,7 +170,7 @@ class SummaryController extends Controller
       $note15 = $this->purchase
         ->selectRaw("client_id, ROUND(COALESCE(SUM(vat_value), 0), 2) AS vat_value")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->where('mushaknote_id', $mushak15->id)
         ->groupBy('client_id')
         ->first();
@@ -183,7 +181,7 @@ class SummaryController extends Controller
     // ----- TOTAL AT -----
     $totalAtValue = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('at_value');
 
     $totalAtValue = round($totalAtValue ?? 0, 2);
@@ -230,13 +228,13 @@ class SummaryController extends Controller
     $totalCreditnote = $this->creditnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_decreasing_adjustment), 0), 2) AS decrease_vat,
       ROUND(COALESCE(SUM(sd_of_decreasing_adjustment), 0), 2) AS decrease_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     $totalCreditnote = $totalCreditnote ?: (object)['decrease_vat' => 0, 'decrease_sd' => 0];
@@ -245,13 +243,13 @@ class SummaryController extends Controller
     $totalDebitnote = $this->debitnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_increasing_adjustment), 0), 2) AS increase_vat,
       ROUND(COALESCE(SUM(sd_of_increasing_adjustment), 0), 2) AS increase_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     $totalDebitnote = $totalDebitnote ?: (object)['increase_vat' => 0];
@@ -260,12 +258,12 @@ class SummaryController extends Controller
     $totalForm44 = $this->form44
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm44 = $totalForm44 ?: (object)['increase_vat' => 0];
@@ -274,12 +272,12 @@ class SummaryController extends Controller
     $totalForm45 = $this->form45
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm45 = $totalForm45 ?: (object)['increase_vat' => 0];
@@ -293,14 +291,14 @@ class SummaryController extends Controller
       $note22Purchase = $this->purchase
         ->selectRaw("client_id, ROUND(COALESCE(SUM(at_value), 0), 2) AS at_value")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->where('mushaknote_id', $mushak22->id)
         ->groupBy('client_id')
         ->first();
 
       $note22Sale = $this->sale
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
         ->selectRaw("ROUND(COALESCE(SUM(vat_value), 0), 2)  AS vat_value")
         ->where('vat', optional($mushak22)->percent)
         ->first();
@@ -395,7 +393,7 @@ class SummaryController extends Controller
     // ----- TOTAL PURCHASE QUANTITY -----
     $totalPurchaseQuantity = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('quantity');
 
     $totalPurchaseQuantity = round($totalPurchaseQuantity ?? 0, 2);
@@ -403,13 +401,13 @@ class SummaryController extends Controller
     // ----- TOTAL BOE COUNT -----
     $totalBoe = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->count('boe');
 
     // ----- TOTAL MCU SUM -----
     $totalMcu = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('mcu_amount');
 
     $totalMcu = round($totalMcu ?? 0, 2);
@@ -418,7 +416,7 @@ class SummaryController extends Controller
     $purchaseDetails = $this->purchase
       ->with(['item', 'mushaknote', 'unit', 'stationcode'])
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->get();
 
     return Inertia::render('report/summary/index', [
@@ -503,7 +501,7 @@ class SummaryController extends Controller
     // SALE VAT
     $saleSum = $this->sale
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
       ->selectRaw("ROUND(COALESCE(SUM(vat_value), 0), 2) AS vat_value_sum")
       ->first();
 
@@ -517,7 +515,7 @@ class SummaryController extends Controller
       $note15 = $this->purchase
         ->selectRaw("client_id, ROUND(COALESCE(SUM(vat_value), 0), 2) AS vat_value")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->where('mushaknote_id', $mushak15->id)
         ->groupBy('client_id')
         ->first();
@@ -528,7 +526,7 @@ class SummaryController extends Controller
     // TOTAL AT
     $totalAtValue = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('at_value');
 
     $totalAtValue = round($totalAtValue ?? 0, 2);
@@ -583,12 +581,12 @@ class SummaryController extends Controller
       $this->creditnote
         ->selectRaw("
                 client_id,
-                DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+                TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
                 ROUND(COALESCE(SUM(value_of_decreasing_adjustment), 0), 2) AS value
             ")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-        ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+        ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+        ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
         ->first()
     )->value ?? 0;
 
@@ -596,13 +594,13 @@ class SummaryController extends Controller
     $dbn = optional(
       $this->debitnote
         ->selectRaw("
-                client_id,
-                DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
-                ROUND(COALESCE(SUM(value_of_increasing_adjustment), 0), 2) AS value
-            ")
+          client_id,
+          TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
+          ROUND(COALESCE(SUM(value_of_increasing_adjustment), 0), 2) AS value
+        ")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-        ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+        ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+        ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
         ->first()
     )->value ?? 0;
 
@@ -610,13 +608,13 @@ class SummaryController extends Controller
     $f44 = optional(
       $this->form44
         ->selectRaw("
-                client_id,
-                DATE_FORMAT(date, '%Y-%m') AS tax_period,
-                ROUND(COALESCE(SUM(value), 0), 2) AS value
-            ")
+          client_id,
+          TO_CHAR(date, 'YYYY-MM') AS tax_period,
+          ROUND(COALESCE(SUM(value), 0), 2) AS value
+        ")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-        ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+        ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+        ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
         ->first()
     )->value ?? 0;
 
@@ -624,13 +622,13 @@ class SummaryController extends Controller
     $f45 = optional(
       $this->form45
         ->selectRaw("
-                client_id,
-                DATE_FORMAT(date, '%Y-%m') AS tax_period,
-                ROUND(COALESCE(SUM(value), 0), 2) AS value
-            ")
+          client_id,
+          TO_CHAR(date, 'YYYY-MM') AS tax_period,
+          ROUND(COALESCE(SUM(value), 0), 2) AS value
+        ")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-        ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+        ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+        ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
         ->first()
     )->value ?? 0;
 
@@ -663,51 +661,50 @@ class SummaryController extends Controller
     $prevPeriod = date('Y-m', strtotime($period . '-01 -1 month'));
 
     // ----- SALE (grouped) -----
-    $sale = $this->sale
-      ->selectRaw("
-      item_id,
-      unit_id,
+    $sale = $this->sale->selectRaw("
+      MIN(item_id) as item_id,
+      MIN(unit_id) as unit_id,
       sales.vat as vat_rate,
       ROUND(COALESCE(SUM(quantity), 0), 2)      AS quantity,
       ROUND(COALESCE(SUM(item_price), 0), 2)    AS item_price,
       ROUND(COALESCE(SUM(sd_value), 0), 2)      AS sd_value,
       ROUND(COALESCE(SUM(vat_value), 0), 2)     AS vat_value,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period
+      MIN(TO_CHAR(date, 'YYYY-MM')) AS tax_period
     ")
       ->leftJoin('items as item', 'item_id', '=', 'item.id')
       ->with(['item', 'unit'])
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
       ->groupBy('vat_rate', 'item.hs_code')
       ->get();
 
     // ----- PURCHASE (grouped) -----
     $purchase = $this->purchase
       ->selectRaw("
-      item_id,
-      mushaknote_id,
-      unit_id,
-      purchases.vat as vat_rate,
+      MIN(item_id) as item_id,
+      MIN(mushaknote_id) as mushaknote_id,
+      MIN(unit_id) as unit_id,
+      MIN(purchases.vat) as vat_rate,
       ROUND(COALESCE(SUM(total_quantity), 0), 2)   AS total_quantity,
       ROUND(COALESCE(SUM(assessable_value), 0), 2) AS assessable_value,
       ROUND(COALESCE(SUM(base_value), 0), 2)       AS base_value,
       ROUND(COALESCE(SUM(sd_value), 0), 2)         AS sd_value,
       ROUND(COALESCE(SUM(vat_value), 0), 2)        AS vat_value,
       ROUND(COALESCE(SUM(at_value), 0), 2)         AS at_value,
-      DATE_FORMAT(entry_date, '%Y-%m') AS tax_period
+      MIN(TO_CHAR(entry_date, 'YYYY-MM')) AS tax_period
     ")
       ->leftJoin('items as item', 'item_id', '=', 'item.id')
       ->leftJoin('mushaknotes as mushaknote', 'mushaknote_id', '=', 'mushaknote.id')
       ->with(['item', 'mushaknote', 'unit'])
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->groupBy('mushaknote.name_note_no', 'item.hs_code')
       ->get();
 
     // ----- SALE SUM -----
     $saleSum = $this->sale
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
       ->selectRaw("
       ROUND(COALESCE(SUM(item_price), 0), 2) AS item_price_sum,
       ROUND(COALESCE(SUM(sd_value), 0), 2)   AS sd_value_sum,
@@ -718,7 +715,7 @@ class SummaryController extends Controller
     // ----- PURCHASE SUM -----
     $purchaseSum = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->selectRaw("
       ROUND(COALESCE(SUM(assessable_value), 0), 2) AS assessable_value_sum,
       ROUND(COALESCE(SUM(base_value), 0), 2)       AS base_value_sum,
@@ -767,7 +764,7 @@ class SummaryController extends Controller
       $note15 = $this->purchase
         ->selectRaw("client_id, ROUND(COALESCE(SUM(vat_value), 0), 2) AS vat_value")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->where('mushaknote_id', $mushak15->id)
         ->groupBy('client_id')
         ->first();
@@ -778,7 +775,7 @@ class SummaryController extends Controller
     // ----- TOTAL AT -----
     $totalAtValue = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('at_value');
 
     $totalAtValue = round($totalAtValue ?? 0, 2);
@@ -825,13 +822,13 @@ class SummaryController extends Controller
     $totalCreditnote = $this->creditnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_decreasing_adjustment), 0), 2) AS decrease_vat,
       ROUND(COALESCE(SUM(sd_of_decreasing_adjustment), 0), 2) AS decrease_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     $totalCreditnote = $totalCreditnote ?: (object)['decrease_vat' => 0, 'decrease_sd' => 0];
@@ -840,13 +837,13 @@ class SummaryController extends Controller
     $totalDebitnote = $this->debitnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_increasing_adjustment), 0), 2) AS increase_vat,
       ROUND(COALESCE(SUM(sd_of_increasing_adjustment), 0), 2) AS increase_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     $totalDebitnote = $totalDebitnote ?: (object)['increase_vat' => 0];
@@ -855,12 +852,12 @@ class SummaryController extends Controller
     $totalForm44 = $this->form44
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm44 = $totalForm44 ?: (object)['increase_vat' => 0];
@@ -869,12 +866,12 @@ class SummaryController extends Controller
     $totalForm45 = $this->form45
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm45 = $totalForm45 ?: (object)['increase_vat' => 0];
@@ -888,14 +885,14 @@ class SummaryController extends Controller
       $note22Purchase = $this->purchase
         ->selectRaw("client_id, ROUND(COALESCE(SUM(at_value), 0), 2) AS at_value")
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->where('mushaknote_id', $mushak22->id)
         ->groupBy('client_id')
         ->first();
 
       $note22Sale = $this->sale
         ->where('client_id', $client_id)
-        ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
         ->selectRaw("ROUND(COALESCE(SUM(vat_value), 0), 2)  AS vat_value")
         ->where('vat', optional($mushak22)->percent)
         ->first();
@@ -990,7 +987,7 @@ class SummaryController extends Controller
     // ----- TOTAL PURCHASE QUANTITY -----
     $totalPurchaseQuantity = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('quantity');
 
     $totalPurchaseQuantity = round($totalPurchaseQuantity ?? 0, 2);
@@ -998,13 +995,13 @@ class SummaryController extends Controller
     // ----- TOTAL BOE COUNT -----
     $totalBoe = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->count('boe');
 
     // ----- TOTAL MCU SUM -----
     $totalMcu = $this->purchase
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->sum('mcu_amount');
 
     $totalMcu = round($totalMcu ?? 0, 2);
@@ -1013,7 +1010,7 @@ class SummaryController extends Controller
     $purchaseDetails = $this->purchase
       ->with(['item', 'mushaknote', 'unit', 'stationcode'])
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->get();
 
     $html = view('pdf.report-summary', [

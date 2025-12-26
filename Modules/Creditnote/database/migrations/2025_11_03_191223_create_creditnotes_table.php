@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,33 +14,33 @@ return new class extends Migration
   {
     Schema::create('creditnotes', function (Blueprint $table) {
       $table->id();
-      $table->string('creditnote_invoice', 20)->nullable(false);
-      $table->string('lc_or_invoice_no', 20)->nullable(false);
-      $table->unsignedBigInteger('client_id')->nullable(false);
-      $table->unsignedBigInteger('item_id')->nullable();
-      $table->unsignedBigInteger('unit_id')->nullable();
-      $table->date('issued_date')->nullable(false);
-      $table->double('opening_stock', 23, 2)->nullable(false);
-      $table->double('stock', 23, 2)->nullable(false);
-      $table->date('vat_challan_date')->nullable(false);
-      $table->string('reason_for_issuance', 250)->nullable(false);
-      $table->double('rate_in_challan', 23, 2)->nullable(false);
-      $table->double('value_in_challan', 23, 2)->nullable(false);
-      $table->double('quantity_in_challan', 23, 2)->nullable(false);
-      $table->double('vat_in_challan', 23, 2)->nullable(false);
-      $table->double('sd_in_challan', 23, 2)->nullable(false);
-      $table->double('value_of_decreasing_adjustment', 23, 2)->nullable(false);
-      $table->double('quantity_of_decreasing_adjustment', 23, 2)->nullable(false);
-      $table->double('vat_of_decreasing_adjustment', 23, 2)->nullable(false);
-      $table->double('sd_of_decreasing_adjustment', 23, 2)->nullable(false);
+      $table->string('creditnote_invoice', 20);
+      $table->string('lc_or_invoice_no', 20);
+      $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
+      $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
+      $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
+      $table->date('issued_date');
+      $table->decimal('opening_stock', 23, 2);
+      $table->decimal('stock', 23, 2);
+      $table->date('vat_challan_date');
+      $table->string('reason_for_issuance', 250);
+      $table->decimal('rate_in_challan', 23, 2);
+      $table->decimal('value_in_challan', 23, 2);
+      $table->decimal('quantity_in_challan', 23, 2);
+      $table->decimal('vat_in_challan', 23, 2);
+      $table->decimal('sd_in_challan', 23, 2);
+      $table->decimal('value_of_decreasing_adjustment', 23, 2);
+      $table->decimal('quantity_of_decreasing_adjustment', 23, 2);
+      $table->decimal('vat_of_decreasing_adjustment', 23, 2);
+      $table->decimal('sd_of_decreasing_adjustment', 23, 2);
       $table->string('remarks', 250)->nullable();
-      $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('cascade');
-      $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('set null');
-      $table->foreign('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('set null');
       $table->timestamps();
-      $table->index(['lc_or_invoice_no']);
+      $table->index('lc_or_invoice_no');
       $table->index(['client_id', 'item_id', 'lc_or_invoice_no']);
     });
+
+    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+    DB::statement('CREATE INDEX creditnotes_lc_trgm_idx ON creditnotes USING GIN (lc_or_invoice_no gin_trgm_ops)');
   }
 
   /**

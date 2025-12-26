@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,8 +16,10 @@ return new class extends Migration
       $table->id();
       $table->string('code', 10)->unique();
       $table->timestamps();
-      $table->index(['code']);
     });
+
+    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+    DB::statement('CREATE INDEX stationcodes_code_trgm_idx ON stationcodes USING GIN (code gin_trgm_ops)');
   }
 
   /**

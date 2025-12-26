@@ -16,10 +16,10 @@ return new class extends Migration
             $table->morphs('tokenable');
             $table->text('name');
             $table->string('token', 64)->unique();
-            $table->text('abilities')->nullable();
-            $table->timestamp('last_used_at')->nullable();
-            $table->timestamp('expires_at')->nullable()->index();
-            $table->timestamps();
+            $table->jsonb('abilities')->nullable();      // optional upgrade
+            $table->timestampTz('last_used_at')->nullable();
+            $table->timestampTz('expires_at')->nullable()->index();
+            $table->timestampsTz();
         });
     }
 

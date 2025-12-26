@@ -80,8 +80,8 @@
         <div class="card-header text-uppercase fw-bold">
           <span>{{ props.view?.item?.name }}</span><span class="px-1">|</span>
           <span>4.3 unit price: {{ props.view?.unit_price }}</span><span class="px-1">|</span>
-          <span>rate : {{ (props.view?.additionsum[0]?.ratesum)?.toFixed(2) }}%</span>
-          <span class="px-1">|</span> <span>value : {{ (props.view?.additionsum[0]?.valuesum)?.toFixed(2) }}</span>
+          <span>rate : {{ (+(props.view?.additionsum[0]?.ratesum))?.toFixed(2) }}%</span>
+          <span class="px-1">|</span> <span>value : {{ (+(props.view?.additionsum[0]?.valuesum))?.toFixed(2) }}</span>
         </div>
         <div class="card-body">
           <div class="table-responsive">

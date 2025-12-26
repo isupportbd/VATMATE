@@ -87,7 +87,7 @@ class Report91Controller extends Controller
         ")
         ->where('client_id', $client_id)
         ->where('vat', $vatRate)
-        ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
         ->first();
     };
 
@@ -102,7 +102,7 @@ class Report91Controller extends Controller
         ")
         ->where('client_id', $client_id)
         ->where('mushaknote_id', $mushaknoteId)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->first();
     };
 
@@ -199,7 +199,7 @@ class Report91Controller extends Controller
         ROUND(COALESCE(SUM(at_value), 0), 2) AS at_value
       ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->groupBy('client_id')
       ->first();
 
@@ -225,38 +225,38 @@ class Report91Controller extends Controller
     $totalCreditnote = $this->creditnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_decreasing_adjustment), 0), 2) AS decrease_vat,
       ROUND(COALESCE(SUM(sd_of_decreasing_adjustment), 0), 2) AS decrease_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     // ----- TOTAL DEBITNOTE -----
     $totalDebitnote = $this->debitnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_increasing_adjustment), 0), 2) AS increase_vat,
       ROUND(COALESCE(SUM(sd_of_increasing_adjustment), 0), 2) AS increase_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     // ----- TOTAL FORM 4.4 -----
     $totalForm44 = $this->form44
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm44 = $totalForm44 ?: (object)['increase_vat' => 0];
@@ -265,12 +265,12 @@ class Report91Controller extends Controller
     $totalForm45 = $this->form45
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm45 = $totalForm45 ?: (object)['increase_vat' => 0];
@@ -438,7 +438,7 @@ class Report91Controller extends Controller
         ")
         ->where('client_id', $client_id)
         ->where('vat', $vatRate)
-        ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
         ->first();
     };
 
@@ -453,7 +453,7 @@ class Report91Controller extends Controller
         ")
         ->where('client_id', $client_id)
         ->where('mushaknote_id', $mushaknoteId)
-        ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+        ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
         ->first();
     };
 
@@ -550,7 +550,7 @@ class Report91Controller extends Controller
         ROUND(COALESCE(SUM(at_value), 0), 2) AS at_value
       ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(entry_date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(entry_date, 'YYYY-MM') = ?", [$period])
       ->groupBy('client_id')
       ->first();
 
@@ -576,38 +576,38 @@ class Report91Controller extends Controller
     $totalCreditnote = $this->creditnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_decreasing_adjustment), 0), 2) AS decrease_vat,
       ROUND(COALESCE(SUM(sd_of_decreasing_adjustment), 0), 2) AS decrease_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     // ----- TOTAL DEBITNOTE -----
     $totalDebitnote = $this->debitnote
       ->selectRaw("
       client_id,
-      DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+      TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(vat_of_increasing_adjustment), 0), 2) AS increase_vat,
       ROUND(COALESCE(SUM(sd_of_increasing_adjustment), 0), 2) AS increase_sd
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(issued_date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
       ->first();
 
     // ----- TOTAL FORM 4.4 -----
     $totalForm44 = $this->form44
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm44 = $totalForm44 ?: (object)['increase_vat' => 0];
@@ -616,12 +616,12 @@ class Report91Controller extends Controller
     $totalForm45 = $this->form45
       ->selectRaw("
       client_id,
-      DATE_FORMAT(date, '%Y-%m') AS tax_period,
+      TO_CHAR(date, 'YYYY-MM') AS tax_period,
       ROUND(COALESCE(SUM(net_increase), 0), 2) AS increase_vat
     ")
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
-      ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+      ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
       ->first();
 
     $totalForm45 = $totalForm45 ?: (object)['increase_vat' => 0];
@@ -795,7 +795,7 @@ class Report91Controller extends Controller
   //       ")
   //       ->where('client_id', $client_id)
   //       ->where('vat', $vatRate)
-  //       ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
+  //       ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
   //       ->first();
   //   };
 
@@ -945,12 +945,12 @@ class Report91Controller extends Controller
   //   $totalCreditnote = $this->creditnote
   //     ->selectRaw("
   //       client_id,
-  //       DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+  //       TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
   //       ROUND(COALESCE(SUM(value_of_decreasing_adjustment), 0), 2) AS value
   //     ")
   //     ->where('client_id', $client_id)
-  //     ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
-  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+  //     ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
   //     ->first();
 
   //   $creditnoteAmount = optional($totalCreditnote)->value ?? 0;
@@ -959,12 +959,12 @@ class Report91Controller extends Controller
   //   $totalDebitnote = $this->debitnote
   //     ->selectRaw("
   //       client_id,
-  //       DATE_FORMAT(issued_date, '%Y-%m') AS tax_period,
+  //       TO_CHAR(issued_date, 'YYYY-MM') AS tax_period,
   //       ROUND(COALESCE(SUM(value_of_increasing_adjustment), 0), 2) AS value
   //     ")
   //     ->where('client_id', $client_id)
-  //     ->whereRaw("DATE_FORMAT(issued_date, '%Y-%m') = ?", [$period])
-  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(issued_date, '%Y-%m')"))
+  //     ->whereRaw("TO_CHAR(issued_date, 'YYYY-MM') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"))
   //     ->first();
 
   //   $debitnoteAmount = optional($totalDebitnote)->value ?? 0;
@@ -973,12 +973,12 @@ class Report91Controller extends Controller
   //   $totalForm44 = $this->form44
   //     ->selectRaw("
   //       client_id,
-  //       DATE_FORMAT(date, '%Y-%m') AS tax_period,
+  //       TO_CHAR(date, 'YYYY-MM') AS tax_period,
   //       ROUND(COALESCE(SUM(value), 0), 2) AS value
   //     ")
   //     ->where('client_id', $client_id)
-  //     ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
-  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+  //     ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
   //     ->first();
 
   //   $form44Amount = optional($totalForm44)->value ?? 0;
@@ -987,12 +987,12 @@ class Report91Controller extends Controller
   //   $totalForm45 = $this->form45
   //     ->selectRaw("
   //       client_id,
-  //       DATE_FORMAT(date, '%Y-%m') AS tax_period,
+  //       TO_CHAR(date, 'YYYY-MM') AS tax_period,
   //       ROUND(COALESCE(SUM(value), 0), 2) AS value
   //     ")
   //     ->where('client_id', $client_id)
-  //     ->whereRaw("DATE_FORMAT(date, '%Y-%m') = ?", [$period])
-  //     ->groupBy('client_id', DB::raw("DATE_FORMAT(date, '%Y-%m')"))
+  //     ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
+  //     ->groupBy('client_id', DB::raw("TO_CHAR(date, 'YYYY-MM')"))
   //     ->first();
 
   //   $form45Amount = optional($totalForm45)->value ?? 0;

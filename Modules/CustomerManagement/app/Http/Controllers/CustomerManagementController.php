@@ -22,13 +22,10 @@ class CustomerManagementController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->customer->query()
-      ->when($search !== '', function ($query) use ($termLike) {
-        $query->where('mobile', 'like', $termLike)
-          ->orWhere('name', 'like', $termLike);
-      })
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -136,12 +133,12 @@ class CustomerManagementController extends Controller
   public function customerDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->customer->query()
       ->when($search !== '', function ($query) use ($termLike) {
-        $query->where('mobile', 'like', $termLike)
-          ->orWhere('name', 'like', $termLike);
+        $query->where('mobile', 'ilike', $termLike)
+          ->orWhere('name', 'ilike', $termLike);
       })
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

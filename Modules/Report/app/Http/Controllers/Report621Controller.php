@@ -49,7 +49,7 @@ class Report621Controller extends Controller
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($itemId, fn($q) => $q->where('item_id', $itemId))
       ->where('client_id', $client_id)
-      ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $monthYear)
+      ->where(DB::raw("TO_CHAR(date, 'YYYY-MM')"), $monthYear)
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();

@@ -59,7 +59,7 @@ class Report63Export implements FromQuery, WithHeadings, WithMapping, ShouldAuto
   {
     $sale = Sale::with(['client', 'item', 'unit', 'bank'])
       ->where('client_id', $this->clientId)
-      ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $this->monthYear)
+      ->where(DB::raw("TO_CHAR(date, 'YYYY-MM')"), $this->monthYear)
       ->when(!empty($this->itemId), fn($q) => $q->where('item_id', $this->itemId))
       ->orderBy('id', 'asc');
 

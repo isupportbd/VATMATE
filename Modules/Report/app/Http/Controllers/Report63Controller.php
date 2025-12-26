@@ -47,7 +47,7 @@ class Report63Controller extends Controller
     $query = $this->sale->with(['client', 'item', 'unit', 'bank'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->where('client_id', $client_id)
-      ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$period])
+      ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])
       ->when($itemId, fn($q) => $q->where('item_id', $itemId))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))

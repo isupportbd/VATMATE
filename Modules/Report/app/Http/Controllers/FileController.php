@@ -20,9 +20,9 @@ class FileController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
-    $files = $this->report->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
+    $files = $this->report->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->appends($request->all());
@@ -50,7 +50,7 @@ class FileController extends Controller
     $this->report->create([
       'name' => $file->getClientOriginalName(),
       'path' => $path,
-      'size' => $this->formatSize($file->getSize())
+      'size' => $file->getSize()
     ]);
 
     // realtime data

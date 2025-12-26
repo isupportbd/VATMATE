@@ -23,9 +23,9 @@ class CostsheetController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
-    $costsheet = $this->costsheet->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
+    $costsheet = $this->costsheet->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))
       ->withQueryString();
@@ -106,10 +106,10 @@ class CostsheetController extends Controller
   public function costsheetDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? $search . '%' : null;
+    $termLike   = $search !== '' ? "%$search%" : null;
 
     $costsheet = $this->costsheet->query()
-      ->when($search !== '', fn($query) => $query->where('name', 'like', $termLike))
+      ->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'asc')
       ->paginate((int)request('size') ? (int)request('size') : 10);
 

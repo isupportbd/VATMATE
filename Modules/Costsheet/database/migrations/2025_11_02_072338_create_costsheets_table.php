@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,8 +16,10 @@ return new class extends Migration
       $table->id();
       $table->string('name', 200)->unique();
       $table->timestamps();
-      $table->index(['name']);
     });
+
+    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+    DB::statement('CREATE INDEX costsheets_name_trgm_idx ON costsheets USING GIN (name gin_trgm_ops)');
   }
 
   /**

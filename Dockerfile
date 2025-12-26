@@ -1,7 +1,7 @@
 FROM php:8.2-fpm
 
 # --------------------------------------------------
-# System deps + nginx + puppeteer deps
+# System deps + nginx + puppeteer deps + postgres deps
 # --------------------------------------------------
 RUN apt-get update && apt-get install -y \
   nginx supervisor \
@@ -14,12 +14,13 @@ RUN apt-get update && apt-get install -y \
   libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
   libasound2 libxshmfence1 \
   nodejs npm \
+  libpq-dev postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------------------
-# PHP extensions
+# PHP extensions (add pdo_pgsql)
 # --------------------------------------------------
-RUN docker-php-ext-install pdo pdo_mysql zip gd pcntl \
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql zip gd pcntl \
   && pecl install redis \
   && docker-php-ext-enable redis
 
