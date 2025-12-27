@@ -14,7 +14,7 @@ return new class extends Migration
   {
     Schema::create('form43s', function (Blueprint $table) {
       $table->id();
-      $table->string('lc_no', 20)->nullable();
+      $table->string('lc_no', 20)->nullable()->index();
       $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
       $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('purchase_unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
@@ -35,8 +35,6 @@ return new class extends Migration
       $table->decimal('unit_price', 23, 2);
       $table->smallInteger('last')->default(1); // tinyInteger -> smallInteger
       $table->timestamps();
-      $table->index('lc_no');
-      $table->index(['client_id', 'item_id', 'last']);
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');

@@ -23,8 +23,6 @@ return new class extends Migration
       $table->decimal('vat', 10, 2);
       $table->decimal('at', 10, 2);
       $table->timestamps();
-      $table->index('name');
-      $table->index('hs_code');
     });
 
     // Only for PostgreSQL

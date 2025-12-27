@@ -22,7 +22,6 @@ return new class extends Migration
       $table->decimal('vat', 5, 2);
       $table->smallInteger('last')->default(1);
       $table->timestamps();
-      $table->index(['client_id', 'item_id', 'last']);
     });
 
     // DB::statement("CREATE UNIQUE INDEX rates_one_last_idx ON rates (client_id, item_id) WHERE last = 1");

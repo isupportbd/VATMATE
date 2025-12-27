@@ -22,7 +22,6 @@ return new class extends Migration
       $table->decimal('amount', 23, 2);
       $table->string('remarks', 250)->nullable();
       $table->timestamps();
-      $table->index('tax_period');
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');

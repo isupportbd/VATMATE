@@ -18,12 +18,11 @@ return new class extends Migration
       $table->string('email', 255)->unique();
       $table->string('password', 255);
       $table->string('forget_password', 255)->nullable();
-      $table->string('mobile', 14)->nullable();
+      $table->string('mobile', 14)->nullable()->index();
       $table->char('status', 1)->default('1')->comment('inactive: 0, active: 1');
       $table->foreignId('role_id')->nullable()->constrained('roles')->cascadeOnUpdate()->nullOnDelete();
       $table->rememberToken();
       $table->timestamps();
-      $table->index('mobile'); // only if you search by mobile
     });
 
     Schema::create('password_reset_tokens', function (Blueprint $table) {

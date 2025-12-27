@@ -17,8 +17,8 @@ return new class extends Migration
       $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
       $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('form43_id')->nullable()->constrained('form43s')->cascadeOnUpdate()->nullOnDelete();
-      $table->string('lc_or_invoice_no', 50);
-      $table->string('boe', 10)->nullable();
+      $table->string('lc_or_invoice_no', 50)->index();
+      $table->string('boe', 10)->nullable()->index();
       // numeric values → MUST be decimal in PG
       $table->decimal('quantity', 23, 3);
       $table->decimal('opening_stock', 23, 3);
@@ -32,9 +32,6 @@ return new class extends Migration
       $table->smallInteger('last')->default(1);
       $table->foreignId('userid')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
       $table->timestamps();
-      $table->index('lc_or_invoice_no');
-      $table->index(['client_id', 'item_id', 'last']);
-      $table->index(['client_id', 'lc_or_invoice_no', 'item_id', 'boe']);
     });
 
     // Only for PostgreSQL

@@ -39,7 +39,6 @@ return new class extends Migration
       $table->string('bin_or_nid', 17)->nullable();
       $table->string('address', 150)->nullable();
       $table->timestamps();
-      $table->index('invoice_no');
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');

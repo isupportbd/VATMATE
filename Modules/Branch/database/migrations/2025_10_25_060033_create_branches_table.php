@@ -18,7 +18,6 @@ return new class extends Migration
       $table->foreignId('bank_id')->constrained('banks')->cascadeOnUpdate()->cascadeOnDelete();
       $table->string('name', 200); // NOT NULL by default
       $table->timestamps();
-      $table->index('name');
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');

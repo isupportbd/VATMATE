@@ -258,12 +258,25 @@ END $$;
   > "C:\Users\niyam\OneDrive\Desktop\vatmate.sql"
 ```
 
--   if database as a .sql (recomanded) and it is workable
+-   if database as a .sql (recomanded) and it is workable for plain sql
 
 ```
-Get-Content -Raw "C:\Users\niyam\OneDrive\Desktop\vatmate.sql" |
+Get-Content -Raw "C:\Users\niyam\OneDrive\Desktop\dump-vatmate-202512280148.sql" |
 ForEach-Object { $_ -replace '(?m)^\s*SET\s+(transaction_timeout|idle_session_timeout)\s*=\s*[^;]+;\s*[\r\n]*','' } |
-ssh niyam@VPS_IP "docker exec -i postgres-global psql -U postgres -d vatmate -v ON_ERROR_STOP=1"
+ssh niyam@89.116.122.250 "docker exec -i postgres-global psql -U postgres -d vatmate -v ON_ERROR_STOP=1"
+```
+
+-   if database as a .sql with schema + data
+
+```
+Get-Content -Raw "C:\Users\niyam\OneDrive\Desktop\dump-vatmate-202512280114.sql" |
+ForEach-Object { $_ -replace '(?m)^\s*SET\s+(transaction_timeout|idle_session_timeout|statement_timeout)\s*=\s*[^;]+;\s*[\r\n]*','' } |
+ssh niyam@89.116.122.250 "docker exec -i postgres-global psql -U postgres -d vatmate -v ON_ERROR_STOP=1 -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;' && docker exec -i postgres-global psql -U postgres -d vatmate -v ON_ERROR_STOP=1"
+
+ssh niyam@89.116.122.250 "docker exec -i postgres-global psql -U postgres -d vatmate -v ON_ERROR_STOP=1 -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'" ; `
+Get-Content -Encoding Byte "C:\Users\niyam\OneDrive\Desktop\dump-vatmate-202512280114.sql" |
+ssh niyam@89.116.122.250 "docker exec -i postgres-global pg_restore -U postgres -d vatmate --no-owner --no-privileges --verbose"
+
 ```
 
 -   If you want DROP+RECREATE style (clean import). This removes existing objects first (be careful on production).

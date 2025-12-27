@@ -18,7 +18,6 @@ return new class extends Migration
       $table->decimal('value', 23, 2); // exact numeric value
       $table->string('description', 150)->nullable();
       $table->timestamps();
-      $table->index('name');
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');

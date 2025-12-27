@@ -14,13 +14,11 @@ return new class extends Migration
   {
     Schema::create('customer_management', function (Blueprint $table) {
       $table->id();
-      $table->string('mobile', 11);
+      $table->string('mobile', 11)->index();
       $table->string('customer_name', 100);
-      $table->string('bin_or_nid', 17)->nullable();
+      $table->string('bin_or_nid', 17)->nullable()->index();
       $table->string('address', 150)->nullable();
       $table->timestamps();
-      $table->index(['mobile']);
-      $table->index(['bin_or_nid']);
     });
 
     // Only for PostgreSQL

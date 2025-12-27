@@ -14,7 +14,6 @@ return new class extends Migration
   {
     Schema::create('clients', function (Blueprint $table) {
       $table->id();
-
       $table->foreignId('division_id')->nullable()->constrained('divisions')->cascadeOnUpdate()->nullOnDelete();
       $table->string('bin', 14);
       $table->string('vat_username', 30);
@@ -33,11 +32,6 @@ return new class extends Migration
       // OR if you must keep '0'/'1' as text:
       // $table->char('status', 1)->default('1')->comment('inactive: 0, active: 1');
       $table->timestamps();
-
-      $table->index('bin');
-      $table->index('company_name');
-      $table->index('mobile');
-      $table->index('reference');
     });
 
     // Only for PostgreSQL

@@ -16,7 +16,6 @@ return new class extends Migration
       $table->foreignId('item_id')->constrained('items')->cascadeOnUpdate()->cascadeOnDelete();
       // Prevent duplicate relationships
       $table->unique(['client_id', 'item_id']);
-      $table->index('client_id');
     });
   }
 

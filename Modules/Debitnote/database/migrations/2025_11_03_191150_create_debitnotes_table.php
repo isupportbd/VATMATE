@@ -15,8 +15,8 @@ return new class extends Migration
     Schema::create('debitnotes', function (Blueprint $table) {
       $table->id();
       $table->string('debitnote_invoice', 20);
-      $table->string('lc_or_invoice_no', 20);
-      $table->string('boe', 10);
+      $table->string('lc_or_invoice_no', 20)->index();
+      $table->string('boe', 10)->index();
       $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
       $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
@@ -36,9 +36,6 @@ return new class extends Migration
       $table->decimal('sd_of_increasing_adjustment', 23, 2);
       $table->string('remarks', 250)->nullable();
       $table->timestamps();
-      $table->index('lc_or_invoice_no');
-      $table->index('boe');
-      $table->index(['client_id', 'item_id', 'lc_or_invoice_no', 'boe']);
     });
 
     // Only for PostgreSQL

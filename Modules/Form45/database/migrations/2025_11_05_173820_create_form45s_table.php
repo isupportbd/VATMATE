@@ -15,8 +15,8 @@ return new class extends Migration
     Schema::create('form45s', function (Blueprint $table) {
       $table->id();
       $table->string('form45_invoice', 20);
-      $table->string('lc_or_invoice_no', 20);
-      $table->string('boe', 10);
+      $table->string('lc_or_invoice_no', 20)->index();
+      $table->string('boe', 10)->index();
       $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
       $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
@@ -32,13 +32,27 @@ return new class extends Migration
       $table->decimal('net_increase', 23, 2);
       $table->string('reason_ineligibility', 150)->nullable();
       $table->timestamps();
-      $table->index('boe');
-      $table->index('lc_or_invoice_no');
-      $table->index(['client_id', 'item_id', 'lc_or_invoice_no', 'boe']);
     });
 
-    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
-    DB::statement('CREATE INDEX form45s_lc_trgm_idx ON form45s USING GIN (lc_or_invoice_no gin_trgm_ops)');
+    // Only for PostgreSQL
+    if (DB::getDriverName() === 'pgsql') {
+      DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+
+      // Generated column (STORED)
+      DB::statement("
+        ALTER TABLE form45s
+        ADD COLUMN IF NOT EXISTS search_text text
+        GENERATED ALWAYS AS (
+          lower(trim(
+            coalesce(boe,'') || ' ' ||
+            coalesce(lc_or_invoice_no,'')
+          ))
+        ) STORED
+      ");
+
+      // One index for “search anywhere”
+      DB::statement('CREATE INDEX form45s_search_text_trgm_idx ON form45s USING GIN (search_text gin_trgm_ops)');
+    }
   }
 
   /**

@@ -15,7 +15,7 @@ return new class extends Migration
     Schema::create('creditnotes', function (Blueprint $table) {
       $table->id();
       $table->string('creditnote_invoice', 20);
-      $table->string('lc_or_invoice_no', 20);
+      $table->string('lc_or_invoice_no', 20)->index();
       $table->foreignId('client_id')->constrained('clients')->cascadeOnUpdate()->cascadeOnDelete();
       $table->foreignId('item_id')->nullable()->constrained('items')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
@@ -35,8 +35,6 @@ return new class extends Migration
       $table->decimal('sd_of_decreasing_adjustment', 23, 2);
       $table->string('remarks', 250)->nullable();
       $table->timestamps();
-      $table->index('lc_or_invoice_no');
-      $table->index(['client_id', 'item_id', 'lc_or_invoice_no']);
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');

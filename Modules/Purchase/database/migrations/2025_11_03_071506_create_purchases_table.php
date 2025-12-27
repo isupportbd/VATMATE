@@ -20,9 +20,9 @@ return new class extends Migration
       $table->foreignId('unit_id')->nullable()->constrained('units')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('stationcode_id')->nullable()->constrained('stationcodes')->cascadeOnUpdate()->nullOnDelete();
       $table->foreignId('mushaknote_id')->nullable()->constrained('mushaknotes')->cascadeOnUpdate()->nullOnDelete();
-      $table->string('lc_no', 20);
+      $table->string('lc_no', 20)->index();
       $table->date('lc_date')->nullable();
-      $table->string('boe', 10);
+      $table->string('boe', 10)->index();
       $table->date('boe_date');
       $table->date('entry_date');
       // amounts / quantities / rates => DECIMAL (numeric) for PG
@@ -56,13 +56,27 @@ return new class extends Migration
       $table->string('exporter_name', 100)->nullable();
       $table->string('address', 100)->nullable();
       $table->timestamps();
-      $table->index('boe');
-      $table->index('lc_no');
     });
 
-    DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
-    DB::statement('CREATE INDEX purchases_boe_trgm_idx ON purchases USING GIN (boe gin_trgm_ops)');
-    DB::statement('CREATE INDEX purchases_lc_trgm_idx ON purchases USING GIN (lc_no gin_trgm_ops)');
+    // Only for PostgreSQL
+    if (DB::getDriverName() === 'pgsql') {
+      DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+
+      // Generated column (STORED)
+      DB::statement("
+        ALTER TABLE purchases
+        ADD COLUMN IF NOT EXISTS search_text text
+        GENERATED ALWAYS AS (
+          lower(trim(
+            coalesce(boe,'') || ' ' ||
+            coalesce(lc_no,'')
+          ))
+        ) STORED
+      ");
+
+      // One index for “search anywhere”
+      DB::statement('CREATE INDEX purchases_search_text_trgm_idx ON purchases USING GIN (search_text gin_trgm_ops)');
+    }
   }
 
   /**

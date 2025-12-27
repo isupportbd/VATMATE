@@ -20,9 +20,6 @@ return new class extends Migration
       $table->decimal('amount', 23, 2);         // numeric(23,2) on PG
       $table->string('remarks', 250)->nullable();
       $table->timestamps();
-      $table->index('tax_period');
-      // Composite index (good for your filtering/reporting)
-      $table->index(['client_id', 'expense_id', 'tax_period']);
     });
 
     DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
