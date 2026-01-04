@@ -20,7 +20,7 @@ class ExpenseController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $expense = $this->expense->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'asc')

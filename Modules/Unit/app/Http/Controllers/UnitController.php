@@ -20,7 +20,7 @@ class UnitController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $unit = $this->unit->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
@@ -99,14 +99,13 @@ class UnitController extends Controller
   public function unitDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $unit = $this->unit->query()
-      ->when($search !== '', function ($query) use ($termLike) {
-        $query->where('name', 'ilike', $termLike);
-      })
+      ->when($search !== '', fn($q) => $q->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
+
     return response()->json(['unit' => $unit]);
   }
 }

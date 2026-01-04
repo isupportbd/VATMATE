@@ -49,21 +49,15 @@ class CreditnoteController extends Controller
   {
     $user   = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $creditnote = $this->creditnote->with(['client', 'client.user', 'client.user.role', 'item'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search, function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->where('lc_or_invoice_no', 'ilike', $termLike)
-            ->orWhereHas('client', function ($query) use ($termLike) {
-              $query->where('company_name', 'ilike', $termLike)
-                ->orWhere('mobile', 'ilike', $termLike)
-                ->orWhere('bin', 'ilike', $termLike);
-            })->orWhereHas('item', function ($query) use ($termLike) {
-              $query->where('name', 'ilike', $termLike)
-                ->orWhere('hs_code', 'ilike', $termLike);
-            });
+            ->orWhereHas('client', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
+            ->orWhereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       })->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))

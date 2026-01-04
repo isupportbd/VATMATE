@@ -20,7 +20,7 @@ class StationcodeController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $stationcode = $this->stationcode->when($search !== '', fn($query) => $query->where('code', 'ilike', $termLike))
       ->orderBy('id', 'desc')
@@ -99,12 +99,10 @@ class StationcodeController extends Controller
   public function stationcodeDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $stationcode = $this->stationcode->query()
-      ->when($search !== '', function ($query) use ($termLike) {
-        $query->where('code', 'ilike', $termLike);
-      })
+      ->when($search !== '', fn($q) => $q->where('code', 'ilike', $termLike))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size') ? (int)request('size') : 5);
 

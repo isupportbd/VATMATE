@@ -136,10 +136,7 @@ class CustomerManagementController extends Controller
     $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->customer->query()
-      ->when($search !== '', function ($query) use ($termLike) {
-        $query->where('mobile', 'ilike', $termLike)
-          ->orWhere('name', 'ilike', $termLike);
-      })
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));
 

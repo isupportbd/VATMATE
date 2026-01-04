@@ -42,10 +42,8 @@ class Form621Controller extends Controller
       ->when($search !== '', function ($query) use ($termLike) {
         $query->whereHas('client', function ($query) use ($termLike) {
           $query->where(function ($q) use ($termLike) {
-            $q->where('bin', 'ilike', $termLike)
-              ->orWhere('mobile', 'ilike', $termLike)
-              ->orWhere('company_name', 'ilike', $termLike)
-              ->orWHereHas('user', fn($query) => $query->where('email', 'ilike', $termLike));
+            $q->whereRaw('search_text ILIKE ?', [$termLike])
+              ->orWhereHas('user', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
           });
         });
       })
@@ -148,12 +146,12 @@ class Form621Controller extends Controller
     $lcOrInv = $request->input('lc_or_invoice_no');
     $size     = (int) $request->input('size', 10);
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->form621->query()
       ->where('client_id', $clientId)
       ->where('lc_or_invoice_no', $lcOrInv)
-      ->when($search !== '', fn($q) => $q->whereHas('item', fn($q) => $q->where('name', 'ilike', $termLike)))
+      ->when($search !== '', fn($q) => $q->whereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike])))
       ->with('item')
       ->select('item_id')
       ->groupBy('item_id')

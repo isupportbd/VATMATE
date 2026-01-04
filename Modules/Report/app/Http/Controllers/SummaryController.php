@@ -77,8 +77,7 @@ class SummaryController extends Controller
       ROUND(COALESCE(SUM(sd_value), 0), 2)      AS sd_value,
       ROUND(COALESCE(SUM(vat_value), 0), 2)     AS vat_value,
       MIN(TO_CHAR(date, 'YYYY-MM')) AS tax_period
-    ")
-      ->leftJoin('items as item', 'item_id', '=', 'item.id')
+    ")->leftJoin('items as item', 'item_id', '=', 'item.id')
       ->with(['item', 'unit'])
       ->where('client_id', $client_id)
       ->whereRaw("TO_CHAR(date, 'YYYY-MM') = ?", [$period])

@@ -23,7 +23,7 @@ class CostsheetController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $costsheet = $this->costsheet->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
@@ -106,7 +106,7 @@ class CostsheetController extends Controller
   public function costsheetDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $costsheet = $this->costsheet->query()
       ->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))

@@ -28,7 +28,7 @@ class Report68Controller extends Controller
   {
     $user   = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $client = $this->client->findOrFail($client_id);
 
@@ -43,9 +43,7 @@ class Report68Controller extends Controller
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($q) use ($termLike) {
           $q->where(DB::raw("TO_CHAR(issued_date, 'YYYY-MM')"), 'ilike', $termLike)
-            ->orWhereHas('item', function ($query) use ($termLike) {
-              $query->where('name', 'ilike', $termLike)->orWhere('hs_code', 'ilike', $termLike);
-            });
+            ->orWhereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       })->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))

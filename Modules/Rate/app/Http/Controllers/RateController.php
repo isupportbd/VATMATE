@@ -46,20 +46,14 @@ class RateController extends Controller
   {
     $user   = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->rate->with(['client', 'client.user', 'client.user.role', 'item'])
       ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($query) => $query->where('user_id', $user->id))->where('last', 1))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
-          $query->whereHas('client', function ($query) use ($termLike) {
-            $query->where('company_name', 'ilike', $termLike)
-              ->orWhere('mobile', 'ilike', $termLike)
-              ->orWhere('bin', 'ilike', $termLike);
-          })->orWhereHas('item', function ($query) use ($termLike) {
-            $query->where('name', 'ilike', $termLike)
-              ->orWhere('hs_code', 'ilike', $termLike);
-          });
+          $query->whereHas('client', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
+            ->orWhereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       })
       ->orderBy('id', 'desc')

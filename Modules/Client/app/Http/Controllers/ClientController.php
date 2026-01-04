@@ -41,7 +41,7 @@ class ClientController extends Controller
         $q->where(function ($q) use ($termLike) {
           $q->whereRaw('search_text ILIKE ?', [$termLike])
             ->orWhereHas('division', fn($q) => $q->where('name', 'ilike', $termLike))
-            ->orWhereHas('user', fn($q) => $q->where('email', 'ilike', $termLike));
+            ->orWhereHas('user', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         })->whereNotNull('user_id');
       })
       ->orderBy('id', 'desc')
@@ -230,11 +230,11 @@ class ClientController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->client->with(['division', 'user.role'])
       ->when(!$this->hasRole(['admin']), fn($q) =>  $q->where('user_id', $user->id))
-      ->when($search !== '', fn($q) => $q->where('bin', 'ilike', $termLike))
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->whereNotIn('status', ['0'])
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));
@@ -293,10 +293,10 @@ class ClientController extends Controller
   public function releaseClientDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->client->with(['division', 'user.role'])
-      ->when($search !== '', fn($q) => $q->where('bin', 'ilike', $termLike))
+      ->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
       ->where('user_id', NULL)
       ->orderBy('id', 'desc')
       ->paginate((int)request('size', 10));

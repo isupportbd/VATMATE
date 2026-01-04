@@ -75,19 +75,14 @@ class EconomicAreaController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->client
       ->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
-          $query->where('company_name', 'ilike', $termLike)
-            ->orWhere('mobile', 'ilike', $termLike)
-            ->orWhere('bin', 'ilike', $termLike)
-            ->orWhereHas('items', function ($q) use ($termLike) {
-              $q->where('name', 'ilike', $termLike)
-                ->orWhere('hs_code', 'ilike', $termLike);
-            });
+          $query->whereRaw('search_text ILIKE ?', [$termLike])
+            ->orWhereHas('items', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       });
 
@@ -152,7 +147,7 @@ class EconomicAreaController extends Controller
     $user = Auth::user();
     $clientId = $request->input('client_id');
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     if (!$clientId) {
       $empty = $this->item->whereRaw('1 = 0')->paginate((int)request('size', 10));
@@ -161,7 +156,7 @@ class EconomicAreaController extends Controller
     // parent class
     $client = $this->client->when(!$this->hasRole(['admin']), fn($q) => $q->where('user_id', $user->id))->findOrFail($clientId);
     // parent to sub class many to many relation
-    $query = $client->items()->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike));
+    $query = $client->items()->when($search !== '', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
 
     $result = $query->orderBy('id', 'desc')->paginate((int)request('size', 10));
 

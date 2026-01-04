@@ -27,16 +27,12 @@ class ReportController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $form621 = $this->form621->with(['client', 'client.division', 'client.user.role'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
-        $query->whereHas('client', function ($query) use ($termLike) {
-          $query->where('bin', 'ilike', $termLike)
-            ->orWhere('mobile', 'ilike', $termLike)
-            ->orWhere('company_name', 'ilike', $termLike);
-        });
+        $query->whereHas('client', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
       })
       ->select('client_id')
       ->groupBy(['client_id'])

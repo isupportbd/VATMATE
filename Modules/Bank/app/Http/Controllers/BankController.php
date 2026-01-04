@@ -20,7 +20,7 @@ class BankController extends Controller
   public function index(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $bank = $this->bank->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')
@@ -102,7 +102,7 @@ class BankController extends Controller
   public function bankDropdown(Request $request)
   {
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $bank = $this->bank->when($search !== '', fn($query) => $query->where('name', 'ilike', $termLike))
       ->orderBy('id', 'desc')

@@ -53,17 +53,14 @@ class PurchaseController extends Controller
   {
     $user = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $purchase = $this->purchase->with(['client', 'client.division', 'client.user', 'client.user.role', 'stationcode', 'item', 'mushaknote', 'unit'])
       ->when(!$this->hasRole(['admin']), fn($query) => $query->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
-          $query->whereHas('client', function ($query) use ($termLike) {
-            $query->where('bin', 'ilike', $termLike)
-              ->orWhere('company_name', 'ilike', $termLike)
-              ->orWhere('mobile', 'ilike', $termLike);
-          })->orWhereHas('item', fn($query) => $query->where('name', 'ilike', $termLike));
+          $query->whereHas('client', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
+            ->orWhereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       });
 

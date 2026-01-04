@@ -56,14 +56,8 @@ class DebitnoteController extends Controller
       ->when($search !== '', function ($query) use ($termLike) {
         $query->where(function ($query) use ($termLike) {
           $query->whereRaw('search_text ILIKE ?', [$termLike])
-            ->orWhereHas('client', function ($query) use ($termLike) {
-              $query->where('company_name', 'ilike', $termLike)
-                ->orWhere('mobile', 'ilike', $termLike)
-                ->orWhere('bin', 'ilike', $termLike);
-            })->orWhereHas('item', function ($query) use ($termLike) {
-              $query->where('name', 'ilike', $termLike)
-                ->orWhere('hs_code', 'ilike', $termLike);
-            });
+            ->orWhereHas('client', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]))
+            ->orWhereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       })->orderBy('id', 'desc')
       ->paginate((int)request('size', 10))

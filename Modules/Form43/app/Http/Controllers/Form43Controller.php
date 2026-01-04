@@ -40,7 +40,7 @@ class Form43Controller extends Controller
   {
     $user   = Auth::user();
     $search = trim((string) $request->input('search', ''));
-    $termLike   = $search !== '' ? "%$search%" : null;
+    $termLike = $search !== '' ? trim('%' . strtolower($search) . '%') : null;
 
     $query = $this->form43->with(['client', 'item', 'additionsum'])
       ->select('id', 'client_id', 'item_id', 'last')
@@ -49,15 +49,10 @@ class Form43Controller extends Controller
         $query->where(function ($q) use ($termLike) {
           $q->whereHas('client', function ($query) use ($termLike) {
             $query->where(function ($q) use ($termLike) {
-              $q->where('company_name', 'ilike', $termLike)
-                ->orWhere('bin', 'ilike', $termLike)
-                ->orWhere('mobile', 'ilike', $termLike)
-                ->orWhereHas('user', fn($query) => $query->where('email', 'ilike', $termLike));
+              $q->whereRaw('search_text ILIKE ?', [$termLike])
+                ->orWhereHas('user', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
             });
-          })->orWhereHas('item', function ($query) use ($termLike) {
-            $query->where('name', 'ilike', $termLike)
-              ->orWhere('hs_code', 'ilike', $termLike);
-          });
+          })->orWhereHas('item', fn($q) => $q->whereRaw('search_text ILIKE ?', [$termLike]));
         });
       })->addSelect(DB::raw("
         EXISTS (
