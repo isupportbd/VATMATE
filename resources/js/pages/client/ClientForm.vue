@@ -67,8 +67,7 @@
           </div>
         </div>
         <div class="d-flex align-items-center">
-          <Button type="submit" class="btn btn-primary me-1" label="Save" icon="bi bi-save"
-            :disabled="field.isLoading" />
+          <Button type="submit" class="btn btn-primary me-1" label="Save" icon="bi bi-save" :disabled="field.isLoading" />
           <Button type="button" class="btn btn-secondary ms-1" label="Reset" icon="bi bi-stars" @click="resetForm" />
         </div>
       </form>

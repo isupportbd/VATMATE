@@ -211,12 +211,12 @@ class CreditnoteController extends Controller
         $lastInvoice = $this->creditnote->query()
           ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
           ->where('client_id', $clientId)
-          ->whereYear('issued_date', $currentYear)
+          ->whereRaw('EXTRACT(YEAR FROM "issued_date"::date) = ?', [$currentYear])
           ->orderByDesc('id')
           ->first();
 
         if ($lastInvoice) {
-          $parts = explode('/', $lastInvoice->invoice_no);
+          $parts = explode('/', $lastInvoice->creditnote_invoice);
           $number = isset($parts[1]) ? (int) $parts[1] : 0;
           $nextInvoiceNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
           $invoice = 'CRN-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoiceNumber;

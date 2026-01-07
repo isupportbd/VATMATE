@@ -1,0 +1,9013 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict iVh33OudGfnEqgU81jhHfkOKjewyco4EDHJswGIVwHBeeejfSGtLaY6eqHqfSQc
+
+-- Dumped from database version 16.11
+-- Dumped by pg_dump version 16.11
+
+-- Started on 2026-01-04 09:38:20 UTC
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 6 (class 2615 OID 17091)
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- TOC entry 3953 (class 0 OID 0)
+-- Dependencies: 6
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS '';
+
+
+--
+-- TOC entry 2 (class 3079 OID 17092)
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- TOC entry 3954 (class 0 OID 0)
+-- Dependencies: 2
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 284 (class 1259 OID 17782)
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 285 (class 1259 OID 17785)
+-- Name: activities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.activities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3955 (class 0 OID 0)
+-- Dependencies: 285
+-- Name: activities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.activities_id_seq OWNED BY public.activities.id;
+
+
+--
+-- TOC entry 216 (class 1259 OID 17176)
+-- Name: additions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.additions (
+    id bigint NOT NULL,
+    form43_id bigint,
+    costsheet_id bigint,
+    value numeric(23,2) NOT NULL,
+    rate numeric(5,2) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 217 (class 1259 OID 17179)
+-- Name: additions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.additions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3956 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: additions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.additions_id_seq OWNED BY public.additions.id;
+
+
+--
+-- TOC entry 218 (class 1259 OID 17180)
+-- Name: adjustments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.adjustments (
+    id bigint NOT NULL,
+    client_id bigint NOT NULL,
+    expense_id bigint,
+    tax_period character varying(7) NOT NULL,
+    amount numeric(23,2) NOT NULL,
+    remarks character varying(250),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 219 (class 1259 OID 17183)
+-- Name: adjustments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.adjustments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3957 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: adjustments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.adjustments_id_seq OWNED BY public.adjustments.id;
+
+
+--
+-- TOC entry 286 (class 1259 OID 17786)
+-- Name: areas; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.areas (
+    id bigint NOT NULL,
+    commissionerate_id bigint NOT NULL,
+    division_id bigint,
+    circle_id bigint,
+    sector_id bigint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 287 (class 1259 OID 17789)
+-- Name: areas_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.areas_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3958 (class 0 OID 0)
+-- Dependencies: 287
+-- Name: areas_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.areas_id_seq OWNED BY public.areas.id;
+
+
+--
+-- TOC entry 220 (class 1259 OID 17184)
+-- Name: banks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.banks (
+    id bigint NOT NULL,
+    name character varying(200) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 221 (class 1259 OID 17187)
+-- Name: banks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.banks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3959 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: banks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.banks_id_seq OWNED BY public.banks.id;
+
+
+--
+-- TOC entry 222 (class 1259 OID 17188)
+-- Name: branches; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.branches (
+    id bigint NOT NULL,
+    division_id bigint NOT NULL,
+    bank_id bigint NOT NULL,
+    name character varying(200) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 223 (class 1259 OID 17191)
+-- Name: branches_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.branches_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3960 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: branches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.branches_id_seq OWNED BY public.branches.id;
+
+
+--
+-- TOC entry 224 (class 1259 OID 17192)
+-- Name: cache; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.cache (
+    key character varying(255) NOT NULL,
+    value text NOT NULL,
+    expiration integer NOT NULL
+);
+
+
+--
+-- TOC entry 225 (class 1259 OID 17197)
+-- Name: cache_locks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.cache_locks (
+    key character varying(255) NOT NULL,
+    owner character varying(255) NOT NULL,
+    expiration integer NOT NULL
+);
+
+
+--
+-- TOC entry 226 (class 1259 OID 17202)
+-- Name: clients; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.clients (
+    id bigint NOT NULL,
+    division_id bigint,
+    bin character varying(14) NOT NULL,
+    vat_username character varying(30) NOT NULL,
+    vat_password character varying(30) NOT NULL,
+    company_name character varying(200) NOT NULL,
+    email character varying(200) NOT NULL,
+    mobile character varying(14) NOT NULL,
+    address character varying(150),
+    name character varying(100),
+    reference character varying(100),
+    tin character varying(20),
+    circle character varying(50),
+    user_id bigint,
+    status character(1) DEFAULT '1'::bpchar NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((((((((((((COALESCE(company_name, ''::character varying))::text || ' '::text) || (COALESCE(name, ''::character varying))::text) || ' '::text) || (COALESCE(bin, ''::character varying))::text) || ' '::text) || (COALESCE(tin, ''::character varying))::text) || ' '::text) || (COALESCE(mobile, ''::character varying))::text) || ' '::text) || (COALESCE(email, ''::character varying))::text) || ' '::text) || (COALESCE(reference, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 3961 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: COLUMN clients.status; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.clients.status IS 'inactive: 0, active: 1';
+
+
+--
+-- TOC entry 227 (class 1259 OID 17209)
+-- Name: clients_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.clients_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3962 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: clients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.clients_id_seq OWNED BY public.clients.id;
+
+
+--
+-- TOC entry 228 (class 1259 OID 17210)
+-- Name: costsheets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.costsheets (
+    id bigint NOT NULL,
+    name character varying(200) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 229 (class 1259 OID 17213)
+-- Name: costsheets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.costsheets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3963 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: costsheets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.costsheets_id_seq OWNED BY public.costsheets.id;
+
+
+--
+-- TOC entry 230 (class 1259 OID 17214)
+-- Name: creditnotes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.creditnotes (
+    id bigint NOT NULL,
+    creditnote_invoice character varying(20) NOT NULL,
+    lc_or_invoice_no character varying(20) NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    unit_id bigint,
+    issued_date date NOT NULL,
+    opening_stock numeric(23,2) NOT NULL,
+    stock numeric(23,2) NOT NULL,
+    vat_challan_date date NOT NULL,
+    reason_for_issuance character varying(250) NOT NULL,
+    rate_in_challan numeric(23,2) NOT NULL,
+    value_in_challan numeric(23,2) NOT NULL,
+    quantity_in_challan numeric(23,2) NOT NULL,
+    vat_in_challan numeric(23,2) NOT NULL,
+    sd_in_challan numeric(23,2) NOT NULL,
+    value_of_decreasing_adjustment numeric(23,2) NOT NULL,
+    quantity_of_decreasing_adjustment numeric(23,2) NOT NULL,
+    vat_of_decreasing_adjustment numeric(23,2) NOT NULL,
+    sd_of_decreasing_adjustment numeric(23,2) NOT NULL,
+    remarks character varying(250),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 231 (class 1259 OID 17219)
+-- Name: creditnotes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.creditnotes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3964 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: creditnotes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.creditnotes_id_seq OWNED BY public.creditnotes.id;
+
+
+--
+-- TOC entry 232 (class 1259 OID 17220)
+-- Name: customer_management; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.customer_management (
+    id bigint NOT NULL,
+    mobile character varying(11) NOT NULL,
+    customer_name character varying(100) NOT NULL,
+    bin_or_nid character varying(17),
+    address character varying(150),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((((COALESCE(customer_name, ''::character varying))::text || ' '::text) || (COALESCE(mobile, ''::character varying))::text) || ' '::text) || (COALESCE(bin_or_nid, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 233 (class 1259 OID 17226)
+-- Name: customer_management_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.customer_management_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3965 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: customer_management_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.customer_management_id_seq OWNED BY public.customer_management.id;
+
+
+--
+-- TOC entry 234 (class 1259 OID 17227)
+-- Name: debitnotes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.debitnotes (
+    id bigint NOT NULL,
+    debitnote_invoice character varying(20) NOT NULL,
+    lc_or_invoice_no character varying(20) NOT NULL,
+    boe character varying(10) NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    unit_id bigint,
+    issued_date date NOT NULL,
+    opening_stock numeric(23,2) NOT NULL,
+    stock numeric(23,2) NOT NULL,
+    vat_challan_date date NOT NULL,
+    reason_for_issuance character varying(250) NOT NULL,
+    rate_in_challan numeric(23,2) NOT NULL,
+    value_in_challan numeric(23,2) NOT NULL,
+    quantity_in_challan numeric(23,2) NOT NULL,
+    vat_in_challan numeric(23,2) NOT NULL,
+    sd_in_challan numeric(23,2) NOT NULL,
+    value_of_increasing_adjustment numeric(23,2) NOT NULL,
+    quantity_of_increasing_adjustment numeric(23,2) NOT NULL,
+    vat_of_increasing_adjustment numeric(23,2) NOT NULL,
+    sd_of_increasing_adjustment numeric(23,2) NOT NULL,
+    remarks character varying(250),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((COALESCE(lc_or_invoice_no, ''::character varying))::text || ' '::text) || (COALESCE(boe, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 235 (class 1259 OID 17233)
+-- Name: debitnotes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.debitnotes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3966 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: debitnotes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.debitnotes_id_seq OWNED BY public.debitnotes.id;
+
+
+--
+-- TOC entry 236 (class 1259 OID 17234)
+-- Name: divisions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.divisions (
+    id bigint NOT NULL,
+    name character varying(50) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 237 (class 1259 OID 17237)
+-- Name: divisions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.divisions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3967 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: divisions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.divisions_id_seq OWNED BY public.divisions.id;
+
+
+--
+-- TOC entry 238 (class 1259 OID 17238)
+-- Name: economic_areas; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.economic_areas (
+    client_id bigint NOT NULL,
+    item_id bigint NOT NULL
+);
+
+
+--
+-- TOC entry 239 (class 1259 OID 17241)
+-- Name: expenses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.expenses (
+    id bigint NOT NULL,
+    name character varying(30) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 240 (class 1259 OID 17244)
+-- Name: expenses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.expenses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3968 (class 0 OID 0)
+-- Dependencies: 240
+-- Name: expenses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.expenses_id_seq OWNED BY public.expenses.id;
+
+
+--
+-- TOC entry 241 (class 1259 OID 17245)
+-- Name: failed_jobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.failed_jobs (
+    id bigint NOT NULL,
+    uuid character varying(255) NOT NULL,
+    connection text NOT NULL,
+    queue text NOT NULL,
+    payload jsonb NOT NULL,
+    exception text NOT NULL,
+    failed_at timestamp(0) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- TOC entry 242 (class 1259 OID 17251)
+-- Name: failed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.failed_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3969 (class 0 OID 0)
+-- Dependencies: 242
+-- Name: failed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.failed_jobs_id_seq OWNED BY public.failed_jobs.id;
+
+
+--
+-- TOC entry 243 (class 1259 OID 17252)
+-- Name: form43s; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.form43s (
+    id bigint NOT NULL,
+    lc_no character varying(20),
+    client_id bigint NOT NULL,
+    item_id bigint,
+    purchase_unit_id bigint,
+    sale_unit_id bigint,
+    factor numeric(10,2) NOT NULL,
+    item_code character varying(10),
+    submission_date date NOT NULL,
+    first_delivery_date date,
+    boe_date date NOT NULL,
+    boe_no character varying(20) NOT NULL,
+    mcu numeric(10,2) NOT NULL,
+    quantity numeric(23,2) NOT NULL,
+    wastage numeric(5,2) NOT NULL,
+    excess_quantity numeric(23,2) NOT NULL,
+    purchase_unit_total numeric(23,2) NOT NULL,
+    sale_unit_total numeric(23,2) NOT NULL,
+    base_value numeric(23,2) NOT NULL,
+    unit_price numeric(23,2) NOT NULL,
+    last smallint DEFAULT '1'::smallint NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 244 (class 1259 OID 17256)
+-- Name: form43s_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.form43s_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3970 (class 0 OID 0)
+-- Dependencies: 244
+-- Name: form43s_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.form43s_id_seq OWNED BY public.form43s.id;
+
+
+--
+-- TOC entry 245 (class 1259 OID 17257)
+-- Name: form44s; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.form44s (
+    id bigint NOT NULL,
+    form44_invoice character varying(20) NOT NULL,
+    lc_or_invoice_no character varying(20) NOT NULL,
+    boe character varying(10) NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    unit_id bigint,
+    form621_id bigint,
+    date date NOT NULL,
+    opening_stock numeric(23,2) NOT NULL,
+    stock numeric(23,2) NOT NULL,
+    quantity numeric(23,2) NOT NULL,
+    value numeric(23,2) NOT NULL,
+    vat numeric(23,2) NOT NULL,
+    proposed_value numeric(23,2) NOT NULL,
+    increasing_adjustment_vat numeric(23,2) NOT NULL,
+    net_increase numeric(23,2) NOT NULL,
+    reason_ineligibility character varying(150),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((COALESCE(boe, ''::character varying))::text || ' '::text) || (COALESCE(lc_or_invoice_no, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 246 (class 1259 OID 17263)
+-- Name: form44s_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.form44s_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3971 (class 0 OID 0)
+-- Dependencies: 246
+-- Name: form44s_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.form44s_id_seq OWNED BY public.form44s.id;
+
+
+--
+-- TOC entry 247 (class 1259 OID 17264)
+-- Name: form45s; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.form45s (
+    id bigint NOT NULL,
+    form45_invoice character varying(20) NOT NULL,
+    lc_or_invoice_no character varying(20) NOT NULL,
+    boe character varying(10) NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    unit_id bigint,
+    form621_id bigint,
+    date date NOT NULL,
+    opening_stock numeric(23,2) NOT NULL,
+    stock numeric(23,2) NOT NULL,
+    quantity numeric(23,2) NOT NULL,
+    value numeric(23,2) NOT NULL,
+    vat numeric(23,2) NOT NULL,
+    proposed_value numeric(23,2) NOT NULL,
+    increasing_adjustment_vat numeric(23,2) NOT NULL,
+    net_increase numeric(23,2) NOT NULL,
+    reason_ineligibility character varying(150),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((COALESCE(boe, ''::character varying))::text || ' '::text) || (COALESCE(lc_or_invoice_no, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 248 (class 1259 OID 17270)
+-- Name: form45s_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.form45s_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3972 (class 0 OID 0)
+-- Dependencies: 248
+-- Name: form45s_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.form45s_id_seq OWNED BY public.form45s.id;
+
+
+--
+-- TOC entry 249 (class 1259 OID 17271)
+-- Name: form621s; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.form621s (
+    id bigint NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    form43_id bigint,
+    lc_or_invoice_no character varying(50) NOT NULL,
+    boe character varying(10),
+    quantity numeric(23,3) NOT NULL,
+    opening_stock numeric(23,3) NOT NULL,
+    stock numeric(23,3) NOT NULL,
+    date date NOT NULL,
+    importable_id bigint NOT NULL,
+    importable_type character varying(255) NOT NULL,
+    unit_id bigint,
+    last smallint DEFAULT '1'::smallint NOT NULL,
+    userid bigint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((COALESCE(lc_or_invoice_no, ''::character varying))::text || ' '::text) || (COALESCE(boe, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 250 (class 1259 OID 17278)
+-- Name: form621s_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.form621s_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3973 (class 0 OID 0)
+-- Dependencies: 250
+-- Name: form621s_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.form621s_id_seq OWNED BY public.form621s.id;
+
+
+--
+-- TOC entry 251 (class 1259 OID 17279)
+-- Name: items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.items (
+    id bigint NOT NULL,
+    name character varying(250) NOT NULL,
+    hs_code character varying(10) NOT NULL,
+    description character varying(250),
+    cd numeric(10,2) NOT NULL,
+    rd numeric(10,2) NOT NULL,
+    sd numeric(10,2) NOT NULL,
+    vat numeric(10,2) NOT NULL,
+    at numeric(10,2) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((COALESCE(name, ''::character varying))::text || ' '::text) || (COALESCE(hs_code, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 252 (class 1259 OID 17285)
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3974 (class 0 OID 0)
+-- Dependencies: 252
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
+
+
+--
+-- TOC entry 253 (class 1259 OID 17286)
+-- Name: job_batches; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.job_batches (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    total_jobs integer NOT NULL,
+    pending_jobs integer NOT NULL,
+    failed_jobs integer NOT NULL,
+    failed_job_ids jsonb NOT NULL,
+    options jsonb,
+    cancelled_at integer,
+    created_at integer NOT NULL,
+    finished_at integer
+);
+
+
+--
+-- TOC entry 254 (class 1259 OID 17291)
+-- Name: jobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.jobs (
+    id bigint NOT NULL,
+    queue character varying(255) NOT NULL,
+    payload jsonb NOT NULL,
+    attempts smallint NOT NULL,
+    reserved_at integer,
+    available_at integer NOT NULL,
+    created_at integer NOT NULL
+);
+
+
+--
+-- TOC entry 255 (class 1259 OID 17296)
+-- Name: jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3975 (class 0 OID 0)
+-- Dependencies: 255
+-- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.jobs_id_seq OWNED BY public.jobs.id;
+
+
+--
+-- TOC entry 256 (class 1259 OID 17297)
+-- Name: migrations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.migrations (
+    id integer NOT NULL,
+    migration character varying(255) NOT NULL,
+    batch integer NOT NULL
+);
+
+
+--
+-- TOC entry 257 (class 1259 OID 17300)
+-- Name: migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.migrations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3976 (class 0 OID 0)
+-- Dependencies: 257
+-- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
+
+
+--
+-- TOC entry 258 (class 1259 OID 17301)
+-- Name: mushaknotes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.mushaknotes (
+    id bigint NOT NULL,
+    name_note_no character varying(20) NOT NULL,
+    percent numeric(5,2) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 259 (class 1259 OID 17304)
+-- Name: mushaknotes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.mushaknotes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3977 (class 0 OID 0)
+-- Dependencies: 259
+-- Name: mushaknotes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.mushaknotes_id_seq OWNED BY public.mushaknotes.id;
+
+
+--
+-- TOC entry 260 (class 1259 OID 17305)
+-- Name: password_reset_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.password_reset_tokens (
+    email character varying(255) NOT NULL,
+    token character varying(255) NOT NULL,
+    created_at timestamp(0) with time zone
+);
+
+
+--
+-- TOC entry 261 (class 1259 OID 17310)
+-- Name: personal_access_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.personal_access_tokens (
+    id bigint NOT NULL,
+    tokenable_type character varying(255) NOT NULL,
+    tokenable_id bigint NOT NULL,
+    name text NOT NULL,
+    token character varying(64) NOT NULL,
+    abilities jsonb,
+    last_used_at timestamp(0) with time zone,
+    expires_at timestamp(0) with time zone,
+    created_at timestamp(0) with time zone,
+    updated_at timestamp(0) with time zone
+);
+
+
+--
+-- TOC entry 262 (class 1259 OID 17315)
+-- Name: personal_access_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.personal_access_tokens_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3978 (class 0 OID 0)
+-- Dependencies: 262
+-- Name: personal_access_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.personal_access_tokens_id_seq OWNED BY public.personal_access_tokens.id;
+
+
+--
+-- TOC entry 263 (class 1259 OID 17316)
+-- Name: purchases; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.purchases (
+    id bigint NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    unit_id bigint,
+    stationcode_id bigint,
+    mushaknote_id bigint,
+    lc_no character varying(20) NOT NULL,
+    lc_date date,
+    boe character varying(10) NOT NULL,
+    boe_date date NOT NULL,
+    entry_date date NOT NULL,
+    df_cvat_cf numeric(23,2) NOT NULL,
+    assessable_value numeric(23,2) NOT NULL,
+    factor numeric(10,2) NOT NULL,
+    opening_stock numeric(23,3) NOT NULL,
+    stock numeric(23,3) NOT NULL,
+    quantity numeric(23,2) NOT NULL,
+    excess_quantity numeric(23,2) NOT NULL,
+    wastage numeric(5,2) NOT NULL,
+    total_quantity numeric(23,2) NOT NULL,
+    base_value numeric(23,2) NOT NULL,
+    unit_price numeric(23,2) NOT NULL,
+    cd numeric(5,2) NOT NULL,
+    cd_value numeric(23,2) NOT NULL,
+    rd numeric(5,2) NOT NULL,
+    rd_value numeric(23,2) NOT NULL,
+    sd numeric(5,2) NOT NULL,
+    sd_value numeric(23,2) NOT NULL,
+    vat numeric(5,2) NOT NULL,
+    vat_value numeric(23,2) NOT NULL,
+    at numeric(5,2) NOT NULL,
+    at_value numeric(23,2) NOT NULL,
+    mcu numeric(20,6),
+    mcu_amount numeric(23,2),
+    receipt_number character varying(20),
+    receipt_date date,
+    exporter_name character varying(100),
+    address character varying(100),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((COALESCE(boe, ''::character varying))::text || ' '::text) || (COALESCE(lc_no, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 264 (class 1259 OID 17322)
+-- Name: purchases_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.purchases_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3979 (class 0 OID 0)
+-- Dependencies: 264
+-- Name: purchases_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.purchases_id_seq OWNED BY public.purchases.id;
+
+
+--
+-- TOC entry 265 (class 1259 OID 17323)
+-- Name: rates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.rates (
+    id bigint NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    date date NOT NULL,
+    unit_price numeric(23,2) NOT NULL,
+    sd numeric(5,2) NOT NULL,
+    vat numeric(5,2) NOT NULL,
+    last smallint DEFAULT '1'::smallint NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 266 (class 1259 OID 17327)
+-- Name: rates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.rates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3980 (class 0 OID 0)
+-- Dependencies: 266
+-- Name: rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.rates_id_seq OWNED BY public.rates.id;
+
+
+--
+-- TOC entry 267 (class 1259 OID 17328)
+-- Name: reports; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.reports (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    path character varying(255) NOT NULL,
+    size bigint NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 268 (class 1259 OID 17333)
+-- Name: reports_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.reports_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3981 (class 0 OID 0)
+-- Dependencies: 268
+-- Name: reports_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.reports_id_seq OWNED BY public.reports.id;
+
+
+--
+-- TOC entry 269 (class 1259 OID 17334)
+-- Name: roles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.roles (
+    id bigint NOT NULL,
+    name character varying(20) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 270 (class 1259 OID 17337)
+-- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.roles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3982 (class 0 OID 0)
+-- Dependencies: 270
+-- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
+
+
+--
+-- TOC entry 271 (class 1259 OID 17338)
+-- Name: sales; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sales (
+    id bigint NOT NULL,
+    client_id bigint NOT NULL,
+    item_id bigint,
+    unit_id bigint,
+    invoice_no character varying(20) NOT NULL,
+    bank_id bigint,
+    date date NOT NULL,
+    transaction_no character varying(100),
+    transaction_date date,
+    opening_stock numeric(23,2) NOT NULL,
+    stock numeric(23,2) NOT NULL,
+    quantity numeric(23,2) NOT NULL,
+    last_purchase_unit_price numeric(23,2) NOT NULL,
+    unit_price numeric(23,2) NOT NULL,
+    item_price numeric(23,2) NOT NULL,
+    total_price numeric(23,2) NOT NULL,
+    sd numeric(5,2) NOT NULL,
+    sd_value numeric(23,2) NOT NULL,
+    vat numeric(5,2) NOT NULL,
+    vat_value numeric(23,2) NOT NULL,
+    customer_mobile character varying(11),
+    customer_name character varying(100),
+    bin_or_nid character varying(17),
+    address character varying(150),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 272 (class 1259 OID 17341)
+-- Name: sales_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sales_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3983 (class 0 OID 0)
+-- Dependencies: 272
+-- Name: sales_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sales_id_seq OWNED BY public.sales.id;
+
+
+--
+-- TOC entry 273 (class 1259 OID 17342)
+-- Name: sessions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sessions (
+    id character varying(255) NOT NULL,
+    user_id bigint,
+    ip_address character varying(45),
+    user_agent text,
+    payload text NOT NULL,
+    last_activity integer NOT NULL
+);
+
+
+--
+-- TOC entry 274 (class 1259 OID 17347)
+-- Name: stationcodes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stationcodes (
+    id bigint NOT NULL,
+    code character varying(10) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 275 (class 1259 OID 17350)
+-- Name: stationcodes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.stationcodes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3984 (class 0 OID 0)
+-- Dependencies: 275
+-- Name: stationcodes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.stationcodes_id_seq OWNED BY public.stationcodes.id;
+
+
+--
+-- TOC entry 276 (class 1259 OID 17351)
+-- Name: treasuries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.treasuries (
+    id bigint NOT NULL,
+    client_id bigint NOT NULL,
+    branch_id bigint,
+    tax_period character varying(7) NOT NULL,
+    challan_no character varying(16) NOT NULL,
+    amount numeric(23,2) NOT NULL,
+    remarks character varying(250),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 277 (class 1259 OID 17354)
+-- Name: treasuries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.treasuries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3985 (class 0 OID 0)
+-- Dependencies: 277
+-- Name: treasuries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.treasuries_id_seq OWNED BY public.treasuries.id;
+
+
+--
+-- TOC entry 278 (class 1259 OID 17355)
+-- Name: units; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.units (
+    id bigint NOT NULL,
+    name character varying(50) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 279 (class 1259 OID 17358)
+-- Name: units_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.units_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3986 (class 0 OID 0)
+-- Dependencies: 279
+-- Name: units_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.units_id_seq OWNED BY public.units.id;
+
+
+--
+-- TOC entry 280 (class 1259 OID 17359)
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id bigint NOT NULL,
+    name character varying(100),
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    forget_password character varying(255),
+    mobile character varying(14),
+    status character(1) DEFAULT '1'::bpchar NOT NULL,
+    role_id bigint,
+    remember_token character varying(100),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    search_text text GENERATED ALWAYS AS (lower(TRIM(BOTH FROM (((((COALESCE(name, ''::character varying))::text || ' '::text) || (COALESCE(mobile, ''::character varying))::text) || ' '::text) || (COALESCE(email, ''::character varying))::text)))) STORED
+);
+
+
+--
+-- TOC entry 3987 (class 0 OID 0)
+-- Dependencies: 280
+-- Name: COLUMN users.status; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.users.status IS 'inactive: 0, active: 1';
+
+
+--
+-- TOC entry 281 (class 1259 OID 17366)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3988 (class 0 OID 0)
+-- Dependencies: 281
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- TOC entry 282 (class 1259 OID 17367)
+-- Name: vatfactors; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.vatfactors (
+    id bigint NOT NULL,
+    name character varying(20) NOT NULL,
+    value numeric(23,2) NOT NULL,
+    description character varying(150),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- TOC entry 283 (class 1259 OID 17370)
+-- Name: vatfactors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.vatfactors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3989 (class 0 OID 0)
+-- Dependencies: 283
+-- Name: vatfactors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.vatfactors_id_seq OWNED BY public.vatfactors.id;
+
+
+--
+-- TOC entry 3497 (class 2604 OID 17371)
+-- Name: additions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.additions ALTER COLUMN id SET DEFAULT nextval('public.additions_id_seq'::regclass);
+
+
+--
+-- TOC entry 3498 (class 2604 OID 17372)
+-- Name: adjustments id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.adjustments ALTER COLUMN id SET DEFAULT nextval('public.adjustments_id_seq'::regclass);
+
+
+--
+-- TOC entry 3499 (class 2604 OID 17373)
+-- Name: banks id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.banks ALTER COLUMN id SET DEFAULT nextval('public.banks_id_seq'::regclass);
+
+
+--
+-- TOC entry 3500 (class 2604 OID 17374)
+-- Name: branches id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches ALTER COLUMN id SET DEFAULT nextval('public.branches_id_seq'::regclass);
+
+
+--
+-- TOC entry 3501 (class 2604 OID 17375)
+-- Name: clients id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clients ALTER COLUMN id SET DEFAULT nextval('public.clients_id_seq'::regclass);
+
+
+--
+-- TOC entry 3504 (class 2604 OID 17376)
+-- Name: costsheets id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.costsheets ALTER COLUMN id SET DEFAULT nextval('public.costsheets_id_seq'::regclass);
+
+
+--
+-- TOC entry 3505 (class 2604 OID 17377)
+-- Name: creditnotes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.creditnotes ALTER COLUMN id SET DEFAULT nextval('public.creditnotes_id_seq'::regclass);
+
+
+--
+-- TOC entry 3506 (class 2604 OID 17378)
+-- Name: customer_management id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customer_management ALTER COLUMN id SET DEFAULT nextval('public.customer_management_id_seq'::regclass);
+
+
+--
+-- TOC entry 3508 (class 2604 OID 17379)
+-- Name: debitnotes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.debitnotes ALTER COLUMN id SET DEFAULT nextval('public.debitnotes_id_seq'::regclass);
+
+
+--
+-- TOC entry 3510 (class 2604 OID 17380)
+-- Name: divisions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.divisions ALTER COLUMN id SET DEFAULT nextval('public.divisions_id_seq'::regclass);
+
+
+--
+-- TOC entry 3511 (class 2604 OID 17381)
+-- Name: expenses id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.expenses ALTER COLUMN id SET DEFAULT nextval('public.expenses_id_seq'::regclass);
+
+
+--
+-- TOC entry 3512 (class 2604 OID 17382)
+-- Name: failed_jobs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.failed_jobs ALTER COLUMN id SET DEFAULT nextval('public.failed_jobs_id_seq'::regclass);
+
+
+--
+-- TOC entry 3514 (class 2604 OID 17383)
+-- Name: form43s id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form43s ALTER COLUMN id SET DEFAULT nextval('public.form43s_id_seq'::regclass);
+
+
+--
+-- TOC entry 3516 (class 2604 OID 17384)
+-- Name: form44s id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form44s ALTER COLUMN id SET DEFAULT nextval('public.form44s_id_seq'::regclass);
+
+
+--
+-- TOC entry 3518 (class 2604 OID 17385)
+-- Name: form45s id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form45s ALTER COLUMN id SET DEFAULT nextval('public.form45s_id_seq'::regclass);
+
+
+--
+-- TOC entry 3520 (class 2604 OID 17386)
+-- Name: form621s id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s ALTER COLUMN id SET DEFAULT nextval('public.form621s_id_seq'::regclass);
+
+
+--
+-- TOC entry 3523 (class 2604 OID 17387)
+-- Name: items id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.items ALTER COLUMN id SET DEFAULT nextval('public.items_id_seq'::regclass);
+
+
+--
+-- TOC entry 3525 (class 2604 OID 17388)
+-- Name: jobs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.jobs ALTER COLUMN id SET DEFAULT nextval('public.jobs_id_seq'::regclass);
+
+
+--
+-- TOC entry 3526 (class 2604 OID 17389)
+-- Name: migrations id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.migrations_id_seq'::regclass);
+
+
+--
+-- TOC entry 3527 (class 2604 OID 17390)
+-- Name: mushaknotes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mushaknotes ALTER COLUMN id SET DEFAULT nextval('public.mushaknotes_id_seq'::regclass);
+
+
+--
+-- TOC entry 3528 (class 2604 OID 17391)
+-- Name: personal_access_tokens id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.personal_access_tokens ALTER COLUMN id SET DEFAULT nextval('public.personal_access_tokens_id_seq'::regclass);
+
+
+--
+-- TOC entry 3529 (class 2604 OID 17392)
+-- Name: purchases id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases ALTER COLUMN id SET DEFAULT nextval('public.purchases_id_seq'::regclass);
+
+
+--
+-- TOC entry 3531 (class 2604 OID 17393)
+-- Name: rates id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rates ALTER COLUMN id SET DEFAULT nextval('public.rates_id_seq'::regclass);
+
+
+--
+-- TOC entry 3533 (class 2604 OID 17394)
+-- Name: reports id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports ALTER COLUMN id SET DEFAULT nextval('public.reports_id_seq'::regclass);
+
+
+--
+-- TOC entry 3534 (class 2604 OID 17395)
+-- Name: roles id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
+
+
+--
+-- TOC entry 3535 (class 2604 OID 17396)
+-- Name: sales id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sales ALTER COLUMN id SET DEFAULT nextval('public.sales_id_seq'::regclass);
+
+
+--
+-- TOC entry 3536 (class 2604 OID 17397)
+-- Name: stationcodes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stationcodes ALTER COLUMN id SET DEFAULT nextval('public.stationcodes_id_seq'::regclass);
+
+
+--
+-- TOC entry 3537 (class 2604 OID 17398)
+-- Name: treasuries id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.treasuries ALTER COLUMN id SET DEFAULT nextval('public.treasuries_id_seq'::regclass);
+
+
+--
+-- TOC entry 3538 (class 2604 OID 17399)
+-- Name: units id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.units ALTER COLUMN id SET DEFAULT nextval('public.units_id_seq'::regclass);
+
+
+--
+-- TOC entry 3539 (class 2604 OID 17400)
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- TOC entry 3542 (class 2604 OID 17401)
+-- Name: vatfactors id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.vatfactors ALTER COLUMN id SET DEFAULT nextval('public.vatfactors_id_seq'::regclass);
+
+
+--
+-- TOC entry 3944 (class 0 OID 17782)
+-- Dependencies: 284
+-- Data for Name: activities; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.activities (id, name, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3876 (class 0 OID 17176)
+-- Dependencies: 216
+-- Data for Name: additions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.additions (id, form43_id, costsheet_id, value, rate, created_at, updated_at) FROM stdin;
+2	1	13	733.00	40.00	2025-12-08 08:28:47	2025-12-08 08:28:47
+15	2	13	847.00	45.99	2025-12-08 23:10:48	2025-12-08 23:35:30
+22	3	7	645.00	35.00	2025-12-09 00:06:31	2025-12-09 00:25:33
+27	4	13	840.00	45.83	2025-12-09 04:18:38	2025-12-09 04:18:54
+29	5	13	845.95	46.00	2025-12-09 18:40:43	2025-12-09 18:40:43
+30	7	13	843.00	46.00	2025-12-10 03:31:51	2025-12-10 03:42:39
+31	8	13	645.22	35.00	2025-12-10 17:37:29	2025-12-10 17:37:29
+32	9	13	842.00	45.94	2025-12-11 18:29:23	2025-12-11 18:29:23
+33	10	13	860.00	46.02	2025-12-12 06:13:49	2025-12-12 06:13:49
+34	11	13	842.00	45.94	2025-12-12 12:22:05	2025-12-12 12:22:05
+35	12	13	842.00	45.94	2025-12-13 20:24:18	2025-12-13 20:24:18
+36	13	13	842.00	45.94	2025-12-14 01:28:35	2025-12-14 01:28:35
+37	14	13	736.00	39.96	2025-12-18 23:43:07	2025-12-18 23:43:07
+38	15	13	845.95	46.00	2025-12-22 18:36:53	2025-12-22 18:36:53
+39	16	13	846.00	46.00	2025-12-24 17:54:55	2025-12-24 17:54:55
+40	17	13	645.32	35.00	2025-12-24 21:44:51	2025-12-24 21:44:51
+41	18	13	631.76	34.27	2025-12-30 11:59:14	2025-12-30 16:13:45
+\.
+
+
+--
+-- TOC entry 3878 (class 0 OID 17180)
+-- Dependencies: 218
+-- Data for Name: adjustments; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.adjustments (id, client_id, expense_id, tax_period, amount, remarks, created_at, updated_at) FROM stdin;
+1	2	4	2025-10	-62084.22	\N	2025-12-08 09:00:48	2025-12-10 21:34:31
+2	2	2	2025-11	178368.00	Final Settlement	2025-12-08 17:22:46	2025-12-08 17:22:46
+3	2	1	2025-11	116283.67	Final Settlement	2025-12-08 17:23:39	2025-12-08 17:23:39
+4	1	4	2025-09	4782.18	\N	2025-12-09 00:44:46	2025-12-09 04:30:02
+5	1	4	2025-10	22544.16	\N	2025-12-09 01:14:05	2025-12-09 23:14:33
+6	3	4	2025-12	-21096.02	\N	2025-12-09 03:57:51	2025-12-09 03:57:51
+8	1	4	2025-11	-25291.84	\N	2025-12-09 18:46:20	2025-12-10 02:15:34
+9	1	2	2025-11	280429.17	FINAL SETTLEMENT	2025-12-09 20:58:03	2025-12-09 20:58:03
+10	1	1	2025-11	192432.20	FINAL SETTLEMENT AT	2025-12-09 20:59:23	2025-12-09 20:59:23
+11	1	1	2025-11	47836.00	ARREAR VAT	2025-12-09 21:01:28	2025-12-09 21:01:28
+13	4	4	2025-10	0.89	\N	2025-12-09 23:09:00	2025-12-10 01:33:22
+14	4	4	2025-09	0.89	\N	2025-12-09 23:13:02	2025-12-09 23:13:02
+16	4	2	2025-10	236248.26	\N	2025-12-10 01:32:59	2025-12-10 01:32:59
+17	4	4	2025-11	-102267.90	\N	2025-12-10 02:15:11	2025-12-10 14:55:44
+18	4	4	2025-12	503.29	\N	2025-12-10 02:30:31	2025-12-10 02:30:31
+19	3	4	2025-10	664.18	\N	2025-12-10 03:01:50	2025-12-10 22:22:04
+20	7	4	2025-08	42141.46	\N	2025-12-10 17:47:44	2025-12-10 18:22:57
+21	7	4	2025-09	118648.56	\N	2025-12-10 19:26:07	2025-12-10 22:27:35
+22	5	4	2025-10	-226953.25	\N	2025-12-10 20:49:19	2025-12-11 06:40:42
+23	2	4	2025-09	0.11	\N	2025-12-10 21:34:14	2025-12-10 21:34:28
+24	2	4	2025-11	-3244.51	\N	2025-12-10 21:38:05	2025-12-10 21:38:05
+25	3	4	2025-11	664.18	\N	2025-12-10 21:53:38	2025-12-10 22:23:19
+26	3	4	2025-09	664.18	\N	2025-12-10 21:56:11	2025-12-10 21:56:11
+28	3	2	2025-10	69165.00	Final Sattlement VAT	2025-12-10 22:20:29	2025-12-10 22:21:59
+29	3	1	2025-10	48068.98	Final Sattlement AT	2025-12-10 22:20:52	2025-12-10 22:22:03
+30	3	2	2025-11	169335.00	Final Sattlement VAT	2025-12-10 22:22:57	2025-12-10 22:22:57
+31	3	1	2025-11	117510.14	Final Sattlement AT	2025-12-10 22:23:17	2025-12-10 22:23:17
+32	5	4	2025-11	-316951.12	\N	2025-12-11 06:51:00	2025-12-11 07:28:22
+33	6	4	2025-10	-214237.32	\N	2025-12-11 22:02:30	2025-12-12 04:36:08
+34	6	4	2025-11	-224072.83	\N	2025-12-12 04:39:36	2025-12-12 04:39:36
+35	10	4	2025-10	-831110.02	\N	2025-12-12 07:48:35	2025-12-12 12:54:23
+36	10	4	2025-11	-1053431.62	\N	2025-12-12 13:04:49	2025-12-13 20:20:14
+37	9	4	2025-10	-79157.27	\N	2025-12-14 00:05:36	2025-12-14 01:07:46
+38	9	4	2025-11	-99319.63	\N	2025-12-14 01:18:13	2025-12-14 01:18:13
+39	8	4	2025-10	-211906.05	\N	2025-12-14 02:44:46	2025-12-14 05:04:05
+40	8	4	2025-11	-282453.93	\N	2025-12-14 06:01:55	2025-12-14 06:21:32
+41	11	4	2025-10	13440.14	\N	2025-12-22 18:25:54	2025-12-22 18:25:54
+42	11	4	2025-11	-81603.72	\N	2025-12-22 18:40:48	2025-12-22 21:33:06
+43	7	4	2025-10	228571.66	\N	2025-12-24 17:05:08	2025-12-24 17:05:08
+44	7	4	2025-11	22111.21	\N	2025-12-24 17:58:05	2025-12-24 20:13:09
+45	12	4	2025-08	34507.12	\N	2025-12-28 13:26:33	2025-12-28 13:26:33
+46	12	4	2025-09	142327.65	\N	2025-12-30 13:35:25	2025-12-30 16:55:53
+\.
+
+
+--
+-- TOC entry 3946 (class 0 OID 17786)
+-- Dependencies: 286
+-- Data for Name: areas; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.areas (id, commissionerate_id, division_id, circle_id, sector_id, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3880 (class 0 OID 17184)
+-- Dependencies: 220
+-- Data for Name: banks; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.banks (id, name, created_at, updated_at) FROM stdin;
+1	Bangladesh Bank	2025-12-03 06:17:28	\N
+2	Sonali Bank	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3882 (class 0 OID 17188)
+-- Dependencies: 222
+-- Data for Name: branches; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.branches (id, division_id, bank_id, name, created_at, updated_at) FROM stdin;
+1	1	2	Sylhet Corporate	2025-12-03 06:17:28	\N
+2	1	2	Dargahgate Corporate	2025-12-03 06:17:28	\N
+3	1	2	Sylhet City Corporation	2025-12-03 06:17:28	\N
+4	1	2	Court Building	2025-12-03 06:17:28	\N
+5	1	2	Mohajonpatty	2025-12-03 06:17:28	\N
+6	1	1	Sylhet Pad	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3884 (class 0 OID 17192)
+-- Dependencies: 224
+-- Data for Name: cache; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.cache (key, value, expiration) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3885 (class 0 OID 17197)
+-- Dependencies: 225
+-- Data for Name: cache_locks; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.cache_locks (key, owner, expiration) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3886 (class 0 OID 17202)
+-- Dependencies: 226
+-- Data for Name: clients; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.clients (id, division_id, bin, vat_username, vat_password, company_name, email, mobile, address, name, reference, tin, circle, user_id, status, created_at, updated_at) FROM stdin;
+1	1	000172511-0701	01718504928	123	M/S. SNIGDHO CERTITUDE	mohanondavalley.cf@gmail.com	01718504928	209, Rangmahal Tower (1st Floor), Bandar Bazar, Sylhet-3100; Sylhet Sadar PS; Sylhet-3100; Bangladesh	MD MIJANUR RAHMAN SOHEL	Probash	\N	\N	3	1	2025-12-07 22:29:52	2025-12-07 22:29:52
+2	1	002401378-0701	01700502090	F3!YNSCW1	M/S BANGLA  TRADE	tapan1972bt@gmail.com	01700502090	DHUPADIGIR UTTARPAR, SYLHET	TAPAN PAUL CHOWDHURY	Mijan	634126795219	Sylhet Circle, 2	4	1	2025-12-08 08:07:12	2025-12-08 08:07:12
+3	2	002431109-0703	01714001861	6D$CMMBF1	M/S G. S ENTERPRISE	swapan.gse@gmail.com	01714001861	Jamalpur, Sreepur, Tahirpur, Sunamganj	SWAPAN PAUL CHOWDHURY	Mijan	285262290252	North Sunamganj	4	1	2025-12-08 08:09:26	2025-12-08 08:09:26
+4	1	005526767-0701	01707367069	TDELK#B41	M/S TAHRIM MUSTAQUE ENTERPRISE	tahrim.mustaque@gmail.com	01707367069	Niloy-26, Chowhatta; Sylhet Sadar PS; Sylhet-3100	TAHRIM MUSTAQUE	Mijan	893134943649	Sylhet Circle, 2	5	1	2025-12-09 03:51:26	2025-12-09 03:51:26
+5	1	000235355-0701	01713940772	1234@sylhet	M/S. RABIUL AND BROTHERS	robiulbdsyl@gmail.com	01713940772	Tamabil; Gowainghat PS; Sylhet-3156	Md. Rabiul Islam	Mijan	395207452253	Sylhet Circle, 1	6	1	2025-12-10 02:13:09	2025-12-10 03:17:32
+6	1	001363883-0701	01711209443	1234@sylhet	M/S. SHAHID ENTERPRISE	importershahid@gmail.com	01711209443	Tamabil; Gowainghat PS; Sylhet-3151	MD SHAHIDUL ISLAM (KHOKUN)	Mijan	310281515379	Sylhet Circle, 1	7	1	2025-12-10 05:49:08	2025-12-10 05:49:08
+7	1	000813891-0701	01711275035	123	M/S. HALIMA ENTERPRISE	Halimaenterprise35@gmail.com	01711275035	Sutarkandi stolobondor; Beanibazar PS; Sylhet-3175; Bangladesh	MD ABDUL HALIM	Probash	\N	\N	3	1	2025-12-10 17:34:17	2025-12-10 17:34:17
+8	1	000311727-0701	01712211429	U!BLUL6R1	M/S. JEWEL ENTERPRISE	jwelenterprise24@gmail.com	01712211429	Tamabil; Gowainghat PS; Sylhet	MD RUBEL MIAH	Mr. Satish	177008320644	Sylhet Circle, 1	8	1	2025-12-12 05:39:39	2025-12-12 05:39:39
+9	1	001969365-0701	01971967548	123@sylhet	M/S. JALAL UDDIN STONE CRUSHER	mnurulkarim1980@gmail.com	01712711154	Tamabil; Gowainghat PS; Sylhet-3156	MOHAMMED NURUL KARIM	\N	159362972234	Sylhet Circle, 1	8	1	2025-12-12 06:00:19	2025-12-12 06:00:19
+10	1	000286718-0701	01733814728	M$T5YEBS1	M/S. NAZMUL & BROTHERS	nazmulenterprise24@gmail.com	01711315016	Tamabil, Gowainghat, Sylhet	Md. Nazrul Islam	\N	270671832007	Sylhet Circle, 1	8	1	2025-12-12 06:02:54	2025-12-12 06:02:54
+11	1	002248961-0701	01765636208	123	M/S RAHI ENTERPRISE	mh7381089@gmail.com	01765636208	Sylhetipara, Sadimapur, Beanibazar, Sylhet.; Beanibazar PS; Sylhet-3170; Bangladesh	M A HASHEM	Probash	\N	\N	3	1	2025-12-18 23:33:16	2025-12-18 23:33:16
+12	1	002099079-0701	01761738173	123	M/S TASNIM ENTERPRISE	tasnimenterprise2400@gmail.com	01761738173	Vill: Bengolhuda, P.O: Sadimapur, Upozila: Beanibazar,Sylhet.; Beanibazar PS; Sylhet-3175; Bangladesh	ABDUL KADIR	Probash	\N	\N	3	1	2025-12-24 21:42:49	2025-12-24 21:42:49
+\.
+
+
+--
+-- TOC entry 3888 (class 0 OID 17210)
+-- Dependencies: 228
+-- Data for Name: costsheets; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.costsheets (id, name, created_at, updated_at) FROM stdin;
+1	Salary & Wages	2025-12-03 06:17:28	\N
+2	Bank Charge	2025-12-03 06:17:28	\N
+3	Port Charge	2025-12-03 06:17:28	\N
+4	Labour Bill	2025-12-03 06:17:28	\N
+5	License & Renewal	2025-12-03 06:17:28	\N
+6	Electricity Bill	2025-12-03 06:17:28	\N
+7	Entertainment	2025-12-03 06:17:28	\N
+8	Office Rent	2025-12-03 06:17:28	\N
+9	Deport Charge	2025-12-03 06:17:28	\N
+10	Printing & Stationery	2025-12-03 06:17:28	\N
+11	Misc. Expenses	2025-12-03 06:17:28	\N
+12	Profit	2025-12-03 06:17:28	\N
+13	Profit & Other Costs	2025-12-07 20:41:33	2025-12-07 20:41:33
+\.
+
+
+--
+-- TOC entry 3890 (class 0 OID 17214)
+-- Dependencies: 230
+-- Data for Name: creditnotes; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.creditnotes (id, creditnote_invoice, lc_or_invoice_no, client_id, item_id, unit_id, issued_date, opening_stock, stock, vat_challan_date, reason_for_issuance, rate_in_challan, value_in_challan, quantity_in_challan, vat_in_challan, sd_in_challan, value_of_decreasing_adjustment, quantity_of_decreasing_adjustment, vat_of_decreasing_adjustment, sd_of_decreasing_adjustment, remarks, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3892 (class 0 OID 17220)
+-- Dependencies: 232
+-- Data for Name: customer_management; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.customer_management (id, mobile, customer_name, bin_or_nid, address, created_at, updated_at) FROM stdin;
+1	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 08:29:48	2025-12-08 08:29:48
+2	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-08 08:30:43	2025-12-08 08:30:43
+3	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 08:31:39	2025-12-08 08:31:39
+4	0175219326	Ajir Uddin	\N	Dharmapasha,Sunamganj	2025-12-08 20:50:05	2025-12-08 20:50:05
+5	0171912213	Jahidul	\N	Tahirpur,Sunanganj	2025-12-08 20:51:07	2025-12-08 20:51:07
+6	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:31:26	2025-12-09 00:31:26
+7	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:04:22	2025-12-09 01:04:22
+8	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:46:25	2025-12-10 17:46:25
+\.
+
+
+--
+-- TOC entry 3894 (class 0 OID 17227)
+-- Dependencies: 234
+-- Data for Name: debitnotes; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.debitnotes (id, debitnote_invoice, lc_or_invoice_no, boe, client_id, item_id, unit_id, issued_date, opening_stock, stock, vat_challan_date, reason_for_issuance, rate_in_challan, value_in_challan, quantity_in_challan, vat_in_challan, sd_in_challan, value_of_increasing_adjustment, quantity_of_increasing_adjustment, vat_of_increasing_adjustment, sd_of_increasing_adjustment, remarks, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3896 (class 0 OID 17234)
+-- Dependencies: 236
+-- Data for Name: divisions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.divisions (id, name, created_at, updated_at) FROM stdin;
+1	Sylhet	2025-12-03 06:17:28	\N
+2	Sunamganj	2025-12-03 06:17:28	\N
+3	Moulvibazar	2025-12-03 06:17:28	\N
+4	Feni	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3898 (class 0 OID 17238)
+-- Dependencies: 238
+-- Data for Name: economic_areas; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.economic_areas (client_id, item_id) FROM stdin;
+1	1
+2	1
+3	1
+4	1
+5	1
+6	1
+7	1
+8	1
+9	1
+10	1
+11	1
+12	1
+10	2
+\.
+
+
+--
+-- TOC entry 3899 (class 0 OID 17241)
+-- Dependencies: 239
+-- Data for Name: expenses; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.expenses (id, name, created_at, updated_at) FROM stdin;
+1	Increase	2025-12-03 06:17:28	\N
+2	Decrease	2025-12-03 06:17:28	\N
+3	Penalty	2025-12-03 06:17:28	\N
+4	Closing Balance	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3901 (class 0 OID 17245)
+-- Dependencies: 241
+-- Data for Name: failed_jobs; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.failed_jobs (id, uuid, connection, queue, payload, exception, failed_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3903 (class 0 OID 17252)
+-- Dependencies: 243
+-- Data for Name: form43s; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.form43s (id, lc_no, client_id, item_id, purchase_unit_id, sale_unit_id, factor, item_code, submission_date, first_delivery_date, boe_date, boe_no, mcu, quantity, wastage, excess_quantity, purchase_unit_total, sale_unit_total, base_value, unit_price, last, created_at, updated_at) FROM stdin;
+1	0000021825010221	2	1	5	5	1.00	001	2025-12-08	2025-08-12	2025-06-28	2154	0.00	72.00	0.00	5.00	77.00	77.00	141114.29	1832.65	1	2025-12-08 08:20:09	2025-12-08 08:20:09
+2	0000034825010015	3	1	5	5	1.00	25210010	2025-12-08	2025-12-08	2025-10-29	2297	0.00	48.00	0.00	0.00	48.00	48.00	88401.47	1841.70	1	2025-12-08 20:04:22	2025-12-08 20:04:22
+3	557	1	1	5	5	1.00	001	2025-12-08	2025-09-20	2025-09-20	6772	0.00	24.00	0.00	0.50	24.50	24.50	45151.33	1842.91	0	2025-12-09 00:03:56	2025-12-09 17:54:47
+4	0000021825010265	4	1	5	5	1.00	001	2025-12-08	\N	2025-06-30	3790	0.00	44.11	0.00	0.00	44.11	44.11	80854.40	1833.02	1	2025-12-09 04:18:14	2025-12-09 04:18:14
+5	667	1	1	5	5	1.00	001	2025-12-09	2025-11-03	2025-11-03	6000	0.00	76.62	0.00	0.85	77.47	77.47	142469.52	1839.03	1	2025-12-09 17:54:47	2025-12-09 18:37:44
+7	0000141225010173	5	1	5	5	1.00	001	2025-12-09	\N	2025-07-10	4563	0.00	12.00	0.00	0.00	12.00	12.00	21992.21	1832.68	1	2025-12-10 03:31:11	2025-12-10 03:31:11
+8	764	7	1	5	5	1.00	001	2025-12-10	2025-08-20	2025-08-20	4124	0.00	47.18	0.00	0.20	47.38	47.38	87345.57	1843.51	0	2025-12-10 17:36:49	2025-12-24 17:53:57
+9	0000141225010199	6	1	5	5	1.00	001	2025-12-11	\N	2025-07-01	4332	0.00	72.00	0.00	2.06	74.06	74.06	135732.60	1832.74	1	2025-12-11 18:27:55	2025-12-11 18:27:55
+10	0000011925010157	10	2	5	5	1.00	002	2025-12-12	\N	2025-07-01	4321	0.00	240.00	0.00	4.12	244.12	244.12	456175.48	1868.65	1	2025-12-12 06:12:37	2025-12-12 06:12:37
+11	0000011925010163	10	1	5	5	1.00	001	2025-12-12	\N	2025-07-03	4386	0.00	228.00	0.00	8.21	236.21	236.21	432900.27	1832.69	1	2025-12-12 12:21:20	2025-12-12 12:21:20
+12	0000002125010067	9	1	5	5	1.00	001	2025-12-13	\N	2025-07-02	4364	0.00	48.00	0.00	0.20	48.20	48.20	88334.52	1832.67	1	2025-12-13 20:23:54	2025-12-13 20:23:54
+13	0000141225010218	8	1	5	5	1.00	001	2025-12-13	\N	2025-07-23	4980	0.00	192.00	0.00	7.32	199.32	199.32	365293.64	1832.70	1	2025-12-14 01:28:04	2025-12-14 01:28:04
+14	1055	11	1	5	5	1.00	001	2025-12-18	2025-10-17	2025-10-17	5390	0.00	189.52	0.00	2.02	191.54	191.54	352794.07	1841.88	0	2025-12-18 23:37:41	2025-12-22 18:36:21
+15	1216	11	1	5	5	1.00	001	2025-12-22	2025-11-13	2025-11-13	6534	0.00	71.82	0.00	1.04	72.86	72.86	133992.26	1839.04	1	2025-12-22 18:36:21	2025-12-22 18:36:21
+16	1124	7	1	5	5	1.00	001	2025-12-24	2025-11-01	2025-11-01	5970	0.00	143.90	0.00	1.00	144.90	144.90	266474.85	1839.03	1	2025-12-24 17:53:57	2025-12-24 17:53:57
+17	735	12	1	5	5	1.00	001	2025-12-24	2025-08-12	2025-08-12	3957	0.00	117.46	0.00	0.39	117.85	117.85	217290.25	1843.79	0	2025-12-24 21:44:01	2025-12-30 11:58:35
+18	472	12	1	5	5	1.00	001	2025-12-30	2025-09-02	2025-09-02	4403	0.00	301.84	0.00	4.44	306.28	306.28	564546.54	1843.24	1	2025-12-30 11:58:35	2025-12-30 11:58:35
+\.
+
+
+--
+-- TOC entry 3905 (class 0 OID 17257)
+-- Dependencies: 245
+-- Data for Name: form44s; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.form44s (id, form44_invoice, lc_or_invoice_no, boe, client_id, item_id, unit_id, form621_id, date, opening_stock, stock, quantity, value, vat, proposed_value, increasing_adjustment_vat, net_increase, reason_ineligibility, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3907 (class 0 OID 17264)
+-- Dependencies: 247
+-- Data for Name: form45s; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.form45s (id, form45_invoice, lc_or_invoice_no, boe, client_id, item_id, unit_id, form621_id, date, opening_stock, stock, quantity, value, vat, proposed_value, increasing_adjustment_vat, net_increase, reason_ineligibility, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3909 (class 0 OID 17271)
+-- Dependencies: 249
+-- Data for Name: form621s; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.form621s (id, client_id, item_id, form43_id, lc_or_invoice_no, boe, quantity, opening_stock, stock, date, importable_id, importable_type, unit_id, last, userid, created_at, updated_at) FROM stdin;
+1	2	1	1	0000021825010221	2154	77.000	0.000	77.000	2025-10-01	1	purchase	5	0	4	2025-12-08 08:37:25	2025-12-08 08:39:05
+2	2	1	1	INV-25/00001	\N	12.000	77.000	65.000	2025-10-01	1	sale	5	0	4	2025-12-08 08:39:05	2025-12-08 08:39:29
+3	2	1	1	INV-25/00002	\N	24.000	65.000	41.000	2025-10-01	2	sale	5	0	4	2025-12-08 08:39:29	2025-12-08 08:39:54
+4	2	1	1	INV-25/00003	\N	24.000	41.000	17.000	2025-10-01	3	sale	5	0	4	2025-12-08 08:39:54	2025-12-08 08:40:20
+5	2	1	1	INV-25/00004	\N	17.000	17.000	0.000	2025-10-01	4	sale	5	0	4	2025-12-08 08:40:20	2025-12-08 16:42:55
+6	2	1	1	0000021825010202	2165	180.000	0.000	180.000	2025-10-01	2	purchase	5	0	4	2025-12-08 16:42:55	2025-12-08 16:47:42
+7	2	1	1	INV-25/00005	\N	36.000	180.000	144.000	2025-10-01	5	sale	5	0	4	2025-12-08 16:47:42	2025-12-08 16:47:55
+8	2	1	1	INV-25/00006	\N	36.000	144.000	108.000	2025-10-01	6	sale	5	0	4	2025-12-08 16:47:55	2025-12-08 16:48:15
+9	2	1	1	INV-25/00007	\N	24.000	108.000	84.000	2025-10-01	7	sale	5	0	4	2025-12-08 16:48:15	2025-12-08 16:48:33
+10	2	1	1	INV-25/00008	\N	36.000	84.000	48.000	2025-10-01	8	sale	5	0	4	2025-12-08 16:48:33	2025-12-08 16:48:48
+11	2	1	1	INV-25/00009	\N	24.000	48.000	24.000	2025-10-01	9	sale	5	0	4	2025-12-08 16:48:48	2025-12-08 16:49:02
+12	2	1	1	INV-25/00010	\N	24.000	24.000	0.000	2025-10-01	10	sale	5	0	4	2025-12-08 16:49:02	2025-12-08 16:53:37
+13	2	1	1	0000021825010202	2184	132.000	0.000	132.000	2025-10-01	3	purchase	5	0	4	2025-12-08 16:53:37	2025-12-08 16:54:15
+14	2	1	1	INV-25/00011	\N	36.000	132.000	96.000	2025-10-01	11	sale	5	0	4	2025-12-08 16:54:15	2025-12-08 16:54:41
+15	2	1	1	INV-25/00012	\N	36.000	96.000	60.000	2025-10-01	12	sale	5	0	4	2025-12-08 16:54:41	2025-12-08 16:55:01
+16	2	1	1	INV-25/00013	\N	36.000	60.000	24.000	2025-10-01	13	sale	5	0	4	2025-12-08 16:55:01	2025-12-08 16:56:17
+18	2	1	1	INV-25/00014	\N	24.000	24.000	0.000	2025-10-01	15	sale	5	0	4	2025-12-08 16:56:17	2025-12-08 16:57:54
+19	2	1	1	0000021825010534	2270	144.000	0.000	144.000	2025-10-23	4	purchase	5	0	4	2025-12-08 16:57:54	2025-12-08 16:58:14
+20	2	1	1	INV-25/00015	\N	36.000	144.000	108.000	2025-10-23	16	sale	5	0	4	2025-12-08 16:58:14	2025-12-08 16:58:25
+21	2	1	1	INV-25/00016	\N	36.000	108.000	72.000	2025-10-23	17	sale	5	0	4	2025-12-08 16:58:25	2025-12-08 16:58:50
+22	2	1	1	INV-25/00017	\N	36.000	72.000	36.000	2025-10-23	18	sale	5	0	4	2025-12-08 16:58:50	2025-12-08 16:59:02
+23	2	1	1	INV-25/00018	\N	36.000	36.000	0.000	2025-10-23	19	sale	5	0	4	2025-12-08 16:59:02	2025-12-08 17:02:33
+24	2	1	1	0000021825010534	2278	168.000	0.000	168.000	2025-10-27	5	purchase	5	0	4	2025-12-08 17:02:33	2025-12-08 17:03:33
+25	2	1	1	INV-25/00019	\N	48.000	168.000	120.000	2025-10-27	20	sale	5	0	4	2025-12-08 17:03:33	2025-12-08 17:04:00
+26	2	1	1	INV-25/00020	\N	48.000	120.000	72.000	2025-10-27	21	sale	5	0	4	2025-12-08 17:04:00	2025-12-08 17:05:10
+27	2	1	1	INV-25/00021	\N	72.000	72.000	0.000	2025-10-27	22	sale	5	0	4	2025-12-08 17:05:10	2025-12-08 17:06:29
+28	2	1	1	0000021825010534	2284	228.000	0.000	228.000	2025-10-28	6	purchase	5	0	4	2025-12-08 17:06:29	2025-12-08 17:11:38
+29	2	1	1	INV-25/00022	\N	48.000	228.000	180.000	2025-10-28	23	sale	5	0	4	2025-12-08 17:11:38	2025-12-08 17:11:50
+30	2	1	1	INV-25/00023	\N	48.000	180.000	132.000	2025-10-28	24	sale	5	0	4	2025-12-08 17:11:50	2025-12-08 17:12:28
+31	2	1	1	INV-25/00024	\N	36.000	132.000	96.000	2025-10-28	25	sale	5	0	4	2025-12-08 17:12:28	2025-12-08 17:12:43
+32	2	1	1	INV-25/00025	\N	36.000	96.000	60.000	2025-10-28	26	sale	5	0	4	2025-12-08 17:12:43	2025-12-08 17:12:55
+33	2	1	1	INV-25/00026	\N	60.000	60.000	0.000	2025-10-28	27	sale	5	0	4	2025-12-08 17:12:55	2025-12-10 21:37:24
+50	1	1	3	557	6772	24.500	0.000	24.500	2025-09-20	11	purchase	5	0	3	2025-12-09 00:30:53	2025-12-09 00:32:04
+51	1	1	3	INV-25/00001	\N	24.500	24.500	0.000	2025-09-20	40	sale	5	0	3	2025-12-09 00:32:05	2025-12-09 00:37:22
+52	1	1	3	557	6953	61.880	0.000	61.880	2025-09-24	12	purchase	5	0	3	2025-12-09 00:37:22	2025-12-09 00:37:54
+53	1	1	3	INV-25/00002	\N	30.500	61.880	31.380	2025-09-24	41	sale	5	0	3	2025-12-09 00:37:54	2025-12-09 00:38:06
+54	1	1	3	INV-25/00003	\N	31.380	31.380	0.000	2025-09-24	42	sale	5	0	3	2025-12-09 00:38:06	2025-12-09 00:41:17
+55	1	1	3	557	7010	36.700	0.000	36.700	2025-09-25	13	purchase	5	0	3	2025-12-09 00:41:17	2025-12-09 00:41:40
+56	1	1	3	INV-25/00004	\N	16.360	36.700	20.340	2025-09-25	43	sale	5	0	3	2025-12-09 00:41:40	2025-12-09 00:41:52
+57	1	1	3	INV-25/00005	\N	20.340	20.340	0.000	2025-09-25	44	sale	5	0	3	2025-12-09 00:41:52	2025-12-09 00:43:48
+58	1	1	3	557	7183	37.610	0.000	37.610	2025-09-30	14	purchase	5	0	3	2025-12-09 00:43:48	2025-12-09 00:44:17
+59	1	1	3	INV-25/00006	\N	18.650	37.610	18.960	2025-09-30	45	sale	5	0	3	2025-12-09 00:44:17	2025-12-09 00:44:28
+60	1	1	3	INV-25/00007	\N	18.960	18.960	0.000	2025-09-30	46	sale	5	0	3	2025-12-09 00:44:28	2025-12-09 00:49:19
+61	1	1	3	557	7217	37.220	0.000	37.220	2025-10-06	15	purchase	5	0	3	2025-12-09 00:49:19	2025-12-09 00:49:32
+62	1	1	3	INV-25/00008	\N	18.630	37.220	18.590	2025-10-06	47	sale	5	0	3	2025-12-09 00:49:32	2025-12-09 00:49:50
+63	1	1	3	INV-25/00009	\N	18.590	18.590	0.000	2025-10-06	48	sale	5	0	3	2025-12-09 00:49:50	2025-12-09 00:50:57
+64	1	1	3	557	7286	37.490	0.000	37.490	2025-10-07	16	purchase	5	0	3	2025-12-09 00:50:57	2025-12-09 00:51:10
+65	1	1	3	INV-25/00010	\N	18.520	37.490	18.970	2025-10-07	49	sale	5	0	3	2025-12-09 00:51:10	2025-12-09 00:51:17
+66	1	1	3	INV-25/00011	\N	18.970	18.970	0.000	2025-10-07	50	sale	5	0	3	2025-12-09 00:51:17	2025-12-09 00:52:10
+67	1	1	3	557	7381	24.700	0.000	24.700	2025-10-09	17	purchase	5	0	3	2025-12-09 00:52:10	2025-12-09 00:52:20
+68	1	1	3	INV-25/00012	\N	24.700	24.700	0.000	2025-10-09	51	sale	5	0	3	2025-12-09 00:52:20	2025-12-09 00:53:23
+69	1	1	3	557	7469	12.350	0.000	12.350	2025-10-13	18	purchase	5	0	3	2025-12-09 00:53:23	2025-12-09 00:53:35
+70	1	1	3	INV-25/00013	\N	12.350	12.350	0.000	2025-10-13	52	sale	5	0	3	2025-12-09 00:53:35	2025-12-09 00:55:00
+71	1	1	3	557	7594	36.520	0.000	36.520	2025-10-15	19	purchase	5	0	3	2025-12-09 00:55:00	2025-12-09 00:55:15
+72	1	1	3	INV-25/00014	\N	18.230	36.520	18.290	2025-10-15	53	sale	5	0	3	2025-12-09 00:55:15	2025-12-09 00:55:23
+73	1	1	3	INV-25/00015	\N	18.290	18.290	0.000	2025-10-15	54	sale	5	0	3	2025-12-09 00:55:23	2025-12-09 00:56:26
+74	1	1	3	557	7669	48.850	0.000	48.850	2025-10-16	20	purchase	5	0	3	2025-12-09 00:56:26	2025-12-09 00:56:40
+75	1	1	3	INV-25/00016	\N	24.360	48.850	24.490	2025-10-16	55	sale	5	0	3	2025-12-09 00:56:40	2025-12-09 00:56:49
+76	1	1	3	INV-25/00017	\N	24.490	24.490	0.000	2025-10-16	56	sale	5	0	3	2025-12-09 00:56:49	2025-12-09 00:58:26
+77	1	1	3	557	7863	12.000	0.000	12.000	2025-10-22	21	purchase	5	0	3	2025-12-09 00:58:26	2025-12-09 00:58:38
+78	1	1	3	INV-25/00018	\N	12.000	12.000	0.000	2025-10-22	57	sale	5	0	3	2025-12-09 00:58:38	2025-12-09 01:00:50
+79	1	1	3	667	5571	74.030	0.000	74.030	2025-10-24	22	purchase	5	0	3	2025-12-09 01:00:50	2025-12-09 01:02:12
+80	1	1	3	INV-25/00019	\N	24.860	74.030	49.170	2025-10-24	58	sale	5	0	3	2025-12-09 01:02:12	2025-12-09 01:02:33
+81	1	1	3	INV-25/00020	\N	24.630	49.170	24.540	2025-10-24	59	sale	5	0	3	2025-12-09 01:02:33	2025-12-09 01:02:52
+82	1	1	3	INV-25/00021	\N	24.540	24.540	0.000	2025-10-24	60	sale	5	0	3	2025-12-09 01:02:52	2025-12-09 01:06:00
+83	1	1	3	667	5623	74.040	0.000	74.040	2025-10-27	23	purchase	5	0	3	2025-12-09 01:06:00	2025-12-09 01:06:15
+84	1	1	3	INV-25/00022	\N	24.360	74.040	49.680	2025-10-27	61	sale	5	0	3	2025-12-09 01:06:15	2025-12-09 01:06:23
+85	1	1	3	INV-25/00023	\N	24.510	49.680	25.170	2025-10-27	62	sale	5	0	3	2025-12-09 01:06:24	2025-12-09 01:06:32
+86	1	1	3	INV-25/00024	\N	25.170	25.170	0.000	2025-10-27	63	sale	5	0	3	2025-12-09 01:06:32	2025-12-09 01:07:38
+87	1	1	3	672	8059	86.140	0.000	86.140	2025-10-27	24	purchase	5	0	3	2025-12-09 01:07:38	2025-12-09 01:07:56
+88	1	1	3	INV-25/00025	\N	21.020	86.140	65.120	2025-10-27	64	sale	5	0	3	2025-12-09 01:07:56	2025-12-09 01:08:06
+89	1	1	3	INV-25/00026	\N	21.560	65.120	43.560	2025-10-27	65	sale	5	0	3	2025-12-09 01:08:06	2025-12-09 01:08:13
+90	1	1	3	INV-25/00027	\N	23.120	43.560	20.440	2025-10-27	66	sale	5	0	3	2025-12-09 01:08:13	2025-12-09 01:08:21
+91	1	1	3	INV-25/00028	\N	20.440	20.440	0.000	2025-10-27	67	sale	5	0	3	2025-12-09 01:08:21	2025-12-09 01:10:09
+92	1	1	3	667	5823	48.780	0.000	48.780	2025-10-29	25	purchase	5	0	3	2025-12-09 01:10:09	2025-12-09 01:10:20
+93	1	1	3	INV-25/00029	\N	24.120	48.780	24.660	2025-10-29	68	sale	5	0	3	2025-12-09 01:10:20	2025-12-09 01:10:28
+94	1	1	3	INV-25/00030	\N	24.660	24.660	0.000	2025-10-29	69	sale	5	0	3	2025-12-09 01:10:28	2025-12-09 01:11:28
+95	1	1	3	672	8232	60.500	0.000	60.500	2025-10-30	26	purchase	5	0	3	2025-12-09 01:11:28	2025-12-09 01:11:48
+96	1	1	3	INV-25/00031	\N	20.100	60.500	40.400	2025-10-30	70	sale	5	0	3	2025-12-09 01:11:48	2025-12-09 01:11:58
+97	1	1	3	INV-25/00032	\N	20.410	40.400	19.990	2025-10-30	71	sale	5	0	3	2025-12-09 01:11:58	2025-12-09 01:12:05
+98	1	1	3	INV-25/00033	\N	19.990	19.990	0.000	2025-10-30	72	sale	5	0	3	2025-12-09 01:12:05	2025-12-09 01:13:20
+99	1	1	3	667	5896	49.790	0.000	49.790	2025-10-31	27	purchase	5	0	3	2025-12-09 01:13:20	2025-12-09 01:13:32
+100	1	1	3	INV-25/00034	\N	25.100	49.790	24.690	2025-10-31	73	sale	5	0	3	2025-12-09 01:13:32	2025-12-09 01:13:40
+101	1	1	3	INV-25/00035	\N	24.690	24.690	0.000	2025-10-31	74	sale	5	0	3	2025-12-09 01:13:40	2025-12-09 18:45:32
+117	3	1	2	0000034825010015	2297	48.000	0.000	48.000	2025-10-29	33	purchase	5	0	4	2025-12-09 06:41:38	2025-12-09 06:42:09
+118	3	1	2	INV-25/00001	\N	12.000	48.000	36.000	2025-10-29	85	sale	5	0	4	2025-12-09 06:42:09	2025-12-09 06:42:23
+119	3	1	2	INV-25/00002	\N	12.000	36.000	24.000	2025-10-29	86	sale	5	0	4	2025-12-09 06:42:23	2025-12-09 06:42:32
+120	3	1	2	INV-25/00003	\N	12.000	24.000	12.000	2025-10-29	87	sale	5	0	4	2025-12-09 06:42:32	2025-12-09 06:42:44
+121	3	1	2	INV-25/00004	\N	12.000	12.000	0.000	2025-10-29	88	sale	5	0	4	2025-12-09 06:42:44	2025-12-09 06:45:06
+122	3	1	2	0000034825010015	2304	300.000	0.000	300.000	2025-10-30	34	purchase	5	0	4	2025-12-09 06:45:06	2025-12-09 06:45:28
+123	3	1	2	INV-25/00005	\N	12.000	300.000	288.000	2025-10-30	89	sale	5	0	4	2025-12-09 06:45:28	2025-12-09 06:47:36
+126	3	1	2	INV-25/00006	\N	24.000	288.000	264.000	2025-10-30	92	sale	5	0	4	2025-12-09 06:47:36	2025-12-09 06:47:49
+127	3	1	2	INV-25/00007	\N	12.000	264.000	252.000	2025-10-30	93	sale	5	0	4	2025-12-09 06:47:49	2025-12-09 06:48:00
+128	3	1	2	INV-25/00008	\N	12.000	252.000	240.000	2025-10-30	94	sale	5	0	4	2025-12-09 06:48:00	2025-12-09 06:48:12
+129	3	1	2	INV-25/00009	\N	24.000	240.000	216.000	2025-10-30	95	sale	5	0	4	2025-12-09 06:48:12	2025-12-09 06:48:25
+130	3	1	2	INV-25/00010	\N	12.000	216.000	204.000	2025-10-30	96	sale	5	0	4	2025-12-09 06:48:25	2025-12-09 06:48:38
+131	3	1	2	INV-25/00011	\N	24.000	204.000	180.000	2025-10-30	97	sale	5	0	4	2025-12-09 06:48:38	2025-12-09 06:48:51
+132	3	1	2	INV-25/00012	\N	36.000	180.000	144.000	2025-10-30	98	sale	5	0	4	2025-12-09 06:48:51	2025-12-09 06:49:04
+133	3	1	2	INV-25/00013	\N	24.000	144.000	120.000	2025-10-30	99	sale	5	0	4	2025-12-09 06:49:04	2025-12-09 06:49:14
+134	3	1	2	INV-25/00014	\N	12.000	120.000	108.000	2025-10-30	100	sale	5	0	4	2025-12-09 06:49:14	2025-12-09 06:49:25
+135	3	1	2	INV-25/00015	\N	12.000	108.000	96.000	2025-10-30	101	sale	5	0	4	2025-12-09 06:49:25	2025-12-09 06:49:37
+136	3	1	2	INV-25/00016	\N	12.000	96.000	84.000	2025-10-30	102	sale	5	0	4	2025-12-09 06:49:37	2025-12-09 06:49:48
+137	3	1	2	INV-25/00017	\N	12.000	84.000	72.000	2025-10-30	103	sale	5	0	4	2025-12-09 06:49:48	2025-12-09 06:49:59
+138	3	1	2	INV-25/00018	\N	24.000	72.000	48.000	2025-10-30	104	sale	5	0	4	2025-12-09 06:49:59	2025-12-09 06:50:10
+139	3	1	2	INV-25/00019	\N	12.000	48.000	36.000	2025-10-30	105	sale	5	0	4	2025-12-09 06:50:10	2025-12-09 06:50:21
+140	3	1	2	INV-25/00020	\N	12.000	36.000	24.000	2025-10-30	106	sale	5	0	4	2025-12-09 06:50:21	2025-12-09 06:50:31
+141	3	1	2	INV-25/00021	\N	12.000	24.000	12.000	2025-10-30	107	sale	5	0	4	2025-12-09 06:50:31	2025-12-09 06:50:43
+142	3	1	2	INV-25/00022	\N	12.000	12.000	0.000	2025-10-30	108	sale	5	0	4	2025-12-09 06:50:43	2025-12-10 21:47:34
+143	4	1	4	0000021825010265	3790	44.110	0.000	44.110	2025-10-01	35	purchase	5	0	5	2025-12-09 17:11:54	2025-12-09 17:15:29
+144	4	1	4	INV-25/00001	\N	12.000	44.110	32.110	2025-10-01	109	sale	5	0	5	2025-12-09 17:15:29	2025-12-09 17:15:38
+145	4	1	4	INV-25/00002	\N	32.000	32.110	0.110	2025-10-01	110	sale	5	0	5	2025-12-09 17:15:38	2025-12-09 17:19:33
+146	4	1	4	0000021825010265	3821	44.260	0.110	44.370	2025-10-01	36	purchase	5	0	5	2025-12-09 17:19:33	2025-12-09 17:23:33
+149	4	1	4	INV-25/00003	\N	12.000	44.370	32.370	2025-10-01	113	sale	5	0	5	2025-12-09 17:23:33	2025-12-09 17:23:39
+150	4	1	4	INV-25/00004	\N	32.000	32.370	0.370	2025-10-01	114	sale	5	0	5	2025-12-09 17:23:39	2025-12-09 17:25:58
+151	4	1	4	0000021825010302	3828	44.620	0.370	44.990	2025-10-01	37	purchase	5	0	5	2025-12-09 17:25:58	2025-12-09 17:26:10
+152	4	1	4	INV-25/00005	\N	32.000	44.990	12.990	2025-10-01	115	sale	5	0	5	2025-12-09 17:26:10	2025-12-09 17:26:20
+153	4	1	4	INV-25/00006	\N	12.000	12.990	0.990	2025-10-01	116	sale	5	0	5	2025-12-09 17:26:20	2025-12-09 17:31:36
+154	4	1	4	0000021825010302	3869	204.300	0.990	205.290	2025-10-02	38	purchase	5	0	5	2025-12-09 17:31:36	2025-12-09 17:31:52
+155	4	1	4	INV-25/00007	\N	12.000	205.290	193.290	2025-10-02	117	sale	5	0	5	2025-12-09 17:31:52	2025-12-09 17:32:45
+156	4	1	4	INV-25/00008	\N	24.000	193.290	169.290	2025-10-02	118	sale	5	0	5	2025-12-09 17:32:45	2025-12-09 17:32:56
+157	4	1	4	INV-25/00009	\N	12.000	169.290	157.290	2025-10-02	119	sale	5	0	5	2025-12-09 17:32:56	2025-12-09 17:33:31
+158	4	1	4	INV-25/00010	\N	24.000	157.290	133.290	2025-10-02	120	sale	5	0	5	2025-12-09 17:33:31	2025-12-09 17:33:41
+159	4	1	4	INV-25/00011	\N	36.000	133.290	97.290	2025-10-02	121	sale	5	0	5	2025-12-09 17:33:41	2025-12-09 17:33:53
+160	4	1	4	INV-25/00012	\N	12.000	97.290	85.290	2025-10-02	122	sale	5	0	5	2025-12-09 17:33:53	2025-12-09 17:34:00
+161	4	1	4	INV-25/00013	\N	24.000	85.290	61.290	2025-10-02	123	sale	5	0	5	2025-12-09 17:34:00	2025-12-09 17:34:12
+162	4	1	4	INV-25/00014	\N	12.000	61.290	49.290	2025-10-02	124	sale	5	0	5	2025-12-09 17:34:12	2025-12-09 17:34:21
+163	4	1	4	INV-25/00015	\N	12.000	49.290	37.290	2025-10-02	125	sale	5	0	5	2025-12-09 17:34:21	2025-12-09 17:34:28
+164	4	1	4	INV-25/00016	\N	12.000	37.290	25.290	2025-10-02	126	sale	5	0	5	2025-12-09 17:34:28	2025-12-09 17:34:36
+165	4	1	4	INV-25/00017	\N	12.000	25.290	13.290	2025-10-02	127	sale	5	0	5	2025-12-09 17:34:36	2025-12-09 17:35:18
+166	4	1	4	INV-25/00018	\N	13.000	13.290	0.290	2025-10-02	128	sale	5	0	5	2025-12-09 17:35:18	2025-12-09 17:37:14
+167	4	1	4	0000021825010302	3870	159.950	0.290	160.240	2025-10-02	39	purchase	5	0	5	2025-12-09 17:37:14	2025-12-09 17:37:28
+168	4	1	4	INV-25/00019	\N	12.000	160.240	148.240	2025-10-02	129	sale	5	0	5	2025-12-09 17:37:28	2025-12-09 17:37:36
+169	4	1	4	INV-25/00020	\N	24.000	148.240	124.240	2025-10-02	130	sale	5	0	5	2025-12-09 17:37:36	2025-12-09 17:37:46
+170	4	1	4	INV-25/00021	\N	32.000	124.240	92.240	2025-10-02	131	sale	5	0	5	2025-12-09 17:37:46	2025-12-09 17:38:27
+171	4	1	4	INV-25/00022	\N	12.000	92.240	80.240	2025-10-02	132	sale	5	0	5	2025-12-09 17:38:27	2025-12-09 17:38:39
+172	4	1	4	INV-25/00023	\N	24.000	80.240	56.240	2025-10-02	133	sale	5	0	5	2025-12-09 17:38:39	2025-12-09 17:38:53
+173	4	1	4	INV-25/00024	\N	24.000	56.240	32.240	2025-10-02	134	sale	5	0	5	2025-12-09 17:38:53	2025-12-09 17:39:05
+174	4	1	4	INV-25/00025	\N	32.000	32.240	0.240	2025-10-02	135	sale	5	0	5	2025-12-09 17:39:05	2025-12-09 17:41:37
+175	4	1	4	0000021825010302	3923	71.000	0.240	71.240	2025-10-02	40	purchase	5	0	5	2025-12-09 17:41:37	2025-12-09 17:41:51
+176	4	1	4	INV-25/00026	\N	24.000	71.240	47.240	2025-10-02	136	sale	5	0	5	2025-12-09 17:41:51	2025-12-09 17:42:02
+177	4	1	4	INV-25/00027	\N	12.000	47.240	35.240	2025-10-02	137	sale	5	0	5	2025-12-09 17:42:02	2025-12-09 17:42:09
+178	4	1	4	INV-25/00028	\N	12.000	35.240	23.240	2025-10-02	138	sale	5	0	5	2025-12-09 17:42:09	2025-12-09 17:42:18
+179	4	1	4	INV-25/00029	\N	12.000	23.240	11.240	2025-10-02	139	sale	5	0	5	2025-12-09 17:42:18	2025-12-09 17:43:00
+180	4	1	4	INV-25/00030	\N	11.000	11.240	0.240	2025-10-02	140	sale	5	0	5	2025-12-09 17:43:00	2025-12-09 17:44:36
+181	4	1	4	0000021825010302	3926	70.840	0.240	71.080	2025-10-02	41	purchase	5	0	5	2025-12-09 17:44:36	2025-12-09 17:44:50
+182	4	1	4	INV-25/00031	\N	12.000	71.080	59.080	2025-10-02	141	sale	5	0	5	2025-12-09 17:44:50	2025-12-09 17:44:59
+183	4	1	4	INV-25/00032	\N	12.000	59.080	47.080	2025-10-02	142	sale	5	0	5	2025-12-09 17:44:59	2025-12-09 17:45:07
+184	4	1	4	INV-25/00033	\N	12.000	47.080	35.080	2025-10-02	143	sale	5	0	5	2025-12-09 17:45:07	2025-12-09 17:45:17
+185	4	1	4	INV-25/00034	\N	12.000	35.080	23.080	2025-10-02	144	sale	5	0	5	2025-12-09 17:45:17	2025-12-09 17:45:26
+186	4	1	4	INV-25/00035	\N	23.000	23.080	0.080	2025-10-02	145	sale	5	0	5	2025-12-09 17:45:26	2025-12-09 17:46:50
+187	4	1	4	0000021825010372	3958	71.720	0.080	71.800	2025-10-03	42	purchase	5	0	5	2025-12-09 17:46:50	2025-12-09 17:46:58
+188	4	1	4	INV-25/00036	\N	12.000	71.800	59.800	2025-10-03	146	sale	5	0	5	2025-12-09 17:46:58	2025-12-09 17:47:05
+189	4	1	4	INV-25/00037	\N	12.000	59.800	47.800	2025-10-03	147	sale	5	0	5	2025-12-09 17:47:05	2025-12-09 17:47:13
+190	4	1	4	INV-25/00038	\N	24.000	47.800	23.800	2025-10-03	148	sale	5	0	5	2025-12-09 17:47:13	2025-12-09 17:47:20
+191	4	1	4	INV-25/00039	\N	23.000	23.800	0.800	2025-10-03	149	sale	5	0	5	2025-12-09 17:47:20	2025-12-09 17:48:30
+192	4	1	4	0000021825010372	3960	71.080	0.800	71.880	2025-10-03	43	purchase	5	0	5	2025-12-09 17:48:30	2025-12-09 17:48:39
+193	4	1	4	INV-25/00040	\N	12.000	71.880	59.880	2025-10-03	150	sale	5	0	5	2025-12-09 17:48:39	2025-12-09 17:48:46
+194	4	1	4	INV-25/00041	\N	12.000	59.880	47.880	2025-10-03	151	sale	5	0	5	2025-12-09 17:48:46	2025-12-09 17:48:52
+195	4	1	4	INV-25/00042	\N	12.000	47.880	35.880	2025-10-03	152	sale	5	0	5	2025-12-09 17:48:52	2025-12-09 17:48:59
+196	4	1	4	INV-25/00043	\N	12.000	35.880	23.880	2025-10-03	153	sale	5	0	5	2025-12-09 17:48:59	2025-12-09 17:49:06
+197	4	1	4	INV-25/00044	\N	12.000	23.880	11.880	2025-10-03	154	sale	5	0	5	2025-12-09 17:49:06	2025-12-09 17:49:13
+198	4	1	4	INV-25/00045	\N	11.000	11.880	0.880	2025-10-03	155	sale	5	0	5	2025-12-09 17:49:13	2025-12-09 17:50:58
+199	4	1	4	0000021825010372	3987	70.780	0.880	71.660	2025-10-03	44	purchase	5	0	5	2025-12-09 17:50:58	2025-12-09 17:51:09
+200	4	1	4	INV-25/00046	\N	12.000	71.660	59.660	2025-10-03	156	sale	5	0	5	2025-12-09 17:51:09	2025-12-09 17:51:17
+201	4	1	4	INV-25/00047	\N	12.000	59.660	47.660	2025-10-03	157	sale	5	0	5	2025-12-09 17:51:17	2025-12-09 17:51:23
+202	4	1	4	INV-25/00048	\N	12.000	47.660	35.660	2025-10-03	158	sale	5	0	5	2025-12-09 17:51:23	2025-12-09 17:51:29
+203	4	1	4	INV-25/00049	\N	12.000	35.660	23.660	2025-10-03	159	sale	5	0	5	2025-12-09 17:51:29	2025-12-09 17:51:35
+204	4	1	4	INV-25/00050	\N	12.000	23.660	11.660	2025-10-03	160	sale	5	0	5	2025-12-09 17:51:35	2025-12-09 17:51:44
+205	4	1	4	INV-25/00051	\N	11.000	11.660	0.660	2025-10-03	161	sale	5	0	5	2025-12-09 17:51:44	2025-12-09 17:52:50
+206	4	1	4	0000021825010372	3990	69.760	0.660	70.420	2025-10-03	45	purchase	5	0	5	2025-12-09 17:52:50	2025-12-09 17:52:59
+207	4	1	4	INV-25/00052	\N	24.000	70.420	46.420	2025-10-03	162	sale	5	0	5	2025-12-09 17:52:59	2025-12-09 17:53:06
+208	4	1	4	INV-25/00053	\N	24.000	46.420	22.420	2025-10-03	163	sale	5	0	5	2025-12-09 17:53:06	2025-12-09 17:53:11
+209	4	1	4	INV-25/00054	\N	22.000	22.420	0.420	2025-10-03	164	sale	5	0	5	2025-12-09 17:53:11	2025-12-09 17:54:22
+210	4	1	4	0000021825010372	4011	69.470	0.420	69.890	2025-10-04	46	purchase	5	0	5	2025-12-09 17:54:22	2025-12-09 17:54:30
+211	4	1	4	INV-25/00055	\N	24.000	69.890	45.890	2025-10-04	165	sale	5	0	5	2025-12-09 17:54:30	2025-12-09 17:54:40
+212	4	1	4	INV-25/00056	\N	12.000	45.890	33.890	2025-10-04	166	sale	5	0	5	2025-12-09 17:54:40	2025-12-09 17:54:46
+213	4	1	4	INV-25/00057	\N	33.000	33.890	0.890	2025-10-04	167	sale	5	0	5	2025-12-09 17:54:46	2025-12-09 17:55:57
+214	4	1	4	0000021825010372	4014	67.810	0.890	68.700	2025-10-04	47	purchase	5	0	5	2025-12-09 17:55:57	2025-12-09 17:56:34
+215	4	1	4	INV-25/00058	\N	12.000	68.700	56.700	2025-10-04	168	sale	5	0	5	2025-12-09 17:56:34	2025-12-09 17:56:41
+216	4	1	4	INV-25/00059	\N	24.000	56.700	32.700	2025-10-04	169	sale	5	0	5	2025-12-09 17:56:41	2025-12-09 17:56:47
+217	4	1	4	INV-25/00060	\N	32.000	32.700	0.700	2025-10-04	170	sale	5	0	5	2025-12-09 17:56:47	2025-12-09 17:58:07
+218	4	1	4	0000021825010372	4039	45.300	0.700	46.000	2025-10-04	48	purchase	5	0	5	2025-12-09 17:58:07	2025-12-09 17:58:19
+219	4	1	4	INV-25/00061	\N	12.000	46.000	34.000	2025-10-04	171	sale	5	0	5	2025-12-09 17:58:19	2025-12-09 17:58:29
+220	4	1	4	INV-25/00062	\N	12.000	34.000	22.000	2025-10-04	172	sale	5	0	5	2025-12-09 17:58:29	2025-12-09 17:58:42
+221	4	1	4	INV-25/00063	\N	22.000	22.000	0.000	2025-10-04	173	sale	5	0	5	2025-12-09 17:58:42	2025-12-09 18:02:17
+222	4	1	4	0000021825010372	4063	68.360	0.000	68.360	2025-10-04	49	purchase	5	0	5	2025-12-09 18:02:17	2025-12-09 18:02:27
+223	4	1	4	INV-25/00064	\N	12.000	68.360	56.360	2025-10-04	174	sale	5	0	5	2025-12-09 18:02:27	2025-12-09 18:02:34
+224	4	1	4	INV-25/00065	\N	12.000	56.360	44.360	2025-10-04	175	sale	5	0	5	2025-12-09 18:02:34	2025-12-09 18:02:45
+225	4	1	4	INV-25/00066	\N	12.000	44.360	32.360	2025-10-04	176	sale	5	0	5	2025-12-09 18:02:45	2025-12-09 18:02:51
+226	4	1	4	INV-25/00067	\N	32.000	32.360	0.360	2025-10-04	177	sale	5	0	5	2025-12-09 18:02:51	2025-12-09 18:04:00
+227	4	1	4	0000021825010372	4077	68.400	0.360	68.760	2025-10-05	50	purchase	5	0	5	2025-12-09 18:04:00	2025-12-09 18:04:09
+228	4	1	4	INV-25/00068	\N	12.000	68.760	56.760	2025-10-05	178	sale	5	0	5	2025-12-09 18:04:09	2025-12-09 18:04:16
+229	4	1	4	INV-25/00069	\N	24.000	56.760	32.760	2025-10-05	179	sale	5	0	5	2025-12-09 18:04:16	2025-12-09 18:04:22
+230	4	1	4	INV-25/00070	\N	32.000	32.760	0.760	2025-10-05	180	sale	5	0	5	2025-12-09 18:04:22	2025-12-09 18:05:41
+231	4	1	4	0000021825010407	4148	68.010	0.760	68.770	2025-10-05	51	purchase	5	0	5	2025-12-09 18:05:41	2025-12-09 18:05:54
+232	4	1	4	INV-25/00071	\N	24.000	68.770	44.770	2025-10-05	181	sale	5	0	5	2025-12-09 18:05:54	2025-12-09 18:06:04
+233	4	1	4	INV-25/00072	\N	12.000	44.770	32.770	2025-10-05	182	sale	5	0	5	2025-12-09 18:06:04	2025-12-09 18:06:13
+234	4	1	4	INV-25/00073	\N	32.000	32.770	0.770	2025-10-05	183	sale	5	0	5	2025-12-09 18:06:13	2025-12-09 18:09:00
+235	4	1	4	0000021825010407	4177	68.490	0.770	69.260	2025-10-05	52	purchase	5	0	5	2025-12-09 18:09:00	2025-12-09 18:09:15
+236	4	1	4	INV-25/00074	\N	24.000	69.260	45.260	2025-10-05	184	sale	5	0	5	2025-12-09 18:09:15	2025-12-09 18:09:28
+237	4	1	4	INV-25/00075	\N	24.000	45.260	21.260	2025-10-05	185	sale	5	0	5	2025-12-09 18:09:28	2025-12-09 18:09:36
+238	4	1	4	INV-25/00076	\N	21.000	21.260	0.260	2025-10-05	186	sale	5	0	5	2025-12-09 18:09:36	2025-12-09 18:10:41
+239	4	1	4	0000021825010407	4178	46.920	0.260	47.180	2025-10-05	53	purchase	5	0	5	2025-12-09 18:10:41	2025-12-09 18:10:51
+240	4	1	4	INV-25/00077	\N	12.000	47.180	35.180	2025-10-05	187	sale	5	0	5	2025-12-09 18:10:51	2025-12-09 18:10:57
+241	4	1	4	INV-25/00078	\N	12.000	35.180	23.180	2025-10-05	188	sale	5	0	5	2025-12-09 18:10:57	2025-12-09 18:11:05
+242	4	1	4	INV-25/00079	\N	23.000	23.180	0.180	2025-10-05	189	sale	5	0	5	2025-12-09 18:11:05	2025-12-09 18:12:27
+243	4	1	4	0000021825010407	4206	70.940	0.180	71.120	2025-10-05	54	purchase	5	0	5	2025-12-09 18:12:27	2025-12-09 18:12:38
+244	4	1	4	INV-25/00080	\N	12.000	71.120	59.120	2025-10-05	190	sale	5	0	5	2025-12-09 18:12:38	2025-12-09 18:12:45
+245	4	1	4	INV-25/00081	\N	24.000	59.120	35.120	2025-10-05	191	sale	5	0	5	2025-12-09 18:12:45	2025-12-09 18:12:52
+246	4	1	4	INV-25/00082	\N	35.000	35.120	0.120	2025-10-05	192	sale	5	0	5	2025-12-09 18:12:52	2025-12-09 18:14:24
+247	4	1	4	0000021825010407	4221	47.460	0.120	47.580	2025-10-05	55	purchase	5	0	5	2025-12-09 18:14:24	2025-12-09 18:14:41
+248	4	1	4	INV-25/00083	\N	12.000	47.580	35.580	2025-10-05	193	sale	5	0	5	2025-12-09 18:14:41	2025-12-09 18:14:49
+249	4	1	4	INV-25/00084	\N	35.000	35.580	0.580	2025-10-05	194	sale	5	0	5	2025-12-09 18:14:49	2025-12-09 18:16:09
+250	4	1	4	0000021825010419	4238	70.920	0.580	71.500	2025-10-05	56	purchase	5	0	5	2025-12-09 18:16:09	2025-12-09 18:16:20
+251	4	1	4	INV-25/00085	\N	12.000	71.500	59.500	2025-10-05	195	sale	5	0	5	2025-12-09 18:16:20	2025-12-09 18:16:25
+252	4	1	4	INV-25/00086	\N	12.000	59.500	47.500	2025-10-05	196	sale	5	0	5	2025-12-09 18:16:25	2025-12-09 18:16:30
+253	4	1	4	INV-25/00087	\N	12.000	47.500	35.500	2025-10-05	197	sale	5	0	5	2025-12-09 18:16:30	2025-12-09 18:16:35
+254	4	1	4	INV-25/00088	\N	12.000	35.500	23.500	2025-10-05	198	sale	5	0	5	2025-12-09 18:16:35	2025-12-09 18:16:41
+255	4	1	4	INV-25/00089	\N	12.000	23.500	11.500	2025-10-05	199	sale	5	0	5	2025-12-09 18:16:41	2025-12-09 18:16:47
+256	4	1	4	INV-25/00090	\N	11.000	11.500	0.500	2025-10-05	200	sale	5	0	5	2025-12-09 18:16:47	2025-12-09 18:18:59
+257	4	1	4	0000021825010419	4266	70.960	0.500	71.460	2025-10-06	57	purchase	5	0	5	2025-12-09 18:18:59	2025-12-09 18:19:14
+258	4	1	4	INV-25/00091	\N	12.000	71.460	59.460	2025-10-06	201	sale	5	0	5	2025-12-09 18:19:15	2025-12-09 18:19:22
+259	4	1	4	INV-25/00092	\N	12.000	59.460	47.460	2025-10-06	202	sale	5	0	5	2025-12-09 18:19:22	2025-12-09 18:19:27
+260	4	1	4	INV-25/00093	\N	12.000	47.460	35.460	2025-10-06	203	sale	5	0	5	2025-12-09 18:19:27	2025-12-09 18:19:34
+261	4	1	4	INV-25/00094	\N	12.000	35.460	23.460	2025-10-06	204	sale	5	0	5	2025-12-09 18:19:34	2025-12-09 18:19:40
+262	4	1	4	INV-25/00095	\N	12.000	23.460	11.460	2025-10-06	205	sale	5	0	5	2025-12-09 18:19:41	2025-12-09 18:19:50
+263	4	1	4	INV-25/00096	\N	11.000	11.460	0.460	2025-10-06	206	sale	5	0	5	2025-12-09 18:19:50	2025-12-09 18:26:14
+264	4	1	4	0000021825010419	4270	69.730	0.460	70.190	2025-10-06	58	purchase	5	0	5	2025-12-09 18:26:14	2025-12-09 18:27:15
+265	4	1	4	INV-25/00097	\N	12.000	70.190	58.190	2025-10-06	207	sale	5	0	5	2025-12-09 18:27:15	2025-12-09 18:27:23
+266	4	1	4	INV-25/00098	\N	12.000	58.190	46.190	2025-10-06	208	sale	5	0	5	2025-12-09 18:27:23	2025-12-09 18:27:31
+267	4	1	4	INV-25/00099	\N	12.000	46.190	34.190	2025-10-06	209	sale	5	0	5	2025-12-09 18:27:31	2025-12-09 18:27:41
+268	4	1	4	INV-25/00100	\N	34.000	34.190	0.190	2025-10-06	210	sale	5	0	5	2025-12-09 18:27:41	2025-12-09 23:30:31
+269	1	1	5	667	6000	77.470	0.000	77.470	2025-11-03	59	purchase	5	0	3	2025-12-09 18:45:32	2025-12-09 18:53:36
+273	1	1	5	INV-25/00036	\N	25.690	77.470	51.780	2025-11-03	214	sale	5	0	3	2025-12-09 18:53:36	2025-12-09 18:53:55
+274	1	1	5	INV-25/00037	\N	26.120	51.780	25.660	2025-11-03	215	sale	5	0	3	2025-12-09 18:53:55	2025-12-09 18:54:03
+275	1	1	5	INV-25/00038	\N	25.660	25.660	0.000	2025-11-03	216	sale	5	0	3	2025-12-09 18:54:03	2025-12-09 18:57:44
+276	1	1	5	672	8335	12.710	0.000	12.710	2025-11-03	60	purchase	5	0	3	2025-12-09 18:57:44	2025-12-09 18:57:56
+277	1	1	5	INV-25/00039	\N	12.710	12.710	0.000	2025-11-03	217	sale	5	0	3	2025-12-09 18:57:56	2025-12-09 18:59:00
+278	1	1	5	672	8382	37.380	0.000	37.380	2025-11-04	61	purchase	5	0	3	2025-12-09 18:59:00	2025-12-09 18:59:15
+279	1	1	5	INV-25/00040	\N	17.980	37.380	19.400	2025-11-04	218	sale	5	0	3	2025-12-09 18:59:15	2025-12-09 18:59:23
+280	1	1	5	INV-25/00041	\N	19.400	19.400	0.000	2025-11-04	219	sale	5	0	3	2025-12-09 18:59:23	2025-12-09 19:03:16
+281	1	1	5	694	6117	24.420	0.000	24.420	2025-11-04	62	purchase	5	0	3	2025-12-09 19:03:16	2025-12-09 19:03:29
+282	1	1	5	INV-25/00042	\N	24.420	24.420	0.000	2025-11-04	220	sale	5	0	3	2025-12-09 19:03:29	2025-12-09 19:04:37
+283	1	1	5	694	6171	73.910	0.000	73.910	2025-11-04	63	purchase	5	0	3	2025-12-09 19:04:37	2025-12-09 19:04:51
+284	1	1	5	INV-25/00043	\N	24.560	73.910	49.350	2025-11-04	221	sale	5	0	3	2025-12-09 19:04:51	2025-12-09 19:04:59
+285	1	1	5	INV-25/00044	\N	24.360	49.350	24.990	2025-11-04	222	sale	5	0	3	2025-12-09 19:04:59	2025-12-09 19:05:07
+286	1	1	5	INV-25/00045	\N	24.990	24.990	0.000	2025-11-04	223	sale	5	0	3	2025-12-09 19:05:07	2025-12-09 19:06:30
+287	1	1	5	672	8446	111.910	0.000	111.910	2025-11-05	64	purchase	5	0	3	2025-12-09 19:06:30	2025-12-09 19:06:51
+288	1	1	5	INV-25/00046	\N	22.320	111.910	89.590	2025-11-05	224	sale	5	0	3	2025-12-09 19:06:51	2025-12-09 19:07:01
+289	1	1	5	INV-25/00047	\N	22.360	89.590	67.230	2025-11-05	225	sale	5	0	3	2025-12-09 19:07:01	2025-12-09 19:07:09
+290	1	1	5	INV-25/00048	\N	22.560	67.230	44.670	2025-11-05	226	sale	5	0	3	2025-12-09 19:07:09	2025-12-09 19:07:16
+291	1	1	5	INV-25/00049	\N	22.150	44.670	22.520	2025-11-05	227	sale	5	0	3	2025-12-09 19:07:16	2025-12-09 19:07:24
+292	1	1	5	INV-25/00050	\N	22.520	22.520	0.000	2025-11-05	228	sale	5	0	3	2025-12-09 19:07:24	2025-12-09 19:08:46
+293	1	1	5	694	6220	73.340	0.000	73.340	2025-11-06	65	purchase	5	0	3	2025-12-09 19:08:46	2025-12-09 19:08:57
+294	1	1	5	INV-25/00051	\N	23.630	73.340	49.710	2025-11-06	229	sale	5	0	3	2025-12-09 19:08:57	2025-12-09 19:09:04
+295	1	1	5	INV-25/00052	\N	24.120	49.710	25.590	2025-11-06	230	sale	5	0	3	2025-12-09 19:09:04	2025-12-09 19:09:12
+296	1	1	5	INV-25/00053	\N	25.590	25.590	0.000	2025-11-06	231	sale	5	0	3	2025-12-09 19:09:12	2025-12-09 19:10:39
+297	1	1	5	694	6314	72.530	0.000	72.530	2025-11-08	66	purchase	5	0	3	2025-12-09 19:10:39	2025-12-09 19:10:55
+298	1	1	5	INV-25/00054	\N	24.120	72.530	48.410	2025-11-08	232	sale	5	0	3	2025-12-09 19:10:55	2025-12-09 19:11:02
+299	1	1	5	INV-25/00055	\N	23.630	48.410	24.780	2025-11-08	233	sale	5	0	3	2025-12-09 19:11:02	2025-12-09 19:11:09
+300	1	1	5	INV-25/00056	\N	24.780	24.780	0.000	2025-11-08	234	sale	5	0	3	2025-12-09 19:11:09	2025-12-09 19:12:27
+301	1	1	5	694	6505	75.850	0.000	75.850	2025-11-13	67	purchase	5	0	3	2025-12-09 19:12:27	2025-12-09 19:12:38
+302	1	1	5	INV-25/00057	\N	24.890	75.850	50.960	2025-11-13	235	sale	5	0	3	2025-12-09 19:12:38	2025-12-09 19:12:45
+303	1	1	5	INV-25/00058	\N	25.630	50.960	25.330	2025-11-13	236	sale	5	0	3	2025-12-09 19:12:45	2025-12-09 19:12:52
+304	1	1	5	INV-25/00059	\N	25.330	25.330	0.000	2025-11-13	237	sale	5	0	3	2025-12-09 19:12:52	2025-12-09 19:13:54
+305	1	1	5	733	8803	99.510	0.000	99.510	2025-11-13	68	purchase	5	0	3	2025-12-09 19:13:54	2025-12-09 19:14:11
+306	1	1	5	INV-25/00060	\N	24.230	99.510	75.280	2025-11-13	238	sale	5	0	3	2025-12-09 19:14:11	2025-12-09 19:14:17
+307	1	1	5	INV-25/00061	\N	25.630	75.280	49.650	2025-11-13	239	sale	5	0	3	2025-12-09 19:14:17	2025-12-09 19:14:23
+308	1	1	5	INV-25/00062	\N	25.010	49.650	24.640	2025-11-13	240	sale	5	0	3	2025-12-09 19:14:23	2025-12-09 19:14:32
+309	1	1	5	INV-25/00063	\N	24.640	24.640	0.000	2025-11-13	241	sale	5	0	3	2025-12-09 19:14:32	2025-12-09 19:16:02
+310	1	1	5	694	6606	49.260	0.000	49.260	2025-11-14	69	purchase	5	0	3	2025-12-09 19:16:02	2025-12-09 19:16:16
+311	1	1	5	INV-25/00064	\N	24.850	49.260	24.410	2025-11-14	242	sale	5	0	3	2025-12-09 19:16:16	2025-12-09 19:16:23
+312	1	1	5	INV-25/00065	\N	24.410	24.410	0.000	2025-11-14	243	sale	5	0	3	2025-12-09 19:16:23	2025-12-09 19:17:23
+313	1	1	5	733	8856	50.330	0.000	50.330	2025-11-15	70	purchase	5	0	3	2025-12-09 19:17:23	2025-12-09 19:17:44
+314	1	1	5	INV-25/00066	\N	25.100	50.330	25.230	2025-11-15	244	sale	5	0	3	2025-12-09 19:17:44	2025-12-09 19:18:07
+315	1	1	5	INV-25/00067	\N	25.230	25.230	0.000	2025-11-15	245	sale	5	0	3	2025-12-09 19:18:07	2025-12-09 19:19:50
+316	1	1	5	733	8972	61.000	0.000	61.000	2025-11-18	71	purchase	5	0	3	2025-12-09 19:19:50	2025-12-09 19:20:43
+317	1	1	5	INV-25/00068	\N	20.300	61.000	40.700	2025-11-18	246	sale	5	0	3	2025-12-09 19:20:43	2025-12-09 19:20:53
+318	1	1	5	INV-25/00069	\N	20.030	40.700	20.670	2025-11-18	247	sale	5	0	3	2025-12-09 19:20:53	2025-12-09 19:21:03
+319	1	1	5	INV-25/00070	\N	20.670	20.670	0.000	2025-11-18	248	sale	5	0	3	2025-12-09 19:21:03	2025-12-09 19:23:10
+320	1	1	5	733	9023	25.220	0.000	25.220	2025-11-19	72	purchase	5	0	3	2025-12-09 19:23:10	2025-12-09 19:23:30
+321	1	1	5	INV-25/00071	\N	25.220	25.220	0.000	2025-11-19	249	sale	5	0	3	2025-12-09 19:23:30	2025-12-09 19:54:01
+322	1	1	5	763	6887	75.080	0.000	75.080	2025-11-20	73	purchase	5	0	3	2025-12-09 19:54:01	2025-12-09 19:54:11
+323	1	1	5	INV-25/00072	\N	25.100	75.080	49.980	2025-11-20	250	sale	5	0	3	2025-12-09 19:54:11	2025-12-09 19:54:18
+324	1	1	5	INV-25/00073	\N	24.560	49.980	25.420	2025-11-20	251	sale	5	0	3	2025-12-09 19:54:18	2025-12-09 19:54:25
+325	1	1	5	INV-25/00074	\N	25.420	25.420	0.000	2025-11-20	252	sale	5	0	3	2025-12-09 19:54:25	2025-12-09 20:23:18
+326	1	1	5	763	6922	100.280	0.000	100.280	2025-11-21	74	purchase	5	0	3	2025-12-09 20:23:18	2025-12-09 20:23:36
+327	1	1	5	INV-25/00075	\N	24.690	100.280	75.590	2025-11-21	253	sale	5	0	3	2025-12-09 20:23:36	2025-12-09 20:23:45
+328	1	1	5	INV-25/00076	\N	24.260	75.590	51.330	2025-11-21	254	sale	5	0	3	2025-12-09 20:23:45	2025-12-09 20:23:54
+329	1	1	5	INV-25/00077	\N	25.230	51.330	26.100	2025-11-21	255	sale	5	0	3	2025-12-09 20:23:54	2025-12-09 20:24:02
+330	1	1	5	INV-25/00078	\N	26.100	26.100	0.000	2025-11-21	256	sale	5	0	3	2025-12-09 20:24:02	2025-12-09 20:25:40
+331	1	1	5	763	7018	25.290	0.000	25.290	2025-11-25	75	purchase	5	0	3	2025-12-09 20:25:40	2025-12-09 20:25:51
+332	1	1	5	INV-25/00079	\N	25.290	25.290	0.000	2025-11-25	257	sale	5	0	3	2025-12-09 20:25:51	2025-12-09 20:26:52
+333	1	1	5	733	9108	12.000	0.000	12.000	2025-11-25	76	purchase	5	0	3	2025-12-09 20:26:52	2025-12-09 20:27:14
+334	1	1	5	INV-25/00080	\N	12.000	12.000	0.000	2025-11-25	258	sale	5	0	3	2025-12-09 20:27:14	2025-12-09 20:29:24
+335	1	1	5	763	7015	74.950	0.000	74.950	2025-11-25	77	purchase	5	0	3	2025-12-09 20:29:24	2025-12-09 20:29:35
+336	1	1	5	INV-25/00081	\N	24.560	74.950	50.390	2025-11-25	259	sale	5	0	3	2025-12-09 20:29:35	2025-12-09 20:29:42
+337	1	1	5	INV-25/00082	\N	25.300	50.390	25.090	2025-11-25	260	sale	5	0	3	2025-12-09 20:29:42	2025-12-09 20:29:50
+338	1	1	5	INV-25/00083	\N	25.090	25.090	0.000	2025-11-25	261	sale	5	0	3	2025-12-09 20:29:50	2025-12-09 20:31:13
+339	1	1	5	763	7079	125.330	0.000	125.330	2025-11-26	78	purchase	5	0	3	2025-12-09 20:31:13	2025-12-09 20:31:26
+340	1	1	5	INV-25/00084	\N	24.690	125.330	100.640	2025-11-26	262	sale	5	0	3	2025-12-09 20:31:26	2025-12-09 20:31:33
+341	1	1	5	INV-25/00085	\N	24.890	100.640	75.750	2025-11-26	263	sale	5	0	3	2025-12-09 20:31:33	2025-12-09 20:31:40
+342	1	1	5	INV-25/00086	\N	24.850	75.750	50.900	2025-11-26	264	sale	5	0	3	2025-12-09 20:31:40	2025-12-09 20:31:46
+343	1	1	5	INV-25/00087	\N	25.100	50.900	25.800	2025-11-26	265	sale	5	0	3	2025-12-09 20:31:46	2025-12-09 20:31:54
+344	1	1	5	INV-25/00088	\N	25.800	25.800	0.000	2025-11-26	266	sale	5	0	3	2025-12-09 20:31:54	2025-12-09 20:32:59
+345	1	1	5	733	9154	36.000	0.000	36.000	2025-11-26	79	purchase	5	0	3	2025-12-09 20:32:59	2025-12-09 20:33:10
+346	1	1	5	INV-25/00089	\N	17.360	36.000	18.640	2025-11-26	267	sale	5	0	3	2025-12-09 20:33:10	2025-12-09 20:33:19
+347	1	1	5	INV-25/00090	\N	18.640	18.640	0.000	2025-11-26	268	sale	5	0	3	2025-12-09 20:33:19	2025-12-09 20:34:18
+348	1	1	5	733	9257	24.000	0.000	24.000	2025-11-27	80	purchase	5	0	3	2025-12-09 20:34:18	2025-12-09 20:34:27
+349	1	1	5	INV-25/00091	\N	24.000	24.000	0.000	2025-11-27	269	sale	5	0	3	2025-12-09 20:34:27	2025-12-09 20:35:56
+350	1	1	5	763	7201	77.400	0.000	77.400	2025-11-28	81	purchase	5	0	3	2025-12-09 20:35:56	2025-12-09 20:36:07
+351	1	1	5	INV-25/00092	\N	25.630	77.400	51.770	2025-11-28	270	sale	5	0	3	2025-12-09 20:36:07	2025-12-09 20:36:16
+352	1	1	5	INV-25/00093	\N	25.890	51.770	25.880	2025-11-28	271	sale	5	0	3	2025-12-09 20:36:16	2025-12-09 20:36:24
+353	1	1	5	INV-25/00094	\N	25.880	25.880	0.000	2025-11-28	272	sale	5	1	3	2025-12-09 20:36:24	2025-12-09 20:36:24
+354	4	1	4	0000021825010419	4302	66.710	0.190	66.900	2025-10-06	82	purchase	5	0	5	2025-12-09 23:30:31	2025-12-09 23:30:57
+355	4	1	4	INV-25/00101	\N	24.000	66.900	42.900	2025-10-06	273	sale	5	0	5	2025-12-09 23:30:57	2025-12-09 23:31:08
+356	4	1	4	INV-25/00102	\N	12.000	42.900	30.900	2025-10-06	274	sale	5	0	5	2025-12-09 23:31:08	2025-12-09 23:31:40
+357	4	1	4	INV-25/00103	\N	30.000	30.900	0.900	2025-10-06	275	sale	5	0	5	2025-12-09 23:31:40	2025-12-09 23:34:14
+358	4	1	4	0000021825010419	4303	23.140	0.900	24.040	2025-10-06	83	purchase	5	0	5	2025-12-09 23:34:14	2025-12-09 23:34:36
+359	4	1	4	INV-25/00104	\N	24.000	24.040	0.040	2025-10-06	276	sale	5	0	5	2025-12-09 23:34:36	2025-12-09 23:42:53
+360	4	1	4	0000021825010438	4334	69.830	0.040	69.870	2025-10-06	84	purchase	5	0	5	2025-12-09 23:42:53	2025-12-09 23:43:39
+361	4	1	4	INV-25/00105	\N	24.000	69.870	45.870	2025-10-06	277	sale	5	0	5	2025-12-09 23:43:39	2025-12-09 23:43:54
+362	4	1	4	INV-25/00106	\N	12.000	45.870	33.870	2025-10-06	278	sale	5	0	5	2025-12-09 23:43:54	2025-12-09 23:44:03
+363	4	1	4	INV-25/00107	\N	33.000	33.870	0.870	2025-10-06	279	sale	5	0	5	2025-12-09 23:44:03	2025-12-09 23:45:40
+364	4	1	4	0000021825010438	4335	69.220	0.870	70.090	2025-10-06	85	purchase	5	0	5	2025-12-09 23:45:40	2025-12-09 23:45:51
+365	4	1	4	INV-25/00108	\N	12.000	70.090	58.090	2025-10-06	280	sale	5	0	5	2025-12-09 23:45:51	2025-12-09 23:45:56
+366	4	1	4	INV-25/00109	\N	12.000	58.090	46.090	2025-10-06	281	sale	5	0	5	2025-12-09 23:45:56	2025-12-09 23:46:03
+367	4	1	4	INV-25/00110	\N	12.000	46.090	34.090	2025-10-06	282	sale	5	0	5	2025-12-09 23:46:03	2025-12-09 23:46:12
+368	4	1	4	INV-25/00111	\N	34.000	34.090	0.090	2025-10-06	283	sale	5	0	5	2025-12-09 23:46:12	2025-12-09 23:47:44
+369	4	1	4	0000021825010438	4364	67.530	0.090	67.620	2025-10-07	86	purchase	5	0	5	2025-12-09 23:47:44	2025-12-09 23:47:54
+370	4	1	4	INV-25/00112	\N	12.000	67.620	55.620	2025-10-07	284	sale	5	0	5	2025-12-09 23:47:54	2025-12-09 23:48:13
+371	4	1	4	INV-25/00113	\N	12.000	55.620	43.620	2025-10-07	285	sale	5	0	5	2025-12-09 23:48:13	2025-12-09 23:50:02
+372	4	1	4	INV-25/00114	\N	12.000	43.620	31.620	2025-10-07	286	sale	5	0	5	2025-12-09 23:50:02	2025-12-09 23:50:11
+373	4	1	4	INV-25/00115	\N	31.000	31.620	0.620	2025-10-07	287	sale	5	0	5	2025-12-09 23:50:11	2025-12-09 23:51:58
+374	4	1	4	0000021825010438	4375	70.340	0.620	70.960	2025-10-07	87	purchase	5	0	5	2025-12-09 23:51:58	2025-12-09 23:52:08
+375	4	1	4	INV-25/00116	\N	24.000	70.960	46.960	2025-10-07	288	sale	5	0	5	2025-12-09 23:52:08	2025-12-09 23:52:15
+376	4	1	4	INV-25/00117	\N	12.000	46.960	34.960	2025-10-07	289	sale	5	0	5	2025-12-09 23:52:15	2025-12-09 23:52:22
+377	4	1	4	INV-25/00118	\N	34.000	34.960	0.960	2025-10-07	290	sale	5	0	5	2025-12-09 23:52:22	2025-12-09 23:53:27
+378	4	1	4	0000021825010438	4377	24.600	0.960	25.560	2025-10-08	88	purchase	5	0	5	2025-12-09 23:53:27	2025-12-09 23:53:41
+379	4	1	4	INV-25/00119	\N	12.000	25.560	13.560	2025-10-08	291	sale	5	0	5	2025-12-09 23:53:41	2025-12-09 23:53:48
+380	4	1	4	INV-25/00120	\N	13.000	13.560	0.560	2025-10-08	292	sale	5	0	5	2025-12-09 23:53:48	2025-12-09 23:54:58
+381	4	1	4	0000021825010452	4430	69.870	0.560	70.430	2025-10-08	89	purchase	5	0	5	2025-12-09 23:54:58	2025-12-09 23:55:07
+382	4	1	4	INV-25/00121	\N	12.000	70.430	58.430	2025-10-08	293	sale	5	0	5	2025-12-09 23:55:07	2025-12-09 23:55:13
+383	4	1	4	INV-25/00122	\N	24.000	58.430	34.430	2025-10-08	294	sale	5	0	5	2025-12-09 23:55:13	2025-12-09 23:55:21
+384	4	1	4	INV-25/00123	\N	34.000	34.430	0.430	2025-10-08	295	sale	5	0	5	2025-12-09 23:55:21	2025-12-09 23:57:03
+385	4	1	4	0000021825010452	4458	69.810	0.430	70.240	2025-10-09	90	purchase	5	0	5	2025-12-09 23:57:03	2025-12-09 23:57:21
+386	4	1	4	INV-25/00124	\N	24.000	70.240	46.240	2025-10-09	296	sale	5	0	5	2025-12-09 23:57:21	2025-12-09 23:57:27
+387	4	1	4	INV-25/00125	\N	12.000	46.240	34.240	2025-10-09	297	sale	5	0	5	2025-12-09 23:57:27	2025-12-09 23:57:35
+388	4	1	4	INV-25/00126	\N	34.000	34.240	0.240	2025-10-09	298	sale	5	0	5	2025-12-09 23:57:35	2025-12-09 23:59:40
+389	4	1	4	0000021825010452	4469	69.510	0.240	69.750	2025-10-09	91	purchase	5	0	5	2025-12-09 23:59:40	2025-12-09 23:59:52
+390	4	1	4	INV-25/00127	\N	12.000	69.750	57.750	2025-10-09	299	sale	5	0	5	2025-12-09 23:59:52	2025-12-09 23:59:59
+391	4	1	4	INV-25/00128	\N	12.000	57.750	45.750	2025-10-09	300	sale	5	0	5	2025-12-09 23:59:59	2025-12-10 00:00:10
+392	4	1	4	INV-25/00129	\N	12.000	45.750	33.750	2025-10-09	301	sale	5	0	5	2025-12-10 00:00:10	2025-12-10 00:00:57
+393	4	1	4	INV-25/00130	\N	33.000	33.750	0.750	2025-10-09	302	sale	5	0	5	2025-12-10 00:00:57	2025-12-10 00:14:56
+394	4	1	4	0000021825010452	4498	69.050	0.750	69.800	2025-10-09	92	purchase	5	0	5	2025-12-10 00:14:56	2025-12-10 00:15:05
+395	4	1	4	INV-25/00131	\N	12.000	69.800	57.800	2025-10-09	303	sale	5	0	5	2025-12-10 00:15:05	2025-12-10 00:15:12
+396	4	1	4	INV-25/00132	\N	12.000	57.800	45.800	2025-10-09	304	sale	5	0	5	2025-12-10 00:15:12	2025-12-10 00:15:20
+397	4	1	4	INV-25/00133	\N	12.000	45.800	33.800	2025-10-09	305	sale	5	0	5	2025-12-10 00:15:20	2025-12-10 00:15:28
+398	4	1	4	INV-25/00134	\N	33.000	33.800	0.800	2025-10-09	306	sale	5	0	5	2025-12-10 00:15:28	2025-12-10 00:16:48
+399	4	1	4	0000021825010452	4524	69.560	0.800	70.360	2025-10-10	93	purchase	5	0	5	2025-12-10 00:16:48	2025-12-10 00:16:56
+400	4	1	4	INV-25/00135	\N	12.000	70.360	58.360	2025-10-10	307	sale	5	0	5	2025-12-10 00:16:56	2025-12-10 00:17:02
+401	4	1	4	INV-25/00136	\N	24.000	58.360	34.360	2025-10-10	308	sale	5	0	5	2025-12-10 00:17:02	2025-12-10 00:17:08
+402	4	1	4	INV-25/00137	\N	34.000	34.360	0.360	2025-10-10	309	sale	5	0	5	2025-12-10 00:17:08	2025-12-10 00:18:31
+403	4	1	4	0000021825010480	4680	69.570	0.360	69.930	2025-10-10	94	purchase	5	0	5	2025-12-10 00:18:31	2025-12-10 00:18:39
+404	4	1	4	INV-25/00138	\N	12.000	69.930	57.930	2025-10-10	310	sale	5	0	5	2025-12-10 00:18:39	2025-12-10 00:18:45
+405	4	1	4	INV-25/00139	\N	12.000	57.930	45.930	2025-10-10	311	sale	5	0	5	2025-12-10 00:18:45	2025-12-10 00:18:52
+406	4	1	4	INV-25/00140	\N	12.000	45.930	33.930	2025-10-10	312	sale	5	0	5	2025-12-10 00:18:52	2025-12-10 00:18:58
+407	4	1	4	INV-25/00141	\N	33.000	33.930	0.930	2025-10-10	313	sale	5	0	5	2025-12-10 00:18:58	2025-12-10 00:20:13
+408	4	1	4	0000021825010480	4700	69.860	0.930	70.790	2025-10-10	95	purchase	5	0	5	2025-12-10 00:20:13	2025-12-10 00:20:23
+409	4	1	4	INV-25/00142	\N	24.000	70.790	46.790	2025-10-10	314	sale	5	0	5	2025-12-10 00:20:23	2025-12-10 00:20:29
+410	4	1	4	INV-25/00143	\N	12.000	46.790	34.790	2025-10-10	315	sale	5	0	5	2025-12-10 00:20:29	2025-12-10 00:20:36
+411	4	1	4	INV-25/00144	\N	34.000	34.790	0.790	2025-10-10	316	sale	5	0	5	2025-12-10 00:20:36	2025-12-10 00:21:56
+412	4	1	4	0000021825010480	4735	69.990	0.790	70.780	2025-10-10	96	purchase	5	0	5	2025-12-10 00:21:56	2025-12-10 00:22:03
+413	4	1	4	INV-25/00145	\N	24.000	70.780	46.780	2025-10-10	317	sale	5	0	5	2025-12-10 00:22:03	2025-12-10 00:22:10
+414	4	1	4	INV-25/00146	\N	12.000	46.780	34.780	2025-10-10	318	sale	5	0	5	2025-12-10 00:22:10	2025-12-10 00:22:16
+415	4	1	4	INV-25/00147	\N	34.000	34.780	0.780	2025-10-10	319	sale	5	0	5	2025-12-10 00:22:16	2025-12-10 00:23:27
+416	4	1	4	0000021825010480	4771	71.140	0.780	71.920	2025-10-10	97	purchase	5	0	5	2025-12-10 00:23:27	2025-12-10 00:23:35
+417	4	1	4	INV-25/00148	\N	12.000	71.920	59.920	2025-10-10	320	sale	5	0	5	2025-12-10 00:23:35	2025-12-10 00:23:42
+418	4	1	4	INV-25/00149	\N	12.000	59.920	47.920	2025-10-10	321	sale	5	0	5	2025-12-10 00:23:42	2025-12-10 00:23:49
+419	4	1	4	INV-25/00150	\N	12.000	47.920	35.920	2025-10-10	322	sale	5	0	5	2025-12-10 00:23:49	2025-12-10 00:23:57
+420	4	1	4	INV-25/00151	\N	35.000	35.920	0.920	2025-10-10	323	sale	5	0	5	2025-12-10 00:23:57	2025-12-10 00:25:05
+421	4	1	4	0000021825010480	4807	68.110	0.920	69.030	2025-10-10	98	purchase	5	0	5	2025-12-10 00:25:05	2025-12-10 00:25:14
+422	4	1	4	INV-25/00152	\N	12.000	69.030	57.030	2025-10-10	324	sale	5	0	5	2025-12-10 00:25:14	2025-12-10 00:25:20
+423	4	1	4	INV-25/00153	\N	12.000	57.030	45.030	2025-10-10	325	sale	5	0	5	2025-12-10 00:25:20	2025-12-10 00:25:26
+424	4	1	4	INV-25/00154	\N	12.000	45.030	33.030	2025-10-10	326	sale	5	0	5	2025-12-10 00:25:26	2025-12-10 00:25:34
+425	4	1	4	INV-25/00155	\N	33.000	33.030	0.030	2025-10-10	327	sale	5	0	5	2025-12-10 00:25:34	2025-12-10 00:26:29
+426	4	1	4	0000021825010494	4838	71.440	0.030	71.470	2025-10-10	99	purchase	5	0	5	2025-12-10 00:26:29	2025-12-10 00:26:37
+427	4	1	4	INV-25/00156	\N	24.000	71.470	47.470	2025-10-10	328	sale	5	0	5	2025-12-10 00:26:37	2025-12-10 00:26:43
+428	4	1	4	INV-25/00157	\N	24.000	47.470	23.470	2025-10-10	329	sale	5	0	5	2025-12-10 00:26:43	2025-12-10 00:26:50
+429	4	1	4	INV-25/00158	\N	23.000	23.470	0.470	2025-10-10	330	sale	5	0	5	2025-12-10 00:26:50	2025-12-10 00:27:52
+430	4	1	4	0000021825010494	4903	70.950	0.470	71.420	2025-10-11	100	purchase	5	0	5	2025-12-10 00:27:52	2025-12-10 00:27:59
+431	4	1	4	INV-25/00159	\N	12.000	71.420	59.420	2025-10-11	331	sale	5	0	5	2025-12-10 00:27:59	2025-12-10 00:28:05
+432	4	1	4	INV-25/00160	\N	12.000	59.420	47.420	2025-10-11	332	sale	5	0	5	2025-12-10 00:28:05	2025-12-10 00:28:11
+433	4	1	4	INV-25/00161	\N	12.000	47.420	35.420	2025-10-11	333	sale	5	0	5	2025-12-10 00:28:11	2025-12-10 00:28:16
+434	4	1	4	INV-25/00162	\N	12.000	35.420	23.420	2025-10-11	334	sale	5	0	5	2025-12-10 00:28:16	2025-12-10 00:28:23
+435	4	1	4	INV-25/00163	\N	12.000	23.420	11.420	2025-10-11	335	sale	5	0	5	2025-12-10 00:28:23	2025-12-10 00:28:28
+436	4	1	4	INV-25/00164	\N	11.000	11.420	0.420	2025-10-11	336	sale	5	0	5	2025-12-10 00:28:28	2025-12-10 00:29:20
+437	4	1	4	0000021825010494	4914	45.330	0.420	45.750	2025-10-11	101	purchase	5	0	5	2025-12-10 00:29:20	2025-12-10 00:29:28
+438	4	1	4	INV-25/00165	\N	12.000	45.750	33.750	2025-10-11	337	sale	5	0	5	2025-12-10 00:29:28	2025-12-10 00:29:35
+439	4	1	4	INV-25/00166	\N	33.000	33.750	0.750	2025-10-11	338	sale	5	0	5	2025-12-10 00:29:35	2025-12-10 00:30:42
+440	4	1	4	0000021825010494	4940	67.730	0.750	68.480	2025-10-11	102	purchase	5	0	5	2025-12-10 00:30:42	2025-12-10 00:31:02
+441	4	1	4	INV-25/00167	\N	24.000	68.480	44.480	2025-10-11	339	sale	5	0	5	2025-12-10 00:31:02	2025-12-10 00:31:08
+442	4	1	4	INV-25/00168	\N	12.000	44.480	32.480	2025-10-11	340	sale	5	0	5	2025-12-10 00:31:08	2025-12-10 00:31:28
+443	4	1	4	INV-25/00169	\N	32.000	32.480	0.480	2025-10-11	341	sale	5	0	5	2025-12-10 00:31:28	2025-12-10 00:33:20
+444	4	1	4	0000021825010494	4968	92.010	0.480	92.490	2025-10-12	103	purchase	5	0	5	2025-12-10 00:33:20	2025-12-10 00:33:31
+445	4	1	4	INV-25/00170	\N	24.000	92.490	68.490	2025-10-12	342	sale	5	0	5	2025-12-10 00:33:31	2025-12-10 00:33:38
+446	4	1	4	INV-25/00171	\N	24.000	68.490	44.490	2025-10-12	343	sale	5	0	5	2025-12-10 00:33:38	2025-12-10 00:33:45
+447	4	1	4	INV-25/00172	\N	12.000	44.490	32.490	2025-10-12	344	sale	5	0	5	2025-12-10 00:33:45	2025-12-10 00:33:54
+448	4	1	4	INV-25/00173	\N	32.000	32.490	0.490	2025-10-12	345	sale	5	0	5	2025-12-10 00:33:54	2025-12-10 00:35:04
+449	4	1	4	0000021825010535	5188	70.710	0.490	71.200	2025-10-15	104	purchase	5	0	5	2025-12-10 00:35:04	2025-12-10 00:35:13
+450	4	1	4	INV-25/00174	\N	12.000	71.200	59.200	2025-10-15	346	sale	5	0	5	2025-12-10 00:35:13	2025-12-10 00:35:18
+451	4	1	4	INV-25/00175	\N	12.000	59.200	47.200	2025-10-15	347	sale	5	0	5	2025-12-10 00:35:18	2025-12-10 00:35:23
+452	4	1	4	INV-25/00176	\N	12.000	47.200	35.200	2025-10-15	348	sale	5	0	5	2025-12-10 00:35:23	2025-12-10 00:35:29
+453	4	1	4	INV-25/00177	\N	12.000	35.200	23.200	2025-10-15	349	sale	5	0	5	2025-12-10 00:35:29	2025-12-10 00:35:36
+454	4	1	4	INV-25/00178	\N	12.000	23.200	11.200	2025-10-15	350	sale	5	0	5	2025-12-10 00:35:36	2025-12-10 00:35:45
+455	4	1	4	INV-25/00179	\N	11.000	11.200	0.200	2025-10-15	351	sale	5	0	5	2025-12-10 00:35:45	2025-12-10 00:36:48
+456	4	1	4	0000021825010535	5209	47.360	0.200	47.560	2025-10-15	105	purchase	5	0	5	2025-12-10 00:36:48	2025-12-10 00:36:55
+457	4	1	4	INV-25/00180	\N	12.000	47.560	35.560	2025-10-15	352	sale	5	0	5	2025-12-10 00:36:55	2025-12-10 00:37:03
+458	4	1	4	INV-25/00181	\N	35.000	35.560	0.560	2025-10-15	353	sale	5	0	5	2025-12-10 00:37:03	2025-12-10 00:38:02
+459	4	1	4	0000021825010535	5233	70.610	0.560	71.170	2025-10-16	106	purchase	5	0	5	2025-12-10 00:38:02	2025-12-10 00:38:11
+460	4	1	4	INV-25/00182	\N	24.000	71.170	47.170	2025-10-16	354	sale	5	0	5	2025-12-10 00:38:11	2025-12-10 00:38:17
+461	4	1	4	INV-25/00183	\N	12.000	47.170	35.170	2025-10-16	355	sale	5	0	5	2025-12-10 00:38:17	2025-12-10 00:38:22
+462	4	1	4	INV-25/00184	\N	35.000	35.170	0.170	2025-10-16	356	sale	5	0	5	2025-12-10 00:38:22	2025-12-10 00:39:16
+463	4	1	4	0000021825010535	5348	69.790	0.170	69.960	2025-10-17	107	purchase	5	0	5	2025-12-10 00:39:16	2025-12-10 00:39:24
+464	4	1	4	INV-25/00185	\N	12.000	69.960	57.960	2025-10-17	357	sale	5	0	5	2025-12-10 00:39:24	2025-12-10 00:39:30
+465	4	1	4	INV-25/00186	\N	12.000	57.960	45.960	2025-10-17	358	sale	5	0	5	2025-12-10 00:39:30	2025-12-10 00:39:36
+466	4	1	4	INV-25/00187	\N	12.000	45.960	33.960	2025-10-17	359	sale	5	0	5	2025-12-10 00:39:36	2025-12-10 00:39:43
+467	4	1	4	INV-25/00188	\N	33.000	33.960	0.960	2025-10-17	360	sale	5	0	5	2025-12-10 00:39:43	2025-12-10 00:40:47
+468	4	1	4	0000021825010535	5380	70.820	0.960	71.780	2025-10-18	108	purchase	5	0	5	2025-12-10 00:40:47	2025-12-10 00:40:57
+469	4	1	4	INV-25/00189	\N	12.000	71.780	59.780	2025-10-18	361	sale	5	0	5	2025-12-10 00:40:57	2025-12-10 00:41:03
+470	4	1	4	INV-25/00190	\N	12.000	59.780	47.780	2025-10-18	362	sale	5	0	5	2025-12-10 00:41:03	2025-12-10 00:41:08
+471	4	1	4	INV-25/00191	\N	12.000	47.780	35.780	2025-10-18	363	sale	5	0	5	2025-12-10 00:41:08	2025-12-10 00:41:14
+472	4	1	4	INV-25/00192	\N	12.000	35.780	23.780	2025-10-18	364	sale	5	0	5	2025-12-10 00:41:14	2025-12-10 00:41:20
+473	4	1	4	INV-25/00193	\N	23.000	23.780	0.780	2025-10-18	365	sale	5	0	5	2025-12-10 00:41:20	2025-12-10 00:42:19
+474	4	1	4	0000021825010535	5493	20.840	0.780	21.620	2025-10-24	109	purchase	5	0	5	2025-12-10 00:42:19	2025-12-10 00:42:30
+475	4	1	4	INV-25/00194	\N	21.000	21.620	0.620	2025-10-24	366	sale	5	0	5	2025-12-10 00:42:30	2025-12-10 00:43:30
+476	4	1	4	0000021825010577	5521	48.210	0.620	48.830	2025-10-24	110	purchase	5	0	5	2025-12-10 00:43:30	2025-12-10 00:43:39
+477	4	1	4	INV-25/00195	\N	12.000	48.830	36.830	2025-10-24	367	sale	5	0	5	2025-12-10 00:43:39	2025-12-10 00:43:46
+478	4	1	4	INV-25/00196	\N	36.000	36.830	0.830	2025-10-24	368	sale	5	0	5	2025-12-10 00:43:46	2025-12-10 00:46:16
+479	4	1	4	0000021825010577	5573	72.990	0.830	73.820	2025-10-25	111	purchase	5	0	5	2025-12-10 00:46:16	2025-12-10 00:46:29
+480	4	1	4	INV-25/00197	\N	12.000	73.820	61.820	2025-10-25	369	sale	5	0	5	2025-12-10 00:46:29	2025-12-10 00:46:36
+481	4	1	4	INV-25/00198	\N	12.000	61.820	49.820	2025-10-25	370	sale	5	0	5	2025-12-10 00:46:36	2025-12-10 00:46:42
+482	4	1	4	INV-25/00199	\N	24.000	49.820	25.820	2025-10-25	371	sale	5	0	5	2025-12-10 00:46:42	2025-12-10 00:46:48
+483	4	1	4	INV-25/00200	\N	12.000	25.820	13.820	2025-10-25	372	sale	5	0	5	2025-12-10 00:46:48	2025-12-10 00:46:54
+484	4	1	4	INV-25/00201	\N	13.000	13.820	0.820	2025-10-25	373	sale	5	0	5	2025-12-10 00:46:54	2025-12-10 00:47:52
+485	4	1	4	0000021825010577	5575	148.390	0.820	149.210	2025-10-26	112	purchase	5	0	5	2025-12-10 00:47:52	2025-12-10 00:47:59
+486	4	1	4	INV-25/00202	\N	24.000	149.210	125.210	2025-10-26	374	sale	5	0	5	2025-12-10 00:47:59	2025-12-10 00:48:04
+487	4	1	4	INV-25/00203	\N	36.000	125.210	89.210	2025-10-26	375	sale	5	0	5	2025-12-10 00:48:04	2025-12-10 00:48:12
+488	4	1	4	INV-25/00204	\N	24.000	89.210	65.210	2025-10-26	376	sale	5	0	5	2025-12-10 00:48:12	2025-12-10 00:48:19
+489	4	1	4	INV-25/00205	\N	12.000	65.210	53.210	2025-10-26	377	sale	5	0	5	2025-12-10 00:48:19	2025-12-10 00:48:28
+490	4	1	4	INV-25/00206	\N	24.000	53.210	29.210	2025-10-26	378	sale	5	0	5	2025-12-10 00:48:28	2025-12-10 00:48:38
+491	4	1	4	INV-25/00207	\N	29.000	29.210	0.210	2025-10-26	379	sale	5	0	5	2025-12-10 00:48:38	2025-12-10 00:50:19
+492	4	1	4	0000021825010577	5628	95.800	0.210	96.010	2025-10-28	113	purchase	5	0	5	2025-12-10 00:50:19	2025-12-10 00:50:56
+493	4	1	4	INV-25/00208	\N	36.000	96.010	60.010	2025-10-28	380	sale	5	0	5	2025-12-10 00:50:56	2025-12-10 00:51:06
+494	4	1	4	INV-25/00209	\N	12.000	60.010	48.010	2025-10-28	381	sale	5	0	5	2025-12-10 00:51:06	2025-12-10 00:51:12
+495	4	1	4	INV-25/00210	\N	24.000	48.010	24.010	2025-10-28	382	sale	5	0	5	2025-12-10 00:51:12	2025-12-10 00:51:19
+496	4	1	4	INV-25/00211	\N	12.000	24.010	12.010	2025-10-28	383	sale	5	0	5	2025-12-10 00:51:19	2025-12-10 00:51:25
+497	4	1	4	INV-25/00212	\N	12.000	12.010	0.010	2025-10-28	384	sale	5	0	5	2025-12-10 00:51:25	2025-12-10 00:52:33
+498	4	1	4	0000021825010606	5790	23.680	0.010	23.690	2025-10-30	114	purchase	5	0	5	2025-12-10 00:52:33	2025-12-10 00:52:44
+499	4	1	4	INV-25/00213	\N	23.000	23.690	0.690	2025-10-30	385	sale	5	0	5	2025-12-10 00:52:44	2025-12-10 00:53:37
+500	4	1	4	0000021825010606	5797	24.960	0.690	25.650	2025-10-30	115	purchase	5	0	5	2025-12-10 00:53:37	2025-12-10 00:53:46
+501	4	1	4	INV-25/00214	\N	12.000	25.650	13.650	2025-10-30	386	sale	5	0	5	2025-12-10 00:53:46	2025-12-10 00:53:52
+502	4	1	4	INV-25/00215	\N	13.000	13.650	0.650	2025-10-30	387	sale	5	0	5	2025-12-10 00:53:52	2025-12-10 00:55:34
+503	4	1	4	0000021825010606	5798	24.600	0.650	25.250	2025-10-30	116	purchase	5	0	5	2025-12-10 00:55:34	2025-12-10 00:55:41
+504	4	1	4	INV-25/00216	\N	25.000	25.250	0.250	2025-10-30	388	sale	5	0	5	2025-12-10 00:55:41	2025-12-10 00:56:44
+505	4	1	4	0000021825010606	5880	72.170	0.250	72.420	2025-10-30	117	purchase	5	0	5	2025-12-10 00:56:44	2025-12-10 00:56:51
+506	4	1	4	INV-25/00217	\N	24.000	72.420	48.420	2025-10-30	389	sale	5	0	5	2025-12-10 00:56:51	2025-12-10 00:56:58
+507	4	1	4	INV-25/00218	\N	12.000	48.420	36.420	2025-10-30	390	sale	5	0	5	2025-12-10 00:56:58	2025-12-10 00:57:06
+508	4	1	4	INV-25/00219	\N	36.000	36.420	0.420	2025-10-30	391	sale	5	0	5	2025-12-10 00:57:06	2025-12-10 02:09:56
+509	4	1	4	0000021825010606	5904	48.270	0.420	48.690	2025-11-01	118	purchase	5	0	5	2025-12-10 02:09:56	2025-12-10 02:10:08
+510	4	1	4	INV-25/00220	\N	12.000	48.690	36.690	2025-11-01	392	sale	5	0	5	2025-12-10 02:10:08	2025-12-10 02:10:16
+511	4	1	4	INV-25/00221	\N	12.000	36.690	24.690	2025-11-01	393	sale	5	0	5	2025-12-10 02:10:16	2025-12-10 02:10:22
+512	4	1	4	INV-25/00222	\N	12.000	24.690	12.690	2025-11-01	394	sale	5	0	5	2025-12-10 02:10:22	2025-12-10 02:10:29
+513	4	1	4	INV-25/00223	\N	12.000	12.690	0.690	2025-11-01	395	sale	5	0	5	2025-12-10 02:10:29	2025-12-10 02:17:24
+514	4	1	4	0000021825010606	6052	73.050	0.690	73.740	2025-11-04	119	purchase	5	0	5	2025-12-10 02:17:24	2025-12-10 02:23:40
+515	4	1	4	INV-25/00224	\N	12.000	73.740	61.740	2025-11-04	396	sale	5	0	5	2025-12-10 02:23:40	2025-12-10 02:24:02
+516	4	1	4	INV-25/00225	\N	12.000	61.740	49.740	2025-11-04	397	sale	5	0	5	2025-12-10 02:24:02	2025-12-10 02:24:10
+517	4	1	4	INV-25/00226	\N	24.000	49.740	25.740	2025-11-04	398	sale	5	0	5	2025-12-10 02:24:10	2025-12-10 02:24:19
+518	4	1	4	INV-25/00227	\N	12.000	25.740	13.740	2025-11-04	399	sale	5	0	5	2025-12-10 02:24:19	2025-12-10 02:24:27
+519	4	1	4	INV-25/00228	\N	13.000	13.740	0.740	2025-11-04	400	sale	5	0	5	2025-12-10 02:24:27	2025-12-10 02:31:48
+523	4	1	4	0000021825010606	6053	24.460	0.740	25.200	2025-11-04	121	purchase	5	0	5	2025-12-10 02:31:48	2025-12-10 02:31:59
+524	4	1	4	INV-25/00229	\N	12.000	25.200	13.200	2025-11-04	403	sale	5	0	5	2025-12-10 02:31:59	2025-12-10 02:32:07
+525	4	1	4	INV-25/00230	\N	13.000	13.200	0.200	2025-11-04	404	sale	5	0	5	2025-12-10 02:32:07	2025-12-10 02:33:13
+526	4	1	4	0000021825010606	6099	73.990	0.200	74.190	2025-11-05	122	purchase	5	0	5	2025-12-10 02:33:13	2025-12-10 02:33:23
+527	4	1	4	INV-25/00231	\N	24.000	74.190	50.190	2025-11-05	405	sale	5	0	5	2025-12-10 02:33:23	2025-12-10 02:33:33
+528	4	1	4	INV-25/00232	\N	24.000	50.190	26.190	2025-11-05	406	sale	5	0	5	2025-12-10 02:33:33	2025-12-10 02:33:44
+529	4	1	4	INV-25/00233	\N	12.000	26.190	14.190	2025-11-05	407	sale	5	0	5	2025-12-10 02:33:44	2025-12-10 02:33:52
+530	4	1	4	INV-25/00234	\N	14.000	14.190	0.190	2025-11-05	408	sale	5	0	5	2025-12-10 02:33:52	2025-12-10 02:34:58
+531	4	1	4	0000021825010624	6139	71.520	0.190	71.710	2025-11-06	123	purchase	5	0	5	2025-12-10 02:34:58	2025-12-10 02:35:09
+532	4	1	4	INV-25/00235	\N	12.000	71.710	59.710	2025-11-06	409	sale	5	0	5	2025-12-10 02:35:09	2025-12-10 02:35:16
+533	4	1	4	INV-25/00236	\N	12.000	59.710	47.710	2025-11-06	410	sale	5	0	5	2025-12-10 02:35:16	2025-12-10 02:35:22
+534	4	1	4	INV-25/00237	\N	12.000	47.710	35.710	2025-11-06	411	sale	5	0	5	2025-12-10 02:35:22	2025-12-10 02:35:28
+535	4	1	4	INV-25/00238	\N	12.000	35.710	23.710	2025-11-06	412	sale	5	0	5	2025-12-10 02:35:28	2025-12-10 02:37:22
+536	4	1	4	INV-25/00239	\N	23.000	23.710	0.710	2025-11-06	413	sale	5	0	5	2025-12-10 02:37:22	2025-12-10 02:38:34
+537	4	1	4	0000021825010624	6143	24.680	0.710	25.390	2025-11-06	124	purchase	5	0	5	2025-12-10 02:38:34	2025-12-10 02:38:42
+538	4	1	4	INV-25/00240	\N	25.000	25.390	0.390	2025-11-06	414	sale	5	0	5	2025-12-10 02:38:42	2025-12-10 02:39:41
+539	4	1	4	0000021825010624	6288	49.110	0.390	49.500	2025-11-08	125	purchase	5	0	5	2025-12-10 02:39:41	2025-12-10 02:41:06
+540	4	1	4	INV-25/00241	\N	24.000	49.500	25.500	2025-11-08	415	sale	5	0	5	2025-12-10 02:41:06	2025-12-10 02:41:14
+541	4	1	4	INV-25/00242	\N	25.000	25.500	0.500	2025-11-08	416	sale	5	0	5	2025-12-10 02:41:14	2025-12-10 02:42:21
+542	4	1	4	0000021825010624	6299	119.640	0.500	120.140	2025-11-09	126	purchase	5	0	5	2025-12-10 02:42:21	2025-12-10 02:42:35
+543	4	1	4	INV-25/00243	\N	48.000	120.140	72.140	2025-11-09	417	sale	5	0	5	2025-12-10 02:42:35	2025-12-10 02:42:42
+544	4	1	4	INV-25/00244	\N	36.000	72.140	36.140	2025-11-09	418	sale	5	0	5	2025-12-10 02:42:42	2025-12-10 02:42:51
+545	4	1	4	INV-25/00245	\N	36.000	36.140	0.140	2025-11-09	419	sale	5	0	5	2025-12-10 02:42:51	2025-12-10 02:44:01
+546	4	1	4	0000021825010624	6340	99.540	0.140	99.680	2025-11-11	127	purchase	5	0	5	2025-12-10 02:44:01	2025-12-10 02:44:19
+547	4	1	4	INV-25/00246	\N	50.000	99.680	49.680	2025-11-11	420	sale	5	0	5	2025-12-10 02:44:19	2025-12-10 02:44:27
+548	4	1	4	INV-25/00247	\N	49.000	49.680	0.680	2025-11-11	421	sale	5	0	5	2025-12-10 02:44:27	2025-12-10 02:45:56
+549	4	1	4	0000021825010653	6556	49.680	0.680	50.360	2025-11-14	128	purchase	5	0	5	2025-12-10 02:45:56	2025-12-10 02:46:06
+550	4	1	4	INV-25/00248	\N	50.000	50.360	0.360	2025-11-14	422	sale	5	0	5	2025-12-10 02:46:06	2025-12-10 02:49:19
+551	4	1	4	0000021825010653	6558	98.540	0.360	98.900	2025-11-14	129	purchase	5	0	5	2025-12-10 02:49:19	2025-12-10 02:49:37
+552	4	1	4	INV-25/00249	\N	48.000	98.900	50.900	2025-11-14	423	sale	5	0	5	2025-12-10 02:49:37	2025-12-10 02:49:50
+553	4	1	4	INV-25/00250	\N	50.000	50.900	0.900	2025-11-14	424	sale	5	0	5	2025-12-10 02:49:50	2025-12-10 02:52:28
+554	4	1	4	0000021825010653	6656	219.890	0.900	220.790	2025-11-16	130	purchase	5	0	5	2025-12-10 02:52:28	2025-12-10 02:53:17
+555	4	1	4	INV-25/00251	\N	36.000	220.790	184.790	2025-11-16	425	sale	5	0	5	2025-12-10 02:53:17	2025-12-10 02:53:32
+556	4	1	4	INV-25/00252	\N	48.000	184.790	136.790	2025-11-16	426	sale	5	0	5	2025-12-10 02:53:32	2025-12-10 02:53:44
+557	4	1	4	INV-25/00253	\N	36.000	136.790	100.790	2025-11-16	427	sale	5	0	5	2025-12-10 02:53:44	2025-12-10 02:53:59
+558	4	1	4	INV-25/00254	\N	50.000	100.790	50.790	2025-11-16	428	sale	5	0	5	2025-12-10 02:53:59	2025-12-10 02:54:06
+559	4	1	4	INV-25/00255	\N	50.000	50.790	0.790	2025-11-16	429	sale	5	0	5	2025-12-10 02:54:06	2025-12-10 02:55:48
+560	4	1	4	0000021825010685	6780	122.320	0.790	123.110	2025-11-19	131	purchase	5	0	5	2025-12-10 02:55:48	2025-12-10 02:56:01
+561	4	1	4	INV-25/00256	\N	36.000	123.110	87.110	2025-11-19	430	sale	5	0	5	2025-12-10 02:56:01	2025-12-10 02:56:10
+562	4	1	4	INV-25/00257	\N	50.000	87.110	37.110	2025-11-19	431	sale	5	0	5	2025-12-10 02:56:10	2025-12-10 02:56:22
+563	4	1	4	INV-25/00258	\N	37.000	37.110	0.110	2025-11-19	432	sale	5	0	5	2025-12-10 02:56:22	2025-12-10 02:57:45
+564	4	1	4	0000021825010685	6940	199.240	0.110	199.350	2025-11-23	132	purchase	5	0	5	2025-12-10 02:57:45	2025-12-10 02:57:56
+565	4	1	4	INV-25/00259	\N	36.000	199.350	163.350	2025-11-23	433	sale	5	0	5	2025-12-10 02:57:56	2025-12-10 02:58:07
+566	4	1	4	INV-25/00260	\N	48.000	163.350	115.350	2025-11-23	434	sale	5	0	5	2025-12-10 02:58:07	2025-12-10 02:58:15
+567	4	1	4	INV-25/00261	\N	36.000	115.350	79.350	2025-11-23	435	sale	5	0	5	2025-12-10 02:58:15	2025-12-10 02:58:28
+568	4	1	4	INV-25/00262	\N	36.000	79.350	43.350	2025-11-23	436	sale	5	0	5	2025-12-10 02:58:28	2025-12-10 02:58:41
+569	4	1	4	INV-25/00263	\N	43.000	43.350	0.350	2025-11-23	437	sale	5	0	5	2025-12-10 02:58:41	2025-12-10 03:00:22
+570	4	1	4	0000021825010685	6966	46.280	0.350	46.630	2025-11-25	133	purchase	5	0	5	2025-12-10 03:00:22	2025-12-10 03:00:52
+571	4	1	4	INV-25/00264	\N	46.000	46.630	0.630	2025-11-25	438	sale	5	0	5	2025-12-10 03:00:52	2025-12-10 03:02:39
+572	4	1	4	0000021825010736	7054	47.250	0.630	47.880	2025-11-26	134	purchase	5	0	5	2025-12-10 03:02:39	2025-12-10 03:02:52
+573	4	1	4	INV-25/00265	\N	47.000	47.880	0.880	2025-11-26	439	sale	5	0	5	2025-12-10 03:02:52	2025-12-10 03:04:12
+574	4	1	4	0000021825010736	7056	116.400	0.880	117.280	2025-11-26	135	purchase	5	0	5	2025-12-10 03:04:12	2025-12-10 03:04:24
+575	4	1	4	INV-25/00266	\N	36.000	117.280	81.280	2025-11-26	440	sale	5	0	5	2025-12-10 03:04:24	2025-12-10 03:04:35
+576	4	1	4	INV-25/00267	\N	40.000	81.280	41.280	2025-11-26	441	sale	5	0	5	2025-12-10 03:04:35	2025-12-10 03:04:43
+577	4	1	4	INV-25/00268	\N	41.000	41.280	0.280	2025-11-26	442	sale	5	0	5	2025-12-10 03:04:43	2025-12-10 03:06:17
+578	4	1	4	0000021825010736	7110	170.900	0.280	171.180	2025-11-27	136	purchase	5	0	5	2025-12-10 03:06:17	2025-12-10 03:06:53
+579	4	1	4	INV-25/00269	\N	48.000	171.180	123.180	2025-11-27	443	sale	5	0	5	2025-12-10 03:06:53	2025-12-10 03:07:08
+580	4	1	4	INV-25/00270	\N	48.000	123.180	75.180	2025-11-27	444	sale	5	0	5	2025-12-10 03:07:08	2025-12-10 03:07:20
+581	4	1	4	INV-25/00271	\N	40.000	75.180	35.180	2025-11-27	445	sale	5	0	5	2025-12-10 03:07:20	2025-12-10 03:07:28
+582	4	1	4	INV-25/00272	\N	35.000	35.180	0.180	2025-11-27	446	sale	5	0	5	2025-12-10 03:07:28	2025-12-10 03:08:42
+583	4	1	4	0000021825010736	7190	25.890	0.180	26.070	2025-11-28	137	purchase	5	0	5	2025-12-10 03:08:42	2025-12-10 03:08:52
+584	4	1	4	INV-25/00273	\N	26.000	26.070	0.070	2025-11-28	447	sale	5	1	5	2025-12-10 03:08:52	2025-12-10 03:08:52
+585	5	1	7	0000141225010173	4563	12.000	0.000	12.000	2025-10-01	138	purchase	5	0	6	2025-12-10 03:47:53	2025-12-10 04:50:23
+591	5	1	7	INV-25/00001	\N	12.000	12.000	0.000	2025-10-01	451	sale	5	0	2	2025-12-10 04:50:23	2025-12-10 20:39:17
+592	7	1	8	764	4124	47.380	0.000	47.380	2025-08-20	141	purchase	5	0	3	2025-12-10 17:44:26	2025-12-10 17:47:27
+593	7	1	8	INV-25/00001	\N	23.650	47.380	23.730	2025-08-20	452	sale	5	0	3	2025-12-10 17:47:27	2025-12-10 17:47:36
+594	7	1	8	INV-25/00002	\N	23.730	23.730	0.000	2025-08-20	453	sale	5	0	3	2025-12-10 17:47:36	2025-12-10 17:50:25
+595	7	1	8	764	4126	70.600	0.000	70.600	2025-08-20	142	purchase	5	0	3	2025-12-10 17:50:25	2025-12-10 17:50:41
+596	7	1	8	INV-25/00003	\N	23.120	70.600	47.480	2025-08-20	454	sale	5	0	3	2025-12-10 17:50:41	2025-12-10 17:50:49
+597	7	1	8	INV-25/00004	\N	23.140	47.480	24.340	2025-08-20	455	sale	5	0	3	2025-12-10 17:50:49	2025-12-10 17:50:57
+598	7	1	8	INV-25/00005	\N	24.340	24.340	0.000	2025-08-20	456	sale	5	0	3	2025-12-10 17:50:57	2025-12-10 17:52:32
+599	7	1	8	764	4130	118.260	0.000	118.260	2025-08-20	143	purchase	5	0	3	2025-12-10 17:52:32	2025-12-10 17:52:46
+600	7	1	8	INV-25/00006	\N	23.250	118.260	95.010	2025-08-20	457	sale	5	0	3	2025-12-10 17:52:46	2025-12-10 17:53:00
+601	7	1	8	INV-25/00007	\N	23.140	95.010	71.870	2025-08-20	458	sale	5	0	3	2025-12-10 17:53:00	2025-12-10 17:53:08
+602	7	1	8	INV-25/00008	\N	23.250	71.870	48.620	2025-08-20	459	sale	5	0	3	2025-12-10 17:53:08	2025-12-10 17:53:15
+603	7	1	8	INV-25/00009	\N	24.120	48.620	24.500	2025-08-20	460	sale	5	0	3	2025-12-10 17:53:15	2025-12-10 17:53:23
+604	7	1	8	INV-25/00010	\N	24.500	24.500	0.000	2025-08-20	461	sale	5	0	3	2025-12-10 17:53:23	2025-12-10 17:54:26
+605	7	1	8	764	4150	93.860	0.000	93.860	2025-08-20	144	purchase	5	0	3	2025-12-10 17:54:26	2025-12-10 17:54:47
+606	7	1	8	INV-25/00011	\N	23.120	93.860	70.740	2025-08-20	462	sale	5	0	3	2025-12-10 17:54:47	2025-12-10 17:55:01
+607	7	1	8	INV-25/00012	\N	22.320	70.740	48.420	2025-08-20	463	sale	5	0	3	2025-12-10 17:55:01	2025-12-10 17:55:11
+608	7	1	8	INV-25/00013	\N	24.130	48.420	24.290	2025-08-20	464	sale	5	0	3	2025-12-10 17:55:11	2025-12-10 17:55:21
+609	7	1	8	INV-25/00014	\N	24.290	24.290	0.000	2025-08-20	465	sale	5	0	3	2025-12-10 17:55:21	2025-12-10 17:56:39
+610	7	1	8	764	4168	118.150	0.000	118.150	2025-08-21	145	purchase	5	0	3	2025-12-10 17:56:39	2025-12-10 17:57:32
+611	7	1	8	INV-25/00015	\N	23.120	118.150	95.030	2025-08-21	466	sale	5	0	3	2025-12-10 17:57:32	2025-12-10 17:57:39
+612	7	1	8	INV-25/00016	\N	24.520	95.030	70.510	2025-08-21	467	sale	5	0	3	2025-12-10 17:57:39	2025-12-10 17:57:48
+613	7	1	8	INV-25/00017	\N	23.690	70.510	46.820	2025-08-21	468	sale	5	0	3	2025-12-10 17:57:48	2025-12-10 17:57:56
+614	7	1	8	INV-25/00018	\N	22.360	46.820	24.460	2025-08-21	469	sale	5	0	3	2025-12-10 17:57:56	2025-12-10 17:58:04
+615	7	1	8	INV-25/00019	\N	24.460	24.460	0.000	2025-08-21	470	sale	5	0	3	2025-12-10 17:58:04	2025-12-10 17:59:35
+616	7	1	8	764	4176	120.690	0.000	120.690	2025-08-21	146	purchase	5	0	3	2025-12-10 17:59:35	2025-12-10 17:59:46
+617	7	1	8	INV-25/00020	\N	24.230	120.690	96.460	2025-08-21	471	sale	5	0	3	2025-12-10 17:59:46	2025-12-10 17:59:55
+618	7	1	8	INV-25/00021	\N	23.360	96.460	73.100	2025-08-21	472	sale	5	0	3	2025-12-10 17:59:55	2025-12-10 18:00:03
+619	7	1	8	INV-25/00022	\N	24.230	73.100	48.870	2025-08-21	473	sale	5	0	3	2025-12-10 18:00:03	2025-12-10 18:00:10
+620	7	1	8	INV-25/00023	\N	24.520	48.870	24.350	2025-08-21	474	sale	5	0	3	2025-12-10 18:00:10	2025-12-10 18:00:17
+621	7	1	8	INV-25/00024	\N	24.350	24.350	0.000	2025-08-21	475	sale	5	0	3	2025-12-10 18:00:17	2025-12-10 18:01:29
+622	7	1	8	764	4202	120.400	0.000	120.400	2025-08-23	147	purchase	5	0	3	2025-12-10 18:01:29	2025-12-10 18:01:39
+623	7	1	8	INV-25/00025	\N	24.560	120.400	95.840	2025-08-23	476	sale	5	0	3	2025-12-10 18:01:39	2025-12-10 18:01:49
+624	7	1	8	INV-25/00026	\N	24.560	95.840	71.280	2025-08-23	477	sale	5	0	3	2025-12-10 18:01:49	2025-12-10 18:01:56
+625	7	1	8	INV-25/00027	\N	23.890	71.280	47.390	2025-08-23	478	sale	5	0	3	2025-12-10 18:01:56	2025-12-10 18:02:04
+626	7	1	8	INV-25/00028	\N	23.690	47.390	23.700	2025-08-23	479	sale	5	0	3	2025-12-10 18:02:04	2025-12-10 18:02:12
+627	7	1	8	INV-25/00029	\N	23.700	23.700	0.000	2025-08-23	480	sale	5	0	3	2025-12-10 18:02:12	2025-12-10 18:03:17
+628	7	1	8	764	4208	117.400	0.000	117.400	2025-08-24	148	purchase	5	0	3	2025-12-10 18:03:17	2025-12-10 18:03:27
+629	7	1	8	INV-25/00030	\N	24.230	117.400	93.170	2025-08-24	481	sale	5	0	3	2025-12-10 18:03:27	2025-12-10 18:03:35
+630	7	1	8	INV-25/00031	\N	24.560	93.170	68.610	2025-08-24	482	sale	5	0	3	2025-12-10 18:03:35	2025-12-10 18:03:46
+631	7	1	8	INV-25/00032	\N	23.150	68.610	45.460	2025-08-24	483	sale	5	0	3	2025-12-10 18:03:46	2025-12-10 18:03:53
+632	7	1	8	INV-25/00033	\N	22.470	45.460	22.990	2025-08-24	484	sale	5	0	3	2025-12-10 18:03:53	2025-12-10 18:04:00
+633	7	1	8	INV-25/00034	\N	22.990	22.990	0.000	2025-08-24	485	sale	5	0	3	2025-12-10 18:04:00	2025-12-10 18:05:22
+634	7	1	8	800	4263	120.350	0.000	120.350	2025-08-26	149	purchase	5	0	3	2025-12-10 18:05:22	2025-12-10 18:05:32
+635	7	1	8	INV-25/00035	\N	24.120	120.350	96.230	2025-08-26	486	sale	5	0	3	2025-12-10 18:05:32	2025-12-10 18:05:40
+636	7	1	8	INV-25/00036	\N	24.560	96.230	71.670	2025-08-26	487	sale	5	0	3	2025-12-10 18:05:40	2025-12-10 18:05:47
+637	7	1	8	INV-25/00037	\N	23.250	71.670	48.420	2025-08-26	488	sale	5	0	3	2025-12-10 18:05:47	2025-12-10 18:05:55
+638	7	1	8	INV-25/00038	\N	24.030	48.420	24.390	2025-08-26	489	sale	5	0	3	2025-12-10 18:05:55	2025-12-10 18:06:02
+639	7	1	8	INV-25/00039	\N	24.390	24.390	0.000	2025-08-26	490	sale	5	0	3	2025-12-10 18:06:02	2025-12-10 18:07:11
+640	7	1	8	800	4301	120.290	0.000	120.290	2025-08-27	150	purchase	5	0	3	2025-12-10 18:07:11	2025-12-10 18:07:24
+641	7	1	8	INV-25/00040	\N	24.000	120.290	96.290	2025-08-27	491	sale	5	0	3	2025-12-10 18:07:24	2025-12-10 18:07:32
+642	7	1	8	INV-25/00041	\N	24.360	96.290	71.930	2025-08-27	492	sale	5	0	3	2025-12-10 18:07:32	2025-12-10 18:07:39
+643	7	1	8	INV-25/00042	\N	23.360	71.930	48.570	2025-08-27	493	sale	5	0	3	2025-12-10 18:07:39	2025-12-10 18:07:47
+644	7	1	8	INV-25/00043	\N	24.360	48.570	24.210	2025-08-27	494	sale	5	0	3	2025-12-10 18:07:47	2025-12-10 18:07:54
+645	7	1	8	INV-25/00044	\N	24.210	24.210	0.000	2025-08-27	495	sale	5	0	3	2025-12-10 18:07:54	2025-12-10 18:11:44
+646	7	1	8	800	4322	120.510	0.000	120.510	2025-08-28	151	purchase	5	0	3	2025-12-10 18:11:44	2025-12-10 18:11:59
+647	7	1	8	INV-25/00045	\N	24.560	120.510	95.950	2025-08-28	496	sale	5	0	3	2025-12-10 18:11:59	2025-12-10 18:12:07
+648	7	1	8	INV-25/00046	\N	25.000	95.950	70.950	2025-08-28	497	sale	5	0	3	2025-12-10 18:12:07	2025-12-10 18:15:49
+649	7	1	8	INV-25/00047	\N	23.300	70.950	47.650	2025-08-28	498	sale	5	0	3	2025-12-10 18:15:49	2025-12-10 18:15:58
+650	7	1	8	INV-25/00048	\N	23.690	47.650	23.960	2025-08-28	499	sale	5	0	3	2025-12-10 18:15:58	2025-12-10 18:16:06
+651	7	1	8	INV-25/00049	\N	23.960	23.960	0.000	2025-08-28	500	sale	5	0	3	2025-12-10 18:16:06	2025-12-10 18:19:06
+652	7	1	8	800	4354	120.210	0.000	120.210	2025-08-31	152	purchase	5	0	3	2025-12-10 18:19:06	2025-12-10 18:19:17
+653	7	1	8	INV-25/00050	\N	25.120	120.210	95.090	2025-08-31	501	sale	5	0	3	2025-12-10 18:19:17	2025-12-10 18:19:24
+654	7	1	8	INV-25/00051	\N	23.690	95.090	71.400	2025-08-31	502	sale	5	0	3	2025-12-10 18:19:24	2025-12-10 18:19:35
+655	7	1	8	INV-25/00052	\N	23.680	71.400	47.720	2025-08-31	503	sale	5	0	3	2025-12-10 18:19:35	2025-12-10 18:19:44
+656	7	1	8	INV-25/00053	\N	23.590	47.720	24.130	2025-08-31	504	sale	5	0	3	2025-12-10 18:19:44	2025-12-10 18:19:52
+657	7	1	8	INV-25/00054	\N	24.130	24.130	0.000	2025-08-31	505	sale	5	0	3	2025-12-10 18:19:52	2025-12-10 18:21:59
+658	7	1	8	800	4356	120.070	0.000	120.070	2025-08-31	153	purchase	5	0	3	2025-12-10 18:21:59	2025-12-10 18:22:09
+659	7	1	8	INV-25/00055	\N	24.120	120.070	95.950	2025-08-31	506	sale	5	0	3	2025-12-10 18:22:09	2025-12-10 18:22:19
+660	7	1	8	INV-25/00056	\N	23.690	95.950	72.260	2025-08-31	507	sale	5	0	3	2025-12-10 18:22:19	2025-12-10 18:22:28
+661	7	1	8	INV-25/00057	\N	24.690	72.260	47.570	2025-08-31	508	sale	5	0	3	2025-12-10 18:22:28	2025-12-10 18:22:37
+662	7	1	8	INV-25/00058	\N	23.470	47.570	24.100	2025-08-31	509	sale	5	0	3	2025-12-10 18:22:37	2025-12-10 18:22:44
+663	7	1	8	INV-25/00059	\N	24.100	24.100	0.000	2025-08-31	510	sale	5	0	3	2025-12-10 18:22:44	2025-12-10 19:20:04
+664	7	1	8	800	4374	96.390	0.000	96.390	2025-09-01	154	purchase	5	0	3	2025-12-10 19:20:04	2025-12-10 19:20:24
+665	7	1	8	INV-25/00060	\N	24.020	96.390	72.370	2025-09-01	511	sale	5	0	3	2025-12-10 19:20:24	2025-12-10 19:20:32
+666	7	1	8	INV-25/00061	\N	23.890	72.370	48.480	2025-09-01	512	sale	5	0	3	2025-12-10 19:20:32	2025-12-10 19:20:39
+667	7	1	8	INV-25/00062	\N	24.350	48.480	24.130	2025-09-01	513	sale	5	0	3	2025-12-10 19:20:39	2025-12-10 19:20:51
+668	7	1	8	INV-25/00063	\N	24.130	24.130	0.000	2025-09-01	514	sale	5	0	3	2025-12-10 19:20:51	2025-12-10 19:22:56
+669	7	1	8	800	4384	109.120	0.000	109.120	2025-09-01	155	purchase	5	0	3	2025-12-10 19:22:56	2025-12-10 19:23:07
+670	7	1	8	INV-25/00064	\N	22.120	109.120	87.000	2025-09-01	515	sale	5	0	3	2025-12-10 19:23:07	2025-12-10 19:23:23
+671	7	1	8	INV-25/00065	\N	21.600	87.000	65.400	2025-09-01	516	sale	5	0	3	2025-12-10 19:23:23	2025-12-10 19:23:34
+672	7	1	8	INV-25/00066	\N	21.630	65.400	43.770	2025-09-01	517	sale	5	0	3	2025-12-10 19:23:34	2025-12-10 19:23:42
+673	7	1	8	INV-25/00067	\N	22.020	43.770	21.750	2025-09-01	518	sale	5	0	3	2025-12-10 19:23:42	2025-12-10 19:23:49
+674	7	1	8	INV-25/00068	\N	21.750	21.750	0.000	2025-09-01	519	sale	5	0	3	2025-12-10 19:23:49	2025-12-10 19:25:36
+675	7	1	8	891	4449	120.470	0.000	120.470	2025-09-05	156	purchase	5	0	3	2025-12-10 19:25:36	2025-12-10 19:25:51
+676	7	1	8	INV-25/00069	\N	24.010	120.470	96.460	2025-09-05	520	sale	5	0	3	2025-12-10 19:25:51	2025-12-10 19:26:00
+677	7	1	8	INV-25/00070	\N	24.360	96.460	72.100	2025-09-05	521	sale	5	0	3	2025-12-10 19:26:00	2025-12-10 19:26:08
+678	7	1	8	INV-25/00071	\N	24.060	72.100	48.040	2025-09-05	522	sale	5	0	3	2025-12-10 19:26:08	2025-12-10 19:26:16
+679	7	1	8	INV-25/00072	\N	24.560	48.040	23.480	2025-09-05	523	sale	5	0	3	2025-12-10 19:26:16	2025-12-10 19:26:23
+680	7	1	8	INV-25/00073	\N	23.480	23.480	0.000	2025-09-05	524	sale	5	0	3	2025-12-10 19:26:23	2025-12-10 19:27:54
+681	7	1	8	891	4478	120.130	0.000	120.130	2025-09-06	157	purchase	5	0	3	2025-12-10 19:27:54	2025-12-10 19:28:18
+682	7	1	8	INV-25/00074	\N	24.300	120.130	95.830	2025-09-06	525	sale	5	0	3	2025-12-10 19:28:18	2025-12-10 19:28:25
+683	7	1	8	INV-25/00075	\N	23.960	95.830	71.870	2025-09-06	526	sale	5	0	3	2025-12-10 19:28:25	2025-12-10 19:28:31
+684	7	1	8	INV-25/00076	\N	23.140	71.870	48.730	2025-09-06	527	sale	5	0	3	2025-12-10 19:28:31	2025-12-10 19:28:40
+685	7	1	8	INV-25/00077	\N	24.260	48.730	24.470	2025-09-06	528	sale	5	0	3	2025-12-10 19:28:40	2025-12-10 19:28:48
+686	7	1	8	INV-25/00078	\N	24.470	24.470	0.000	2025-09-06	529	sale	5	0	3	2025-12-10 19:28:48	2025-12-10 19:30:16
+687	7	1	8	891	4493	120.200	0.000	120.200	2025-09-08	158	purchase	5	0	3	2025-12-10 19:30:16	2025-12-10 19:32:08
+688	7	1	8	INV-25/00079	\N	24.300	120.200	95.900	2025-09-08	530	sale	5	0	3	2025-12-10 19:32:08	2025-12-10 19:32:18
+689	7	1	8	INV-25/00080	\N	24.250	95.900	71.650	2025-09-08	531	sale	5	0	3	2025-12-10 19:32:18	2025-12-10 19:32:30
+690	7	1	8	INV-25/00081	\N	23.360	71.650	48.290	2025-09-08	532	sale	5	0	3	2025-12-10 19:32:30	2025-12-10 19:32:41
+691	7	1	8	INV-25/00082	\N	24.020	48.290	24.270	2025-09-08	533	sale	5	0	3	2025-12-10 19:32:41	2025-12-10 19:32:50
+692	7	1	8	INV-25/00083	\N	24.270	24.270	0.000	2025-09-08	534	sale	5	0	3	2025-12-10 19:32:50	2025-12-10 19:34:58
+693	7	1	8	891	4527	121.340	0.000	121.340	2025-09-09	159	purchase	5	0	3	2025-12-10 19:34:58	2025-12-10 19:35:43
+694	7	1	8	INV-25/00084	\N	24.250	121.340	97.090	2025-09-09	535	sale	5	0	3	2025-12-10 19:35:43	2025-12-10 19:35:52
+695	7	1	8	INV-25/00085	\N	24.520	97.090	72.570	2025-09-09	536	sale	5	0	3	2025-12-10 19:35:52	2025-12-10 19:36:01
+696	7	1	8	INV-25/00086	\N	24.260	72.570	48.310	2025-09-09	537	sale	5	0	3	2025-12-10 19:36:01	2025-12-10 19:36:08
+697	7	1	8	INV-25/00087	\N	24.160	48.310	24.150	2025-09-09	538	sale	5	0	3	2025-12-10 19:36:08	2025-12-10 19:36:16
+698	7	1	8	INV-25/00088	\N	24.150	24.150	0.000	2025-09-09	539	sale	5	0	3	2025-12-10 19:36:16	2025-12-10 19:37:47
+699	7	1	8	891	4535	72.490	0.000	72.490	2025-09-09	160	purchase	5	0	3	2025-12-10 19:37:47	2025-12-10 19:38:00
+700	7	1	8	INV-25/00089	\N	23.360	72.490	49.130	2025-09-09	540	sale	5	0	3	2025-12-10 19:38:00	2025-12-10 19:38:11
+701	7	1	8	INV-25/00090	\N	24.200	49.130	24.930	2025-09-09	541	sale	5	0	3	2025-12-10 19:38:11	2025-12-10 19:38:19
+702	7	1	8	INV-25/00091	\N	24.930	24.930	0.000	2025-09-09	542	sale	5	0	3	2025-12-10 19:38:19	2025-12-10 19:39:40
+703	7	1	8	891	4567	96.760	0.000	96.760	2025-09-10	161	purchase	5	0	3	2025-12-10 19:39:40	2025-12-10 19:39:50
+704	7	1	8	INV-25/00092	\N	24.120	96.760	72.640	2025-09-10	543	sale	5	0	3	2025-12-10 19:39:50	2025-12-10 19:39:57
+705	7	1	8	INV-25/00093	\N	23.870	72.640	48.770	2025-09-10	544	sale	5	0	3	2025-12-10 19:39:57	2025-12-10 19:40:05
+706	7	1	8	INV-25/00094	\N	24.120	48.770	24.650	2025-09-10	545	sale	5	0	3	2025-12-10 19:40:05	2025-12-10 19:40:15
+707	7	1	8	INV-25/00095	\N	24.650	24.650	0.000	2025-09-10	546	sale	5	0	3	2025-12-10 19:40:15	2025-12-10 19:42:14
+708	7	1	8	898	4568	71.110	0.000	71.110	2025-09-10	162	purchase	5	0	3	2025-12-10 19:42:14	2025-12-10 19:42:26
+709	7	1	8	INV-25/00096	\N	23.630	71.110	47.480	2025-09-10	547	sale	5	0	3	2025-12-10 19:42:26	2025-12-10 19:42:35
+710	7	1	8	INV-25/00097	\N	23.360	47.480	24.120	2025-09-10	548	sale	5	0	3	2025-12-10 19:42:35	2025-12-10 19:42:47
+711	7	1	8	INV-25/00098	\N	24.120	24.120	0.000	2025-09-10	549	sale	5	0	3	2025-12-10 19:42:47	2025-12-10 19:45:36
+712	7	1	8	891	4599	140.800	0.000	140.800	2025-09-11	163	purchase	5	0	3	2025-12-10 19:45:36	2025-12-10 19:46:24
+713	7	1	8	INV-25/00099	\N	25.000	140.800	115.800	2025-09-11	550	sale	5	0	3	2025-12-10 19:46:24	2025-12-10 19:46:37
+714	7	1	8	INV-25/00100	\N	24.000	115.800	91.800	2025-09-11	551	sale	5	0	3	2025-12-10 19:46:37	2025-12-10 19:46:48
+715	7	1	8	INV-25/00101	\N	24.100	91.800	67.700	2025-09-11	552	sale	5	0	3	2025-12-10 19:46:48	2025-12-10 19:47:03
+716	7	1	8	INV-25/00102	\N	22.300	67.700	45.400	2025-09-11	553	sale	5	0	3	2025-12-10 19:47:03	2025-12-10 19:47:12
+717	7	1	8	INV-25/00103	\N	22.230	45.400	23.170	2025-09-11	554	sale	5	0	3	2025-12-10 19:47:12	2025-12-10 19:47:22
+718	7	1	8	INV-25/00104	\N	23.170	23.170	0.000	2025-09-11	555	sale	5	0	3	2025-12-10 19:47:22	2025-12-10 19:49:12
+719	7	1	8	898	4604	71.350	0.000	71.350	2025-09-11	164	purchase	5	0	3	2025-12-10 19:49:12	2025-12-10 19:49:22
+720	7	1	8	INV-25/00105	\N	23.360	71.350	47.990	2025-09-11	556	sale	5	0	3	2025-12-10 19:49:22	2025-12-10 19:49:31
+721	7	1	8	INV-25/00106	\N	23.870	47.990	24.120	2025-09-11	557	sale	5	0	3	2025-12-10 19:49:31	2025-12-10 19:49:39
+722	7	1	8	INV-25/00107	\N	24.120	24.120	0.000	2025-09-11	558	sale	5	0	3	2025-12-10 19:49:39	2025-12-10 19:52:18
+723	7	1	8	898	4648	95.800	0.000	95.800	2025-09-12	165	purchase	5	0	3	2025-12-10 19:52:18	2025-12-10 19:52:37
+724	7	1	8	INV-25/00108	\N	24.310	95.800	71.490	2025-09-12	559	sale	5	0	3	2025-12-10 19:52:37	2025-12-10 19:52:45
+725	7	1	8	INV-25/00109	\N	23.560	71.490	47.930	2025-09-12	560	sale	5	0	3	2025-12-10 19:52:45	2025-12-10 19:52:52
+726	7	1	8	INV-25/00110	\N	23.560	47.930	24.370	2025-09-12	561	sale	5	0	3	2025-12-10 19:52:52	2025-12-10 19:52:59
+727	7	1	8	INV-25/00111	\N	24.370	24.370	0.000	2025-09-12	562	sale	5	0	3	2025-12-10 19:52:59	2025-12-10 19:57:36
+728	7	1	8	898	4651	119.060	0.000	119.060	2025-09-13	166	purchase	5	0	3	2025-12-10 19:57:36	2025-12-10 19:57:51
+729	7	1	8	INV-25/00112	\N	24.200	119.060	94.860	2025-09-13	563	sale	5	0	3	2025-12-10 19:57:51	2025-12-10 19:58:00
+730	7	1	8	INV-25/00113	\N	23.690	94.860	71.170	2025-09-13	564	sale	5	0	3	2025-12-10 19:58:00	2025-12-10 19:58:08
+731	7	1	8	INV-25/00114	\N	23.690	71.170	47.480	2025-09-13	565	sale	5	0	3	2025-12-10 19:58:08	2025-12-10 19:58:18
+732	7	1	8	INV-25/00115	\N	23.610	47.480	23.870	2025-09-13	566	sale	5	0	3	2025-12-10 19:58:18	2025-12-10 19:58:27
+733	7	1	8	INV-25/00116	\N	23.870	23.870	0.000	2025-09-13	567	sale	5	0	3	2025-12-10 19:58:27	2025-12-10 20:03:02
+734	7	1	8	917	4653	97.560	0.000	97.560	2025-09-13	167	purchase	5	0	3	2025-12-10 20:03:02	2025-12-10 20:20:28
+735	7	1	8	INV-25/00117	\N	24.360	97.560	73.200	2025-09-13	568	sale	5	0	3	2025-12-10 20:20:28	2025-12-10 20:20:36
+736	7	1	8	INV-25/00118	\N	23.980	73.200	49.220	2025-09-13	569	sale	5	0	3	2025-12-10 20:20:36	2025-12-10 20:20:43
+737	7	1	8	INV-25/00119	\N	24.560	49.220	24.660	2025-09-13	570	sale	5	0	3	2025-12-10 20:20:43	2025-12-10 20:20:50
+738	7	1	8	INV-25/00120	\N	24.660	24.660	0.000	2025-09-13	571	sale	5	0	3	2025-12-10 20:20:50	2025-12-10 21:46:11
+739	5	1	7	0000141225010173	4586	24.580	0.000	24.580	2025-10-01	168	purchase	5	0	6	2025-12-10 20:39:17	2025-12-10 20:39:30
+740	5	1	7	INV-25/00002	\N	24.000	24.580	0.580	2025-10-01	572	sale	5	0	6	2025-12-10 20:39:30	2025-12-10 22:51:29
+741	2	1	1	0000021825010534	2306	60.000	0.000	60.000	2025-11-04	169	purchase	5	0	2	2025-12-10 21:37:24	2025-12-10 21:37:52
+742	2	1	1	INV-25/00027	\N	60.000	60.000	0.000	2025-11-04	573	sale	5	1	2	2025-12-10 21:37:52	2025-12-10 21:37:52
+743	7	1	8	898	4684	119.000	0.000	119.000	2025-09-15	170	purchase	5	0	3	2025-12-10 21:46:11	2025-12-10 21:46:23
+744	7	1	8	INV-25/00121	\N	24.360	119.000	94.640	2025-09-15	574	sale	5	0	3	2025-12-10 21:46:23	2025-12-10 21:46:30
+745	7	1	8	INV-25/00122	\N	23.960	94.640	70.680	2025-09-15	575	sale	5	0	3	2025-12-10 21:46:30	2025-12-10 21:46:41
+746	7	1	8	INV-25/00123	\N	23.140	70.680	47.540	2025-09-15	576	sale	5	0	3	2025-12-10 21:46:41	2025-12-10 21:46:49
+747	7	1	8	INV-25/00124	\N	23.060	47.540	24.480	2025-09-15	577	sale	5	0	3	2025-12-10 21:46:49	2025-12-10 21:46:56
+748	7	1	8	INV-25/00125	\N	24.480	24.480	0.000	2025-09-15	578	sale	5	0	3	2025-12-10 21:46:56	2025-12-10 21:49:03
+749	3	1	2	0000034825010015	2309	252.000	0.000	252.000	2025-11-04	171	purchase	5	0	2	2025-12-10 21:47:34	2025-12-10 21:48:07
+750	3	1	2	INV-25/00023	\N	48.000	252.000	204.000	2025-11-04	579	sale	5	0	2	2025-12-10 21:48:07	2025-12-10 21:48:22
+751	3	1	2	INV-25/00024	\N	48.000	204.000	156.000	2025-11-04	580	sale	5	0	2	2025-12-10 21:48:22	2025-12-10 21:49:01
+752	3	1	2	INV-25/00025	\N	48.000	156.000	108.000	2025-11-04	581	sale	5	0	2	2025-12-10 21:49:01	2025-12-10 21:49:22
+753	7	1	8	917	4699	73.510	0.000	73.510	2025-09-16	172	purchase	5	0	3	2025-12-10 21:49:03	2025-12-10 21:49:14
+754	7	1	8	INV-25/00126	\N	23.120	73.510	50.390	2025-09-16	582	sale	5	0	3	2025-12-10 21:49:14	2025-12-10 21:49:22
+755	3	1	2	INV-25/00026	\N	36.000	108.000	72.000	2025-11-05	583	sale	5	0	2	2025-12-10 21:49:22	2025-12-10 21:49:37
+756	7	1	8	INV-25/00127	\N	25.120	50.390	25.270	2025-09-16	584	sale	5	0	3	2025-12-10 21:49:22	2025-12-10 21:49:30
+757	7	1	8	INV-25/00128	\N	25.270	25.270	0.000	2025-09-16	585	sale	5	0	3	2025-12-10 21:49:30	2025-12-10 21:52:09
+758	3	1	2	INV-25/00027	\N	72.000	72.000	0.000	2025-11-05	586	sale	5	0	2	2025-12-10 21:49:37	2025-12-10 21:50:28
+759	3	1	2	0000034825010016	2383	216.000	0.000	216.000	2025-11-13	173	purchase	5	0	2	2025-12-10 21:50:28	2025-12-10 21:51:05
+760	3	1	2	INV-25/00028	\N	216.000	216.000	0.000	2025-11-13	587	sale	5	0	2	2025-12-10 21:51:05	2025-12-10 21:51:47
+761	3	1	2	0000034825010016	2441	288.000	0.000	288.000	2025-11-19	174	purchase	5	0	2	2025-12-10 21:51:47	2025-12-10 21:52:15
+762	7	1	8	898	4713	120.040	0.000	120.040	2025-09-16	175	purchase	5	0	3	2025-12-10 21:52:09	2025-12-10 21:52:25
+763	3	1	2	INV-25/00029	\N	288.000	288.000	0.000	2025-11-19	588	sale	5	0	2	2025-12-10 21:52:15	2025-12-10 21:52:55
+764	7	1	8	INV-25/00129	\N	24.020	120.040	96.020	2025-09-16	589	sale	5	0	3	2025-12-10 21:52:25	2025-12-10 21:52:33
+765	7	1	8	INV-25/00130	\N	24.160	96.020	71.860	2025-09-16	590	sale	5	0	3	2025-12-10 21:52:33	2025-12-10 21:54:42
+766	3	1	2	0000034825010016	2483	96.000	0.000	96.000	2025-11-25	176	purchase	5	0	2	2025-12-10 21:52:55	2025-12-10 21:53:24
+767	3	1	2	INV-25/00030	\N	96.000	96.000	0.000	2025-11-25	591	sale	5	1	2	2025-12-10 21:53:24	2025-12-10 21:53:24
+768	7	1	8	INV-25/00131	\N	23.360	71.860	48.500	2025-09-16	592	sale	5	0	3	2025-12-10 21:54:42	2025-12-10 21:54:49
+769	7	1	8	INV-25/00132	\N	24.250	48.500	24.250	2025-09-16	593	sale	5	0	3	2025-12-10 21:54:49	2025-12-10 21:54:57
+770	7	1	8	INV-25/00133	\N	24.250	24.250	0.000	2025-09-16	594	sale	5	0	3	2025-12-10 21:54:57	2025-12-10 21:56:47
+771	7	1	8	917	4731	74.800	0.000	74.800	2025-09-18	177	purchase	5	0	3	2025-12-10 21:56:47	2025-12-10 21:56:59
+772	7	1	8	INV-25/00134	\N	24.630	74.800	50.170	2025-09-18	595	sale	5	0	3	2025-12-10 21:56:59	2025-12-10 21:57:06
+773	7	1	8	INV-25/00135	\N	25.130	50.170	25.040	2025-09-18	596	sale	5	0	3	2025-12-10 21:57:06	2025-12-10 21:57:13
+774	7	1	8	INV-25/00136	\N	25.040	25.040	0.000	2025-09-18	597	sale	5	0	3	2025-12-10 21:57:13	2025-12-10 22:06:27
+775	7	1	8	932	4748	141.560	0.000	141.560	2025-09-18	178	purchase	5	0	3	2025-12-10 22:06:27	2025-12-10 22:06:57
+776	7	1	8	INV-25/00137	\N	23.250	141.560	118.310	2025-09-18	598	sale	5	0	3	2025-12-10 22:06:57	2025-12-10 22:07:07
+777	7	1	8	INV-25/00138	\N	23.210	118.310	95.100	2025-09-18	599	sale	5	0	3	2025-12-10 22:07:07	2025-12-10 22:07:17
+778	7	1	8	INV-25/00139	\N	23.100	95.100	72.000	2025-09-18	600	sale	5	0	3	2025-12-10 22:07:17	2025-12-10 22:07:27
+779	7	1	8	INV-25/00140	\N	23.580	72.000	48.420	2025-09-18	601	sale	5	0	3	2025-12-10 22:07:27	2025-12-10 22:07:35
+780	7	1	8	INV-25/00141	\N	24.210	48.420	24.210	2025-09-18	602	sale	5	0	3	2025-12-10 22:07:35	2025-12-10 22:07:43
+781	7	1	8	INV-25/00142	\N	24.210	24.210	0.000	2025-09-18	603	sale	5	0	3	2025-12-10 22:07:43	2025-12-10 22:09:06
+782	7	1	8	932	4793	170.660	0.000	170.660	2025-09-23	179	purchase	5	0	3	2025-12-10 22:09:06	2025-12-10 22:09:27
+783	7	1	8	INV-25/00143	\N	24.360	170.660	146.300	2025-09-23	604	sale	5	0	3	2025-12-10 22:09:27	2025-12-10 22:09:35
+784	7	1	8	INV-25/00144	\N	24.360	146.300	121.940	2025-09-23	605	sale	5	0	3	2025-12-10 22:09:35	2025-12-10 22:09:54
+785	7	1	8	INV-25/00145	\N	25.300	121.940	96.640	2025-09-23	606	sale	5	0	3	2025-12-10 22:09:54	2025-12-10 22:10:04
+786	7	1	8	INV-25/00146	\N	24.980	96.640	71.660	2025-09-23	607	sale	5	0	3	2025-12-10 22:10:04	2025-12-10 22:10:16
+787	7	1	8	INV-25/00147	\N	23.690	71.660	47.970	2025-09-23	608	sale	5	0	3	2025-12-10 22:10:16	2025-12-10 22:10:24
+788	7	1	8	INV-25/00148	\N	24.000	47.970	23.970	2025-09-23	609	sale	5	0	3	2025-12-10 22:10:24	2025-12-10 22:10:32
+789	7	1	8	INV-25/00149	\N	23.970	23.970	0.000	2025-09-23	610	sale	5	0	3	2025-12-10 22:10:32	2025-12-10 22:11:59
+790	7	1	8	917	4806	99.560	0.000	99.560	2025-09-23	180	purchase	5	0	3	2025-12-10 22:11:59	2025-12-10 22:12:14
+791	7	1	8	INV-25/00150	\N	24.320	99.560	75.240	2025-09-23	611	sale	5	0	3	2025-12-10 22:12:14	2025-12-10 22:12:23
+792	7	1	8	INV-25/00151	\N	24.360	75.240	50.880	2025-09-23	612	sale	5	0	3	2025-12-10 22:12:23	2025-12-10 22:12:31
+793	7	1	8	INV-25/00152	\N	25.360	50.880	25.520	2025-09-23	613	sale	5	0	3	2025-12-10 22:12:31	2025-12-10 22:12:38
+794	7	1	8	INV-25/00153	\N	25.520	25.520	0.000	2025-09-23	614	sale	5	0	3	2025-12-10 22:12:38	2025-12-10 22:14:17
+795	7	1	8	917	4825	74.950	0.000	74.950	2025-09-24	181	purchase	5	0	3	2025-12-10 22:14:17	2025-12-10 22:14:38
+796	7	1	8	INV-25/00154	\N	24.630	74.950	50.320	2025-09-24	615	sale	5	0	3	2025-12-10 22:14:38	2025-12-10 22:14:46
+797	7	1	8	INV-25/00155	\N	25.360	50.320	24.960	2025-09-24	616	sale	5	0	3	2025-12-10 22:14:46	2025-12-10 22:14:54
+798	7	1	8	INV-25/00156	\N	24.960	24.960	0.000	2025-09-24	617	sale	5	0	3	2025-12-10 22:14:54	2025-12-10 22:16:19
+799	7	1	8	917	4901	99.170	0.000	99.170	2025-09-25	182	purchase	5	0	3	2025-12-10 22:16:19	2025-12-10 22:18:25
+800	7	1	8	INV-25/00157	\N	24.690	99.170	74.480	2025-09-25	618	sale	5	0	3	2025-12-10 22:18:25	2025-12-10 22:18:34
+801	7	1	8	INV-25/00158	\N	25.000	74.480	49.480	2025-09-25	619	sale	5	0	3	2025-12-10 22:18:34	2025-12-10 22:18:42
+802	7	1	8	INV-25/00159	\N	24.980	49.480	24.500	2025-09-25	620	sale	5	0	3	2025-12-10 22:18:42	2025-12-10 22:18:51
+803	7	1	8	INV-25/00160	\N	24.500	24.500	0.000	2025-09-25	621	sale	5	0	3	2025-12-10 22:18:51	2025-12-10 22:26:27
+804	7	1	8	917	4927	148.580	0.000	148.580	2025-09-26	183	purchase	5	0	3	2025-12-10 22:26:27	2025-12-10 22:26:39
+805	7	1	8	INV-25/00161	\N	25.000	148.580	123.580	2025-09-26	622	sale	5	0	3	2025-12-10 22:26:39	2025-12-10 22:26:47
+806	7	1	8	INV-25/00162	\N	25.120	123.580	98.460	2025-09-26	623	sale	5	0	3	2025-12-10 22:26:47	2025-12-10 22:26:55
+807	7	1	8	INV-25/00163	\N	24.870	98.460	73.590	2025-09-26	624	sale	5	0	3	2025-12-10 22:26:55	2025-12-10 22:27:02
+808	7	1	8	INV-25/00164	\N	24.360	73.590	49.230	2025-09-26	625	sale	5	0	3	2025-12-10 22:27:02	2025-12-10 22:27:10
+809	7	1	8	INV-25/00165	\N	24.590	49.230	24.640	2025-09-26	626	sale	5	0	3	2025-12-10 22:27:10	2025-12-10 22:27:18
+810	7	1	8	INV-25/00166	\N	24.640	24.640	0.000	2025-09-26	627	sale	5	0	3	2025-12-10 22:27:18	2025-12-23 18:17:30
+811	5	1	7	0000141225010173	4671	24.150	0.580	24.730	2025-10-01	184	purchase	5	0	6	2025-12-10 22:51:29	2025-12-10 22:51:49
+812	5	1	7	INV-25/00003	\N	24.000	24.730	0.730	2025-10-01	628	sale	5	0	6	2025-12-10 22:51:49	2025-12-10 22:55:34
+813	5	1	7	0000141225010173	4777	12.000	0.730	12.730	2025-10-01	185	purchase	5	0	6	2025-12-10 22:55:34	2025-12-10 22:55:47
+814	5	1	7	INV-25/00004	\N	12.000	12.730	0.730	2025-10-01	629	sale	5	0	6	2025-12-10 22:55:47	2025-12-10 22:57:40
+815	5	1	7	0000141225010173	4861	111.270	0.730	112.000	2025-10-01	186	purchase	5	0	6	2025-12-10 22:57:40	2025-12-10 22:58:42
+816	5	1	7	INV-25/00005	\N	36.000	112.000	76.000	2025-10-01	630	sale	5	0	6	2025-12-10 22:58:42	2025-12-10 22:58:55
+817	5	1	7	INV-25/00006	\N	36.000	76.000	40.000	2025-10-01	631	sale	5	0	6	2025-12-10 22:58:55	2025-12-10 22:59:10
+818	5	1	7	INV-25/00007	\N	40.000	40.000	0.000	2025-10-01	632	sale	5	0	6	2025-12-10 22:59:10	2025-12-10 23:00:38
+819	5	1	7	0000141225010173	4935	73.900	0.000	73.900	2025-10-01	187	purchase	5	0	6	2025-12-10 23:00:38	2025-12-10 23:00:59
+820	5	1	7	INV-25/00008	\N	36.000	73.900	37.900	2025-10-01	633	sale	5	0	6	2025-12-10 23:00:59	2025-12-10 23:01:07
+821	5	1	7	INV-25/00009	\N	37.000	37.900	0.900	2025-10-01	634	sale	5	0	6	2025-12-10 23:01:07	2025-12-10 23:15:30
+822	5	1	7	0000141225010173	4965	36.680	0.900	37.580	2025-10-02	188	purchase	5	0	6	2025-12-10 23:15:30	2025-12-10 23:15:40
+823	5	1	7	INV-25/00010	\N	37.000	37.580	0.580	2025-10-02	635	sale	5	0	6	2025-12-10 23:15:40	2025-12-10 23:17:08
+824	5	1	7	0000141225010220	4968	25.000	0.580	25.580	2025-10-02	189	purchase	5	0	6	2025-12-10 23:17:08	2025-12-10 23:17:23
+825	5	1	7	INV-25/00011	\N	25.000	25.580	0.580	2025-10-02	636	sale	5	0	6	2025-12-10 23:17:23	2025-12-10 23:18:43
+826	5	1	7	0000141225010220	5020	50.000	0.580	50.580	2025-10-02	190	purchase	5	0	6	2025-12-10 23:18:43	2025-12-10 23:19:05
+827	5	1	7	INV-25/00012	\N	50.000	50.580	0.580	2025-10-02	637	sale	5	0	6	2025-12-10 23:19:05	2025-12-10 23:20:51
+828	5	1	7	0000141225010220	5087	49.350	0.580	49.930	2025-10-02	191	purchase	5	0	6	2025-12-10 23:20:51	2025-12-10 23:21:03
+829	5	1	7	INV-25/00013	\N	25.000	49.930	24.930	2025-10-02	638	sale	5	0	6	2025-12-10 23:21:03	2025-12-10 23:21:11
+830	5	1	7	INV-25/00014	\N	24.000	24.930	0.930	2025-10-02	639	sale	5	0	6	2025-12-10 23:21:11	2025-12-10 23:22:34
+831	5	1	7	0000141225010220	5118	48.380	0.930	49.310	2025-10-03	192	purchase	5	0	6	2025-12-10 23:22:34	2025-12-10 23:22:47
+832	5	1	7	INV-25/00015	\N	49.000	49.310	0.310	2025-10-03	640	sale	5	0	6	2025-12-10 23:22:47	2025-12-10 23:28:14
+833	5	1	7	0000141225010220	5190	100.410	0.310	100.720	2025-10-03	193	purchase	5	0	6	2025-12-10 23:28:14	2025-12-10 23:36:21
+834	5	1	7	INV-25/00016	\N	50.000	100.720	50.720	2025-10-03	641	sale	5	0	6	2025-12-10 23:36:21	2025-12-10 23:36:33
+835	5	1	7	INV-25/00017	\N	50.000	50.720	0.720	2025-10-03	642	sale	5	0	6	2025-12-10 23:36:33	2025-12-10 23:38:19
+836	5	1	7	0000141225010220	5228	12.170	0.720	12.890	2025-10-03	194	purchase	5	0	6	2025-12-10 23:38:19	2025-12-10 23:38:36
+837	5	1	7	INV-25/00018	\N	12.000	12.890	0.890	2025-10-03	643	sale	5	0	6	2025-12-10 23:38:36	2025-12-10 23:41:44
+838	5	1	7	0000141225010220	5270	37.200	0.890	38.090	2025-10-03	195	purchase	5	0	6	2025-12-10 23:41:44	2025-12-10 23:41:53
+839	5	1	7	INV-25/00019	\N	38.000	38.090	0.090	2025-10-03	644	sale	5	0	6	2025-12-10 23:41:53	2025-12-10 23:43:36
+840	5	1	7	0000141225010220	5323	12.500	0.090	12.590	2025-10-03	196	purchase	5	0	6	2025-12-10 23:43:36	2025-12-10 23:43:48
+841	5	1	7	INV-25/00020	\N	12.000	12.590	0.590	2025-10-03	645	sale	5	0	6	2025-12-10 23:43:48	2025-12-10 23:45:25
+842	5	1	7	0000141225010220	5352	49.000	0.590	49.590	2025-10-04	197	purchase	5	0	6	2025-12-10 23:45:25	2025-12-10 23:45:37
+843	5	1	7	INV-25/00021	\N	49.000	49.590	0.590	2025-10-04	646	sale	5	0	6	2025-12-10 23:45:37	2025-12-10 23:49:07
+844	5	1	7	0000141225010220	5403	37.400	0.590	37.990	2025-10-04	198	purchase	5	0	6	2025-12-10 23:49:07	2025-12-10 23:49:19
+845	5	1	7	INV-25/00022	\N	37.000	37.990	0.990	2025-10-04	647	sale	5	0	6	2025-12-10 23:49:19	2025-12-10 23:52:41
+846	5	1	7	0000141225010220	5459	12.500	0.990	13.490	2025-10-04	199	purchase	5	0	6	2025-12-10 23:52:41	2025-12-10 23:52:51
+847	5	1	7	INV-25/00023	\N	13.000	13.490	0.490	2025-10-04	648	sale	5	0	6	2025-12-10 23:52:51	2025-12-11 00:05:45
+848	5	1	7	0000141225010220	5544	49.000	0.490	49.490	2025-10-04	200	purchase	5	0	6	2025-12-11 00:05:45	2025-12-11 00:05:55
+849	5	1	7	INV-25/00024	\N	49.000	49.490	0.490	2025-10-04	649	sale	5	0	6	2025-12-11 00:05:55	2025-12-11 00:07:53
+850	5	1	7	0000141225010220	5590	24.820	0.490	25.310	2025-10-04	201	purchase	5	0	6	2025-12-11 00:07:53	2025-12-11 00:10:07
+851	5	1	7	INV-25/00025	\N	25.000	25.310	0.310	2025-10-04	650	sale	5	0	6	2025-12-11 00:10:07	2025-12-11 00:12:14
+852	5	1	7	0000141225010220	5666	50.070	0.310	50.380	2025-10-05	202	purchase	5	0	6	2025-12-11 00:12:14	2025-12-11 00:12:36
+853	5	1	7	INV-25/00026	\N	24.000	50.380	26.380	2025-10-05	651	sale	5	0	6	2025-12-11 00:12:36	2025-12-11 00:12:45
+854	5	1	7	INV-25/00027	\N	26.000	26.380	0.380	2025-10-05	652	sale	5	0	6	2025-12-11 00:12:45	2025-12-11 00:14:19
+855	5	1	7	0000141225010220	5721	12.250	0.380	12.630	2025-10-05	203	purchase	5	0	6	2025-12-11 00:14:19	2025-12-11 00:14:28
+856	5	1	7	INV-25/00028	\N	12.000	12.630	0.630	2025-10-05	653	sale	5	0	6	2025-12-11 00:14:28	2025-12-11 00:15:58
+857	5	1	7	0000141225010220	5787	49.500	0.630	50.130	2025-10-05	204	purchase	5	0	6	2025-12-11 00:15:58	2025-12-11 00:16:10
+858	5	1	7	INV-25/00029	\N	50.000	50.130	0.130	2025-10-05	654	sale	5	0	6	2025-12-11 00:16:10	2025-12-11 00:17:23
+859	5	1	7	0000141225010239	5880	37.700	0.130	37.830	2025-10-05	205	purchase	5	0	6	2025-12-11 00:17:23	2025-12-11 00:17:32
+860	5	1	7	INV-25/00030	\N	37.000	37.830	0.830	2025-10-05	655	sale	5	0	6	2025-12-11 00:17:32	2025-12-11 00:18:49
+861	5	1	7	0000141225010239	5913	74.250	0.830	75.080	2025-10-06	206	purchase	5	0	6	2025-12-11 00:18:49	2025-12-11 00:18:59
+862	5	1	7	INV-25/00031	\N	36.000	75.080	39.080	2025-10-06	656	sale	5	0	6	2025-12-11 00:18:59	2025-12-11 00:19:07
+863	5	1	7	INV-25/00032	\N	39.000	39.080	0.080	2025-10-06	657	sale	5	0	6	2025-12-11 00:19:07	2025-12-11 00:20:31
+864	5	1	7	0000141225010239	5942	49.840	0.080	49.920	2025-10-07	207	purchase	5	0	6	2025-12-11 00:20:31	2025-12-11 00:20:41
+865	5	1	7	INV-25/00033	\N	49.000	49.920	0.920	2025-10-07	658	sale	5	0	6	2025-12-11 00:20:41	2025-12-11 00:41:51
+866	5	1	7	0000141225010239	5990	85.890	0.920	86.810	2025-10-07	208	purchase	5	0	6	2025-12-11 00:41:51	2025-12-11 00:42:09
+867	5	1	7	INV-25/00034	\N	24.000	86.810	62.810	2025-10-07	659	sale	5	0	6	2025-12-11 00:42:09	2025-12-11 00:42:21
+868	5	1	7	INV-25/00035	\N	32.000	62.810	30.810	2025-10-07	660	sale	5	0	6	2025-12-11 00:42:21	2025-12-11 00:42:29
+869	5	1	7	INV-25/00036	\N	30.000	30.810	0.810	2025-10-07	661	sale	5	0	6	2025-12-11 00:42:29	2025-12-11 00:44:35
+870	5	1	7	0000141225010239	6023	12.200	0.810	13.010	2025-10-08	209	purchase	5	0	6	2025-12-11 00:44:35	2025-12-11 01:22:05
+871	5	1	7	INV-25/00037	\N	13.000	13.010	0.010	2025-10-08	662	sale	5	0	6	2025-12-11 01:22:05	2025-12-11 01:30:54
+872	5	1	7	0000141225010239	6060	113.270	0.010	113.280	2025-10-09	210	purchase	5	0	6	2025-12-11 01:30:54	2025-12-11 01:31:49
+873	5	1	7	INV-25/00038	\N	36.000	113.280	77.280	2025-10-09	663	sale	5	0	6	2025-12-11 01:31:49	2025-12-11 01:32:00
+874	5	1	7	INV-25/00039	\N	40.000	77.280	37.280	2025-10-09	664	sale	5	0	6	2025-12-11 01:32:00	2025-12-11 01:32:09
+875	5	1	7	INV-25/00040	\N	37.000	37.280	0.280	2025-10-09	665	sale	5	0	6	2025-12-11 01:32:09	2025-12-11 01:33:30
+876	5	1	7	0000141225010239	6106	98.890	0.280	99.170	2025-10-10	211	purchase	5	0	6	2025-12-11 01:33:30	2025-12-11 01:33:51
+877	5	1	7	INV-25/00041	\N	50.000	99.170	49.170	2025-10-10	666	sale	5	0	6	2025-12-11 01:33:51	2025-12-11 01:33:58
+878	5	1	7	INV-25/00042	\N	49.000	49.170	0.170	2025-10-10	667	sale	5	0	6	2025-12-11 01:33:58	2025-12-11 01:36:23
+879	5	1	7	0000141225010239	6158	75.060	0.170	75.230	2025-10-10	212	purchase	5	0	6	2025-12-11 01:36:23	2025-12-11 01:36:38
+880	5	1	7	INV-25/00043	\N	34.000	75.230	41.230	2025-10-10	668	sale	5	0	6	2025-12-11 01:36:38	2025-12-11 01:36:46
+881	5	1	7	INV-25/00044	\N	41.000	41.230	0.230	2025-10-10	669	sale	5	0	6	2025-12-11 01:36:46	2025-12-11 01:38:04
+882	5	1	7	0000141225010239	6230	12.440	0.230	12.670	2025-10-10	213	purchase	5	0	6	2025-12-11 01:38:04	2025-12-11 01:38:12
+883	5	1	7	INV-25/00045	\N	12.000	12.670	0.670	2025-10-10	670	sale	5	0	6	2025-12-11 01:38:12	2025-12-11 02:14:43
+884	5	1	7	0000141225010239	6262	61.680	0.670	62.350	2025-10-10	214	purchase	5	0	6	2025-12-11 02:14:43	2025-12-11 02:15:02
+885	5	1	7	INV-25/00046	\N	30.000	62.350	32.350	2025-10-10	671	sale	5	0	6	2025-12-11 02:15:02	2025-12-11 02:15:09
+886	5	1	7	INV-25/00047	\N	32.000	32.350	0.350	2025-10-10	672	sale	5	0	6	2025-12-11 02:15:09	2025-12-11 02:16:41
+887	5	1	7	0000141225010258	6283	24.740	0.350	25.090	2025-10-10	215	purchase	5	0	6	2025-12-11 02:16:41	2025-12-11 02:16:52
+888	5	1	7	INV-25/00048	\N	25.000	25.090	0.090	2025-10-10	673	sale	5	0	6	2025-12-11 02:16:52	2025-12-11 02:17:57
+889	5	1	7	0000141225010258	6341	36.420	0.090	36.510	2025-10-11	216	purchase	5	0	6	2025-12-11 02:17:57	2025-12-11 02:18:06
+890	5	1	7	INV-25/00049	\N	36.000	36.510	0.510	2025-10-11	674	sale	5	0	6	2025-12-11 02:18:06	2025-12-11 02:23:13
+891	5	1	7	0000141225010258	6376	24.860	0.510	25.370	2025-10-11	217	purchase	5	0	6	2025-12-11 02:23:13	2025-12-11 02:23:20
+892	5	1	7	INV-25/00050	\N	25.000	25.370	0.370	2025-10-11	675	sale	5	0	6	2025-12-11 02:23:20	2025-12-11 02:24:25
+893	5	1	7	0000141225010258	6442	112.930	0.370	113.300	2025-10-11	218	purchase	5	0	6	2025-12-11 02:24:25	2025-12-11 02:24:33
+894	5	1	7	INV-25/00051	\N	36.000	113.300	77.300	2025-10-11	676	sale	5	0	6	2025-12-11 02:24:33	2025-12-11 02:24:42
+895	5	1	7	INV-25/00052	\N	36.000	77.300	41.300	2025-10-11	677	sale	5	0	6	2025-12-11 02:24:42	2025-12-11 02:24:48
+896	5	1	7	INV-25/00053	\N	41.000	41.300	0.300	2025-10-11	678	sale	5	0	6	2025-12-11 02:24:48	2025-12-11 02:25:52
+897	5	1	7	0000141225010258	6518	49.110	0.300	49.410	2025-10-12	219	purchase	5	0	6	2025-12-11 02:25:52	2025-12-11 02:26:00
+898	5	1	7	INV-25/00054	\N	49.000	49.410	0.410	2025-10-12	679	sale	5	0	6	2025-12-11 02:26:00	2025-12-11 02:30:42
+899	5	1	7	0000141225010258	6531	75.590	0.410	76.000	2025-10-12	220	purchase	5	0	6	2025-12-11 02:30:42	2025-12-11 02:30:56
+900	5	1	7	INV-25/00055	\N	36.000	76.000	40.000	2025-10-12	680	sale	5	0	6	2025-12-11 02:30:56	2025-12-11 02:31:04
+901	5	1	7	INV-25/00056	\N	40.000	40.000	0.000	2025-10-12	681	sale	5	0	6	2025-12-11 02:31:04	2025-12-11 02:32:28
+902	5	1	7	0000141225010258	6593	36.740	0.000	36.740	2025-10-13	221	purchase	5	0	6	2025-12-11 02:32:28	2025-12-11 02:32:39
+903	5	1	7	INV-25/00057	\N	36.000	36.740	0.740	2025-10-13	682	sale	5	0	6	2025-12-11 02:32:39	2025-12-11 02:34:14
+904	5	1	7	0000141225010258	6709	99.800	0.740	100.540	2025-10-13	222	purchase	5	0	6	2025-12-11 02:34:14	2025-12-11 02:34:26
+905	5	1	7	INV-25/00058	\N	36.000	100.540	64.540	2025-10-13	683	sale	5	0	6	2025-12-11 02:34:26	2025-12-11 02:34:35
+906	5	1	7	INV-25/00059	\N	36.000	64.540	28.540	2025-10-13	684	sale	5	0	6	2025-12-11 02:34:35	2025-12-11 02:34:42
+907	5	1	7	INV-25/00060	\N	28.000	28.540	0.540	2025-10-13	685	sale	5	0	6	2025-12-11 02:34:42	2025-12-11 02:38:09
+908	5	1	7	0000141225010258	6781	147.450	0.540	147.990	2025-10-14	223	purchase	5	0	6	2025-12-11 02:38:09	2025-12-11 02:38:21
+909	5	1	7	INV-25/00061	\N	50.000	147.990	97.990	2025-10-14	686	sale	5	0	6	2025-12-11 02:38:21	2025-12-11 02:38:34
+910	5	1	7	INV-25/00062	\N	50.000	97.990	47.990	2025-10-14	687	sale	5	0	6	2025-12-11 02:38:34	2025-12-11 02:38:43
+911	5	1	7	INV-25/00063	\N	47.000	47.990	0.990	2025-10-14	688	sale	5	0	6	2025-12-11 02:38:43	2025-12-11 02:40:52
+912	5	1	7	0000141225010270	6824	60.450	0.990	61.440	2025-10-15	224	purchase	5	0	6	2025-12-11 02:40:52	2025-12-11 03:00:57
+913	5	1	7	INV-25/00064	\N	30.000	61.440	31.440	2025-10-15	689	sale	5	0	6	2025-12-11 03:00:57	2025-12-11 03:01:04
+914	5	1	7	INV-25/00065	\N	31.000	31.440	0.440	2025-10-15	690	sale	5	0	6	2025-12-11 03:01:04	2025-12-11 03:03:30
+915	5	1	7	0000141225010258	6828	12.500	0.440	12.940	2025-10-15	225	purchase	5	0	6	2025-12-11 03:03:30	2025-12-11 03:03:40
+916	5	1	7	INV-25/00066	\N	12.000	12.940	0.940	2025-10-15	691	sale	5	0	6	2025-12-11 03:03:40	2025-12-11 03:10:44
+917	5	1	7	0000141225010270	6865	99.310	0.940	100.250	2025-10-16	226	purchase	5	0	6	2025-12-11 03:10:44	2025-12-11 03:10:58
+918	5	1	7	INV-25/00067	\N	50.000	100.250	50.250	2025-10-16	692	sale	5	0	6	2025-12-11 03:10:58	2025-12-11 03:11:04
+919	5	1	7	INV-25/00068	\N	50.000	50.250	0.250	2025-10-16	693	sale	5	0	6	2025-12-11 03:11:04	2025-12-11 03:13:24
+920	5	1	7	0000141225010270	6915	87.300	0.250	87.550	2025-10-17	227	purchase	5	0	6	2025-12-11 03:13:24	2025-12-11 03:13:37
+921	5	1	7	INV-25/00069	\N	50.000	87.550	37.550	2025-10-17	694	sale	5	0	6	2025-12-11 03:13:37	2025-12-11 03:13:46
+922	5	1	7	INV-25/00070	\N	37.000	37.550	0.550	2025-10-17	695	sale	5	0	6	2025-12-11 03:13:46	2025-12-11 03:15:06
+923	5	1	7	0000141225010270	6961	74.990	0.550	75.540	2025-10-18	228	purchase	5	0	6	2025-12-11 03:15:06	2025-12-11 03:15:20
+924	5	1	7	INV-25/00071	\N	36.000	75.540	39.540	2025-10-18	696	sale	5	0	6	2025-12-11 03:15:20	2025-12-11 03:15:34
+925	5	1	7	INV-25/00072	\N	39.000	39.540	0.540	2025-10-18	697	sale	5	0	6	2025-12-11 03:15:34	2025-12-11 03:19:18
+926	5	1	7	0000141225010270	7036	49.300	0.540	49.840	2025-10-18	229	purchase	5	0	6	2025-12-11 03:19:18	2025-12-11 03:19:32
+927	5	1	7	INV-25/00073	\N	49.000	49.840	0.840	2025-10-18	698	sale	5	0	6	2025-12-11 03:19:32	2025-12-11 03:21:38
+928	5	1	7	0000141225010270	7079	61.100	0.840	61.940	2025-10-18	230	purchase	5	0	6	2025-12-11 03:21:38	2025-12-11 03:22:05
+929	5	1	7	INV-25/00074	\N	31.000	61.940	30.940	2025-10-18	699	sale	5	0	6	2025-12-11 03:22:05	2025-12-11 03:22:16
+930	5	1	7	INV-25/00075	\N	30.000	30.940	0.940	2025-10-18	700	sale	5	0	6	2025-12-11 03:22:16	2025-12-11 03:25:38
+931	5	1	7	0000141225010270	7140	87.240	0.940	88.180	2025-10-19	231	purchase	5	0	6	2025-12-11 03:25:38	2025-12-11 03:25:51
+932	5	1	7	INV-25/00076	\N	36.000	88.180	52.180	2025-10-19	701	sale	5	0	6	2025-12-11 03:25:51	2025-12-11 03:26:10
+933	5	1	7	INV-25/00077	\N	24.000	52.180	28.180	2025-10-19	702	sale	5	0	6	2025-12-11 03:26:10	2025-12-11 03:26:23
+934	5	1	7	INV-25/00078	\N	28.000	28.180	0.180	2025-10-19	703	sale	5	0	6	2025-12-11 03:26:23	2025-12-11 04:16:39
+935	5	1	7	0000141225010270	7153	12.000	0.180	12.180	2025-10-19	232	purchase	5	0	2	2025-12-11 04:16:39	2025-12-11 04:37:58
+936	5	1	7	INV-25/00079	\N	12.000	12.180	0.180	2025-10-19	704	sale	5	0	6	2025-12-11 04:37:58	2025-12-11 04:47:19
+937	5	1	7	0000141225010270	7198	37.590	0.180	37.770	2025-10-20	233	purchase	5	0	6	2025-12-11 04:47:19	2025-12-11 04:47:31
+938	5	1	7	INV-25/00080	\N	37.000	37.770	0.770	2025-10-20	705	sale	5	0	6	2025-12-11 04:47:31	2025-12-11 04:50:03
+939	5	1	7	0000141225010270	7239	49.760	0.770	50.530	2025-10-20	234	purchase	5	0	6	2025-12-11 04:50:03	2025-12-11 04:50:12
+940	5	1	7	INV-25/00081	\N	50.000	50.530	0.530	2025-10-20	706	sale	5	0	6	2025-12-11 04:50:12	2025-12-11 04:51:25
+941	5	1	7	0000141225010279	7499	85.880	0.530	86.410	2025-10-20	235	purchase	5	0	6	2025-12-11 04:51:25	2025-12-11 04:51:40
+942	5	1	7	INV-25/00082	\N	48.000	86.410	38.410	2025-10-20	707	sale	5	0	6	2025-12-11 04:51:40	2025-12-11 04:51:48
+943	5	1	7	INV-25/00083	\N	38.000	38.410	0.410	2025-10-20	708	sale	5	0	6	2025-12-11 04:51:48	2025-12-11 04:53:47
+944	5	1	7	0000141225010279	7516	85.910	0.410	86.320	2025-10-21	236	purchase	5	0	6	2025-12-11 04:53:47	2025-12-11 04:53:57
+945	5	1	7	INV-25/00084	\N	36.000	86.320	50.320	2025-10-21	709	sale	5	0	6	2025-12-11 04:53:57	2025-12-11 04:54:05
+946	5	1	7	INV-25/00085	\N	50.000	50.320	0.320	2025-10-21	710	sale	5	0	6	2025-12-11 04:54:05	2025-12-11 06:21:53
+947	5	1	7	0000141225010279	7596	135.970	0.320	136.290	2025-10-21	237	purchase	5	0	6	2025-12-11 06:21:53	2025-12-11 06:22:03
+948	5	1	7	INV-25/00086	\N	36.000	136.290	100.290	2025-10-21	711	sale	5	0	6	2025-12-11 06:22:03	2025-12-11 06:22:16
+949	5	1	7	INV-25/00087	\N	50.000	100.290	50.290	2025-10-21	712	sale	5	0	6	2025-12-11 06:22:16	2025-12-11 06:22:23
+950	5	1	7	INV-25/00088	\N	50.000	50.290	0.290	2025-10-21	713	sale	5	0	6	2025-12-11 06:22:23	2025-12-11 06:23:34
+951	5	1	7	0000141225010279	7658	25.000	0.290	25.290	2025-10-22	238	purchase	5	0	6	2025-12-11 06:23:34	2025-12-11 06:23:47
+952	5	1	7	INV-25/00089	\N	25.000	25.290	0.290	2025-10-22	714	sale	5	0	6	2025-12-11 06:23:47	2025-12-11 06:25:25
+953	5	1	7	0000141225010279	7714	37.220	0.290	37.510	2025-10-22	239	purchase	5	0	6	2025-12-11 06:25:25	2025-12-11 06:25:46
+954	5	1	7	INV-25/00090	\N	37.000	37.510	0.510	2025-10-22	715	sale	5	0	6	2025-12-11 06:25:46	2025-12-11 06:26:59
+955	5	1	7	0000141225010279	7749	37.460	0.510	37.970	2025-10-23	240	purchase	5	0	6	2025-12-11 06:26:59	2025-12-11 06:27:09
+956	5	1	7	INV-25/00091	\N	37.000	37.970	0.970	2025-10-23	716	sale	5	0	6	2025-12-11 06:27:09	2025-12-11 06:28:50
+957	5	1	7	0000141225010279	7797	73.570	0.970	74.540	2025-10-23	241	purchase	5	0	6	2025-12-11 06:28:50	2025-12-11 06:29:02
+958	5	1	7	INV-25/00092	\N	40.000	74.540	34.540	2025-10-23	717	sale	5	0	6	2025-12-11 06:29:02	2025-12-11 06:29:10
+959	5	1	7	INV-25/00093	\N	34.000	34.540	0.540	2025-10-23	718	sale	5	0	6	2025-12-11 06:29:10	2025-12-11 06:30:16
+960	5	1	7	0000141225010279	7876	12.380	0.540	12.920	2025-10-23	242	purchase	5	0	6	2025-12-11 06:30:16	2025-12-11 06:30:25
+961	5	1	7	INV-25/00094	\N	12.000	12.920	0.920	2025-10-23	719	sale	5	0	6	2025-12-11 06:30:25	2025-12-11 06:31:26
+962	5	1	7	0000141225010279	7927	60.130	0.920	61.050	2025-10-24	243	purchase	5	0	6	2025-12-11 06:31:26	2025-12-11 06:31:36
+963	5	1	7	INV-25/00095	\N	31.000	61.050	30.050	2025-10-24	720	sale	5	0	6	2025-12-11 06:31:36	2025-12-11 06:31:43
+964	5	1	7	INV-25/00096	\N	30.000	30.050	0.050	2025-10-24	721	sale	5	0	6	2025-12-11 06:31:43	2025-12-11 06:32:46
+965	5	1	7	0000141225010279	8031	60.300	0.050	60.350	2025-10-28	244	purchase	5	0	6	2025-12-11 06:32:46	2025-12-11 06:32:55
+966	5	1	7	INV-25/00097	\N	30.000	60.350	30.350	2025-10-28	722	sale	5	0	6	2025-12-11 06:32:55	2025-12-11 06:33:03
+967	5	1	7	INV-25/00098	\N	30.000	30.350	0.350	2025-10-28	723	sale	5	0	6	2025-12-11 06:33:03	2025-12-11 06:34:03
+968	5	1	7	0000141225010295	8107	36.730	0.350	37.080	2025-10-29	245	purchase	5	0	6	2025-12-11 06:34:03	2025-12-11 06:34:15
+969	5	1	7	INV-25/00099	\N	37.000	37.080	0.080	2025-10-29	724	sale	5	0	6	2025-12-11 06:34:15	2025-12-11 06:35:40
+970	5	1	7	0000141225010295	8137	74.110	0.080	74.190	2025-10-30	246	purchase	5	0	6	2025-12-11 06:35:40	2025-12-11 06:35:52
+971	5	1	7	INV-25/00100	\N	35.000	74.190	39.190	2025-10-30	725	sale	5	0	6	2025-12-11 06:35:52	2025-12-11 06:35:59
+972	5	1	7	INV-25/00101	\N	39.000	39.190	0.190	2025-10-30	726	sale	5	0	6	2025-12-11 06:35:59	2025-12-11 06:37:18
+973	5	1	7	0000141225010310	8190	49.030	0.190	49.220	2025-10-30	247	purchase	5	0	6	2025-12-11 06:37:18	2025-12-11 06:37:31
+974	5	1	7	INV-25/00102	\N	49.000	49.220	0.220	2025-10-30	727	sale	5	0	6	2025-12-11 06:37:31	2025-12-11 06:39:02
+975	5	1	7	0000141225010295	8191	24.930	0.220	25.150	2025-10-30	248	purchase	5	0	6	2025-12-11 06:39:02	2025-12-11 06:39:28
+976	5	1	7	INV-25/00103	\N	25.000	25.150	0.150	2025-10-30	728	sale	5	0	6	2025-12-11 06:39:28	2025-12-11 06:50:01
+977	5	1	7	0000141225010295	8262	49.460	0.150	49.610	2025-11-02	249	purchase	5	0	6	2025-12-11 06:50:01	2025-12-11 06:50:12
+978	5	1	7	INV-25/00104	\N	49.000	49.610	0.610	2025-11-02	729	sale	5	0	6	2025-12-11 06:50:12	2025-12-11 06:56:28
+979	5	1	7	0000141225010295	8323	49.890	0.610	50.500	2025-11-04	250	purchase	5	0	6	2025-12-11 06:56:28	2025-12-11 06:56:39
+980	5	1	7	INV-25/00105	\N	50.000	50.500	0.500	2025-11-04	730	sale	5	0	6	2025-12-11 06:56:39	2025-12-11 06:57:35
+981	5	1	7	0000141225010295	8361	75.050	0.500	75.550	2025-11-05	251	purchase	5	0	6	2025-12-11 06:57:35	2025-12-11 06:57:42
+982	5	1	7	INV-25/00106	\N	35.000	75.550	40.550	2025-11-05	731	sale	5	0	6	2025-12-11 06:57:42	2025-12-11 06:57:48
+983	5	1	7	INV-25/00107	\N	40.000	40.550	0.550	2025-11-05	732	sale	5	0	6	2025-12-11 06:57:48	2025-12-11 06:59:07
+984	5	1	7	0000141225010310	8364	24.920	0.550	25.470	2025-11-05	252	purchase	5	0	6	2025-12-11 06:59:07	2025-12-11 06:59:15
+985	5	1	7	INV-25/00108	\N	25.000	25.470	0.470	2025-11-05	733	sale	5	0	6	2025-12-11 06:59:15	2025-12-11 07:00:08
+986	5	1	7	0000141225010295	8426	50.210	0.470	50.680	2025-11-06	253	purchase	5	0	6	2025-12-11 07:00:08	2025-12-11 07:00:18
+987	5	1	7	INV-25/00109	\N	50.000	50.680	0.680	2025-11-06	734	sale	5	0	6	2025-12-11 07:00:18	2025-12-11 07:01:42
+988	5	1	7	0000141225010310	8427	12.320	0.680	13.000	2025-11-06	254	purchase	5	0	6	2025-12-11 07:01:42	2025-12-11 07:01:50
+989	5	1	7	INV-25/00110	\N	13.000	13.000	0.000	2025-11-06	735	sale	5	0	6	2025-12-11 07:01:50	2025-12-11 07:02:45
+990	5	1	7	0000141225010295	8493	36.940	0.000	36.940	2025-11-07	255	purchase	5	0	6	2025-12-11 07:02:45	2025-12-11 07:02:52
+991	5	1	7	INV-25/00111	\N	36.000	36.940	0.940	2025-11-07	736	sale	5	0	6	2025-12-11 07:02:52	2025-12-11 07:03:46
+992	5	1	7	0000141225010310	8535	61.150	0.940	62.090	2025-11-09	256	purchase	5	0	6	2025-12-11 07:03:46	2025-12-11 07:03:56
+993	5	1	7	INV-25/00112	\N	30.000	62.090	32.090	2025-11-09	737	sale	5	0	6	2025-12-11 07:03:56	2025-12-11 07:04:02
+994	5	1	7	INV-25/00113	\N	32.000	32.090	0.090	2025-11-09	738	sale	5	0	6	2025-12-11 07:04:02	2025-12-11 07:04:56
+995	5	1	7	0000141225010295	8539	49.860	0.090	49.950	2025-11-09	257	purchase	5	0	6	2025-12-11 07:04:56	2025-12-11 07:05:08
+996	5	1	7	INV-25/00114	\N	49.000	49.950	0.950	2025-11-09	739	sale	5	0	6	2025-12-11 07:05:08	2025-12-11 07:06:07
+997	5	1	7	0000141225010310	8613	12.630	0.950	13.580	2025-11-11	258	purchase	5	0	6	2025-12-11 07:06:07	2025-12-11 07:06:16
+998	5	1	7	INV-25/00115	\N	13.000	13.580	0.580	2025-11-11	740	sale	5	0	6	2025-12-11 07:06:16	2025-12-11 07:07:21
+999	5	1	7	0000141225010295	8616	87.890	0.580	88.470	2025-11-11	259	purchase	5	0	6	2025-12-11 07:07:21	2025-12-11 07:07:34
+1000	5	1	7	INV-25/00116	\N	40.000	88.470	48.470	2025-11-11	741	sale	5	0	6	2025-12-11 07:07:34	2025-12-11 07:07:40
+1001	5	1	7	INV-25/00117	\N	48.000	48.470	0.470	2025-11-11	742	sale	5	0	6	2025-12-11 07:07:40	2025-12-11 07:08:37
+1002	5	1	7	0000141225010295	8678	49.630	0.470	50.100	2025-11-12	260	purchase	5	0	6	2025-12-11 07:08:37	2025-12-11 07:08:54
+1003	5	1	7	INV-25/00118	\N	50.000	50.100	0.100	2025-11-12	743	sale	5	0	6	2025-12-11 07:08:54	2025-12-11 07:09:44
+1004	5	1	7	0000141225010295	8720	37.500	0.100	37.600	2025-11-13	261	purchase	5	0	6	2025-12-11 07:09:44	2025-12-11 07:09:56
+1005	5	1	7	INV-25/00119	\N	37.000	37.600	0.600	2025-11-13	744	sale	5	0	6	2025-12-11 07:09:56	2025-12-11 07:11:50
+1006	5	1	7	0000141225010310	8725	12.000	0.600	12.600	2025-11-13	262	purchase	5	0	6	2025-12-11 07:11:50	2025-12-11 07:11:57
+1007	5	1	7	INV-25/00120	\N	12.000	12.600	0.600	2025-11-13	745	sale	5	0	6	2025-12-11 07:11:57	2025-12-11 07:12:56
+1008	5	1	7	0000141225010310	8769	175.050	0.600	175.650	2025-11-14	263	purchase	5	0	6	2025-12-11 07:12:56	2025-12-11 07:13:06
+1009	5	1	7	INV-25/00121	\N	36.000	175.650	139.650	2025-11-14	746	sale	5	0	6	2025-12-11 07:13:06	2025-12-11 07:13:14
+1010	5	1	7	INV-25/00122	\N	39.000	139.650	100.650	2025-11-14	747	sale	5	0	6	2025-12-11 07:13:14	2025-12-11 07:13:20
+1011	5	1	7	INV-25/00123	\N	50.000	100.650	50.650	2025-11-14	748	sale	5	0	6	2025-12-11 07:13:20	2025-12-11 07:13:28
+1012	5	1	7	INV-25/00124	\N	50.000	50.650	0.650	2025-11-14	749	sale	5	0	6	2025-12-11 07:13:28	2025-12-11 07:14:30
+1013	5	1	7	0000141225010310	8830	111.270	0.650	111.920	2025-11-16	264	purchase	5	0	6	2025-12-11 07:14:30	2025-12-11 07:14:37
+1014	5	1	7	INV-25/00125	\N	36.000	111.920	75.920	2025-11-16	750	sale	5	0	6	2025-12-11 07:14:37	2025-12-11 07:14:45
+1015	5	1	7	INV-25/00126	\N	40.000	75.920	35.920	2025-11-16	751	sale	5	0	6	2025-12-11 07:14:45	2025-12-11 07:14:53
+1016	5	1	7	INV-25/00127	\N	35.000	35.920	0.920	2025-11-16	752	sale	5	0	6	2025-12-11 07:14:53	2025-12-11 07:15:49
+1017	5	1	7	0000141225010328	8929	62.260	0.920	63.180	2025-11-19	265	purchase	5	0	6	2025-12-11 07:15:49	2025-12-11 07:15:59
+1018	5	1	7	INV-25/00128	\N	33.000	63.180	30.180	2025-11-19	753	sale	5	0	6	2025-12-11 07:15:59	2025-12-11 07:16:05
+1019	5	1	7	INV-25/00129	\N	30.000	30.180	0.180	2025-11-19	754	sale	5	0	6	2025-12-11 07:16:05	2025-12-11 07:17:54
+1020	5	1	7	0000141225010310	8931	48.000	0.180	48.180	2025-11-19	266	purchase	5	0	6	2025-12-11 07:17:54	2025-12-11 07:18:02
+1021	5	1	7	INV-25/00130	\N	48.000	48.180	0.180	2025-11-19	755	sale	5	0	6	2025-12-11 07:18:02	2025-12-11 07:18:58
+1022	5	1	7	0000141225010328	8993	62.420	0.180	62.600	2025-11-20	267	purchase	5	0	6	2025-12-11 07:18:58	2025-12-11 07:19:04
+1023	5	1	7	INV-25/00131	\N	32.000	62.600	30.600	2025-11-20	756	sale	5	0	6	2025-12-11 07:19:04	2025-12-11 07:19:10
+1024	5	1	7	INV-25/00132	\N	30.000	30.600	0.600	2025-11-20	757	sale	5	0	6	2025-12-11 07:19:10	2025-12-11 07:19:58
+1025	5	1	7	0000141225010328	9080	86.480	0.600	87.080	2025-11-21	268	purchase	5	0	6	2025-12-11 07:19:58	2025-12-11 07:20:09
+1026	5	1	7	INV-25/00133	\N	50.000	87.080	37.080	2025-11-21	758	sale	5	0	6	2025-12-11 07:20:09	2025-12-11 07:20:16
+1027	5	1	7	INV-25/00134	\N	37.000	37.080	0.080	2025-11-21	759	sale	5	0	6	2025-12-11 07:20:16	2025-12-11 07:21:11
+1028	5	1	7	0000141225010310	9119	24.000	0.080	24.080	2025-11-26	269	purchase	5	0	6	2025-12-11 07:21:11	2025-12-11 07:21:19
+1029	5	1	7	INV-25/00135	\N	24.000	24.080	0.080	2025-11-26	760	sale	5	0	6	2025-12-11 07:21:19	2025-12-11 07:22:28
+1030	5	1	7	0000141225010328	9122	108.000	0.080	108.080	2025-11-26	270	purchase	5	0	6	2025-12-11 07:22:28	2025-12-11 07:22:39
+1031	5	1	7	INV-25/00136	\N	36.000	108.080	72.080	2025-11-26	761	sale	5	0	6	2025-12-11 07:22:39	2025-12-11 07:22:49
+1032	5	1	7	INV-25/00137	\N	36.000	72.080	36.080	2025-11-26	762	sale	5	0	6	2025-12-11 07:22:49	2025-12-11 07:22:54
+1033	5	1	7	INV-25/00138	\N	36.000	36.080	0.080	2025-11-26	763	sale	5	0	6	2025-12-11 07:22:54	2025-12-11 07:23:56
+1034	5	1	7	0000141225010310	9148	12.000	0.080	12.080	2025-11-27	271	purchase	5	0	6	2025-12-11 07:23:56	2025-12-11 07:24:03
+1035	5	1	7	INV-25/00139	\N	12.000	12.080	0.080	2025-11-27	764	sale	5	0	6	2025-12-11 07:24:03	2025-12-11 07:25:04
+1036	5	1	7	0000141225010328	9204	48.250	0.080	48.330	2025-11-28	272	purchase	5	0	6	2025-12-11 07:25:04	2025-12-11 07:25:12
+1037	5	1	7	INV-25/00140	\N	48.000	48.330	0.330	2025-11-28	765	sale	5	0	6	2025-12-11 07:25:12	2025-12-11 07:26:10
+1038	5	1	7	0000141225010347	9207	36.170	0.330	36.500	2025-11-28	273	purchase	5	0	6	2025-12-11 07:26:10	2025-12-11 07:26:21
+1039	5	1	7	INV-25/00141	\N	36.000	36.500	0.500	2025-11-28	766	sale	5	0	6	2025-12-11 07:26:21	2025-12-11 07:27:03
+1040	5	1	7	0000141225010310	9211	12.000	0.500	12.500	2025-11-28	274	purchase	5	0	6	2025-12-11 07:27:03	2025-12-11 07:27:10
+1041	5	1	7	INV-25/00142	\N	12.000	12.500	0.500	2025-11-28	767	sale	5	0	6	2025-12-11 07:27:10	2025-12-11 07:28:06
+1042	5	1	7	0000141225010347	9298	84.870	0.500	85.370	2025-11-30	275	purchase	5	0	6	2025-12-11 07:28:06	2025-12-11 07:28:13
+1043	5	1	7	INV-25/00143	\N	50.000	85.370	35.370	2025-11-30	768	sale	5	0	6	2025-12-11 07:28:13	2025-12-11 07:28:20
+1044	5	1	7	INV-25/00144	\N	35.000	35.370	0.370	2025-11-30	769	sale	5	1	6	2025-12-11 07:28:20	2025-12-11 07:28:20
+1045	6	1	9	0000141225010199	4332	74.060	0.000	74.060	2025-10-01	276	purchase	5	0	7	2025-12-11 19:22:53	2025-12-11 19:23:12
+1046	6	1	9	INV-25/00001	\N	34.000	74.060	40.060	2025-10-01	770	sale	5	0	7	2025-12-11 19:23:12	2025-12-11 19:23:18
+1047	6	1	9	INV-25/00002	\N	40.000	40.060	0.060	2025-10-01	771	sale	5	0	7	2025-12-11 19:23:18	2025-12-11 19:24:29
+1048	6	1	9	0000141225010199	4391	75.120	0.060	75.180	2025-10-01	277	purchase	5	0	7	2025-12-11 19:24:29	2025-12-11 19:24:37
+1049	6	1	9	INV-25/00003	\N	40.000	75.180	35.180	2025-10-01	772	sale	5	0	7	2025-12-11 19:24:37	2025-12-11 19:24:43
+1050	6	1	9	INV-25/00004	\N	35.000	35.180	0.180	2025-10-01	773	sale	5	0	7	2025-12-11 19:24:43	2025-12-11 21:14:05
+1051	6	1	9	0000141225010199	4437	74.630	0.180	74.810	2025-10-01	278	purchase	5	0	7	2025-12-11 21:14:05	2025-12-11 21:14:39
+1052	6	1	9	INV-25/00005	\N	34.000	74.810	40.810	2025-10-01	774	sale	5	0	7	2025-12-11 21:14:39	2025-12-11 21:14:51
+1053	6	1	9	INV-25/00006	\N	40.000	40.810	0.810	2025-10-01	775	sale	5	0	7	2025-12-11 21:14:51	2025-12-11 21:16:52
+1054	6	1	9	0000141225010199	4457	73.660	0.810	74.470	2025-10-01	279	purchase	5	0	7	2025-12-11 21:16:52	2025-12-11 21:17:05
+1055	6	1	9	INV-25/00007	\N	40.000	74.470	34.470	2025-10-01	776	sale	5	0	7	2025-12-11 21:17:05	2025-12-11 21:17:16
+1056	6	1	9	INV-25/00008	\N	34.000	34.470	0.470	2025-10-01	777	sale	5	0	7	2025-12-11 21:17:16	2025-12-11 21:23:43
+1057	6	1	9	0000141225010199	4551	72.500	0.470	72.970	2025-10-02	280	purchase	5	0	7	2025-12-11 21:23:43	2025-12-11 21:23:53
+1058	6	1	9	INV-25/00009	\N	36.000	72.970	36.970	2025-10-02	778	sale	5	0	7	2025-12-11 21:23:53	2025-12-11 21:24:00
+1059	6	1	9	INV-25/00010	\N	36.000	36.970	0.970	2025-10-02	779	sale	5	0	7	2025-12-11 21:24:00	2025-12-11 21:25:28
+1060	6	1	9	0000141225010199	4589	36.940	0.970	37.910	2025-10-02	281	purchase	5	0	7	2025-12-11 21:25:28	2025-12-11 21:25:39
+1061	6	1	9	INV-25/00011	\N	37.000	37.910	0.910	2025-10-02	780	sale	5	0	7	2025-12-11 21:25:40	2025-12-11 21:27:47
+1062	6	1	9	0000141225010199	4718	209.190	0.910	210.100	2025-10-02	282	purchase	5	0	7	2025-12-11 21:27:47	2025-12-11 21:28:00
+1063	6	1	9	INV-25/00012	\N	30.000	210.100	180.100	2025-10-02	781	sale	5	0	7	2025-12-11 21:28:00	2025-12-11 21:28:08
+1064	6	1	9	INV-25/00013	\N	30.000	180.100	150.100	2025-10-02	782	sale	5	0	7	2025-12-11 21:28:08	2025-12-11 21:28:18
+1065	6	1	9	INV-25/00014	\N	30.000	150.100	120.100	2025-10-02	783	sale	5	0	7	2025-12-11 21:28:18	2025-12-11 21:28:27
+1066	6	1	9	INV-25/00015	\N	36.000	120.100	84.100	2025-10-02	784	sale	5	0	7	2025-12-11 21:28:27	2025-12-11 21:28:37
+1067	6	1	9	INV-25/00016	\N	34.000	84.100	50.100	2025-10-02	785	sale	5	0	7	2025-12-11 21:28:37	2025-12-11 21:28:44
+1068	6	1	9	INV-25/00017	\N	50.000	50.100	0.100	2025-10-02	786	sale	5	0	7	2025-12-11 21:28:44	2025-12-11 21:30:14
+1069	6	1	9	0000141225010214	4852	97.850	0.100	97.950	2025-10-03	283	purchase	5	0	7	2025-12-11 21:30:14	2025-12-11 21:33:37
+1070	6	1	9	INV-25/00018	\N	50.000	97.950	47.950	2025-10-03	787	sale	5	0	7	2025-12-11 21:33:37	2025-12-11 21:33:45
+1071	6	1	9	INV-25/00019	\N	47.000	47.950	0.950	2025-10-03	788	sale	5	0	7	2025-12-11 21:33:45	2025-12-11 21:35:43
+1072	6	1	9	0000141225010214	4860	37.630	0.950	38.580	2025-10-03	284	purchase	5	0	7	2025-12-11 21:35:43	2025-12-11 21:35:55
+1073	6	1	9	INV-25/00020	\N	38.000	38.580	0.580	2025-10-03	789	sale	5	0	7	2025-12-11 21:35:55	2025-12-11 21:37:29
+1074	6	1	9	0000141225010214	4925	123.780	0.580	124.360	2025-10-04	285	purchase	5	0	7	2025-12-11 21:37:29	2025-12-11 21:37:56
+1075	6	1	9	INV-25/00021	\N	36.000	124.360	88.360	2025-10-04	790	sale	5	0	7	2025-12-11 21:37:56	2025-12-11 21:38:05
+1076	6	1	9	INV-25/00022	\N	50.000	88.360	38.360	2025-10-04	791	sale	5	0	7	2025-12-11 21:38:05	2025-12-11 21:38:14
+1077	6	1	9	INV-25/00023	\N	38.000	38.360	0.360	2025-10-04	792	sale	5	0	7	2025-12-11 21:38:14	2025-12-11 21:43:47
+1078	6	1	9	0000141225010214	5015	99.200	0.360	99.560	2025-10-05	286	purchase	5	0	7	2025-12-11 21:43:47	2025-12-11 21:43:55
+1079	6	1	9	INV-25/00024	\N	50.000	99.560	49.560	2025-10-05	793	sale	5	0	7	2025-12-11 21:43:55	2025-12-11 21:44:11
+1080	6	1	9	INV-25/00025	\N	49.000	49.560	0.560	2025-10-05	794	sale	5	0	7	2025-12-11 21:44:11	2025-12-11 21:54:51
+1081	6	1	9	0000141225010214	5090	24.270	0.560	24.830	2025-10-05	287	purchase	5	0	7	2025-12-11 21:54:51	2025-12-11 21:54:59
+1082	6	1	9	INV-25/00026	\N	24.000	24.830	0.830	2025-10-05	795	sale	5	0	7	2025-12-11 21:54:59	2025-12-11 21:56:05
+1083	6	1	9	0000141225010214	5408	12.000	0.830	12.830	2025-10-06	288	purchase	5	0	7	2025-12-11 21:56:05	2025-12-11 21:56:16
+1084	6	1	9	INV-25/00027	\N	12.000	12.830	0.830	2025-10-06	796	sale	5	0	7	2025-12-11 21:56:16	2025-12-11 21:57:31
+1085	6	1	9	0000141225010214	5471	72.000	0.830	72.830	2025-10-07	289	purchase	5	0	7	2025-12-11 21:57:31	2025-12-11 21:57:52
+1086	6	1	9	INV-25/00028	\N	36.000	72.830	36.830	2025-10-07	797	sale	5	0	7	2025-12-11 21:57:52	2025-12-11 21:58:06
+1087	6	1	9	INV-25/00029	\N	36.000	36.830	0.830	2025-10-07	798	sale	5	0	7	2025-12-11 21:58:06	2025-12-11 21:59:27
+1088	6	1	9	0000141225010214	5513	149.490	0.830	150.320	2025-10-08	290	purchase	5	0	7	2025-12-11 21:59:27	2025-12-11 21:59:56
+1089	6	1	9	INV-25/00030	\N	50.000	150.320	100.320	2025-10-08	799	sale	5	0	7	2025-12-11 21:59:56	2025-12-11 22:00:04
+1090	6	1	9	INV-25/00031	\N	50.000	100.320	50.320	2025-10-08	800	sale	5	0	7	2025-12-11 22:00:04	2025-12-11 22:00:11
+1091	6	1	9	INV-25/00032	\N	50.000	50.320	0.320	2025-10-08	801	sale	5	0	7	2025-12-11 22:00:11	2025-12-11 22:01:28
+1092	6	1	9	0000141225010224	5662	86.390	0.320	86.710	2025-10-08	291	purchase	5	0	7	2025-12-11 22:01:28	2025-12-11 22:01:42
+1093	6	1	9	INV-25/00033	\N	36.000	86.710	50.710	2025-10-08	802	sale	5	0	7	2025-12-11 22:01:42	2025-12-11 22:01:49
+1094	6	1	9	INV-25/00034	\N	50.000	50.710	0.710	2025-10-08	803	sale	5	0	7	2025-12-11 22:01:49	2025-12-11 22:06:16
+1095	6	1	9	0000141225010224	5712	110.730	0.710	111.440	2025-10-08	292	purchase	5	0	7	2025-12-11 22:06:16	2025-12-11 22:06:28
+1096	6	1	9	INV-25/00035	\N	36.000	111.440	75.440	2025-10-08	804	sale	5	0	7	2025-12-11 22:06:28	2025-12-11 22:06:38
+1097	6	1	9	INV-25/00036	\N	36.000	75.440	39.440	2025-10-08	805	sale	5	0	7	2025-12-11 22:06:38	2025-12-11 22:06:46
+1098	6	1	9	INV-25/00037	\N	39.000	39.440	0.440	2025-10-08	806	sale	5	0	7	2025-12-11 22:06:46	2025-12-11 22:07:55
+1099	6	1	9	0000141225010224	5802	72.980	0.440	73.420	2025-10-09	293	purchase	5	0	7	2025-12-11 22:07:55	2025-12-11 22:08:06
+1100	6	1	9	INV-25/00038	\N	36.000	73.420	37.420	2025-10-09	807	sale	5	0	7	2025-12-11 22:08:06	2025-12-11 22:08:12
+1101	6	1	9	INV-25/00039	\N	37.000	37.420	0.420	2025-10-09	808	sale	5	0	7	2025-12-11 22:08:12	2025-12-11 22:09:32
+1102	6	1	9	0000141225010224	5872	61.860	0.420	62.280	2025-10-10	294	purchase	5	0	7	2025-12-11 22:09:32	2025-12-11 22:09:57
+1103	6	1	9	INV-25/00040	\N	30.000	62.280	32.280	2025-10-10	809	sale	5	0	7	2025-12-11 22:09:57	2025-12-11 22:10:03
+1104	6	1	9	INV-25/00041	\N	32.000	32.280	0.280	2025-10-10	810	sale	5	0	7	2025-12-11 22:10:03	2025-12-12 02:51:04
+1105	6	1	9	0000141225010224	5897	85.990	0.280	86.270	2025-10-11	295	purchase	5	0	7	2025-12-12 02:51:04	2025-12-12 02:51:14
+1106	6	1	9	INV-25/00042	\N	50.000	86.270	36.270	2025-10-11	811	sale	5	0	7	2025-12-12 02:51:14	2025-12-12 02:51:22
+1107	6	1	9	INV-25/00043	\N	36.000	36.270	0.270	2025-10-11	812	sale	5	0	7	2025-12-12 02:51:22	2025-12-12 02:52:58
+1108	6	1	9	0000141225010224	6056	200.690	0.270	200.960	2025-10-11	296	purchase	5	0	7	2025-12-12 02:52:58	2025-12-12 02:53:08
+1109	6	1	9	INV-25/00044	\N	36.000	200.960	164.960	2025-10-11	813	sale	5	0	7	2025-12-12 02:53:08	2025-12-12 02:53:16
+1110	6	1	9	INV-25/00045	\N	36.000	164.960	128.960	2025-10-11	814	sale	5	0	7	2025-12-12 02:53:16	2025-12-12 02:53:23
+1111	6	1	9	INV-25/00046	\N	36.000	128.960	92.960	2025-10-11	815	sale	5	0	7	2025-12-12 02:53:23	2025-12-12 02:53:31
+1112	6	1	9	INV-25/00047	\N	50.000	92.960	42.960	2025-10-11	816	sale	5	0	7	2025-12-12 02:53:31	2025-12-12 02:53:38
+1113	6	1	9	INV-25/00048	\N	42.000	42.960	0.960	2025-10-11	817	sale	5	0	7	2025-12-12 02:53:38	2025-12-12 02:55:09
+1114	6	1	9	0000141225010242	6160	74.110	0.960	75.070	2025-10-12	297	purchase	5	0	7	2025-12-12 02:55:09	2025-12-12 02:55:19
+1115	6	1	9	INV-25/00049	\N	36.000	75.070	39.070	2025-10-12	818	sale	5	0	7	2025-12-12 02:55:19	2025-12-12 02:55:26
+1116	6	1	9	INV-25/00050	\N	39.000	39.070	0.070	2025-10-12	819	sale	5	0	7	2025-12-12 02:55:26	2025-12-12 02:56:33
+1117	6	1	9	0000141225010242	6217	85.140	0.070	85.210	2025-10-12	298	purchase	5	0	7	2025-12-12 02:56:33	2025-12-12 02:56:41
+1118	6	1	9	INV-25/00051	\N	35.000	85.210	50.210	2025-10-12	820	sale	5	0	7	2025-12-12 02:56:41	2025-12-12 02:56:48
+1119	6	1	9	INV-25/00052	\N	50.000	50.210	0.210	2025-10-12	821	sale	5	0	7	2025-12-12 02:56:48	2025-12-12 02:57:46
+1120	6	1	9	0000141225010242	6315	122.860	0.210	123.070	2025-10-12	299	purchase	5	0	7	2025-12-12 02:57:46	2025-12-12 02:57:56
+1121	6	1	9	INV-25/00053	\N	50.000	123.070	73.070	2025-10-12	822	sale	5	0	7	2025-12-12 02:57:56	2025-12-12 02:58:04
+1122	6	1	9	INV-25/00054	\N	36.000	73.070	37.070	2025-10-12	823	sale	5	0	7	2025-12-12 02:58:04	2025-12-12 02:58:11
+1123	6	1	9	INV-25/00055	\N	37.000	37.070	0.070	2025-10-12	824	sale	5	0	7	2025-12-12 02:58:11	2025-12-12 02:59:01
+1124	6	1	9	0000141225010242	6517	123.630	0.070	123.700	2025-10-13	300	purchase	5	0	7	2025-12-12 02:59:01	2025-12-12 02:59:09
+1125	6	1	9	INV-25/00056	\N	50.000	123.700	73.700	2025-10-13	825	sale	5	0	7	2025-12-12 02:59:09	2025-12-12 02:59:15
+1126	6	1	9	INV-25/00057	\N	36.000	73.700	37.700	2025-10-13	826	sale	5	0	7	2025-12-12 02:59:15	2025-12-12 02:59:22
+1127	6	1	9	INV-25/00058	\N	37.000	37.700	0.700	2025-10-13	827	sale	5	0	7	2025-12-12 02:59:22	2025-12-12 03:01:57
+1128	6	1	9	0000141225010242	6530	75.420	0.700	76.120	2025-10-14	301	purchase	5	0	7	2025-12-12 03:01:57	2025-12-12 03:02:06
+1129	6	1	9	INV-25/00059	\N	50.000	76.120	26.120	2025-10-14	828	sale	5	0	7	2025-12-12 03:02:06	2025-12-12 03:02:17
+1130	6	1	9	INV-25/00060	\N	26.000	26.120	0.120	2025-10-14	829	sale	5	0	7	2025-12-12 03:02:17	2025-12-12 03:21:46
+1131	6	1	9	0000141225010242	6708	135.230	0.120	135.350	2025-10-14	302	purchase	5	0	7	2025-12-12 03:21:46	2025-12-12 03:21:57
+1132	6	1	9	INV-25/00061	\N	50.000	135.350	85.350	2025-10-14	830	sale	5	0	7	2025-12-12 03:21:57	2025-12-12 03:22:06
+1133	6	1	9	INV-25/00062	\N	35.000	85.350	50.350	2025-10-14	831	sale	5	0	7	2025-12-12 03:22:06	2025-12-12 03:22:18
+1134	6	1	9	INV-25/00063	\N	50.000	50.350	0.350	2025-10-14	832	sale	5	0	7	2025-12-12 03:22:18	2025-12-12 03:24:08
+1135	6	1	9	0000141225010262	6863	122.700	0.350	123.050	2025-10-15	303	purchase	5	0	7	2025-12-12 03:24:08	2025-12-12 03:28:07
+1136	6	1	9	INV-25/00064	\N	36.000	123.050	87.050	2025-10-15	833	sale	5	0	7	2025-12-12 03:28:07	2025-12-12 03:28:17
+1137	6	1	9	INV-25/00065	\N	36.000	87.050	51.050	2025-10-15	834	sale	5	0	7	2025-12-12 03:28:17	2025-12-12 03:28:24
+1138	6	1	9	INV-25/00066	\N	51.000	51.050	0.050	2025-10-15	835	sale	5	0	7	2025-12-12 03:28:24	2025-12-12 03:29:32
+1139	6	1	9	0000141225010262	7076	48.000	0.050	48.050	2025-10-15	304	purchase	5	0	7	2025-12-12 03:29:32	2025-12-12 03:29:39
+1140	6	1	9	INV-25/00067	\N	48.000	48.050	0.050	2025-10-15	836	sale	5	0	7	2025-12-12 03:29:39	2025-12-12 03:30:42
+1141	6	1	9	0000141225010262	7138	96.680	0.050	96.730	2025-10-15	305	purchase	5	0	7	2025-12-12 03:30:42	2025-12-12 03:30:50
+1142	6	1	9	INV-25/00068	\N	36.000	96.730	60.730	2025-10-15	837	sale	5	0	7	2025-12-12 03:30:50	2025-12-12 03:30:56
+1143	6	1	9	INV-25/00069	\N	30.000	60.730	30.730	2025-10-15	838	sale	5	0	7	2025-12-12 03:30:56	2025-12-12 03:31:01
+1144	6	1	9	INV-25/00070	\N	30.000	30.730	0.730	2025-10-15	839	sale	5	0	7	2025-12-12 03:31:02	2025-12-12 03:32:33
+1145	6	1	9	0000141225010262	7303	61.340	0.730	62.070	2025-10-15	306	purchase	5	0	7	2025-12-12 03:32:33	2025-12-12 03:32:43
+1146	6	1	9	INV-25/00071	\N	30.000	62.070	32.070	2025-10-15	840	sale	5	0	7	2025-12-12 03:32:43	2025-12-12 03:32:49
+1147	6	1	9	INV-25/00072	\N	32.000	32.070	0.070	2025-10-15	841	sale	5	0	7	2025-12-12 03:32:49	2025-12-12 03:57:01
+1148	6	1	9	0000141225010262	7355	12.500	0.070	12.570	2025-10-15	307	purchase	5	0	7	2025-12-12 03:57:01	2025-12-12 03:57:21
+1149	6	1	9	INV-25/00073	\N	12.000	12.570	0.570	2025-10-15	842	sale	5	0	7	2025-12-12 03:57:21	2025-12-12 04:05:20
+1150	6	1	9	0000141225010262	7430	186.410	0.570	186.980	2025-10-15	308	purchase	5	0	7	2025-12-12 04:05:20	2025-12-12 04:05:31
+1151	6	1	9	INV-25/00074	\N	50.000	186.980	136.980	2025-10-15	843	sale	5	0	7	2025-12-12 04:05:31	2025-12-12 04:05:38
+1152	6	1	9	INV-25/00075	\N	36.000	136.980	100.980	2025-10-15	844	sale	5	0	7	2025-12-12 04:05:38	2025-12-12 04:05:44
+1153	6	1	9	INV-25/00076	\N	50.000	100.980	50.980	2025-10-15	845	sale	5	0	7	2025-12-12 04:05:44	2025-12-12 04:05:50
+1154	6	1	9	INV-25/00077	\N	50.000	50.980	0.980	2025-10-15	846	sale	5	0	7	2025-12-12 04:05:50	2025-12-12 04:06:46
+1155	6	1	9	0000141225010287	7509	146.210	0.980	147.190	2025-10-16	309	purchase	5	0	7	2025-12-12 04:06:46	2025-12-12 04:06:54
+1156	6	1	9	INV-25/00078	\N	50.000	147.190	97.190	2025-10-16	847	sale	5	0	7	2025-12-12 04:06:54	2025-12-12 04:06:59
+1157	6	1	9	INV-25/00079	\N	50.000	97.190	47.190	2025-10-16	848	sale	5	0	7	2025-12-12 04:06:59	2025-12-12 04:07:04
+1158	6	1	9	INV-25/00080	\N	47.000	47.190	0.190	2025-10-16	849	sale	5	0	7	2025-12-12 04:07:04	2025-12-12 04:08:02
+1159	6	1	9	0000141225010262	7525	84.130	0.190	84.320	2025-10-16	310	purchase	5	0	7	2025-12-12 04:08:02	2025-12-12 04:08:08
+1160	6	1	9	INV-25/00081	\N	50.000	84.320	34.320	2025-10-16	850	sale	5	0	7	2025-12-12 04:08:08	2025-12-12 04:08:16
+1161	6	1	9	INV-25/00082	\N	34.000	34.320	0.320	2025-10-16	851	sale	5	0	7	2025-12-12 04:08:16	2025-12-12 04:33:42
+1162	6	1	9	0000141225010287	7931	60.870	0.320	61.190	2025-10-24	311	purchase	5	0	7	2025-12-12 04:33:42	2025-12-12 04:33:50
+1163	6	1	9	INV-25/00083	\N	31.000	61.190	30.190	2025-10-24	852	sale	5	0	7	2025-12-12 04:33:50	2025-12-12 04:33:56
+1164	6	1	9	INV-25/00084	\N	30.000	30.190	0.190	2025-10-24	853	sale	5	0	7	2025-12-12 04:33:56	2025-12-12 04:34:44
+1165	6	1	9	0000141225010287	7973	99.410	0.190	99.600	2025-10-26	312	purchase	5	0	7	2025-12-12 04:34:44	2025-12-12 04:34:50
+1166	6	1	9	INV-25/00085	\N	50.000	99.600	49.600	2025-10-26	854	sale	5	0	7	2025-12-12 04:34:50	2025-12-12 04:34:59
+1167	6	1	9	INV-25/00086	\N	49.000	49.600	0.600	2025-10-26	855	sale	5	0	7	2025-12-12 04:34:59	2025-12-12 04:35:47
+1168	6	1	9	0000141225010287	8097	147.610	0.600	148.210	2025-10-29	313	purchase	5	0	7	2025-12-12 04:35:47	2025-12-12 04:35:56
+1169	6	1	9	INV-25/00087	\N	50.000	148.210	98.210	2025-10-29	856	sale	5	0	7	2025-12-12 04:35:56	2025-12-12 04:36:02
+1170	6	1	9	INV-25/00088	\N	50.000	98.210	48.210	2025-10-29	857	sale	5	0	7	2025-12-12 04:36:02	2025-12-12 04:36:07
+1171	6	1	9	INV-25/00089	\N	48.000	48.210	0.210	2025-10-29	858	sale	5	0	7	2025-12-12 04:36:07	2025-12-12 04:37:50
+1172	6	1	9	0000141225010287	8318	60.830	0.210	61.040	2025-11-04	314	purchase	5	0	7	2025-12-12 04:37:50	2025-12-12 04:37:56
+1173	6	1	9	INV-25/00090	\N	30.000	61.040	31.040	2025-11-04	859	sale	5	0	7	2025-12-12 04:37:56	2025-12-12 04:38:05
+1174	6	1	9	INV-25/00091	\N	31.000	31.040	0.040	2025-11-04	860	sale	5	0	7	2025-12-12 04:38:05	2025-12-12 04:39:02
+1175	6	1	9	0000141225010287	8698	101.000	0.040	101.040	2025-11-13	315	purchase	5	0	7	2025-12-12 04:39:02	2025-12-12 04:39:12
+1176	6	1	9	INV-25/00092	\N	36.000	101.040	65.040	2025-11-13	861	sale	5	0	7	2025-12-12 04:39:12	2025-12-12 04:39:19
+1177	6	1	9	INV-25/00093	\N	35.000	65.040	30.040	2025-11-13	862	sale	5	0	7	2025-12-12 04:39:19	2025-12-12 04:39:30
+1178	6	1	9	INV-25/00094	\N	30.000	30.040	0.040	2025-11-13	863	sale	5	1	7	2025-12-12 04:39:30	2025-12-12 04:39:30
+1179	10	2	10	0000011925010157	4321	244.120	0.000	244.120	2025-10-01	316	purchase	5	0	8	2025-12-12 06:42:51	2025-12-12 06:43:06
+1180	10	2	10	INV-25/00001	\N	36.000	244.120	208.120	2025-10-01	864	sale	5	0	8	2025-12-12 06:43:06	2025-12-12 06:43:14
+1181	10	2	10	INV-25/00002	\N	48.000	208.120	160.120	2025-10-01	865	sale	5	0	8	2025-12-12 06:43:14	2025-12-12 06:43:22
+1182	10	2	10	INV-25/00003	\N	36.000	160.120	124.120	2025-10-01	866	sale	5	0	8	2025-12-12 06:43:22	2025-12-12 06:43:33
+1183	10	2	10	INV-25/00004	\N	36.000	124.120	88.120	2025-10-01	867	sale	5	0	8	2025-12-12 06:43:33	2025-12-12 06:43:45
+1184	10	2	10	INV-25/00005	\N	38.000	88.120	50.120	2025-10-01	868	sale	5	0	8	2025-12-12 06:43:45	2025-12-12 06:45:06
+1185	10	2	10	INV-25/00006	\N	50.000	50.120	0.120	2025-10-01	869	sale	5	0	8	2025-12-12 06:45:06	2025-12-12 07:21:02
+1186	10	2	10	0000011925010150	4324	33.640	0.120	33.760	2025-10-01	317	purchase	5	0	8	2025-12-12 07:21:02	2025-12-12 07:21:11
+1187	10	2	10	INV-25/00007	\N	33.000	33.760	0.760	2025-10-01	870	sale	5	0	8	2025-12-12 07:21:11	2025-12-12 07:22:19
+1188	10	2	10	0000011925010157	4362	110.290	0.760	111.050	2025-10-01	318	purchase	5	0	8	2025-12-12 07:22:19	2025-12-12 07:22:27
+1189	10	2	10	INV-25/00008	\N	36.000	111.050	75.050	2025-10-01	871	sale	5	0	8	2025-12-12 07:22:27	2025-12-12 07:22:32
+1190	10	2	10	INV-25/00009	\N	36.000	75.050	39.050	2025-10-01	872	sale	5	0	8	2025-12-12 07:22:32	2025-12-12 07:22:38
+1191	10	2	10	INV-25/00010	\N	39.000	39.050	0.050	2025-10-01	873	sale	5	0	8	2025-12-12 07:22:38	2025-12-12 07:24:28
+1192	10	2	10	0000011925010161	4388	287.270	0.050	287.320	2025-10-01	319	purchase	5	0	8	2025-12-12 07:24:28	2025-12-12 07:24:36
+1193	10	2	10	INV-25/00011	\N	50.000	287.320	237.320	2025-10-01	874	sale	5	0	8	2025-12-12 07:24:36	2025-12-12 07:24:42
+1194	10	2	10	INV-25/00012	\N	36.000	237.320	201.320	2025-10-01	875	sale	5	0	8	2025-12-12 07:24:42	2025-12-12 07:24:48
+1195	10	2	10	INV-25/00013	\N	36.000	201.320	165.320	2025-10-01	876	sale	5	0	8	2025-12-12 07:24:48	2025-12-12 07:24:55
+1196	10	2	10	INV-25/00014	\N	50.000	165.320	115.320	2025-10-01	877	sale	5	0	8	2025-12-12 07:24:55	2025-12-12 07:25:01
+1197	10	2	10	INV-25/00015	\N	36.000	115.320	79.320	2025-10-01	878	sale	5	0	8	2025-12-12 07:25:01	2025-12-12 07:25:21
+1198	10	2	10	INV-25/00016	\N	38.000	79.320	41.320	2025-10-01	879	sale	5	0	8	2025-12-12 07:25:21	2025-12-12 07:25:27
+1199	10	2	10	INV-25/00017	\N	41.000	41.320	0.320	2025-10-01	880	sale	5	0	8	2025-12-12 07:25:27	2025-12-12 07:26:22
+1200	10	2	10	0000011925010157	4401	12.150	0.320	12.470	2025-10-02	320	purchase	5	0	8	2025-12-12 07:26:22	2025-12-12 07:26:28
+1201	10	2	10	INV-25/00018	\N	12.000	12.470	0.470	2025-10-02	881	sale	5	0	8	2025-12-12 07:26:28	2025-12-12 07:27:24
+1202	10	2	10	0000011925010161	4451	260.190	0.470	260.660	2025-10-02	321	purchase	5	0	8	2025-12-12 07:27:24	2025-12-12 07:27:34
+1203	10	2	10	INV-25/00019	\N	48.000	260.660	212.660	2025-10-02	882	sale	5	0	8	2025-12-12 07:27:34	2025-12-12 07:27:40
+1204	10	2	10	INV-25/00020	\N	50.000	212.660	162.660	2025-10-02	883	sale	5	0	8	2025-12-12 07:27:40	2025-12-12 07:27:45
+1205	10	2	10	INV-25/00021	\N	36.000	162.660	126.660	2025-10-02	884	sale	5	0	8	2025-12-12 07:27:45	2025-12-12 07:27:52
+1206	10	2	10	INV-25/00022	\N	36.000	126.660	90.660	2025-10-02	885	sale	5	0	8	2025-12-12 07:27:52	2025-12-12 07:27:57
+1207	10	2	10	INV-25/00023	\N	30.000	90.660	60.660	2025-10-02	886	sale	5	0	8	2025-12-12 07:27:57	2025-12-12 07:28:05
+1208	10	2	10	INV-25/00024	\N	30.000	60.660	30.660	2025-10-02	887	sale	5	0	8	2025-12-12 07:28:05	2025-12-12 07:28:11
+1209	10	2	10	INV-25/00025	\N	30.000	30.660	0.660	2025-10-02	888	sale	5	0	8	2025-12-12 07:28:11	2025-12-12 07:29:07
+1210	10	2	10	0000011925010161	4475	421.630	0.660	422.290	2025-10-02	322	purchase	5	0	8	2025-12-12 07:29:07	2025-12-12 07:29:12
+1211	10	2	10	INV-25/00026	\N	50.000	422.290	372.290	2025-10-02	889	sale	5	0	8	2025-12-12 07:29:12	2025-12-12 07:29:17
+1212	10	2	10	INV-25/00027	\N	36.000	372.290	336.290	2025-10-02	890	sale	5	0	8	2025-12-12 07:29:17	2025-12-12 07:29:23
+1213	10	2	10	INV-25/00028	\N	36.000	336.290	300.290	2025-10-02	891	sale	5	0	8	2025-12-12 07:29:23	2025-12-12 07:29:29
+1214	10	2	10	INV-25/00029	\N	50.000	300.290	250.290	2025-10-02	892	sale	5	0	8	2025-12-12 07:29:29	2025-12-12 07:29:37
+1215	10	2	10	INV-25/00030	\N	36.000	250.290	214.290	2025-10-02	893	sale	5	0	8	2025-12-12 07:29:37	2025-12-12 07:29:42
+1216	10	2	10	INV-25/00031	\N	36.000	214.290	178.290	2025-10-02	894	sale	5	0	8	2025-12-12 07:29:42	2025-12-12 07:29:49
+1217	10	2	10	INV-25/00032	\N	36.000	178.290	142.290	2025-10-02	895	sale	5	0	8	2025-12-12 07:29:49	2025-12-12 07:29:58
+1218	10	2	10	INV-25/00033	\N	30.000	142.290	112.290	2025-10-02	896	sale	5	0	8	2025-12-12 07:29:58	2025-12-12 07:30:05
+1219	10	2	10	INV-25/00034	\N	36.000	112.290	76.290	2025-10-02	897	sale	5	0	8	2025-12-12 07:30:05	2025-12-12 07:30:16
+1220	10	2	10	INV-25/00035	\N	38.000	76.290	38.290	2025-10-02	898	sale	5	0	8	2025-12-12 07:30:17	2025-12-12 07:30:23
+1221	10	2	10	INV-25/00036	\N	38.000	38.290	0.290	2025-10-02	899	sale	5	0	8	2025-12-12 07:30:23	2025-12-12 07:31:08
+1222	10	2	10	0000011925010161	4497	137.420	0.290	137.710	2025-10-02	323	purchase	5	0	8	2025-12-12 07:31:08	2025-12-12 07:31:19
+1223	10	2	10	INV-25/00037	\N	50.000	137.710	87.710	2025-10-02	900	sale	5	0	8	2025-12-12 07:31:19	2025-12-12 07:31:31
+1224	10	2	10	INV-25/00038	\N	50.000	87.710	37.710	2025-10-02	901	sale	5	0	8	2025-12-12 07:31:31	2025-12-12 07:31:37
+1225	10	2	10	INV-25/00039	\N	37.000	37.710	0.710	2025-10-02	902	sale	5	0	8	2025-12-12 07:31:37	2025-12-12 07:32:25
+1226	10	2	10	0000011925010161	4556	85.660	0.710	86.370	2025-10-03	324	purchase	5	0	8	2025-12-12 07:32:25	2025-12-12 07:32:34
+1227	10	2	10	INV-25/00040	\N	50.000	86.370	36.370	2025-10-03	903	sale	5	0	8	2025-12-12 07:32:34	2025-12-12 07:32:39
+1228	10	2	10	INV-25/00041	\N	36.000	36.370	0.370	2025-10-03	904	sale	5	0	8	2025-12-12 07:32:39	2025-12-12 07:33:37
+1229	10	2	10	0000011925010161	4583	85.000	0.370	85.370	2025-10-03	325	purchase	5	0	8	2025-12-12 07:33:37	2025-12-12 07:33:44
+1230	10	2	10	INV-25/00042	\N	50.000	85.370	35.370	2025-10-03	905	sale	5	0	8	2025-12-12 07:33:44	2025-12-12 07:33:49
+1231	10	2	10	INV-25/00043	\N	35.000	35.370	0.370	2025-10-03	906	sale	5	0	8	2025-12-12 07:33:49	2025-12-12 07:34:41
+1232	10	2	10	0000011925010170	4771	285.310	0.370	285.680	2025-10-04	326	purchase	5	0	8	2025-12-12 07:34:41	2025-12-12 07:34:47
+1233	10	2	10	INV-25/00044	\N	50.000	285.680	235.680	2025-10-04	907	sale	5	0	8	2025-12-12 07:34:47	2025-12-12 07:34:53
+1234	10	2	10	INV-25/00045	\N	50.000	235.680	185.680	2025-10-04	908	sale	5	0	8	2025-12-12 07:34:53	2025-12-12 07:35:00
+1235	10	2	10	INV-25/00046	\N	36.000	185.680	149.680	2025-10-04	909	sale	5	0	8	2025-12-12 07:35:00	2025-12-12 07:35:07
+1236	10	2	10	INV-25/00047	\N	50.000	149.680	99.680	2025-10-04	910	sale	5	0	8	2025-12-12 07:35:07	2025-12-12 07:35:14
+1237	10	2	10	INV-25/00048	\N	50.000	99.680	49.680	2025-10-04	911	sale	5	0	8	2025-12-12 07:35:14	2025-12-12 07:35:20
+1238	10	2	10	INV-25/00049	\N	49.000	49.680	0.680	2025-10-04	912	sale	5	0	8	2025-12-12 07:35:20	2025-12-12 07:36:04
+1239	10	2	10	0000011925010170	4844	92.130	0.680	92.810	2025-10-04	327	purchase	5	0	8	2025-12-12 07:36:04	2025-12-12 07:36:09
+1240	10	2	10	INV-25/00050	\N	50.000	92.810	42.810	2025-10-04	913	sale	5	0	8	2025-12-12 07:36:09	2025-12-12 07:36:15
+1241	10	2	10	INV-25/00051	\N	42.000	42.810	0.810	2025-10-04	914	sale	5	0	8	2025-12-12 07:36:15	2025-12-12 07:37:00
+1242	10	2	10	0000011925010170	4854	353.000	0.810	353.810	2025-10-05	328	purchase	5	0	8	2025-12-12 07:37:00	2025-12-12 07:37:07
+1243	10	2	10	INV-25/00052	\N	36.000	353.810	317.810	2025-10-05	915	sale	5	0	8	2025-12-12 07:37:07	2025-12-12 07:37:13
+1244	10	2	10	INV-25/00053	\N	48.000	317.810	269.810	2025-10-05	916	sale	5	0	8	2025-12-12 07:37:13	2025-12-12 07:37:19
+1245	10	2	10	INV-25/00054	\N	36.000	269.810	233.810	2025-10-05	917	sale	5	0	8	2025-12-12 07:37:19	2025-12-12 07:37:25
+1246	10	2	10	INV-25/00055	\N	36.000	233.810	197.810	2025-10-05	918	sale	5	0	8	2025-12-12 07:37:25	2025-12-12 07:37:30
+1247	10	2	10	INV-25/00056	\N	36.000	197.810	161.810	2025-10-05	919	sale	5	0	8	2025-12-12 07:37:30	2025-12-12 07:37:35
+1248	10	2	10	INV-25/00057	\N	36.000	161.810	125.810	2025-10-05	920	sale	5	0	8	2025-12-12 07:37:35	2025-12-12 07:37:42
+1249	10	2	10	INV-25/00058	\N	36.000	125.810	89.810	2025-10-05	921	sale	5	0	8	2025-12-12 07:37:42	2025-12-12 07:37:49
+1250	10	2	10	INV-25/00059	\N	48.000	89.810	41.810	2025-10-05	922	sale	5	0	8	2025-12-12 07:37:49	2025-12-12 07:37:57
+1251	10	2	10	INV-25/00060	\N	41.000	41.810	0.810	2025-10-05	923	sale	5	0	8	2025-12-12 07:37:57	2025-12-12 07:38:43
+1252	10	2	10	0000011925010170	4919	86.990	0.810	87.800	2025-10-05	329	purchase	5	0	8	2025-12-12 07:38:43	2025-12-12 07:38:50
+1253	10	2	10	INV-25/00061	\N	50.000	87.800	37.800	2025-10-05	924	sale	5	0	8	2025-12-12 07:38:50	2025-12-12 07:38:55
+1254	10	2	10	INV-25/00062	\N	37.000	37.800	0.800	2025-10-05	925	sale	5	0	8	2025-12-12 07:38:55	2025-12-12 07:40:00
+1255	10	2	10	0000011925010170	4973	77.840	0.800	78.640	2025-10-06	330	purchase	5	0	8	2025-12-12 07:40:00	2025-12-12 07:40:07
+1256	10	2	10	INV-25/00063	\N	36.000	78.640	42.640	2025-10-06	926	sale	5	0	8	2025-12-12 07:40:07	2025-12-12 07:40:13
+1257	10	2	10	INV-25/00064	\N	42.000	42.640	0.640	2025-10-06	927	sale	5	0	8	2025-12-12 07:40:13	2025-12-12 07:40:59
+1258	10	2	10	0000011925010170	5017	36.760	0.640	37.400	2025-10-06	331	purchase	5	0	8	2025-12-12 07:40:59	2025-12-12 07:41:05
+1259	10	2	10	INV-25/00065	\N	37.000	37.400	0.400	2025-10-06	928	sale	5	0	8	2025-12-12 07:41:05	2025-12-12 07:41:51
+1260	10	2	10	0000011925010170	5086	33.600	0.400	34.000	2025-10-07	332	purchase	5	0	8	2025-12-12 07:41:51	2025-12-12 07:41:57
+1261	10	2	10	INV-25/00066	\N	34.000	34.000	0.000	2025-10-07	929	sale	5	0	8	2025-12-12 07:41:57	2025-12-12 07:42:41
+1262	10	2	10	0000011925010178	5441	77.280	0.000	77.280	2025-10-07	333	purchase	5	0	8	2025-12-12 07:42:41	2025-12-12 07:42:50
+1263	10	2	10	INV-25/00067	\N	36.000	77.280	41.280	2025-10-07	930	sale	5	0	8	2025-12-12 07:42:50	2025-12-12 07:42:55
+1264	10	2	10	INV-25/00068	\N	41.000	41.280	0.280	2025-10-07	931	sale	5	0	8	2025-12-12 07:42:55	2025-12-12 07:43:43
+1265	10	2	10	0000011925010178	5458	107.380	0.280	107.660	2025-10-08	334	purchase	5	0	8	2025-12-12 07:43:43	2025-12-12 07:43:51
+1266	10	2	10	INV-25/00069	\N	36.000	107.660	71.660	2025-10-08	932	sale	5	0	8	2025-12-12 07:43:51	2025-12-12 07:43:58
+1267	10	2	10	INV-25/00070	\N	36.000	71.660	35.660	2025-10-08	933	sale	5	0	8	2025-12-12 07:43:58	2025-12-12 07:44:04
+1268	10	2	10	INV-25/00071	\N	35.000	35.660	0.660	2025-10-08	934	sale	5	0	8	2025-12-12 07:44:04	2025-12-12 07:44:52
+1269	10	2	10	0000011925010178	5510	76.400	0.660	77.060	2025-10-08	335	purchase	5	0	8	2025-12-12 07:44:52	2025-12-12 07:45:06
+1270	10	2	10	INV-25/00072	\N	37.000	77.060	40.060	2025-10-08	935	sale	5	0	8	2025-12-12 07:45:06	2025-12-12 07:45:13
+1271	10	2	10	INV-25/00073	\N	40.000	40.060	0.060	2025-10-08	936	sale	5	0	8	2025-12-12 07:45:13	2025-12-12 07:46:11
+1272	10	2	10	0000011925010178	5550	131.840	0.060	131.900	2025-10-08	336	purchase	5	0	8	2025-12-12 07:46:11	2025-12-12 07:46:18
+1273	10	2	10	INV-25/00074	\N	36.000	131.900	95.900	2025-10-08	937	sale	5	0	8	2025-12-12 07:46:18	2025-12-12 07:46:24
+1274	10	2	10	INV-25/00075	\N	50.000	95.900	45.900	2025-10-08	938	sale	5	0	8	2025-12-12 07:46:24	2025-12-12 07:46:30
+1275	10	2	10	INV-25/00076	\N	45.000	45.900	0.900	2025-10-08	939	sale	5	0	8	2025-12-12 07:46:30	2025-12-12 07:47:43
+1276	10	2	10	0000011925010178	5596	156.530	0.900	157.430	2025-10-09	337	purchase	5	0	8	2025-12-12 07:47:43	2025-12-12 07:47:52
+1277	10	2	10	INV-25/00077	\N	36.000	157.430	121.430	2025-10-09	940	sale	5	0	8	2025-12-12 07:47:52	2025-12-12 07:47:58
+1278	10	2	10	INV-25/00078	\N	36.000	121.430	85.430	2025-10-09	941	sale	5	0	8	2025-12-12 07:47:58	2025-12-12 07:48:05
+1279	10	2	10	INV-25/00079	\N	50.000	85.430	35.430	2025-10-09	942	sale	5	0	8	2025-12-12 07:48:05	2025-12-12 07:48:11
+1280	10	2	10	INV-25/00080	\N	35.000	35.430	0.430	2025-10-09	943	sale	5	0	8	2025-12-12 07:48:11	2025-12-12 07:49:35
+1281	10	2	10	0000011925010178	5648	74.940	0.430	75.370	2025-10-10	338	purchase	5	0	8	2025-12-12 07:49:35	2025-12-12 07:49:42
+1282	10	2	10	INV-25/00081	\N	35.000	75.370	40.370	2025-10-10	944	sale	5	0	8	2025-12-12 07:49:42	2025-12-12 07:49:48
+1283	10	2	10	INV-25/00082	\N	40.000	40.370	0.370	2025-10-10	945	sale	5	0	8	2025-12-12 07:49:48	2025-12-12 08:30:52
+1284	10	2	10	0000011925010178	5684	165.180	0.370	165.550	2025-10-10	339	purchase	5	0	8	2025-12-12 08:30:52	2025-12-12 08:31:11
+1285	10	2	10	INV-25/00083	\N	36.000	165.550	129.550	2025-10-10	946	sale	5	0	8	2025-12-12 08:31:11	2025-12-12 08:31:17
+1286	10	2	10	INV-25/00084	\N	36.000	129.550	93.550	2025-10-10	947	sale	5	0	8	2025-12-12 08:31:17	2025-12-12 08:31:26
+1287	10	2	10	INV-25/00085	\N	30.000	93.550	63.550	2025-10-10	948	sale	5	0	8	2025-12-12 08:31:26	2025-12-12 08:31:33
+1288	10	2	10	INV-25/00086	\N	33.000	63.550	30.550	2025-10-10	949	sale	5	0	8	2025-12-12 08:31:33	2025-12-12 08:31:39
+1289	10	2	10	INV-25/00087	\N	30.000	30.550	0.550	2025-10-10	950	sale	5	0	8	2025-12-12 08:31:39	2025-12-12 08:32:31
+1290	10	2	10	0000011925010178	5705	104.820	0.550	105.370	2025-10-10	340	purchase	5	0	8	2025-12-12 08:32:31	2025-12-12 08:32:40
+1291	10	2	10	INV-25/00088	\N	35.000	105.370	70.370	2025-10-10	951	sale	5	0	8	2025-12-12 08:32:40	2025-12-12 08:32:46
+1292	10	2	10	INV-25/00089	\N	35.000	70.370	35.370	2025-10-10	952	sale	5	0	8	2025-12-12 08:32:46	2025-12-12 08:32:52
+1293	10	2	10	INV-25/00090	\N	35.000	35.370	0.370	2025-10-10	953	sale	5	0	8	2025-12-12 08:32:52	2025-12-12 08:33:43
+1294	10	2	10	0000011925010178	5774	386.480	0.370	386.850	2025-10-11	341	purchase	5	0	8	2025-12-12 08:33:43	2025-12-12 08:34:49
+1295	10	2	10	INV-25/00091	\N	36.000	386.850	350.850	2025-10-11	954	sale	5	0	8	2025-12-12 08:34:49	2025-12-12 08:34:55
+1296	10	2	10	INV-25/00092	\N	50.000	350.850	300.850	2025-10-11	955	sale	5	0	8	2025-12-12 08:34:55	2025-12-12 08:35:01
+1297	10	2	10	INV-25/00093	\N	30.000	300.850	270.850	2025-10-11	956	sale	5	0	8	2025-12-12 08:35:01	2025-12-12 08:35:05
+1298	10	2	10	INV-25/00094	\N	36.000	270.850	234.850	2025-10-11	957	sale	5	0	8	2025-12-12 08:35:05	2025-12-12 08:35:11
+1299	10	2	10	INV-25/00095	\N	36.000	234.850	198.850	2025-10-11	958	sale	5	0	8	2025-12-12 08:35:11	2025-12-12 08:35:17
+1300	10	2	10	INV-25/00096	\N	36.000	198.850	162.850	2025-10-11	959	sale	5	0	8	2025-12-12 08:35:17	2025-12-12 08:35:24
+1301	10	2	10	INV-25/00097	\N	36.000	162.850	126.850	2025-10-11	960	sale	5	0	8	2025-12-12 08:35:24	2025-12-12 08:35:30
+1302	10	2	10	INV-25/00098	\N	36.000	126.850	90.850	2025-10-11	961	sale	5	0	8	2025-12-12 08:35:30	2025-12-12 08:35:37
+1303	10	2	10	INV-25/00099	\N	50.000	90.850	40.850	2025-10-11	962	sale	5	0	8	2025-12-12 08:35:37	2025-12-12 08:35:44
+1304	10	2	10	INV-25/00100	\N	40.000	40.850	0.850	2025-10-11	963	sale	5	0	8	2025-12-12 08:35:44	2025-12-12 08:37:21
+1305	10	2	10	0000011925010186	5813	63.870	0.850	64.720	2025-10-11	342	purchase	5	0	8	2025-12-12 08:37:21	2025-12-12 08:37:29
+1306	10	2	10	INV-25/00101	\N	34.000	64.720	30.720	2025-10-11	964	sale	5	0	8	2025-12-12 08:37:29	2025-12-12 08:37:35
+1307	10	2	10	INV-25/00102	\N	30.000	30.720	0.720	2025-10-11	965	sale	5	0	8	2025-12-12 08:37:35	2025-12-12 08:38:30
+1308	10	2	10	0000011925010186	5863	416.000	0.720	416.720	2025-10-11	343	purchase	5	0	8	2025-12-12 08:38:30	2025-12-12 08:38:40
+1309	10	2	10	INV-25/00103	\N	50.000	416.720	366.720	2025-10-11	966	sale	5	0	8	2025-12-12 08:38:40	2025-12-12 08:38:46
+1310	10	2	10	INV-25/00104	\N	36.000	366.720	330.720	2025-10-11	967	sale	5	0	8	2025-12-12 08:38:46	2025-12-12 08:38:52
+1311	10	2	10	INV-25/00105	\N	30.000	330.720	300.720	2025-10-11	968	sale	5	0	8	2025-12-12 08:38:52	2025-12-12 08:38:59
+1312	10	2	10	INV-25/00106	\N	48.000	300.720	252.720	2025-10-11	969	sale	5	0	8	2025-12-12 08:38:59	2025-12-12 08:50:46
+1313	10	2	10	INV-25/00107	\N	50.000	252.720	202.720	2025-10-11	970	sale	5	0	8	2025-12-12 08:50:46	2025-12-12 08:53:10
+1314	10	2	10	INV-25/00108	\N	36.000	202.720	166.720	2025-10-11	971	sale	5	0	8	2025-12-12 08:53:10	2025-12-12 08:53:18
+1315	10	2	10	INV-25/00109	\N	36.000	166.720	130.720	2025-10-11	972	sale	5	0	8	2025-12-12 08:53:18	2025-12-12 08:53:45
+1316	10	2	10	INV-25/00110	\N	30.000	130.720	100.720	2025-10-11	973	sale	5	0	8	2025-12-12 08:53:45	2025-12-12 08:53:55
+1317	10	2	10	INV-25/00111	\N	50.000	100.720	50.720	2025-10-11	974	sale	5	0	8	2025-12-12 08:53:55	2025-12-12 08:54:02
+1318	10	2	10	INV-25/00112	\N	50.000	50.720	0.720	2025-10-11	975	sale	5	0	8	2025-12-12 08:54:02	2025-12-12 08:55:10
+1319	10	2	10	0000011925010178	5865	27.250	0.720	27.970	2025-10-12	344	purchase	5	0	8	2025-12-12 08:55:10	2025-12-12 08:55:20
+1320	10	2	10	INV-25/00113	\N	27.000	27.970	0.970	2025-10-12	976	sale	5	0	8	2025-12-12 08:55:20	2025-12-12 08:56:15
+1321	10	2	10	0000011925010186	5894	81.340	0.970	82.310	2025-10-12	345	purchase	5	0	8	2025-12-12 08:56:15	2025-12-12 08:56:24
+1322	10	2	10	INV-25/00114	\N	50.000	82.310	32.310	2025-10-12	977	sale	5	0	8	2025-12-12 08:56:24	2025-12-12 08:56:32
+1323	10	2	10	INV-25/00115	\N	32.000	32.310	0.310	2025-10-12	978	sale	5	0	8	2025-12-12 08:56:32	2025-12-12 10:05:49
+1324	10	2	10	0000011925010186	5950	341.050	0.310	341.360	2025-10-12	346	purchase	5	0	8	2025-12-12 10:05:49	2025-12-12 10:06:00
+1325	10	2	10	INV-25/00116	\N	50.000	341.360	291.360	2025-10-12	979	sale	5	0	8	2025-12-12 10:06:00	2025-12-12 10:06:07
+1326	10	2	10	INV-25/00117	\N	36.000	291.360	255.360	2025-10-12	980	sale	5	0	8	2025-12-12 10:06:07	2025-12-12 10:06:14
+1327	10	2	10	INV-25/00118	\N	50.000	255.360	205.360	2025-10-12	981	sale	5	0	8	2025-12-12 10:06:14	2025-12-12 10:06:22
+1328	10	2	10	INV-25/00119	\N	36.000	205.360	169.360	2025-10-12	982	sale	5	0	8	2025-12-12 10:06:22	2025-12-12 10:06:28
+1329	10	2	10	INV-25/00120	\N	36.000	169.360	133.360	2025-10-12	983	sale	5	0	8	2025-12-12 10:06:28	2025-12-12 10:06:35
+1330	10	2	10	INV-25/00121	\N	36.000	133.360	97.360	2025-10-12	984	sale	5	0	8	2025-12-12 10:06:35	2025-12-12 10:06:43
+1331	10	2	10	INV-25/00122	\N	50.000	97.360	47.360	2025-10-12	985	sale	5	0	8	2025-12-12 10:06:43	2025-12-12 10:06:51
+1332	10	2	10	INV-25/00123	\N	47.000	47.360	0.360	2025-10-12	986	sale	5	0	8	2025-12-12 10:06:51	2025-12-12 10:08:08
+1333	10	2	10	0000011925010186	5982	232.540	0.360	232.900	2025-10-12	347	purchase	5	0	8	2025-12-12 10:08:08	2025-12-12 10:08:19
+1334	10	2	10	INV-25/00124	\N	36.000	232.900	196.900	2025-10-12	987	sale	5	0	8	2025-12-12 10:08:19	2025-12-12 10:08:28
+1335	10	2	10	INV-25/00125	\N	48.000	196.900	148.900	2025-10-12	988	sale	5	0	8	2025-12-12 10:08:28	2025-12-12 10:08:36
+1336	10	2	10	INV-25/00126	\N	50.000	148.900	98.900	2025-10-12	989	sale	5	0	8	2025-12-12 10:08:36	2025-12-12 10:08:44
+1337	10	2	10	INV-25/00127	\N	50.000	98.900	48.900	2025-10-12	990	sale	5	0	8	2025-12-12 10:08:44	2025-12-12 10:08:51
+1338	10	2	10	INV-25/00128	\N	48.000	48.900	0.900	2025-10-12	991	sale	5	0	8	2025-12-12 10:08:51	2025-12-12 10:09:56
+1339	10	2	10	0000011925010186	6018	87.360	0.900	88.260	2025-10-12	348	purchase	5	0	8	2025-12-12 10:09:56	2025-12-12 10:10:08
+1340	10	2	10	INV-25/00129	\N	50.000	88.260	38.260	2025-10-12	992	sale	5	0	8	2025-12-12 10:10:08	2025-12-12 10:10:15
+1341	10	2	10	INV-25/00130	\N	38.000	38.260	0.260	2025-10-12	993	sale	5	0	8	2025-12-12 10:10:15	2025-12-12 10:11:15
+1342	10	2	10	0000011925010186	6063	38.280	0.260	38.540	2025-10-13	349	purchase	5	0	8	2025-12-12 10:11:15	2025-12-12 10:11:23
+1343	10	2	10	INV-25/00131	\N	38.000	38.540	0.540	2025-10-13	994	sale	5	0	8	2025-12-12 10:11:23	2025-12-12 10:12:33
+1344	10	2	10	0000011925010196	6154	519.350	0.540	519.890	2025-10-13	350	purchase	5	0	8	2025-12-12 10:12:33	2025-12-12 10:12:44
+1345	10	2	10	INV-25/00132	\N	35.000	519.890	484.890	2025-10-13	995	sale	5	0	8	2025-12-12 10:12:44	2025-12-12 10:12:51
+1346	10	2	10	INV-25/00133	\N	36.000	484.890	448.890	2025-10-13	996	sale	5	0	8	2025-12-12 10:12:51	2025-12-12 10:13:01
+1347	10	2	10	INV-25/00134	\N	48.000	448.890	400.890	2025-10-13	997	sale	5	0	8	2025-12-12 10:13:01	2025-12-12 10:13:08
+1348	10	2	10	INV-25/00135	\N	36.000	400.890	364.890	2025-10-13	998	sale	5	0	8	2025-12-12 10:13:08	2025-12-12 10:13:15
+1349	10	2	10	INV-25/00136	\N	36.000	364.890	328.890	2025-10-13	999	sale	5	0	8	2025-12-12 10:13:15	2025-12-12 10:13:25
+1350	10	2	10	INV-25/00137	\N	50.000	328.890	278.890	2025-10-13	1000	sale	5	0	8	2025-12-12 10:13:25	2025-12-12 10:13:31
+1351	10	2	10	INV-25/00138	\N	50.000	278.890	228.890	2025-10-13	1001	sale	5	0	8	2025-12-12 10:13:31	2025-12-12 10:13:38
+1352	10	2	10	INV-25/00139	\N	50.000	228.890	178.890	2025-10-13	1002	sale	5	0	8	2025-12-12 10:13:38	2025-12-12 10:13:44
+1353	10	2	10	INV-25/00140	\N	36.000	178.890	142.890	2025-10-13	1003	sale	5	0	8	2025-12-12 10:13:44	2025-12-12 10:13:50
+1354	10	2	10	INV-25/00141	\N	36.000	142.890	106.890	2025-10-13	1004	sale	5	0	8	2025-12-12 10:13:50	2025-12-12 10:13:58
+1355	10	2	10	INV-25/00142	\N	36.000	106.890	70.890	2025-10-13	1005	sale	5	0	8	2025-12-12 10:13:58	2025-12-12 10:14:04
+1356	10	2	10	INV-25/00143	\N	35.000	70.890	35.890	2025-10-13	1006	sale	5	0	8	2025-12-12 10:14:04	2025-12-12 10:14:10
+1357	10	2	10	INV-25/00144	\N	35.000	35.890	0.890	2025-10-13	1007	sale	5	0	8	2025-12-12 10:14:10	2025-12-12 10:15:07
+1358	10	2	10	0000011925010196	6216	51.010	0.890	51.900	2025-10-13	351	purchase	5	0	8	2025-12-12 10:15:07	2025-12-12 10:15:19
+1359	10	2	10	INV-25/00145	\N	51.000	51.900	0.900	2025-10-13	1008	sale	5	0	8	2025-12-12 10:15:19	2025-12-12 10:16:26
+1360	10	2	10	0000011925010196	6285	246.460	0.900	247.360	2025-10-14	352	purchase	5	0	8	2025-12-12 10:16:26	2025-12-12 10:16:36
+1361	10	2	10	INV-25/00146	\N	50.000	247.360	197.360	2025-10-14	1009	sale	5	0	8	2025-12-12 10:16:36	2025-12-12 10:16:42
+1362	10	2	10	INV-25/00147	\N	48.000	197.360	149.360	2025-10-14	1010	sale	5	0	8	2025-12-12 10:16:42	2025-12-12 10:16:49
+1363	10	2	10	INV-25/00148	\N	36.000	149.360	113.360	2025-10-14	1011	sale	5	0	8	2025-12-12 10:16:49	2025-12-12 10:16:57
+1364	10	2	10	INV-25/00149	\N	38.000	113.360	75.360	2025-10-14	1012	sale	5	0	8	2025-12-12 10:16:57	2025-12-12 10:17:05
+1365	10	2	10	INV-25/00150	\N	38.000	75.360	37.360	2025-10-14	1013	sale	5	0	8	2025-12-12 10:17:05	2025-12-12 10:17:13
+1366	10	2	10	INV-25/00151	\N	37.000	37.360	0.360	2025-10-14	1014	sale	5	0	8	2025-12-12 10:17:13	2025-12-12 10:18:16
+1367	10	2	10	0000011925010186	6316	15.480	0.360	15.840	2025-10-14	353	purchase	5	0	8	2025-12-12 10:18:16	2025-12-12 10:18:27
+1368	10	2	10	INV-25/00152	\N	15.000	15.840	0.840	2025-10-14	1015	sale	5	0	8	2025-12-12 10:18:27	2025-12-12 10:20:08
+1369	10	2	10	0000011925010196	6317	66.040	0.840	66.880	2025-10-14	354	purchase	5	0	8	2025-12-12 10:20:08	2025-12-12 10:20:18
+1370	10	2	10	INV-25/00153	\N	33.000	66.880	33.880	2025-10-14	1016	sale	5	0	8	2025-12-12 10:20:18	2025-12-12 10:20:24
+1371	10	2	10	INV-25/00154	\N	33.000	33.880	0.880	2025-10-14	1017	sale	5	0	8	2025-12-12 10:20:24	2025-12-12 10:21:37
+1372	10	2	10	0000011925010200	6319	225.740	0.880	226.620	2025-10-15	355	purchase	5	0	8	2025-12-12 10:21:37	2025-12-12 10:21:46
+1373	10	2	10	INV-25/00155	\N	36.000	226.620	190.620	2025-10-15	1018	sale	5	0	8	2025-12-12 10:21:46	2025-12-12 10:21:53
+1374	10	2	10	INV-25/00156	\N	36.000	190.620	154.620	2025-10-15	1019	sale	5	0	8	2025-12-12 10:21:53	2025-12-12 10:22:01
+1375	10	2	10	INV-25/00157	\N	50.000	154.620	104.620	2025-10-15	1020	sale	5	0	8	2025-12-12 10:22:01	2025-12-12 10:22:07
+1376	10	2	10	INV-25/00158	\N	34.000	104.620	70.620	2025-10-15	1021	sale	5	0	8	2025-12-12 10:22:07	2025-12-12 10:22:13
+1377	10	2	10	INV-25/00159	\N	35.000	70.620	35.620	2025-10-15	1022	sale	5	0	8	2025-12-12 10:22:13	2025-12-12 10:22:21
+1378	10	2	10	INV-25/00160	\N	35.000	35.620	0.620	2025-10-15	1023	sale	5	0	8	2025-12-12 10:22:21	2025-12-12 10:23:36
+1379	10	2	10	0000011925010200	6374	48.230	0.620	48.850	2025-10-15	356	purchase	5	0	8	2025-12-12 10:23:36	2025-12-12 10:23:45
+1380	10	2	10	INV-25/00161	\N	48.000	48.850	0.850	2025-10-15	1024	sale	5	0	8	2025-12-12 10:23:45	2025-12-12 10:25:01
+1381	10	2	10	0000011925010200	6439	233.700	0.850	234.550	2025-10-15	357	purchase	5	0	8	2025-12-12 10:25:01	2025-12-12 10:25:14
+1382	10	2	10	INV-25/00162	\N	36.000	234.550	198.550	2025-10-15	1025	sale	5	0	8	2025-12-12 10:25:14	2025-12-12 10:25:20
+1383	10	2	10	INV-25/00163	\N	48.000	198.550	150.550	2025-10-15	1026	sale	5	0	8	2025-12-12 10:25:20	2025-12-12 10:25:27
+1384	10	2	10	INV-25/00164	\N	50.000	150.550	100.550	2025-10-15	1027	sale	5	0	8	2025-12-12 10:25:27	2025-12-12 10:25:32
+1385	10	2	10	INV-25/00165	\N	50.000	100.550	50.550	2025-10-15	1028	sale	5	0	8	2025-12-12 10:25:32	2025-12-12 10:25:38
+1386	10	2	10	INV-25/00166	\N	50.000	50.550	0.550	2025-10-15	1029	sale	5	0	8	2025-12-12 10:25:38	2025-12-12 10:28:21
+1387	10	2	10	0000011925010200	6516	114.770	0.550	115.320	2025-10-15	358	purchase	5	0	8	2025-12-12 10:28:21	2025-12-12 10:28:37
+1388	10	2	10	INV-25/00167	\N	36.000	115.320	79.320	2025-10-15	1030	sale	5	0	8	2025-12-12 10:28:37	2025-12-12 10:28:43
+1389	10	2	10	INV-25/00168	\N	36.000	79.320	43.320	2025-10-15	1031	sale	5	0	8	2025-12-12 10:28:43	2025-12-12 10:28:50
+1390	10	2	10	INV-25/00169	\N	43.000	43.320	0.320	2025-10-15	1032	sale	5	0	8	2025-12-12 10:28:50	2025-12-12 10:30:10
+1391	10	2	10	0000011925010204	6529	284.770	0.320	285.090	2025-10-15	359	purchase	5	0	8	2025-12-12 10:30:10	2025-12-12 10:30:25
+1392	10	2	10	INV-25/00170	\N	50.000	285.090	235.090	2025-10-15	1033	sale	5	0	8	2025-12-12 10:30:25	2025-12-12 10:30:31
+1393	10	2	10	INV-25/00171	\N	36.000	235.090	199.090	2025-10-15	1034	sale	5	0	8	2025-12-12 10:30:31	2025-12-12 10:30:37
+1394	10	2	10	INV-25/00172	\N	36.000	199.090	163.090	2025-10-15	1035	sale	5	0	8	2025-12-12 10:30:37	2025-12-12 10:30:42
+1395	10	2	10	INV-25/00173	\N	36.000	163.090	127.090	2025-10-15	1036	sale	5	0	8	2025-12-12 10:30:42	2025-12-12 10:30:49
+1396	10	2	10	INV-25/00174	\N	36.000	127.090	91.090	2025-10-15	1037	sale	5	0	8	2025-12-12 10:30:49	2025-12-12 10:30:57
+1397	10	2	10	INV-25/00175	\N	50.000	91.090	41.090	2025-10-15	1038	sale	5	0	8	2025-12-12 10:30:57	2025-12-12 10:31:02
+1398	10	2	10	INV-25/00176	\N	41.000	41.090	0.090	2025-10-15	1039	sale	5	0	8	2025-12-12 10:31:02	2025-12-12 10:32:05
+1399	10	2	10	0000011925010200	6589	131.790	0.090	131.880	2025-10-17	360	purchase	5	0	8	2025-12-12 10:32:05	2025-12-12 10:32:13
+1400	10	2	10	INV-25/00177	\N	36.000	131.880	95.880	2025-10-17	1040	sale	5	0	8	2025-12-12 10:32:13	2025-12-12 10:32:19
+1401	10	2	10	INV-25/00178	\N	50.000	95.880	45.880	2025-10-17	1041	sale	5	0	8	2025-12-12 10:32:19	2025-12-12 10:32:25
+1402	10	2	10	INV-25/00179	\N	45.000	45.880	0.880	2025-10-17	1042	sale	5	0	8	2025-12-12 10:32:25	2025-12-12 10:33:30
+1403	10	2	10	0000011925010204	6590	39.420	0.880	40.300	2025-10-17	361	purchase	5	0	8	2025-12-12 10:33:30	2025-12-12 10:33:37
+1404	10	2	10	INV-25/00180	\N	40.000	40.300	0.300	2025-10-17	1043	sale	5	0	8	2025-12-12 10:33:37	2025-12-12 10:34:45
+1405	10	2	10	0000011925010204	6642	246.490	0.300	246.790	2025-10-17	362	purchase	5	0	8	2025-12-12 10:34:45	2025-12-12 10:34:56
+1406	10	2	10	INV-25/00181	\N	50.000	246.790	196.790	2025-10-17	1044	sale	5	0	8	2025-12-12 10:34:56	2025-12-12 10:35:06
+1407	10	2	10	INV-25/00182	\N	36.000	196.790	160.790	2025-10-17	1045	sale	5	0	8	2025-12-12 10:35:06	2025-12-12 10:35:16
+1408	10	2	10	INV-25/00183	\N	30.000	160.790	130.790	2025-10-17	1046	sale	5	0	8	2025-12-12 10:35:16	2025-12-12 10:35:22
+1409	10	2	10	INV-25/00184	\N	36.000	130.790	94.790	2025-10-17	1047	sale	5	0	8	2025-12-12 10:35:22	2025-12-12 10:35:32
+1410	10	2	10	INV-25/00185	\N	50.000	94.790	44.790	2025-10-17	1048	sale	5	0	8	2025-12-12 10:35:32	2025-12-12 10:35:38
+1411	10	2	10	INV-25/00186	\N	44.000	44.790	0.790	2025-10-17	1049	sale	5	0	8	2025-12-12 10:35:38	2025-12-12 10:37:22
+1412	10	2	10	0000011925010204	6702	200.100	0.790	200.890	2025-10-18	363	purchase	5	0	8	2025-12-12 10:37:22	2025-12-12 10:37:31
+1413	10	2	10	INV-25/00187	\N	50.000	200.890	150.890	2025-10-18	1050	sale	5	0	8	2025-12-12 10:37:31	2025-12-12 10:37:39
+1414	10	2	10	INV-25/00188	\N	50.000	150.890	100.890	2025-10-18	1051	sale	5	0	8	2025-12-12 10:37:39	2025-12-12 10:37:45
+1415	10	2	10	INV-25/00189	\N	50.000	100.890	50.890	2025-10-18	1052	sale	5	0	8	2025-12-12 10:37:45	2025-12-12 10:37:52
+1416	10	2	10	INV-25/00190	\N	50.000	50.890	0.890	2025-10-18	1053	sale	5	0	8	2025-12-12 10:37:52	2025-12-12 10:39:13
+1417	10	2	10	0000011925010204	6768	129.580	0.890	130.470	2025-10-18	364	purchase	5	0	8	2025-12-12 10:39:13	2025-12-12 10:39:21
+1418	10	2	10	INV-25/00191	\N	30.000	130.470	100.470	2025-10-18	1054	sale	5	0	8	2025-12-12 10:39:21	2025-12-12 10:39:28
+1419	10	2	10	INV-25/00192	\N	50.000	100.470	50.470	2025-10-18	1055	sale	5	0	8	2025-12-12 10:39:28	2025-12-12 10:39:35
+1420	10	2	10	INV-25/00193	\N	50.000	50.470	0.470	2025-10-18	1056	sale	5	0	8	2025-12-12 10:39:35	2025-12-12 10:41:01
+1421	10	2	10	0000011925010204	6834	160.500	0.470	160.970	2025-10-18	365	purchase	5	0	8	2025-12-12 10:41:01	2025-12-12 10:41:13
+1422	10	2	10	INV-25/00194	\N	36.000	160.970	124.970	2025-10-18	1057	sale	5	0	8	2025-12-12 10:41:13	2025-12-12 10:41:18
+1423	10	2	10	INV-25/00195	\N	50.000	124.970	74.970	2025-10-18	1058	sale	5	0	8	2025-12-12 10:41:18	2025-12-12 10:41:26
+1424	10	2	10	INV-25/00196	\N	36.000	74.970	38.970	2025-10-18	1059	sale	5	0	8	2025-12-12 10:41:26	2025-12-12 10:41:49
+1425	10	2	10	INV-25/00197	\N	38.000	38.970	0.970	2025-10-18	1060	sale	5	0	8	2025-12-12 10:41:49	2025-12-12 10:43:06
+1426	10	2	10	0000011925010204	6858	173.150	0.970	174.120	2025-10-19	366	purchase	5	0	8	2025-12-12 10:43:06	2025-12-12 10:43:37
+1427	10	2	10	INV-25/00198	\N	36.000	174.120	138.120	2025-10-19	1061	sale	5	0	8	2025-12-12 10:43:37	2025-12-12 10:43:43
+1428	10	2	10	INV-25/00199	\N	38.000	138.120	100.120	2025-10-19	1062	sale	5	0	8	2025-12-12 10:43:43	2025-12-12 10:43:51
+1429	10	2	10	INV-25/00200	\N	50.000	100.120	50.120	2025-10-19	1063	sale	5	0	8	2025-12-12 10:43:51	2025-12-12 10:43:57
+1430	10	2	10	INV-25/00201	\N	50.000	50.120	0.120	2025-10-19	1064	sale	5	0	8	2025-12-12 10:43:57	2025-12-12 10:45:09
+1431	10	2	10	0000011925010204	6909	40.520	0.120	40.640	2025-10-20	367	purchase	5	0	8	2025-12-12 10:45:09	2025-12-12 10:45:16
+1432	10	2	10	INV-25/00202	\N	40.000	40.640	0.640	2025-10-20	1065	sale	5	0	8	2025-12-12 10:45:16	2025-12-12 10:46:19
+1433	10	2	10	0000011925010212	6958	138.950	0.640	139.590	2025-10-20	368	purchase	5	0	8	2025-12-12 10:46:19	2025-12-12 10:46:28
+1434	10	2	10	INV-25/00203	\N	39.000	139.590	100.590	2025-10-20	1066	sale	5	0	8	2025-12-12 10:46:28	2025-12-12 10:46:33
+1435	10	2	10	INV-25/00204	\N	50.000	100.590	50.590	2025-10-20	1067	sale	5	0	8	2025-12-12 10:46:33	2025-12-12 10:46:39
+1436	10	2	10	INV-25/00205	\N	50.000	50.590	0.590	2025-10-20	1068	sale	5	0	8	2025-12-12 10:46:39	2025-12-12 10:47:36
+1437	10	2	10	0000011925010204	6959	20.550	0.590	21.140	2025-10-20	369	purchase	5	0	8	2025-12-12 10:47:36	2025-12-12 10:47:43
+1438	10	2	10	INV-25/00206	\N	21.000	21.140	0.140	2025-10-20	1069	sale	5	0	8	2025-12-12 10:47:43	2025-12-12 10:48:43
+1439	10	2	10	0000011925010212	6967	36.900	0.140	37.040	2025-10-21	370	purchase	5	0	8	2025-12-12 10:48:43	2025-12-12 10:48:50
+1440	10	2	10	INV-25/00207	\N	37.000	37.040	0.040	2025-10-21	1070	sale	5	0	8	2025-12-12 10:48:50	2025-12-12 10:49:56
+1441	10	2	10	0000011925010212	7029	274.910	0.040	274.950	2025-10-21	371	purchase	5	0	8	2025-12-12 10:49:56	2025-12-12 10:50:04
+1442	10	2	10	INV-25/00208	\N	50.000	274.950	224.950	2025-10-21	1071	sale	5	0	8	2025-12-12 10:50:04	2025-12-12 10:50:09
+1443	10	2	10	INV-25/00209	\N	36.000	224.950	188.950	2025-10-21	1072	sale	5	0	8	2025-12-12 10:50:09	2025-12-12 10:50:13
+1444	10	2	10	INV-25/00210	\N	36.000	188.950	152.950	2025-10-21	1073	sale	5	0	8	2025-12-12 10:50:13	2025-12-12 10:50:21
+1445	10	2	10	INV-25/00211	\N	48.000	152.950	104.950	2025-10-21	1074	sale	5	0	8	2025-12-12 10:50:21	2025-12-12 10:50:32
+1446	10	2	10	INV-25/00212	\N	35.000	104.950	69.950	2025-10-21	1075	sale	5	0	8	2025-12-12 10:50:32	2025-12-12 10:50:38
+1447	10	2	10	INV-25/00213	\N	36.000	69.950	33.950	2025-10-21	1076	sale	5	0	8	2025-12-12 10:50:38	2025-12-12 10:50:45
+1448	10	2	10	INV-25/00214	\N	33.000	33.950	0.950	2025-10-21	1077	sale	5	0	8	2025-12-12 10:50:45	2025-12-12 10:52:04
+1449	10	2	10	0000011925010212	7072	175.700	0.950	176.650	2025-10-22	372	purchase	5	0	8	2025-12-12 10:52:04	2025-12-12 10:52:11
+1450	10	2	10	INV-25/00215	\N	50.000	176.650	126.650	2025-10-22	1078	sale	5	0	8	2025-12-12 10:52:11	2025-12-12 10:52:19
+1451	10	2	10	INV-25/00216	\N	50.000	126.650	76.650	2025-10-22	1079	sale	5	0	8	2025-12-12 10:52:19	2025-12-12 10:52:27
+1452	10	2	10	INV-25/00217	\N	38.000	76.650	38.650	2025-10-22	1080	sale	5	0	8	2025-12-12 10:52:27	2025-12-12 10:52:32
+1453	10	2	10	INV-25/00218	\N	38.000	38.650	0.650	2025-10-22	1081	sale	5	0	8	2025-12-12 10:52:32	2025-12-12 10:54:57
+1454	10	2	10	0000011925010212	7190	68.230	0.650	68.880	2025-10-22	373	purchase	5	0	8	2025-12-12 10:54:57	2025-12-12 10:55:08
+1455	10	2	10	INV-25/00219	\N	38.000	68.880	30.880	2025-10-22	1082	sale	5	0	8	2025-12-12 10:55:08	2025-12-12 10:55:15
+1456	10	2	10	INV-25/00220	\N	30.000	30.880	0.880	2025-10-22	1083	sale	5	0	8	2025-12-12 10:55:15	2025-12-12 10:56:23
+1457	10	2	10	0000011925010212	7238	324.820	0.880	325.700	2025-10-23	374	purchase	5	0	8	2025-12-12 10:56:23	2025-12-12 10:56:31
+1458	10	2	10	INV-25/00221	\N	50.000	325.700	275.700	2025-10-23	1084	sale	5	0	8	2025-12-12 10:56:31	2025-12-12 10:56:37
+1459	10	2	10	INV-25/00222	\N	50.000	275.700	225.700	2025-10-23	1085	sale	5	0	8	2025-12-12 10:56:37	2025-12-12 10:56:43
+1460	10	2	10	INV-25/00223	\N	36.000	225.700	189.700	2025-10-23	1086	sale	5	0	8	2025-12-12 10:56:43	2025-12-12 10:56:49
+1461	10	2	10	INV-25/00224	\N	36.000	189.700	153.700	2025-10-23	1087	sale	5	0	8	2025-12-12 10:56:49	2025-12-12 10:56:56
+1462	10	2	10	INV-25/00225	\N	36.000	153.700	117.700	2025-10-23	1088	sale	5	0	8	2025-12-12 10:56:56	2025-12-12 10:57:01
+1463	10	2	10	INV-25/00226	\N	36.000	117.700	81.700	2025-10-23	1089	sale	5	0	8	2025-12-12 10:57:01	2025-12-12 10:57:07
+1464	10	2	10	INV-25/00227	\N	50.000	81.700	31.700	2025-10-23	1090	sale	5	0	8	2025-12-12 10:57:07	2025-12-12 10:57:13
+1465	10	2	10	INV-25/00228	\N	31.000	31.700	0.700	2025-10-23	1091	sale	5	0	8	2025-12-12 10:57:13	2025-12-12 10:58:17
+1466	10	2	10	0000011925010217	7299	165.830	0.700	166.530	2025-10-24	375	purchase	5	0	8	2025-12-12 10:58:17	2025-12-12 10:58:26
+1467	10	2	10	INV-25/00229	\N	50.000	166.530	116.530	2025-10-24	1092	sale	5	0	8	2025-12-12 10:58:26	2025-12-12 10:58:34
+1468	10	2	10	INV-25/00230	\N	35.000	116.530	81.530	2025-10-24	1093	sale	5	0	8	2025-12-12 10:58:34	2025-12-12 10:58:41
+1469	10	2	10	INV-25/00231	\N	50.000	81.530	31.530	2025-10-24	1094	sale	5	0	8	2025-12-12 10:58:41	2025-12-12 10:58:47
+1470	10	2	10	INV-25/00232	\N	31.000	31.530	0.530	2025-10-24	1095	sale	5	0	8	2025-12-12 10:58:47	2025-12-12 11:00:00
+1471	10	2	10	0000011925010212	7301	42.820	0.530	43.350	2025-10-24	376	purchase	5	0	8	2025-12-12 11:00:00	2025-12-12 11:00:08
+1472	10	2	10	INV-25/00233	\N	43.000	43.350	0.350	2025-10-24	1096	sale	5	0	8	2025-12-12 11:00:08	2025-12-12 11:01:18
+1473	10	2	10	0000011925010217	7365	202.440	0.350	202.790	2025-10-24	377	purchase	5	0	8	2025-12-12 11:01:18	2025-12-12 11:01:36
+1474	10	2	10	INV-25/00234	\N	48.000	202.790	154.790	2025-10-24	1097	sale	5	0	8	2025-12-12 11:01:36	2025-12-12 11:01:43
+1475	10	2	10	INV-25/00235	\N	48.000	154.790	106.790	2025-10-24	1098	sale	5	0	8	2025-12-12 11:01:43	2025-12-12 11:01:55
+1476	10	2	10	INV-25/00236	\N	36.000	106.790	70.790	2025-10-24	1099	sale	5	0	8	2025-12-12 11:01:55	2025-12-12 11:02:01
+1477	10	2	10	INV-25/00237	\N	35.000	70.790	35.790	2025-10-24	1100	sale	5	0	8	2025-12-12 11:02:01	2025-12-12 11:02:07
+1478	10	2	10	INV-25/00238	\N	35.000	35.790	0.790	2025-10-24	1101	sale	5	0	8	2025-12-12 11:02:07	2025-12-12 11:03:17
+1479	10	2	10	0000011925010217	7440	123.540	0.790	124.330	2025-10-24	378	purchase	5	0	8	2025-12-12 11:03:17	2025-12-12 11:03:27
+1480	10	2	10	INV-25/00239	\N	36.000	124.330	88.330	2025-10-24	1102	sale	5	0	8	2025-12-12 11:03:27	2025-12-12 11:03:34
+1481	10	2	10	INV-25/00240	\N	50.000	88.330	38.330	2025-10-24	1103	sale	5	0	8	2025-12-12 11:03:34	2025-12-12 11:03:39
+1482	10	2	10	INV-25/00241	\N	38.000	38.330	0.330	2025-10-24	1104	sale	5	0	8	2025-12-12 11:03:39	2025-12-12 11:04:59
+1483	10	2	10	0000011925010217	7495	269.220	0.330	269.550	2025-10-25	379	purchase	5	0	8	2025-12-12 11:04:59	2025-12-12 11:05:08
+1484	10	2	10	INV-25/00242	\N	50.000	269.550	219.550	2025-10-25	1105	sale	5	0	8	2025-12-12 11:05:08	2025-12-12 11:05:15
+1485	10	2	10	INV-25/00243	\N	50.000	219.550	169.550	2025-10-25	1106	sale	5	0	8	2025-12-12 11:05:15	2025-12-12 11:05:21
+1486	10	2	10	INV-25/00244	\N	50.000	169.550	119.550	2025-10-25	1107	sale	5	0	8	2025-12-12 11:05:21	2025-12-12 11:05:28
+1487	10	2	10	INV-25/00245	\N	50.000	119.550	69.550	2025-10-25	1108	sale	5	0	8	2025-12-12 11:05:28	2025-12-12 11:05:37
+1488	10	2	10	INV-25/00246	\N	34.000	69.550	35.550	2025-10-25	1109	sale	5	0	8	2025-12-12 11:05:37	2025-12-12 11:05:42
+1489	10	2	10	INV-25/00247	\N	35.000	35.550	0.550	2025-10-25	1110	sale	5	0	8	2025-12-12 11:05:42	2025-12-12 11:06:59
+1490	10	2	10	0000011925010217	7519	258.270	0.550	258.820	2025-10-25	380	purchase	5	0	8	2025-12-12 11:06:59	2025-12-12 11:07:08
+1491	10	2	10	INV-25/00248	\N	50.000	258.820	208.820	2025-10-25	1111	sale	5	0	8	2025-12-12 11:07:08	2025-12-12 11:07:13
+1492	10	2	10	INV-25/00249	\N	50.000	208.820	158.820	2025-10-25	1112	sale	5	0	8	2025-12-12 11:07:13	2025-12-12 11:07:19
+1493	10	2	10	INV-25/00250	\N	50.000	158.820	108.820	2025-10-25	1113	sale	5	0	8	2025-12-12 11:07:19	2025-12-12 11:07:26
+1494	10	2	10	INV-25/00251	\N	36.000	108.820	72.820	2025-10-25	1114	sale	5	0	8	2025-12-12 11:07:26	2025-12-12 11:07:32
+1495	10	2	10	INV-25/00252	\N	36.000	72.820	36.820	2025-10-25	1115	sale	5	0	8	2025-12-12 11:07:32	2025-12-12 11:07:38
+1496	10	2	10	INV-25/00253	\N	36.000	36.820	0.820	2025-10-25	1116	sale	5	0	8	2025-12-12 11:07:38	2025-12-12 11:08:51
+1497	10	2	10	0000011925010217	7583	43.040	0.820	43.860	2025-10-26	381	purchase	5	0	8	2025-12-12 11:08:51	2025-12-12 11:08:59
+1498	10	2	10	INV-25/00254	\N	43.000	43.860	0.860	2025-10-26	1117	sale	5	0	8	2025-12-12 11:08:59	2025-12-12 11:10:12
+1499	10	2	10	0000011925010223	7586	92.390	0.860	93.250	2025-10-26	382	purchase	5	0	8	2025-12-12 11:10:12	2025-12-12 11:10:21
+1500	10	2	10	INV-25/00255	\N	50.000	93.250	43.250	2025-10-26	1118	sale	5	0	8	2025-12-12 11:10:21	2025-12-12 11:10:29
+1501	10	2	10	INV-25/00256	\N	43.000	43.250	0.250	2025-10-26	1119	sale	5	0	8	2025-12-12 11:10:29	2025-12-12 11:11:37
+1502	10	2	10	0000011925010223	7651	230.120	0.250	230.370	2025-10-26	383	purchase	5	0	8	2025-12-12 11:11:37	2025-12-12 11:11:45
+1503	10	2	10	INV-25/00257	\N	50.000	230.370	180.370	2025-10-26	1120	sale	5	0	8	2025-12-12 11:11:45	2025-12-12 11:11:53
+1504	10	2	10	INV-25/00258	\N	50.000	180.370	130.370	2025-10-26	1121	sale	5	0	8	2025-12-12 11:11:53	2025-12-12 11:11:59
+1505	10	2	10	INV-25/00259	\N	50.000	130.370	80.370	2025-10-26	1122	sale	5	0	8	2025-12-12 11:11:59	2025-12-12 11:12:05
+1506	10	2	10	INV-25/00260	\N	50.000	80.370	30.370	2025-10-26	1123	sale	5	0	8	2025-12-12 11:12:05	2025-12-12 11:12:11
+1507	10	2	10	INV-25/00261	\N	30.000	30.370	0.370	2025-10-26	1124	sale	5	0	8	2025-12-12 11:12:11	2025-12-12 11:13:23
+1508	10	2	10	0000011925010223	7708	175.100	0.370	175.470	2025-10-26	384	purchase	5	0	8	2025-12-12 11:13:23	2025-12-12 11:13:31
+1509	10	2	10	INV-25/00262	\N	35.000	175.470	140.470	2025-10-26	1125	sale	5	0	8	2025-12-12 11:13:31	2025-12-12 11:13:40
+1510	10	2	10	INV-25/00263	\N	50.000	140.470	90.470	2025-10-26	1126	sale	5	0	8	2025-12-12 11:13:40	2025-12-12 11:13:48
+1511	10	2	10	INV-25/00264	\N	50.000	90.470	40.470	2025-10-26	1127	sale	5	0	8	2025-12-12 11:13:48	2025-12-12 11:13:54
+1512	10	2	10	INV-25/00265	\N	40.000	40.470	0.470	2025-10-26	1128	sale	5	0	8	2025-12-12 11:13:54	2025-12-12 11:15:11
+1513	10	2	10	0000011925010223	7754	276.950	0.470	277.420	2025-10-27	385	purchase	5	0	8	2025-12-12 11:15:11	2025-12-12 11:15:22
+1514	10	2	10	INV-25/00266	\N	50.000	277.420	227.420	2025-10-27	1129	sale	5	0	8	2025-12-12 11:15:22	2025-12-12 11:15:30
+1515	10	2	10	INV-25/00267	\N	36.000	227.420	191.420	2025-10-27	1130	sale	5	0	8	2025-12-12 11:15:30	2025-12-12 11:15:38
+1516	10	2	10	INV-25/00268	\N	50.000	191.420	141.420	2025-10-27	1131	sale	5	0	8	2025-12-12 11:15:38	2025-12-12 11:15:44
+1517	10	2	10	INV-25/00269	\N	50.000	141.420	91.420	2025-10-27	1132	sale	5	0	8	2025-12-12 11:15:44	2025-12-12 11:15:51
+1518	10	2	10	INV-25/00270	\N	50.000	91.420	41.420	2025-10-27	1133	sale	5	0	8	2025-12-12 11:15:51	2025-12-12 11:15:56
+1519	10	2	10	INV-25/00271	\N	41.000	41.420	0.420	2025-10-27	1134	sale	5	0	8	2025-12-12 11:15:56	2025-12-12 11:17:03
+1520	10	2	10	0000011925010223	7809	126.570	0.420	126.990	2025-10-27	386	purchase	5	0	8	2025-12-12 11:17:03	2025-12-12 11:17:13
+1521	10	2	10	INV-25/00272	\N	36.000	126.990	90.990	2025-10-27	1135	sale	5	0	8	2025-12-12 11:17:13	2025-12-12 11:17:19
+1522	10	2	10	INV-25/00273	\N	36.000	90.990	54.990	2025-10-27	1136	sale	5	0	8	2025-12-12 11:17:19	2025-12-12 11:17:30
+1523	10	2	10	INV-25/00274	\N	27.000	54.990	27.990	2025-10-27	1137	sale	5	0	8	2025-12-12 11:17:30	2025-12-12 11:17:37
+1524	10	2	10	INV-25/00275	\N	27.000	27.990	0.990	2025-10-27	1138	sale	5	0	8	2025-12-12 11:17:37	2025-12-12 11:18:51
+1525	10	2	10	0000011925010223	7884	106.750	0.990	107.740	2025-10-27	387	purchase	5	0	8	2025-12-12 11:18:51	2025-12-12 11:19:01
+1526	10	2	10	INV-25/00276	\N	36.000	107.740	71.740	2025-10-27	1139	sale	5	0	8	2025-12-12 11:19:01	2025-12-12 11:19:09
+1527	10	2	10	INV-25/00277	\N	36.000	71.740	35.740	2025-10-27	1140	sale	5	0	8	2025-12-12 11:19:09	2025-12-12 11:19:17
+1528	10	2	10	INV-25/00278	\N	35.000	35.740	0.740	2025-10-27	1141	sale	5	0	8	2025-12-12 11:19:17	2025-12-12 11:20:58
+1529	10	2	10	0000011925010223	7968	42.000	0.740	42.740	2025-10-28	388	purchase	5	0	8	2025-12-12 11:20:58	2025-12-12 11:21:06
+1530	10	2	10	INV-25/00279	\N	42.000	42.740	0.740	2025-10-28	1142	sale	5	0	8	2025-12-12 11:21:06	2025-12-12 11:22:19
+1531	10	2	10	0000011925010229	8020	349.520	0.740	350.260	2025-10-28	389	purchase	5	0	8	2025-12-12 11:22:19	2025-12-12 11:22:27
+1532	10	2	10	INV-25/00280	\N	50.000	350.260	300.260	2025-10-28	1143	sale	5	0	8	2025-12-12 11:22:27	2025-12-12 11:22:39
+1533	10	2	10	INV-25/00281	\N	50.000	300.260	250.260	2025-10-28	1144	sale	5	0	8	2025-12-12 11:22:39	2025-12-12 11:22:44
+1534	10	2	10	INV-25/00282	\N	50.000	250.260	200.260	2025-10-28	1145	sale	5	0	8	2025-12-12 11:22:44	2025-12-12 11:22:50
+1535	10	2	10	INV-25/00283	\N	50.000	200.260	150.260	2025-10-28	1146	sale	5	0	8	2025-12-12 11:22:50	2025-12-12 11:22:55
+1536	10	2	10	INV-25/00284	\N	50.000	150.260	100.260	2025-10-28	1147	sale	5	0	8	2025-12-12 11:22:55	2025-12-12 11:23:01
+1537	10	2	10	INV-25/00285	\N	50.000	100.260	50.260	2025-10-28	1148	sale	5	0	8	2025-12-12 11:23:01	2025-12-12 11:23:07
+1538	10	2	10	INV-25/00286	\N	50.000	50.260	0.260	2025-10-28	1149	sale	5	0	8	2025-12-12 11:23:07	2025-12-12 11:24:12
+1539	10	2	10	0000011925010229	8074	82.100	0.260	82.360	2025-10-28	390	purchase	5	0	8	2025-12-12 11:24:12	2025-12-12 11:24:21
+1540	10	2	10	INV-25/00287	\N	50.000	82.360	32.360	2025-10-28	1150	sale	5	0	8	2025-12-12 11:24:21	2025-12-12 11:24:31
+1541	10	2	10	INV-25/00288	\N	32.000	32.360	0.360	2025-10-28	1151	sale	5	0	8	2025-12-12 11:24:31	2025-12-12 11:25:45
+1542	10	2	10	0000011925010229	8169	93.190	0.360	93.550	2025-10-29	391	purchase	5	0	8	2025-12-12 11:25:45	2025-12-12 11:25:52
+1543	10	2	10	INV-25/00289	\N	50.000	93.550	43.550	2025-10-29	1152	sale	5	0	8	2025-12-12 11:25:52	2025-12-12 11:25:59
+1544	10	2	10	INV-25/00290	\N	43.000	43.550	0.550	2025-10-29	1153	sale	5	0	8	2025-12-12 11:25:59	2025-12-12 11:27:27
+1545	10	2	10	0000011925010229	8181	94.530	0.550	95.080	2025-10-30	392	purchase	5	0	8	2025-12-12 11:27:27	2025-12-12 11:27:34
+1546	10	2	10	INV-25/00291	\N	50.000	95.080	45.080	2025-10-30	1154	sale	5	0	8	2025-12-12 11:27:34	2025-12-12 11:27:41
+1547	10	2	10	INV-25/00292	\N	45.000	45.080	0.080	2025-10-30	1155	sale	5	0	8	2025-12-12 11:27:41	2025-12-12 13:03:57
+1548	10	1	11	0000011925010163	4386	236.210	0.000	236.210	2025-10-30	393	purchase	5	0	8	2025-12-12 12:27:19	2025-12-12 12:27:31
+1549	10	1	11	INV-25/00293	\N	36.000	236.210	200.210	2025-10-30	1156	sale	5	0	8	2025-12-12 12:27:31	2025-12-12 12:27:41
+1550	10	1	11	INV-25/00294	\N	50.000	200.210	150.210	2025-10-30	1157	sale	5	0	8	2025-12-12 12:27:41	2025-12-12 12:27:49
+1551	10	1	11	INV-25/00295	\N	50.000	150.210	100.210	2025-10-30	1158	sale	5	0	8	2025-12-12 12:27:49	2025-12-12 12:27:57
+1552	10	1	11	INV-25/00296	\N	50.000	100.210	50.210	2025-10-30	1159	sale	5	0	8	2025-12-12 12:27:57	2025-12-12 12:28:03
+1553	10	1	11	INV-25/00297	\N	50.000	50.210	0.210	2025-10-30	1160	sale	5	0	8	2025-12-12 12:28:03	2025-12-12 12:29:24
+1554	10	1	11	0000011925010163	4443	74.590	0.210	74.800	2025-10-30	394	purchase	5	0	8	2025-12-12 12:29:24	2025-12-12 12:29:32
+1555	10	1	11	INV-25/00298	\N	34.000	74.800	40.800	2025-10-30	1161	sale	5	0	8	2025-12-12 12:29:32	2025-12-12 12:29:41
+1556	10	1	11	INV-25/00299	\N	40.000	40.800	0.800	2025-10-30	1162	sale	5	0	8	2025-12-12 12:29:41	2025-12-12 12:30:52
+1557	10	1	11	0000011925010059	4448	33.380	0.800	34.180	2025-10-30	395	purchase	5	0	8	2025-12-12 12:30:52	2025-12-12 12:30:59
+1558	10	1	11	INV-25/00300	\N	34.000	34.180	0.180	2025-10-30	1163	sale	5	0	8	2025-12-12 12:30:59	2025-12-12 12:32:09
+1559	10	1	11	0000011925010163	4456	49.750	0.180	49.930	2025-10-30	396	purchase	5	0	8	2025-12-12 12:32:09	2025-12-12 12:32:21
+1560	10	1	11	INV-25/00301	\N	49.000	49.930	0.930	2025-10-30	1164	sale	5	0	8	2025-12-12 12:32:21	2025-12-12 12:33:19
+1561	10	1	11	0000011925010163	4501	37.580	0.930	38.510	2025-10-30	397	purchase	5	0	8	2025-12-12 12:33:19	2025-12-12 12:33:28
+1562	10	1	11	INV-25/00302	\N	38.000	38.510	0.510	2025-10-30	1165	sale	5	0	8	2025-12-12 12:33:28	2025-12-12 12:34:42
+1563	10	1	11	0000011925010163	4538	499.560	0.510	500.070	2025-10-30	398	purchase	5	0	8	2025-12-12 12:34:42	2025-12-12 12:34:52
+1564	10	1	11	INV-25/00303	\N	50.000	500.070	450.070	2025-10-30	1166	sale	5	0	8	2025-12-12 12:34:52	2025-12-12 12:35:01
+1565	10	1	11	INV-25/00304	\N	50.000	450.070	400.070	2025-10-30	1167	sale	5	0	8	2025-12-12 12:35:01	2025-12-12 12:35:15
+1566	10	1	11	INV-25/00305	\N	50.000	400.070	350.070	2025-10-30	1168	sale	5	0	8	2025-12-12 12:35:15	2025-12-12 12:35:23
+1567	10	1	11	INV-25/00306	\N	50.000	350.070	300.070	2025-10-30	1169	sale	5	0	8	2025-12-12 12:35:23	2025-12-12 12:35:47
+1568	10	1	11	INV-25/00307	\N	50.000	300.070	250.070	2025-10-30	1170	sale	5	0	8	2025-12-12 12:35:47	2025-12-12 12:35:55
+1569	10	1	11	INV-25/00308	\N	50.000	250.070	200.070	2025-10-30	1171	sale	5	0	8	2025-12-12 12:35:55	2025-12-12 12:36:03
+1570	10	1	11	INV-25/00309	\N	50.000	200.070	150.070	2025-10-30	1172	sale	5	0	8	2025-12-12 12:36:03	2025-12-12 12:36:10
+1571	10	1	11	INV-25/00310	\N	50.000	150.070	100.070	2025-10-30	1173	sale	5	0	8	2025-12-12 12:36:10	2025-12-12 12:36:21
+1572	10	1	11	INV-25/00311	\N	50.000	100.070	50.070	2025-10-30	1174	sale	5	0	8	2025-12-12 12:36:21	2025-12-12 12:36:31
+1573	10	1	11	INV-25/00312	\N	50.000	50.070	0.070	2025-10-30	1175	sale	5	0	8	2025-12-12 12:36:31	2025-12-12 12:37:51
+1574	10	1	11	0000011925010163	4593	109.260	0.070	109.330	2025-10-30	399	purchase	5	0	8	2025-12-12 12:37:51	2025-12-12 12:38:08
+1575	10	1	11	INV-25/00313	\N	38.000	109.330	71.330	2025-10-30	1176	sale	5	0	8	2025-12-12 12:38:08	2025-12-12 12:38:16
+1576	10	1	11	INV-25/00314	\N	36.000	71.330	35.330	2025-10-30	1177	sale	5	0	8	2025-12-12 12:38:16	2025-12-12 12:38:23
+1577	10	1	11	INV-25/00315	\N	35.000	35.330	0.330	2025-10-30	1178	sale	5	0	8	2025-12-12 12:38:23	2025-12-12 12:39:32
+1578	10	1	11	0000011925010163	4649	12.510	0.330	12.840	2025-10-30	400	purchase	5	0	8	2025-12-12 12:39:32	2025-12-12 12:39:39
+1579	10	1	11	INV-25/00316	\N	12.000	12.840	0.840	2025-10-30	1179	sale	5	0	8	2025-12-12 12:39:39	2025-12-12 12:40:39
+1580	10	1	11	0000011925010219	7312	62.790	0.840	63.630	2025-10-31	401	purchase	5	0	8	2025-12-12 12:40:39	2025-12-12 12:40:47
+1581	10	1	11	INV-25/00317	\N	33.000	63.630	30.630	2025-10-31	1180	sale	5	0	8	2025-12-12 12:40:47	2025-12-12 12:40:53
+1582	10	1	11	INV-25/00318	\N	30.000	30.630	0.630	2025-10-31	1181	sale	5	0	8	2025-12-12 12:40:53	2025-12-12 12:42:23
+1583	10	1	11	0000011925010219	7497	37.200	0.630	37.830	2025-10-31	402	purchase	5	0	8	2025-12-12 12:42:23	2025-12-12 12:42:33
+1584	10	1	11	INV-25/00319	\N	37.000	37.830	0.830	2025-10-31	1182	sale	5	0	8	2025-12-12 12:42:33	2025-12-12 12:43:33
+1585	10	1	11	0000011925010219	7523	36.500	0.830	37.330	2025-10-31	403	purchase	5	0	8	2025-12-12 12:43:33	2025-12-12 12:43:41
+1586	10	1	11	INV-25/00320	\N	37.000	37.330	0.330	2025-10-31	1183	sale	5	0	8	2025-12-12 12:43:41	2025-12-12 12:44:39
+1587	10	1	11	0000011925010219	7592	135.480	0.330	135.810	2025-10-31	404	purchase	5	0	8	2025-12-12 12:44:39	2025-12-12 12:44:50
+1588	10	1	11	INV-25/00321	\N	35.000	135.810	100.810	2025-10-31	1184	sale	5	0	8	2025-12-12 12:44:50	2025-12-12 12:44:56
+1589	10	1	11	INV-25/00322	\N	50.000	100.810	50.810	2025-10-31	1185	sale	5	0	8	2025-12-12 12:44:56	2025-12-12 12:45:01
+1590	10	1	11	INV-25/00323	\N	50.000	50.810	0.810	2025-10-31	1186	sale	5	0	8	2025-12-12 12:45:01	2025-12-12 12:45:56
+1591	10	1	11	0000011925010219	7755	99.350	0.810	100.160	2025-10-31	405	purchase	5	0	8	2025-12-12 12:45:56	2025-12-12 12:46:07
+1592	10	1	11	INV-25/00324	\N	50.000	100.160	50.160	2025-10-31	1187	sale	5	0	8	2025-12-12 12:46:07	2025-12-12 12:46:13
+1593	10	1	11	INV-25/00325	\N	50.000	50.160	0.160	2025-10-31	1188	sale	5	0	8	2025-12-12 12:46:13	2025-12-12 12:47:13
+1594	10	1	11	0000011925010219	7814	49.230	0.160	49.390	2025-10-31	406	purchase	5	0	8	2025-12-12 12:47:13	2025-12-12 12:47:21
+1595	10	1	11	INV-25/00326	\N	49.000	49.390	0.390	2025-10-31	1189	sale	5	0	8	2025-12-12 12:47:21	2025-12-12 12:48:22
+1596	10	1	11	0000011925010219	7877	37.420	0.390	37.810	2025-10-31	407	purchase	5	0	8	2025-12-12 12:48:22	2025-12-12 12:48:30
+1597	10	1	11	INV-25/00327	\N	37.000	37.810	0.810	2025-10-31	1190	sale	5	0	8	2025-12-12 12:48:30	2025-12-12 12:49:32
+1598	10	1	11	0000011925010219	7924	37.270	0.810	38.080	2025-10-31	408	purchase	5	0	8	2025-12-12 12:49:32	2025-12-12 12:49:41
+1599	10	1	11	INV-25/00328	\N	38.000	38.080	0.080	2025-10-31	1191	sale	5	0	8	2025-12-12 12:49:41	2025-12-12 12:50:36
+1600	10	1	11	0000011925010219	7975	136.530	0.080	136.610	2025-10-31	409	purchase	5	0	8	2025-12-12 12:50:36	2025-12-12 12:50:45
+1601	10	1	11	INV-25/00329	\N	36.000	136.610	100.610	2025-10-31	1192	sale	5	0	8	2025-12-12 12:50:45	2025-12-12 12:50:51
+1602	10	1	11	INV-25/00330	\N	50.000	100.610	50.610	2025-10-31	1193	sale	5	0	8	2025-12-12 12:50:51	2025-12-12 12:50:57
+1603	10	1	11	INV-25/00331	\N	50.000	50.610	0.610	2025-10-31	1194	sale	5	0	8	2025-12-12 12:50:57	2025-12-12 12:51:56
+1604	10	1	11	0000011925010219	8024	24.940	0.610	25.550	2025-10-31	410	purchase	5	0	8	2025-12-12 12:51:56	2025-12-12 12:52:06
+1605	10	1	11	INV-25/00332	\N	25.000	25.550	0.550	2025-10-31	1195	sale	5	0	8	2025-12-12 12:52:06	2025-12-12 12:52:57
+1606	10	1	11	0000011925010219	8095	86.610	0.550	87.160	2025-10-31	411	purchase	5	0	8	2025-12-12 12:52:57	2025-12-12 12:53:06
+1607	10	1	11	INV-25/00333	\N	37.000	87.160	50.160	2025-10-31	1196	sale	5	0	8	2025-12-12 12:53:06	2025-12-12 12:53:13
+1608	10	1	11	INV-25/00334	\N	50.000	50.160	0.160	2025-10-31	1197	sale	5	0	8	2025-12-12 12:53:13	2025-12-12 12:54:11
+1609	10	1	11	0000011925010219	8185	24.790	0.160	24.950	2025-10-31	412	purchase	5	0	8	2025-12-12 12:54:11	2025-12-12 12:54:21
+1610	10	1	11	INV-25/00335	\N	24.000	24.950	0.950	2025-10-31	1198	sale	5	0	8	2025-12-12 12:54:21	2025-12-13 10:03:14
+1612	10	2	10	0000011925010212	7136	244.850	0.080	244.930	2025-11-01	414	purchase	5	0	8	2025-12-12 13:03:57	2025-12-12 13:04:10
+1613	10	2	10	INV-25/00336	\N	44.000	244.930	200.930	2025-11-01	1199	sale	5	0	8	2025-12-12 13:04:10	2025-12-12 13:04:16
+1614	10	2	10	INV-25/00337	\N	50.000	200.930	150.930	2025-11-01	1200	sale	5	0	8	2025-12-12 13:04:16	2025-12-12 13:04:23
+1615	10	2	10	INV-25/00338	\N	50.000	150.930	100.930	2025-11-01	1201	sale	5	0	8	2025-12-12 13:04:23	2025-12-12 13:04:31
+1616	10	2	10	INV-25/00339	\N	50.000	100.930	50.930	2025-11-01	1202	sale	5	0	8	2025-12-12 13:04:31	2025-12-12 13:04:37
+1617	10	2	10	INV-25/00340	\N	50.000	50.930	0.930	2025-11-01	1203	sale	5	0	8	2025-12-12 13:04:37	2025-12-13 07:12:10
+1618	10	2	10	0000011925010223	7919	259.250	0.930	260.180	2025-11-01	415	purchase	5	0	8	2025-12-13 07:12:10	2025-12-13 07:12:25
+1619	10	2	10	INV-25/00341	\N	50.000	260.180	210.180	2025-11-01	1204	sale	5	0	8	2025-12-13 07:12:25	2025-12-13 07:12:32
+1620	10	2	10	INV-25/00342	\N	36.000	210.180	174.180	2025-11-01	1205	sale	5	0	8	2025-12-13 07:12:32	2025-12-13 07:12:39
+1621	10	2	10	INV-25/00343	\N	36.000	174.180	138.180	2025-11-01	1206	sale	5	0	8	2025-12-13 07:12:39	2025-12-13 07:12:49
+1622	10	2	10	INV-25/00344	\N	50.000	138.180	88.180	2025-11-01	1207	sale	5	0	8	2025-12-13 07:12:49	2025-12-13 07:12:59
+1623	10	2	10	INV-25/00345	\N	36.000	88.180	52.180	2025-11-01	1208	sale	5	0	8	2025-12-13 07:12:59	2025-12-13 07:13:06
+1624	10	2	10	INV-25/00346	\N	26.000	52.180	26.180	2025-11-01	1209	sale	5	0	8	2025-12-13 07:13:06	2025-12-13 07:13:15
+1625	10	2	10	INV-25/00347	\N	26.000	26.180	0.180	2025-11-01	1210	sale	5	0	8	2025-12-13 07:13:15	2025-12-13 07:40:12
+1626	10	2	10	0000011925010229	8266	271.460	0.180	271.640	2025-11-02	416	purchase	5	0	8	2025-12-13 07:40:12	2025-12-13 07:40:42
+1627	10	2	10	INV-25/00348	\N	36.000	271.640	235.640	2025-11-02	1211	sale	5	0	8	2025-12-13 07:40:42	2025-12-13 07:40:49
+1628	10	2	10	INV-25/00349	\N	50.000	235.640	185.640	2025-11-02	1212	sale	5	0	8	2025-12-13 07:40:49	2025-12-13 07:40:56
+1629	10	2	10	INV-25/00350	\N	50.000	185.640	135.640	2025-11-02	1213	sale	5	0	8	2025-12-13 07:40:56	2025-12-13 07:41:07
+1630	10	2	10	INV-25/00351	\N	36.000	135.640	99.640	2025-11-02	1214	sale	5	0	8	2025-12-13 07:41:07	2025-12-13 07:41:14
+1631	10	2	10	INV-25/00352	\N	50.000	99.640	49.640	2025-11-02	1215	sale	5	0	8	2025-12-13 07:41:14	2025-12-13 07:41:19
+1632	10	2	10	INV-25/00353	\N	49.000	49.640	0.640	2025-11-02	1216	sale	5	0	8	2025-12-13 07:41:19	2025-12-13 07:42:44
+1633	10	2	10	0000011925010229	8319	128.070	0.640	128.710	2025-11-04	417	purchase	5	0	8	2025-12-13 07:42:44	2025-12-13 07:42:53
+1634	10	2	10	INV-25/00354	\N	36.000	128.710	92.710	2025-11-04	1217	sale	5	0	8	2025-12-13 07:42:53	2025-12-13 07:43:06
+1635	10	2	10	INV-25/00355	\N	48.000	92.710	44.710	2025-11-04	1218	sale	5	0	8	2025-12-13 07:43:06	2025-12-13 07:43:14
+1636	10	2	10	INV-25/00356	\N	44.000	44.710	0.710	2025-11-04	1219	sale	5	0	8	2025-12-13 07:43:14	2025-12-13 07:45:30
+1637	10	2	10	0000011925010229	8359	94.590	0.710	95.300	2025-11-05	418	purchase	5	0	8	2025-12-13 07:45:30	2025-12-13 07:45:44
+1638	10	2	10	INV-25/00357	\N	50.000	95.300	45.300	2025-11-05	1220	sale	5	0	8	2025-12-13 07:45:44	2025-12-13 07:45:50
+1639	10	2	10	INV-25/00358	\N	45.000	45.300	0.300	2025-11-05	1221	sale	5	0	8	2025-12-13 07:45:50	2025-12-13 07:47:03
+1640	10	2	10	0000011925010229	8432	173.470	0.300	173.770	2025-11-06	419	purchase	5	0	8	2025-12-13 07:47:03	2025-12-13 07:47:11
+1641	10	2	10	INV-25/00359	\N	36.000	173.770	137.770	2025-11-06	1222	sale	5	0	8	2025-12-13 07:47:11	2025-12-13 07:47:22
+1642	10	2	10	INV-25/00360	\N	48.000	137.770	89.770	2025-11-06	1223	sale	5	0	8	2025-12-13 07:47:22	2025-12-13 07:47:32
+1643	10	2	10	INV-25/00361	\N	30.000	89.770	59.770	2025-11-06	1224	sale	5	0	8	2025-12-13 07:47:32	2025-12-13 07:47:38
+1644	10	2	10	INV-25/00362	\N	30.000	59.770	29.770	2025-11-06	1225	sale	5	0	8	2025-12-13 07:47:38	2025-12-13 07:47:46
+1645	10	2	10	INV-25/00363	\N	29.000	29.770	0.770	2025-11-06	1226	sale	5	0	8	2025-12-13 07:47:46	2025-12-13 07:48:54
+1646	10	2	10	0000011925010239	8439	84.890	0.770	85.660	2025-11-06	420	purchase	5	0	8	2025-12-13 07:48:54	2025-12-13 07:49:09
+1647	10	2	10	INV-25/00364	\N	50.000	85.660	35.660	2025-11-06	1227	sale	5	0	8	2025-12-13 07:49:09	2025-12-13 07:49:15
+1648	10	2	10	INV-25/00365	\N	35.000	35.660	0.660	2025-11-06	1228	sale	5	0	8	2025-12-13 07:49:15	2025-12-13 07:50:32
+1649	10	2	10	0000011925010229	8473	10.000	0.660	10.660	2025-11-07	421	purchase	5	0	8	2025-12-13 07:50:32	2025-12-13 07:50:40
+1650	10	2	10	INV-25/00366	\N	10.000	10.660	0.660	2025-11-07	1229	sale	5	0	8	2025-12-13 07:50:40	2025-12-13 07:52:12
+1651	10	2	10	0000011925010239	8476	60.000	0.660	60.660	2025-11-07	422	purchase	5	0	8	2025-12-13 07:52:12	2025-12-13 07:52:24
+1652	10	2	10	INV-25/00367	\N	30.000	60.660	30.660	2025-11-07	1230	sale	5	0	8	2025-12-13 07:52:24	2025-12-13 07:52:32
+1653	10	2	10	INV-25/00368	\N	30.000	30.660	0.660	2025-11-07	1231	sale	5	0	8	2025-12-13 07:52:32	2025-12-13 07:53:48
+1654	10	2	10	0000011925010239	8530	96.410	0.660	97.070	2025-11-09	423	purchase	5	0	8	2025-12-13 07:53:48	2025-12-13 07:53:58
+1655	10	2	10	INV-25/00369	\N	50.000	97.070	47.070	2025-11-09	1232	sale	5	0	8	2025-12-13 07:53:58	2025-12-13 07:54:08
+1656	10	2	10	INV-25/00370	\N	47.000	47.070	0.070	2025-11-09	1233	sale	5	0	8	2025-12-13 07:54:08	2025-12-13 07:55:30
+1657	10	2	10	0000011925010239	8597	245.230	0.070	245.300	2025-11-11	424	purchase	5	0	8	2025-12-13 07:55:30	2025-12-13 07:55:43
+1658	10	2	10	INV-25/00371	\N	50.000	245.300	195.300	2025-11-11	1234	sale	5	0	8	2025-12-13 07:55:43	2025-12-13 07:55:49
+1659	10	2	10	INV-25/00372	\N	50.000	195.300	145.300	2025-11-11	1235	sale	5	0	8	2025-12-13 07:55:49	2025-12-13 07:55:55
+1660	10	2	10	INV-25/00373	\N	50.000	145.300	95.300	2025-11-11	1236	sale	5	0	8	2025-12-13 07:55:55	2025-12-13 07:56:02
+1661	10	2	10	INV-25/00374	\N	50.000	95.300	45.300	2025-11-11	1237	sale	5	0	8	2025-12-13 07:56:02	2025-12-13 07:56:09
+1662	10	2	10	INV-25/00375	\N	45.000	45.300	0.300	2025-11-11	1238	sale	5	0	8	2025-12-13 07:56:09	2025-12-13 07:57:16
+1663	10	2	10	0000011925010239	8661	98.330	0.300	98.630	2025-11-12	425	purchase	5	0	8	2025-12-13 07:57:16	2025-12-13 07:57:27
+1664	10	2	10	INV-25/00376	\N	50.000	98.630	48.630	2025-11-12	1239	sale	5	0	8	2025-12-13 07:57:27	2025-12-13 07:57:35
+1665	10	2	10	INV-25/00377	\N	48.000	48.630	0.630	2025-11-12	1240	sale	5	0	8	2025-12-13 07:57:35	2025-12-13 08:05:11
+1666	10	2	10	0000011925010239	8694	132.580	0.630	133.210	2025-11-13	426	purchase	5	0	8	2025-12-13 08:05:11	2025-12-13 08:05:32
+1667	10	2	10	INV-25/00378	\N	36.000	133.210	97.210	2025-11-13	1241	sale	5	0	8	2025-12-13 08:05:32	2025-12-13 08:05:42
+1668	10	2	10	INV-25/00379	\N	50.000	97.210	47.210	2025-11-13	1242	sale	5	0	8	2025-12-13 08:05:42	2025-12-13 08:05:50
+1669	10	2	10	INV-25/00380	\N	47.000	47.210	0.210	2025-11-13	1243	sale	5	0	8	2025-12-13 08:05:50	2025-12-13 09:39:42
+1670	10	2	10	0000011925010239	8781	57.640	0.210	57.850	2025-11-14	427	purchase	5	0	8	2025-12-13 09:39:42	2025-12-13 09:40:18
+1671	10	2	10	INV-25/00381	\N	27.000	57.850	30.850	2025-11-14	1244	sale	5	0	8	2025-12-13 09:40:18	2025-12-13 09:40:25
+1672	10	2	10	INV-25/00382	\N	30.000	30.850	0.850	2025-11-14	1245	sale	5	0	8	2025-12-13 09:40:25	2025-12-13 09:41:43
+1673	10	2	10	0000011925010239	8826	172.810	0.850	173.660	2025-11-16	428	purchase	5	0	8	2025-12-13 09:41:43	2025-12-13 09:42:02
+1674	10	2	10	INV-25/00383	\N	30.000	173.660	143.660	2025-11-16	1246	sale	5	0	8	2025-12-13 09:42:02	2025-12-13 09:42:10
+1675	10	2	10	INV-25/00384	\N	30.000	143.660	113.660	2025-11-16	1247	sale	5	0	8	2025-12-13 09:42:10	2025-12-13 09:42:20
+1676	10	2	10	INV-25/00385	\N	36.000	113.660	77.660	2025-11-16	1248	sale	5	0	8	2025-12-13 09:42:20	2025-12-13 09:42:27
+1677	10	2	10	INV-25/00386	\N	36.000	77.660	41.660	2025-11-16	1249	sale	5	0	8	2025-12-13 09:42:27	2025-12-13 09:42:38
+1678	10	2	10	INV-25/00387	\N	41.000	41.660	0.660	2025-11-16	1250	sale	5	0	8	2025-12-13 09:42:38	2025-12-13 09:44:26
+1679	10	2	10	0000011925010239	8900	55.000	0.660	55.660	2025-11-18	429	purchase	5	0	8	2025-12-13 09:44:26	2025-12-13 09:44:36
+1680	10	2	10	INV-25/00388	\N	27.000	55.660	28.660	2025-11-18	1251	sale	5	0	8	2025-12-13 09:44:36	2025-12-13 09:45:13
+1681	10	2	10	INV-25/00389	\N	28.000	28.660	0.660	2025-11-18	1252	sale	5	0	8	2025-12-13 09:45:13	2025-12-13 09:46:36
+1682	10	2	10	0000011925010239	8938	25.660	0.660	26.320	2025-11-19	430	purchase	5	0	8	2025-12-13 09:46:36	2025-12-13 09:46:44
+1683	10	2	10	INV-25/00390	\N	26.000	26.320	0.320	2025-11-19	1253	sale	5	0	8	2025-12-13 09:46:44	2025-12-13 09:47:44
+1684	10	2	10	0000011925010265	9010	63.000	0.320	63.320	2025-11-20	431	purchase	5	0	8	2025-12-13 09:47:44	2025-12-13 09:47:51
+1685	10	2	10	INV-25/00391	\N	33.000	63.320	30.320	2025-11-20	1254	sale	5	0	8	2025-12-13 09:47:51	2025-12-13 09:47:58
+1686	10	2	10	INV-25/00392	\N	30.000	30.320	0.320	2025-11-20	1255	sale	5	0	8	2025-12-13 09:47:58	2025-12-13 09:50:02
+1687	10	2	10	0000011925010265	9063	122.130	0.320	122.450	2025-11-21	432	purchase	5	0	8	2025-12-13 09:50:02	2025-12-13 09:50:16
+1688	10	2	10	INV-25/00393	\N	48.000	122.450	74.450	2025-11-21	1256	sale	5	0	8	2025-12-13 09:50:16	2025-12-13 09:50:23
+1689	10	2	10	INV-25/00394	\N	36.000	74.450	38.450	2025-11-21	1257	sale	5	0	8	2025-12-13 09:50:23	2025-12-13 09:50:31
+1690	10	2	10	INV-25/00395	\N	38.000	38.450	0.450	2025-11-21	1258	sale	5	0	8	2025-12-13 09:50:31	2025-12-13 09:51:43
+1691	10	2	10	0000011925010265	9131	72.670	0.450	73.120	2025-11-26	433	purchase	5	0	8	2025-12-13 09:51:43	2025-12-13 09:51:51
+1692	10	2	10	INV-25/00396	\N	36.000	73.120	37.120	2025-11-26	1259	sale	5	0	8	2025-12-13 09:51:51	2025-12-13 09:51:56
+1693	10	2	10	INV-25/00397	\N	37.000	37.120	0.120	2025-11-26	1260	sale	5	0	8	2025-12-13 09:51:56	2025-12-13 09:52:59
+1694	10	2	10	0000011925010265	9153	68.210	0.120	68.330	2025-11-27	434	purchase	5	0	8	2025-12-13 09:52:59	2025-12-13 09:53:08
+1695	10	2	10	INV-25/00398	\N	36.000	68.330	32.330	2025-11-27	1261	sale	5	0	8	2025-12-13 09:53:08	2025-12-13 09:53:15
+1696	10	2	10	INV-25/00399	\N	32.000	32.330	0.330	2025-11-27	1262	sale	5	0	8	2025-12-13 09:53:15	2025-12-13 09:54:20
+1697	10	2	10	0000011925010265	9201	132.850	0.330	133.180	2025-11-27	435	purchase	5	0	8	2025-12-13 09:54:20	2025-12-13 09:54:30
+1698	10	2	10	INV-25/00400	\N	36.000	133.180	97.180	2025-11-27	1263	sale	5	0	8	2025-12-13 09:54:30	2025-12-13 09:54:37
+1699	10	2	10	INV-25/00401	\N	50.000	97.180	47.180	2025-11-27	1264	sale	5	0	8	2025-12-13 09:54:37	2025-12-13 09:54:45
+1700	10	2	10	INV-25/00402	\N	47.000	47.180	0.180	2025-11-27	1265	sale	5	0	8	2025-12-13 09:54:45	2025-12-13 09:56:05
+1701	10	2	10	0000011925010265	9202	5.570	0.180	5.750	2025-11-28	436	purchase	5	0	8	2025-12-13 09:56:05	2025-12-13 09:56:12
+1702	10	2	10	INV-25/00403	\N	5.000	5.750	0.750	2025-11-28	1266	sale	5	0	8	2025-12-13 09:56:12	2025-12-13 09:57:12
+1703	10	2	10	0000011925010265	9284	120.790	0.750	121.540	2025-11-30	437	purchase	5	0	8	2025-12-13 09:57:12	2025-12-13 09:57:28
+1704	10	2	10	INV-25/00404	\N	50.000	121.540	71.540	2025-11-30	1267	sale	5	0	8	2025-12-13 09:57:28	2025-12-13 09:57:35
+1705	10	2	10	INV-25/00405	\N	36.000	71.540	35.540	2025-11-30	1268	sale	5	0	8	2025-12-13 09:57:35	2025-12-13 09:57:42
+1706	10	2	10	INV-25/00406	\N	35.000	35.540	0.540	2025-11-30	1269	sale	5	0	8	2025-12-13 09:57:42	2025-12-13 09:58:47
+1707	10	2	10	0000011925010265	9286	5.720	0.540	6.260	2025-11-30	438	purchase	5	0	8	2025-12-13 09:58:47	2025-12-13 09:58:55
+1708	10	2	10	INV-25/00407	\N	6.000	6.260	0.260	2025-11-30	1270	sale	5	1	8	2025-12-13 09:58:55	2025-12-13 09:58:55
+1709	10	1	11	0000011925010219	8258	48.790	0.950	49.740	2025-11-30	439	purchase	5	0	8	2025-12-13 10:03:14	2025-12-13 10:03:23
+1710	10	1	11	INV-25/00408	\N	49.000	49.740	0.740	2025-11-30	1271	sale	5	0	8	2025-12-13 10:03:23	2025-12-13 10:04:26
+1711	10	1	11	0000011925010219	8316	37.540	0.740	38.280	2025-11-30	440	purchase	5	0	8	2025-12-13 10:04:26	2025-12-13 10:04:37
+1712	10	1	11	INV-25/00409	\N	38.000	38.280	0.280	2025-11-30	1272	sale	5	0	8	2025-12-13 10:04:37	2025-12-13 10:05:35
+1713	10	1	11	0000011925010219	8366	37.020	0.280	37.300	2025-11-30	441	purchase	5	0	8	2025-12-13 10:05:35	2025-12-13 10:05:44
+1714	10	1	11	INV-25/00410	\N	37.000	37.300	0.300	2025-11-30	1273	sale	5	0	8	2025-12-13 10:05:44	2025-12-13 10:06:49
+1715	10	1	11	0000011925010219	8441	37.450	0.300	37.750	2025-11-30	442	purchase	5	0	8	2025-12-13 10:06:49	2025-12-13 10:06:57
+1716	10	1	11	INV-25/00411	\N	37.000	37.750	0.750	2025-11-30	1274	sale	5	0	8	2025-12-13 10:06:57	2025-12-13 10:22:08
+1717	10	1	11	0000011925010219	8531	74.760	0.750	75.510	2025-11-30	443	purchase	5	0	8	2025-12-13 10:22:08	2025-12-13 10:22:19
+1718	10	1	11	INV-25/00412	\N	38.000	75.510	37.510	2025-11-30	1275	sale	5	0	8	2025-12-13 10:22:19	2025-12-13 10:22:30
+1719	10	1	11	INV-25/00413	\N	37.000	37.510	0.510	2025-11-30	1276	sale	5	0	8	2025-12-13 10:22:30	2025-12-13 10:23:39
+1720	10	1	11	0000011925010219	8600	24.900	0.510	25.410	2025-11-30	444	purchase	5	0	8	2025-12-13 10:23:39	2025-12-13 10:23:49
+1721	10	1	11	INV-25/00414	\N	25.000	25.410	0.410	2025-11-30	1277	sale	5	0	8	2025-12-13 10:23:49	2025-12-13 10:25:03
+1722	10	1	11	0000011925010245	8750	24.360	0.410	24.770	2025-11-30	445	purchase	5	0	8	2025-12-13 10:25:03	2025-12-13 10:25:10
+1723	10	1	11	INV-25/00415	\N	24.000	24.770	0.770	2025-11-30	1278	sale	5	0	8	2025-12-13 10:25:10	2025-12-13 10:26:19
+1724	10	1	11	0000011925010245	8754	88.270	0.770	89.040	2025-11-30	446	purchase	5	0	8	2025-12-13 10:26:19	2025-12-13 10:26:28
+1725	10	1	11	INV-25/00416	\N	30.000	89.040	59.040	2025-11-30	1279	sale	5	0	8	2025-12-13 10:26:28	2025-12-13 10:26:37
+1726	10	1	11	INV-25/00417	\N	30.000	59.040	29.040	2025-11-30	1280	sale	5	0	8	2025-12-13 10:26:37	2025-12-13 10:26:46
+1727	10	1	11	INV-25/00418	\N	29.000	29.040	0.040	2025-11-30	1281	sale	5	0	8	2025-12-13 10:26:46	2025-12-13 10:27:48
+1728	10	1	11	0000011925010245	8767	49.880	0.040	49.920	2025-11-30	447	purchase	5	0	8	2025-12-13 10:27:48	2025-12-13 10:27:59
+1729	10	1	11	INV-25/00419	\N	49.000	49.920	0.920	2025-11-30	1282	sale	5	0	8	2025-12-13 10:27:59	2025-12-13 10:28:59
+1730	10	1	11	0000011925010245	8934	112.830	0.920	113.750	2025-11-30	448	purchase	5	0	8	2025-12-13 10:28:59	2025-12-13 19:57:14
+1731	10	1	11	INV-25/00420	\N	36.000	113.750	77.750	2025-11-30	1283	sale	5	0	8	2025-12-13 19:57:14	2025-12-13 19:57:28
+1732	10	1	11	INV-25/00421	\N	36.000	77.750	41.750	2025-11-30	1284	sale	5	0	8	2025-12-13 19:57:28	2025-12-13 19:57:37
+1733	10	1	11	INV-25/00422	\N	41.000	41.750	0.750	2025-11-30	1285	sale	5	0	8	2025-12-13 19:57:37	2025-12-13 19:59:23
+1734	10	1	11	0000011925010245	8990	25.450	0.750	26.200	2025-11-30	449	purchase	5	0	8	2025-12-13 19:59:23	2025-12-13 19:59:40
+1735	10	1	11	INV-25/00423	\N	26.000	26.200	0.200	2025-11-30	1286	sale	5	0	8	2025-12-13 19:59:40	2025-12-13 20:00:46
+1736	10	1	11	0000011925010245	9075	158.090	0.200	158.290	2025-11-30	450	purchase	5	0	8	2025-12-13 20:00:46	2025-12-13 20:00:56
+1737	10	1	11	INV-25/00424	\N	36.000	158.290	122.290	2025-11-30	1287	sale	5	0	8	2025-12-13 20:00:56	2025-12-13 20:01:10
+1738	10	1	11	INV-25/00425	\N	36.000	122.290	86.290	2025-11-30	1288	sale	5	0	8	2025-12-13 20:01:10	2025-12-13 20:03:03
+1739	10	1	11	INV-25/00426	\N	36.000	86.290	50.290	2025-11-30	1289	sale	5	0	8	2025-12-13 20:03:03	2025-12-13 20:03:12
+1740	10	1	11	INV-25/00427	\N	50.000	50.290	0.290	2025-11-30	1290	sale	5	0	8	2025-12-13 20:03:12	2025-12-13 20:06:57
+1741	10	1	11	0000011925010245	9149	48.000	0.290	48.290	2025-11-30	451	purchase	5	0	8	2025-12-13 20:06:57	2025-12-13 20:18:34
+1742	10	1	11	INV-25/00428	\N	48.000	48.290	0.290	2025-11-30	1291	sale	5	0	8	2025-12-13 20:18:34	2025-12-13 20:19:33
+1743	10	1	11	0000011925010245	9290	108.000	0.290	108.290	2025-11-30	452	purchase	5	0	8	2025-12-13 20:19:33	2025-12-13 20:19:40
+1744	10	1	11	INV-25/00429	\N	36.000	108.290	72.290	2025-11-30	1292	sale	5	0	8	2025-12-13 20:19:40	2025-12-13 20:20:02
+1745	10	1	11	INV-25/00430	\N	36.000	72.290	36.290	2025-11-30	1293	sale	5	0	8	2025-12-13 20:20:02	2025-12-13 20:20:11
+1746	10	1	11	INV-25/00431	\N	36.000	36.290	0.290	2025-11-30	1294	sale	5	1	8	2025-12-13 20:20:11	2025-12-13 20:20:11
+1747	9	1	12	0000002125010067	4364	48.200	0.000	48.200	2025-10-01	453	purchase	5	0	8	2025-12-14 00:04:54	2025-12-14 00:05:09
+1748	9	1	12	INV-25/00001	\N	48.000	48.200	0.200	2025-10-01	1295	sale	5	0	8	2025-12-14 00:05:09	2025-12-14 00:07:27
+1749	9	1	12	0000002125010085	4446	60.770	0.200	60.970	2025-10-01	454	purchase	5	0	8	2025-12-14 00:07:27	2025-12-14 00:07:35
+1750	9	1	12	INV-25/00002	\N	30.000	60.970	30.970	2025-10-01	1296	sale	5	0	8	2025-12-14 00:07:35	2025-12-14 00:07:43
+1751	9	1	12	INV-25/00003	\N	30.000	30.970	0.970	2025-10-01	1297	sale	5	0	8	2025-12-14 00:07:43	2025-12-14 00:11:19
+1752	9	1	12	0000002125010085	4559	85.500	0.970	86.470	2025-10-01	455	purchase	5	0	8	2025-12-14 00:11:19	2025-12-14 00:11:29
+1753	9	1	12	INV-25/00004	\N	36.000	86.470	50.470	2025-10-01	1298	sale	5	0	8	2025-12-14 00:11:29	2025-12-14 00:11:39
+1754	9	1	12	INV-25/00005	\N	50.000	50.470	0.470	2025-10-01	1299	sale	5	0	8	2025-12-14 00:11:39	2025-12-14 00:13:11
+1755	9	1	12	0000002125010085	4651	60.000	0.470	60.470	2025-10-01	456	purchase	5	0	8	2025-12-14 00:13:11	2025-12-14 00:13:21
+1756	9	1	12	INV-25/00006	\N	30.000	60.470	30.470	2025-10-01	1300	sale	5	0	8	2025-12-14 00:13:21	2025-12-14 00:13:32
+1757	9	1	12	INV-25/00007	\N	30.000	30.470	0.470	2025-10-01	1301	sale	5	0	8	2025-12-14 00:13:32	2025-12-14 00:16:35
+1758	9	1	12	0000002125010085	4710	25.100	0.470	25.570	2025-10-01	457	purchase	5	0	8	2025-12-14 00:16:35	2025-12-14 00:16:43
+1759	9	1	12	INV-25/00008	\N	25.000	25.570	0.570	2025-10-01	1302	sale	5	0	8	2025-12-14 00:16:43	2025-12-14 00:17:46
+1760	9	1	12	0000002125010085	4779	49.520	0.570	50.090	2025-10-02	458	purchase	5	0	8	2025-12-14 00:17:46	2025-12-14 00:17:53
+1761	9	1	12	INV-25/00009	\N	50.000	50.090	0.090	2025-10-02	1303	sale	5	0	8	2025-12-14 00:17:53	2025-12-14 00:18:58
+1762	9	1	12	0000002125010085	4816	24.000	0.090	24.090	2025-10-02	459	purchase	5	0	8	2025-12-14 00:18:58	2025-12-14 00:19:06
+1763	9	1	12	INV-25/00010	\N	24.000	24.090	0.090	2025-10-02	1304	sale	5	0	8	2025-12-14 00:19:06	2025-12-14 00:20:17
+1764	9	1	12	0000002125010085	4947	24.000	0.090	24.090	2025-10-02	460	purchase	5	0	8	2025-12-14 00:20:17	2025-12-14 00:20:25
+1765	9	1	12	INV-25/00011	\N	24.000	24.090	0.090	2025-10-02	1305	sale	5	0	8	2025-12-14 00:20:25	2025-12-14 00:21:23
+1766	9	1	12	0000002125010085	4964	60.630	0.090	60.720	2025-10-03	461	purchase	5	0	8	2025-12-14 00:21:23	2025-12-14 00:21:30
+1767	9	1	12	INV-25/00012	\N	30.000	60.720	30.720	2025-10-03	1306	sale	5	0	8	2025-12-14 00:21:30	2025-12-14 00:21:35
+1768	9	1	12	INV-25/00013	\N	30.000	30.720	0.720	2025-10-03	1307	sale	5	0	8	2025-12-14 00:21:35	2025-12-14 00:22:31
+1769	9	1	12	0000002125010085	5093	48.000	0.720	48.720	2025-10-03	462	purchase	5	0	8	2025-12-14 00:22:31	2025-12-14 00:22:38
+1770	9	1	12	INV-25/00014	\N	48.000	48.720	0.720	2025-10-03	1308	sale	5	0	8	2025-12-14 00:22:38	2025-12-14 00:23:32
+1771	9	1	12	0000002125010085	5203	36.190	0.720	36.910	2025-10-03	463	purchase	5	0	8	2025-12-14 00:23:32	2025-12-14 00:23:40
+1772	9	1	12	INV-25/00015	\N	36.000	36.910	0.910	2025-10-03	1309	sale	5	0	8	2025-12-14 00:23:40	2025-12-14 00:24:46
+1773	9	1	12	0000002125010085	5221	37.590	0.910	38.500	2025-10-04	464	purchase	5	0	8	2025-12-14 00:24:46	2025-12-14 00:24:54
+1774	9	1	12	INV-25/00016	\N	38.000	38.500	0.500	2025-10-04	1310	sale	5	0	8	2025-12-14 00:24:54	2025-12-14 00:25:43
+1775	9	1	12	0000002125010085	5355	37.160	0.500	37.660	2025-10-04	465	purchase	5	0	8	2025-12-14 00:25:43	2025-12-14 00:25:51
+1776	9	1	12	INV-25/00017	\N	37.000	37.660	0.660	2025-10-04	1311	sale	5	0	8	2025-12-14 00:25:51	2025-12-14 00:26:55
+1777	9	1	12	0000002125010085	5476	24.780	0.660	25.440	2025-10-04	466	purchase	5	0	8	2025-12-14 00:26:55	2025-12-14 00:27:02
+1778	9	1	12	INV-25/00018	\N	25.000	25.440	0.440	2025-10-04	1312	sale	5	0	8	2025-12-14 00:27:02	2025-12-14 00:27:56
+1779	9	1	12	0000002125010085	5517	37.000	0.440	37.440	2025-10-05	467	purchase	5	0	8	2025-12-14 00:27:56	2025-12-14 00:28:04
+1780	9	1	12	INV-25/00019	\N	37.000	37.440	0.440	2025-10-05	1313	sale	5	0	8	2025-12-14 00:28:04	2025-12-14 00:29:10
+1781	9	1	12	0000002125010108	6392	36.500	0.440	36.940	2025-10-05	468	purchase	5	0	8	2025-12-14 00:29:10	2025-12-14 00:29:20
+1782	9	1	12	INV-25/00020	\N	36.000	36.940	0.940	2025-10-05	1314	sale	5	0	8	2025-12-14 00:29:20	2025-12-14 00:30:09
+1783	9	1	12	0000002125010108	6449	25.000	0.940	25.940	2025-10-06	469	purchase	5	0	8	2025-12-14 00:30:09	2025-12-14 00:30:17
+1784	9	1	12	INV-25/00021	\N	25.000	25.940	0.940	2025-10-06	1315	sale	5	0	8	2025-12-14 00:30:17	2025-12-14 00:31:11
+1785	9	1	12	0000002125010108	6596	24.570	0.940	25.510	2025-10-06	470	purchase	5	0	8	2025-12-14 00:31:11	2025-12-14 00:31:19
+1786	9	1	12	INV-25/00022	\N	25.000	25.510	0.510	2025-10-06	1316	sale	5	0	8	2025-12-14 00:31:19	2025-12-14 00:32:21
+1787	9	1	12	0000002125010108	6713	41.930	0.510	42.440	2025-10-06	471	purchase	5	0	8	2025-12-14 00:32:21	2025-12-14 00:32:30
+1788	9	1	12	INV-25/00023	\N	42.000	42.440	0.440	2025-10-06	1317	sale	5	0	8	2025-12-14 00:32:30	2025-12-14 00:51:13
+1789	9	1	12	0000002125010108	6835	36.730	0.440	37.170	2025-10-06	472	purchase	5	0	8	2025-12-14 00:51:13	2025-12-14 00:51:21
+1790	9	1	12	INV-25/00024	\N	37.000	37.170	0.170	2025-10-06	1318	sale	5	0	8	2025-12-14 00:51:21	2025-12-14 00:52:25
+1791	9	1	12	0000002125010108	6888	12.300	0.170	12.470	2025-10-07	473	purchase	5	0	8	2025-12-14 00:52:25	2025-12-14 00:52:35
+1792	9	1	12	INV-25/00025	\N	12.000	12.470	0.470	2025-10-07	1319	sale	5	0	8	2025-12-14 00:52:35	2025-12-14 00:53:38
+1793	9	1	12	0000002125010108	6936	12.590	0.470	13.060	2025-10-07	474	purchase	5	0	8	2025-12-14 00:53:38	2025-12-14 00:53:49
+1794	9	1	12	INV-25/00026	\N	13.000	13.060	0.060	2025-10-07	1320	sale	5	0	8	2025-12-14 00:53:49	2025-12-14 00:54:59
+1795	9	1	12	0000002125010108	6973	36.600	0.060	36.660	2025-10-07	475	purchase	5	0	8	2025-12-14 00:54:59	2025-12-14 00:55:08
+1796	9	1	12	INV-25/00027	\N	36.000	36.660	0.660	2025-10-07	1321	sale	5	0	8	2025-12-14 00:55:08	2025-12-14 00:56:10
+1797	9	1	12	0000002125010108	7034	48.610	0.660	49.270	2025-10-07	476	purchase	5	0	8	2025-12-14 00:56:10	2025-12-14 00:56:19
+1798	9	1	12	INV-25/00028	\N	49.000	49.270	0.270	2025-10-07	1322	sale	5	0	8	2025-12-14 00:56:19	2025-12-14 00:57:21
+1799	9	1	12	0000002125010108	7309	24.770	0.270	25.040	2025-10-09	477	purchase	5	0	8	2025-12-14 00:57:21	2025-12-14 00:57:29
+1800	9	1	12	INV-25/00029	\N	25.000	25.040	0.040	2025-10-09	1323	sale	5	0	8	2025-12-14 00:57:29	2025-12-14 00:59:12
+1801	9	1	12	0000002125010108	7360	49.200	0.040	49.240	2025-10-10	478	purchase	5	0	8	2025-12-14 00:59:12	2025-12-14 00:59:20
+1802	9	1	12	INV-25/00030	\N	49.000	49.240	0.240	2025-10-10	1324	sale	5	0	8	2025-12-14 00:59:20	2025-12-14 01:00:17
+1803	9	1	12	0000002125010108	7506	24.920	0.240	25.160	2025-10-14	479	purchase	5	0	8	2025-12-14 01:00:17	2025-12-14 01:00:26
+1804	9	1	12	INV-25/00031	\N	25.000	25.160	0.160	2025-10-14	1325	sale	5	0	8	2025-12-14 01:00:26	2025-12-14 01:01:34
+1805	9	1	12	0000002125010108	7653	12.400	0.160	12.560	2025-10-17	480	purchase	5	0	8	2025-12-14 01:01:34	2025-12-14 01:01:41
+1806	9	1	12	INV-25/00032	\N	12.000	12.560	0.560	2025-10-17	1326	sale	5	0	8	2025-12-14 01:01:41	2025-12-14 01:02:38
+1807	9	1	12	0000002125010108	7805	74.210	0.560	74.770	2025-10-22	481	purchase	5	0	8	2025-12-14 01:02:38	2025-12-14 01:02:47
+1808	9	1	12	INV-25/00033	\N	36.000	74.770	38.770	2025-10-22	1327	sale	5	0	8	2025-12-14 01:02:47	2025-12-14 01:02:54
+1809	9	1	12	INV-25/00034	\N	38.000	38.770	0.770	2025-10-22	1328	sale	5	0	8	2025-12-14 01:02:54	2025-12-14 01:03:40
+1810	9	1	12	0000002125010108	7943	12.120	0.770	12.890	2025-10-24	482	purchase	5	0	8	2025-12-14 01:03:40	2025-12-14 01:03:48
+1811	9	1	12	INV-25/00035	\N	12.000	12.890	0.890	2025-10-24	1329	sale	5	0	8	2025-12-14 01:03:48	2025-12-14 01:04:34
+1812	9	1	12	0000002125010108	7964	12.000	0.890	12.890	2025-10-26	483	purchase	5	0	8	2025-12-14 01:04:34	2025-12-14 01:04:41
+1813	9	1	12	INV-25/00036	\N	12.000	12.890	0.890	2025-10-26	1330	sale	5	0	8	2025-12-14 01:04:41	2025-12-14 01:05:29
+1814	9	1	12	0000002125010108	8046	12.590	0.890	13.480	2025-10-28	484	purchase	5	0	8	2025-12-14 01:05:29	2025-12-14 01:05:36
+1815	9	1	12	INV-25/00037	\N	13.000	13.480	0.480	2025-10-28	1331	sale	5	0	8	2025-12-14 01:05:36	2025-12-14 01:06:28
+1816	9	1	12	0000002125010108	8134	73.290	0.480	73.770	2025-10-30	485	purchase	5	0	8	2025-12-14 01:06:28	2025-12-14 01:06:36
+1817	9	1	12	INV-25/00038	\N	36.000	73.770	37.770	2025-10-30	1332	sale	5	0	8	2025-12-14 01:06:37	2025-12-14 01:06:43
+1818	9	1	12	INV-25/00039	\N	37.000	37.770	0.770	2025-10-30	1333	sale	5	0	8	2025-12-14 01:06:43	2025-12-14 01:07:36
+1819	9	1	12	0000002125010108	8208	24.540	0.770	25.310	2025-10-30	486	purchase	5	0	8	2025-12-14 01:07:36	2025-12-14 01:07:44
+1820	9	1	12	INV-25/00040	\N	25.000	25.310	0.310	2025-10-30	1334	sale	5	0	8	2025-12-14 01:07:44	2025-12-14 01:10:24
+1821	9	1	12	0000002125010138	8491	50.720	0.310	51.030	2025-11-07	487	purchase	5	0	8	2025-12-14 01:10:24	2025-12-14 01:10:33
+1822	9	1	12	INV-25/00041	\N	51.000	51.030	0.030	2025-11-07	1335	sale	5	0	8	2025-12-14 01:10:33	2025-12-14 01:11:19
+1823	9	1	12	0000002125010108	8497	25.210	0.030	25.240	2025-11-07	488	purchase	5	0	8	2025-12-14 01:11:19	2025-12-14 01:11:26
+1824	9	1	12	INV-25/00042	\N	25.000	25.240	0.240	2025-11-07	1336	sale	5	0	8	2025-12-14 01:11:26	2025-12-14 01:12:13
+1825	9	1	12	0000002125010138	8628	37.680	0.240	37.920	2025-11-12	489	purchase	5	0	8	2025-12-14 01:12:13	2025-12-14 01:12:21
+1826	9	1	12	INV-25/00043	\N	37.000	37.920	0.920	2025-11-12	1337	sale	5	0	8	2025-12-14 01:12:21	2025-12-14 01:13:07
+1827	9	1	12	0000002125010138	8824	50.000	0.920	50.920	2025-11-16	490	purchase	5	0	8	2025-12-14 01:13:07	2025-12-14 01:13:13
+1828	9	1	12	INV-25/00044	\N	50.000	50.920	0.920	2025-11-16	1338	sale	5	0	8	2025-12-14 01:13:13	2025-12-14 01:14:02
+1829	9	1	12	0000002125010138	8930	37.950	0.920	38.870	2025-11-19	491	purchase	5	0	8	2025-12-14 01:14:02	2025-12-14 01:14:09
+1830	9	1	12	INV-25/00045	\N	38.000	38.870	0.870	2025-11-19	1339	sale	5	0	8	2025-12-14 01:14:09	2025-12-14 01:14:54
+1831	9	1	12	0000002125010138	8986	12.000	0.870	12.870	2025-11-20	492	purchase	5	0	8	2025-12-14 01:14:54	2025-12-14 01:15:00
+1832	9	1	12	INV-25/00046	\N	12.000	12.870	0.870	2025-11-20	1340	sale	5	0	8	2025-12-14 01:15:00	2025-12-14 01:15:52
+1833	9	1	12	0000002125010138	9084	37.200	0.870	38.070	2025-11-21	493	purchase	5	0	8	2025-12-14 01:15:52	2025-12-14 01:15:59
+1834	9	1	12	INV-25/00047	\N	38.000	38.070	0.070	2025-11-21	1341	sale	5	0	8	2025-12-14 01:15:59	2025-12-14 01:16:47
+1835	9	1	12	0000002125010138	9205	24.130	0.070	24.200	2025-11-28	494	purchase	5	0	8	2025-12-14 01:16:47	2025-12-14 01:16:55
+1836	9	1	12	INV-25/00048	\N	24.000	24.200	0.200	2025-11-28	1342	sale	5	0	8	2025-12-14 01:16:55	2025-12-14 01:17:48
+1837	9	1	12	0000002125010138	9293	48.500	0.200	48.700	2025-11-30	495	purchase	5	0	8	2025-12-14 01:17:48	2025-12-14 01:17:56
+1838	9	1	12	INV-25/00049	\N	48.000	48.700	0.700	2025-11-30	1343	sale	5	1	8	2025-12-14 01:17:56	2025-12-14 01:17:56
+1839	8	1	13	0000141225010218	4980	199.320	0.000	199.320	2025-10-01	496	purchase	5	0	8	2025-12-14 01:30:41	2025-12-14 01:31:06
+1840	8	1	13	INV-25/00001	\N	36.000	199.320	163.320	2025-10-01	1344	sale	5	0	8	2025-12-14 01:31:06	2025-12-14 01:31:12
+1841	8	1	13	INV-25/00002	\N	36.000	163.320	127.320	2025-10-01	1345	sale	5	0	8	2025-12-14 01:31:12	2025-12-14 01:31:18
+1842	8	1	13	INV-25/00003	\N	36.000	127.320	91.320	2025-10-01	1346	sale	5	0	8	2025-12-14 01:31:18	2025-12-14 01:31:26
+1843	8	1	13	INV-25/00004	\N	30.000	91.320	61.320	2025-10-01	1347	sale	5	0	8	2025-12-14 01:31:26	2025-12-14 01:31:32
+1844	8	1	13	INV-25/00005	\N	30.000	61.320	31.320	2025-10-01	1348	sale	5	0	8	2025-12-14 01:31:32	2025-12-14 01:31:38
+1845	8	1	13	INV-25/00006	\N	31.000	31.320	0.320	2025-10-01	1349	sale	5	0	8	2025-12-14 01:31:38	2025-12-14 02:34:21
+1846	8	1	13	0000141225010218	5026	63.000	0.320	63.320	2025-10-01	497	purchase	5	0	8	2025-12-14 02:34:21	2025-12-14 02:34:33
+1847	8	1	13	INV-25/00007	\N	30.000	63.320	33.320	2025-10-01	1350	sale	5	0	8	2025-12-14 02:34:33	2025-12-14 02:34:41
+1848	8	1	13	INV-25/00008	\N	33.000	33.320	0.320	2025-10-01	1351	sale	5	0	8	2025-12-14 02:34:41	2025-12-14 02:36:05
+1849	8	1	13	0000141225010218	5091	111.810	0.320	112.130	2025-10-01	498	purchase	5	0	8	2025-12-14 02:36:05	2025-12-14 02:36:14
+1850	8	1	13	INV-25/00009	\N	36.000	112.130	76.130	2025-10-01	1352	sale	5	0	8	2025-12-14 02:36:14	2025-12-14 02:36:21
+1851	8	1	13	INV-25/00010	\N	36.000	76.130	40.130	2025-10-01	1353	sale	5	0	8	2025-12-14 02:36:21	2025-12-14 02:36:27
+1852	8	1	13	INV-25/00011	\N	40.000	40.130	0.130	2025-10-01	1354	sale	5	0	8	2025-12-14 02:36:27	2025-12-14 02:37:35
+1853	8	1	13	0000141225010218	5139	62.170	0.130	62.300	2025-10-02	499	purchase	5	0	8	2025-12-14 02:37:35	2025-12-14 02:37:46
+1854	8	1	13	INV-25/00012	\N	30.000	62.300	32.300	2025-10-02	1355	sale	5	0	8	2025-12-14 02:37:46	2025-12-14 02:37:53
+1855	8	1	13	INV-25/00013	\N	32.000	32.300	0.300	2025-10-02	1356	sale	5	0	8	2025-12-14 02:37:53	2025-12-14 02:39:01
+1856	8	1	13	0000141225010218	5205	174.100	0.300	174.400	2025-10-02	500	purchase	5	0	8	2025-12-14 02:39:01	2025-12-14 02:39:11
+1857	8	1	13	INV-25/00014	\N	50.000	174.400	124.400	2025-10-02	1357	sale	5	0	8	2025-12-14 02:39:11	2025-12-14 02:39:18
+1858	8	1	13	INV-25/00015	\N	36.000	124.400	88.400	2025-10-02	1358	sale	5	0	8	2025-12-14 02:39:18	2025-12-14 02:39:27
+1859	8	1	13	INV-25/00016	\N	38.000	88.400	50.400	2025-10-02	1359	sale	5	0	8	2025-12-14 02:39:27	2025-12-14 02:40:18
+1860	8	1	13	INV-25/00017	\N	50.000	50.400	0.400	2025-10-02	1360	sale	5	0	8	2025-12-14 02:40:18	2025-12-14 02:41:31
+1861	8	1	13	0000141225010218	5220	138.000	0.400	138.400	2025-10-02	501	purchase	5	0	8	2025-12-14 02:41:31	2025-12-14 02:41:43
+1862	8	1	13	INV-25/00018	\N	38.000	138.400	100.400	2025-10-02	1361	sale	5	0	8	2025-12-14 02:41:43	2025-12-14 02:41:49
+1863	8	1	13	INV-25/00019	\N	50.000	100.400	50.400	2025-10-02	1362	sale	5	0	8	2025-12-14 02:41:49	2025-12-14 02:41:56
+1864	8	1	13	INV-25/00020	\N	50.000	50.400	0.400	2025-10-02	1363	sale	5	0	8	2025-12-14 02:41:56	2025-12-14 02:42:54
+1865	8	1	13	0000141225010218	5266	186.440	0.400	186.840	2025-10-02	502	purchase	5	0	8	2025-12-14 02:42:54	2025-12-14 02:43:04
+1866	8	1	13	INV-25/00021	\N	50.000	186.840	136.840	2025-10-02	1364	sale	5	0	8	2025-12-14 02:43:04	2025-12-14 02:43:09
+1867	8	1	13	INV-25/00022	\N	50.000	136.840	86.840	2025-10-02	1365	sale	5	0	8	2025-12-14 02:43:09	2025-12-14 02:43:16
+1868	8	1	13	INV-25/00023	\N	36.000	86.840	50.840	2025-10-02	1366	sale	5	0	8	2025-12-14 02:43:16	2025-12-14 02:43:22
+1869	8	1	13	INV-25/00024	\N	50.000	50.840	0.840	2025-10-02	1367	sale	5	0	8	2025-12-14 02:43:22	2025-12-14 02:44:15
+1870	8	1	13	0000141225010218	5321	74.570	0.840	75.410	2025-10-02	503	purchase	5	0	8	2025-12-14 02:44:15	2025-12-14 02:44:22
+1871	8	1	13	INV-25/00025	\N	35.000	75.410	40.410	2025-10-02	1368	sale	5	0	8	2025-12-14 02:44:22	2025-12-14 02:44:31
+1872	8	1	13	INV-25/00026	\N	40.000	40.410	0.410	2025-10-02	1369	sale	5	0	8	2025-12-14 02:44:31	2025-12-14 02:45:45
+1873	8	1	13	0000141225010218	5354	24.270	0.410	24.680	2025-10-03	504	purchase	5	0	8	2025-12-14 02:45:45	2025-12-14 02:45:53
+1874	8	1	13	INV-25/00027	\N	24.000	24.680	0.680	2025-10-03	1370	sale	5	0	8	2025-12-14 02:45:53	2025-12-14 02:46:49
+1875	8	1	13	0000141225010234	5804	287.000	0.680	287.680	2025-10-03	505	purchase	5	0	8	2025-12-14 02:46:49	2025-12-14 02:46:58
+1876	8	1	13	INV-25/00028	\N	50.000	287.680	237.680	2025-10-03	1371	sale	5	0	8	2025-12-14 02:46:58	2025-12-14 02:47:03
+1877	8	1	13	INV-25/00029	\N	50.000	237.680	187.680	2025-10-03	1372	sale	5	0	8	2025-12-14 02:47:03	2025-12-14 02:47:08
+1878	8	1	13	INV-25/00030	\N	50.000	187.680	137.680	2025-10-03	1373	sale	5	0	8	2025-12-14 02:47:08	2025-12-14 02:47:14
+1879	8	1	13	INV-25/00031	\N	50.000	137.680	87.680	2025-10-03	1374	sale	5	0	8	2025-12-14 02:47:14	2025-12-14 02:47:20
+1880	8	1	13	INV-25/00032	\N	50.000	87.680	37.680	2025-10-03	1375	sale	5	0	8	2025-12-14 02:47:20	2025-12-14 02:47:26
+1881	8	1	13	INV-25/00033	\N	37.000	37.680	0.680	2025-10-03	1376	sale	5	0	8	2025-12-14 02:47:26	2025-12-14 02:52:05
+1882	8	1	13	0000141225010234	5877	50.180	0.680	50.860	2025-10-03	506	purchase	5	0	8	2025-12-14 02:52:05	2025-12-14 02:52:12
+1883	8	1	13	INV-25/00034	\N	50.000	50.860	0.860	2025-10-03	1377	sale	5	0	8	2025-12-14 02:52:12	2025-12-14 02:53:06
+1884	8	1	13	0000141225010234	5900	174.370	0.860	175.230	2025-10-04	507	purchase	5	0	8	2025-12-14 02:53:06	2025-12-14 02:53:13
+1885	8	1	13	INV-25/00035	\N	50.000	175.230	125.230	2025-10-04	1378	sale	5	0	8	2025-12-14 02:53:13	2025-12-14 02:53:18
+1886	8	1	13	INV-25/00036	\N	50.000	125.230	75.230	2025-10-04	1379	sale	5	0	8	2025-12-14 02:53:18	2025-12-14 02:53:24
+1887	8	1	13	INV-25/00037	\N	35.000	75.230	40.230	2025-10-04	1380	sale	5	0	8	2025-12-14 02:53:24	2025-12-14 02:53:30
+1888	8	1	13	INV-25/00038	\N	40.000	40.230	0.230	2025-10-04	1381	sale	5	0	8	2025-12-14 02:53:30	2025-12-14 02:54:30
+1889	8	1	13	0000141225010234	5938	161.830	0.230	162.060	2025-10-04	508	purchase	5	0	8	2025-12-14 02:54:30	2025-12-14 02:54:39
+1890	8	1	13	INV-25/00039	\N	50.000	162.060	112.060	2025-10-04	1382	sale	5	0	8	2025-12-14 02:54:39	2025-12-14 02:54:46
+1891	8	1	13	INV-25/00040	\N	50.000	112.060	62.060	2025-10-04	1383	sale	5	0	8	2025-12-14 02:54:46	2025-12-14 02:54:52
+1892	8	1	13	INV-25/00041	\N	30.000	62.060	32.060	2025-10-04	1384	sale	5	0	8	2025-12-14 02:54:52	2025-12-14 02:54:57
+1893	8	1	13	INV-25/00042	\N	32.000	32.060	0.060	2025-10-04	1385	sale	5	0	8	2025-12-14 02:54:57	2025-12-14 02:55:47
+1894	8	1	13	0000141225010234	5985	49.610	0.060	49.670	2025-10-05	509	purchase	5	0	8	2025-12-14 02:55:47	2025-12-14 02:55:54
+1895	8	1	13	INV-25/00043	\N	49.000	49.670	0.670	2025-10-05	1386	sale	5	0	8	2025-12-14 02:55:54	2025-12-14 02:56:44
+1896	8	1	13	0000141225010234	6025	12.050	0.670	12.720	2025-10-05	510	purchase	5	0	8	2025-12-14 02:56:44	2025-12-14 02:56:51
+1897	8	1	13	INV-25/00044	\N	12.000	12.720	0.720	2025-10-05	1387	sale	5	0	8	2025-12-14 02:56:51	2025-12-14 03:50:21
+1898	8	1	13	0000141225010234	6053	302.280	0.720	303.000	2025-10-05	511	purchase	5	0	8	2025-12-14 03:50:21	2025-12-14 03:50:40
+1899	8	1	13	INV-25/00045	\N	36.000	303.000	267.000	2025-10-05	1388	sale	5	0	8	2025-12-14 03:50:40	2025-12-14 03:50:47
+1900	8	1	13	INV-25/00046	\N	36.000	267.000	231.000	2025-10-05	1389	sale	5	0	8	2025-12-14 03:50:47	2025-12-14 03:50:54
+1901	8	1	13	INV-25/00047	\N	36.000	231.000	195.000	2025-10-05	1390	sale	5	0	8	2025-12-14 03:50:54	2025-12-14 03:51:02
+1902	8	1	13	INV-25/00048	\N	50.000	195.000	145.000	2025-10-05	1391	sale	5	0	8	2025-12-14 03:51:02	2025-12-14 03:51:09
+1903	8	1	13	INV-25/00049	\N	50.000	145.000	95.000	2025-10-05	1392	sale	5	0	8	2025-12-14 03:51:09	2025-12-14 03:51:19
+1904	8	1	13	INV-25/00050	\N	50.000	95.000	45.000	2025-10-05	1393	sale	5	0	8	2025-12-14 03:51:19	2025-12-14 03:51:25
+1905	8	1	13	INV-25/00051	\N	45.000	45.000	0.000	2025-10-05	1394	sale	5	0	8	2025-12-14 03:51:25	2025-12-14 03:52:54
+1906	8	1	13	0000141225010266	6706	197.930	0.000	197.930	2025-10-05	512	purchase	5	0	8	2025-12-14 03:52:54	2025-12-14 03:53:04
+1907	8	1	13	INV-25/00052	\N	50.000	197.930	147.930	2025-10-05	1395	sale	5	0	8	2025-12-14 03:53:04	2025-12-14 03:53:11
+1908	8	1	13	INV-25/00053	\N	50.000	147.930	97.930	2025-10-05	1396	sale	5	0	8	2025-12-14 03:53:11	2025-12-14 03:53:18
+1909	8	1	13	INV-25/00054	\N	50.000	97.930	47.930	2025-10-05	1397	sale	5	0	8	2025-12-14 03:53:18	2025-12-14 03:53:29
+1910	8	1	13	INV-25/00055	\N	47.000	47.930	0.930	2025-10-05	1398	sale	5	0	8	2025-12-14 03:53:29	2025-12-14 03:57:34
+1911	8	1	13	0000141225010266	6779	136.020	0.930	136.950	2025-10-05	513	purchase	5	0	8	2025-12-14 03:57:34	2025-12-14 03:57:47
+1912	8	1	13	INV-25/00056	\N	36.000	136.950	100.950	2025-10-05	1399	sale	5	0	8	2025-12-14 03:57:47	2025-12-14 03:57:55
+1913	8	1	13	INV-25/00057	\N	50.000	100.950	50.950	2025-10-05	1400	sale	5	0	8	2025-12-14 03:57:55	2025-12-14 03:58:04
+1914	8	1	13	INV-25/00058	\N	50.000	50.950	0.950	2025-10-05	1401	sale	5	0	8	2025-12-14 03:58:04	2025-12-14 03:59:56
+1915	8	1	13	0000141225010266	6832	211.120	0.950	212.070	2025-10-06	514	purchase	5	0	8	2025-12-14 03:59:56	2025-12-14 04:01:31
+1916	8	1	13	INV-25/00059	\N	36.000	212.070	176.070	2025-10-06	1402	sale	5	0	8	2025-12-14 04:01:31	2025-12-14 04:01:40
+1917	8	1	13	INV-25/00060	\N	36.000	176.070	140.070	2025-10-06	1403	sale	5	0	8	2025-12-14 04:01:40	2025-12-14 04:01:49
+1918	8	1	13	INV-25/00061	\N	40.000	140.070	100.070	2025-10-06	1404	sale	5	0	8	2025-12-14 04:01:49	2025-12-14 04:01:56
+1919	8	1	13	INV-25/00062	\N	50.000	100.070	50.070	2025-10-06	1405	sale	5	0	8	2025-12-14 04:01:56	2025-12-14 04:02:04
+1920	8	1	13	INV-25/00063	\N	50.000	50.070	0.070	2025-10-06	1406	sale	5	0	8	2025-12-14 04:02:04	2025-12-14 04:46:09
+1921	8	1	13	0000141225010266	6894	37.540	0.070	37.610	2025-10-07	515	purchase	5	0	8	2025-12-14 04:46:09	2025-12-14 04:46:19
+1922	8	1	13	INV-25/00064	\N	37.000	37.610	0.610	2025-10-07	1407	sale	5	0	8	2025-12-14 04:46:19	2025-12-14 04:55:40
+1923	8	1	13	0000141225010266	6933	24.800	0.610	25.410	2025-10-07	516	purchase	5	0	8	2025-12-14 04:55:40	2025-12-14 04:55:48
+1924	8	1	13	INV-25/00065	\N	25.000	25.410	0.410	2025-10-07	1408	sale	5	0	8	2025-12-14 04:55:48	2025-12-14 04:57:36
+1925	8	1	13	0000141225010266	6995	261.760	0.410	262.170	2025-10-08	517	purchase	5	0	8	2025-12-14 04:57:36	2025-12-14 04:57:46
+1926	8	1	13	INV-25/00066	\N	50.000	262.170	212.170	2025-10-08	1409	sale	5	0	8	2025-12-14 04:57:46	2025-12-14 04:57:53
+1927	8	1	13	INV-25/00067	\N	50.000	212.170	162.170	2025-10-08	1410	sale	5	0	8	2025-12-14 04:57:53	2025-12-14 04:58:01
+1928	8	1	13	INV-25/00068	\N	50.000	162.170	112.170	2025-10-08	1411	sale	5	0	8	2025-12-14 04:58:01	2025-12-14 04:58:10
+1929	8	1	13	INV-25/00069	\N	50.000	112.170	62.170	2025-10-08	1412	sale	5	0	8	2025-12-14 04:58:10	2025-12-14 04:58:21
+1930	8	1	13	INV-25/00070	\N	30.000	62.170	32.170	2025-10-08	1413	sale	5	0	8	2025-12-14 04:58:21	2025-12-14 04:58:28
+1931	8	1	13	INV-25/00071	\N	32.000	32.170	0.170	2025-10-08	1414	sale	5	0	8	2025-12-14 04:58:28	2025-12-14 04:59:24
+1932	8	1	13	0000141225010266	7031	163.790	0.170	163.960	2025-10-08	518	purchase	5	0	8	2025-12-14 04:59:24	2025-12-14 04:59:32
+1933	8	1	13	INV-25/00072	\N	50.000	163.960	113.960	2025-10-08	1415	sale	5	0	8	2025-12-14 04:59:32	2025-12-14 04:59:38
+1934	8	1	13	INV-25/00073	\N	50.000	113.960	63.960	2025-10-08	1416	sale	5	0	8	2025-12-14 04:59:38	2025-12-14 04:59:44
+1935	8	1	13	INV-25/00074	\N	30.000	63.960	33.960	2025-10-08	1417	sale	5	0	8	2025-12-14 04:59:44	2025-12-14 04:59:50
+1936	8	1	13	INV-25/00075	\N	33.000	33.960	0.960	2025-10-08	1418	sale	5	0	8	2025-12-14 04:59:50	2025-12-14 05:01:03
+1937	8	1	13	0000141225010303	8111	37.920	0.960	38.880	2025-10-29	519	purchase	5	0	8	2025-12-14 05:01:03	2025-12-14 05:01:22
+1938	8	1	13	INV-25/00076	\N	38.000	38.880	0.880	2025-10-29	1419	sale	5	0	8	2025-12-14 05:01:22	2025-12-14 05:02:12
+1939	8	1	13	0000141225010303	8167	120.000	0.880	120.880	2025-10-30	520	purchase	5	0	8	2025-12-14 05:02:12	2025-12-14 05:02:23
+1940	8	1	13	INV-25/00077	\N	30.000	120.880	90.880	2025-10-30	1420	sale	5	0	8	2025-12-14 05:02:23	2025-12-14 05:02:29
+1941	8	1	13	INV-25/00078	\N	30.000	90.880	60.880	2025-10-30	1421	sale	5	0	8	2025-12-14 05:02:29	2025-12-14 05:02:34
+1942	8	1	13	INV-25/00079	\N	30.000	60.880	30.880	2025-10-30	1422	sale	5	0	8	2025-12-14 05:02:34	2025-12-14 05:02:40
+1943	8	1	13	INV-25/00080	\N	30.000	30.880	0.880	2025-10-30	1423	sale	5	0	8	2025-12-14 05:02:40	2025-12-14 05:03:48
+1944	8	1	13	0000141225010303	8193	75.960	0.880	76.840	2025-10-31	521	purchase	5	0	8	2025-12-14 05:03:48	2025-12-14 05:03:56
+1945	8	1	13	INV-25/00081	\N	36.000	76.840	40.840	2025-10-31	1424	sale	5	0	8	2025-12-14 05:03:56	2025-12-14 05:04:03
+1946	8	1	13	INV-25/00082	\N	40.000	40.840	0.840	2025-10-31	1425	sale	5	0	8	2025-12-14 05:04:03	2025-12-14 05:08:50
+1947	8	1	13	0000141225010303	8260	97.430	0.840	98.270	2025-11-02	522	purchase	5	0	8	2025-12-14 05:08:50	2025-12-14 05:09:04
+1948	8	1	13	INV-25/00083	\N	32.000	98.270	66.270	2025-11-02	1426	sale	5	0	8	2025-12-14 05:09:04	2025-12-14 05:09:41
+1949	8	1	13	INV-25/00084	\N	32.000	66.270	34.270	2025-11-02	1427	sale	5	0	8	2025-12-14 05:09:41	2025-12-14 05:09:50
+1950	8	1	13	INV-25/00085	\N	34.000	34.270	0.270	2025-11-02	1428	sale	5	0	8	2025-12-14 05:09:50	2025-12-14 05:11:52
+1951	8	1	13	0000141225010303	8317	124.940	0.270	125.210	2025-11-04	523	purchase	5	0	8	2025-12-14 05:11:52	2025-12-14 05:25:26
+1952	8	1	13	INV-25/00086	\N	35.000	125.210	90.210	2025-11-04	1429	sale	5	0	8	2025-12-14 05:25:26	2025-12-14 05:25:34
+1953	8	1	13	INV-25/00087	\N	30.000	90.210	60.210	2025-11-04	1430	sale	5	0	8	2025-12-14 05:25:34	2025-12-14 05:25:40
+1954	8	1	13	INV-25/00088	\N	30.000	60.210	30.210	2025-11-04	1431	sale	5	0	8	2025-12-14 05:25:40	2025-12-14 05:25:46
+1955	8	1	13	INV-25/00089	\N	30.000	30.210	0.210	2025-11-04	1432	sale	5	0	8	2025-12-14 05:25:46	2025-12-14 06:03:21
+1956	8	1	13	0000141225010303	8369	25.020	0.210	25.230	2025-11-05	524	purchase	5	0	8	2025-12-14 06:03:21	2025-12-14 06:03:29
+1957	8	1	13	INV-25/00090	\N	25.000	25.230	0.230	2025-11-05	1433	sale	5	0	8	2025-12-14 06:03:29	2025-12-14 06:04:43
+1958	8	1	13	0000141225010303	8422	87.630	0.230	87.860	2025-11-06	525	purchase	5	0	8	2025-12-14 06:04:43	2025-12-14 06:04:55
+1959	8	1	13	INV-25/00091	\N	50.000	87.860	37.860	2025-11-06	1434	sale	5	0	8	2025-12-14 06:04:55	2025-12-14 06:05:02
+1960	8	1	13	INV-25/00092	\N	37.000	37.860	0.860	2025-11-06	1435	sale	5	0	8	2025-12-14 06:05:02	2025-12-14 06:06:14
+1961	8	1	13	0000141225010303	8502	164.040	0.860	164.900	2025-11-07	526	purchase	5	0	8	2025-12-14 06:06:14	2025-12-14 06:06:28
+1962	8	1	13	INV-25/00093	\N	50.000	164.900	114.900	2025-11-07	1436	sale	5	0	8	2025-12-14 06:06:28	2025-12-14 06:06:36
+1963	8	1	13	INV-25/00094	\N	36.000	114.900	78.900	2025-11-07	1437	sale	5	0	8	2025-12-14 06:06:36	2025-12-14 06:06:45
+1964	8	1	13	INV-25/00095	\N	38.000	78.900	40.900	2025-11-07	1438	sale	5	0	8	2025-12-14 06:06:45	2025-12-14 06:06:54
+1965	8	1	13	INV-25/00096	\N	40.000	40.900	0.900	2025-11-07	1439	sale	5	0	8	2025-12-14 06:06:54	2025-12-14 06:09:36
+1966	8	1	13	0000141225010303	8532	99.390	0.900	100.290	2025-11-09	527	purchase	5	0	8	2025-12-14 06:09:36	2025-12-14 06:09:50
+1967	8	1	13	INV-25/00097	\N	50.000	100.290	50.290	2025-11-09	1440	sale	5	0	8	2025-12-14 06:09:50	2025-12-14 06:09:59
+1968	8	1	13	INV-25/00098	\N	50.000	50.290	0.290	2025-11-09	1441	sale	5	0	8	2025-12-14 06:09:59	2025-12-14 06:12:03
+1969	8	1	13	0000141225010303	8618	75.450	0.290	75.740	2025-11-11	528	purchase	5	0	8	2025-12-14 06:12:03	2025-12-14 06:12:23
+1970	8	1	13	INV-25/00099	\N	35.000	75.740	40.740	2025-11-11	1442	sale	5	0	8	2025-12-14 06:12:23	2025-12-14 06:12:33
+1971	8	1	13	INV-25/00100	\N	40.000	40.740	0.740	2025-11-11	1443	sale	5	0	8	2025-12-14 06:12:33	2025-12-14 06:14:02
+1972	8	1	13	0000141225010303	8627	124.670	0.740	125.410	2025-11-12	529	purchase	5	0	8	2025-12-14 06:14:02	2025-12-14 06:14:12
+1973	8	1	13	INV-25/00101	\N	35.000	125.410	90.410	2025-11-12	1444	sale	5	0	8	2025-12-14 06:14:12	2025-12-14 06:14:21
+1974	8	1	13	INV-25/00102	\N	30.000	90.410	60.410	2025-11-12	1445	sale	5	0	8	2025-12-14 06:14:21	2025-12-14 06:14:29
+1975	8	1	13	INV-25/00103	\N	30.000	60.410	30.410	2025-11-12	1446	sale	5	0	8	2025-12-14 06:14:29	2025-12-14 06:14:37
+1976	8	1	13	INV-25/00104	\N	30.000	30.410	0.410	2025-11-12	1447	sale	5	0	8	2025-12-14 06:14:37	2025-12-14 06:16:01
+1977	8	1	13	0000141225010322	8747	75.350	0.410	75.760	2025-11-14	530	purchase	5	0	8	2025-12-14 06:16:01	2025-12-14 06:16:09
+1978	8	1	13	INV-25/00105	\N	35.000	75.760	40.760	2025-11-14	1448	sale	5	0	8	2025-12-14 06:16:09	2025-12-14 06:16:17
+1979	8	1	13	INV-25/00106	\N	40.000	40.760	0.760	2025-11-14	1449	sale	5	0	8	2025-12-14 06:16:17	2025-12-14 06:17:30
+1980	8	1	13	0000141225010322	8752	37.170	0.760	37.930	2025-11-14	531	purchase	5	0	8	2025-12-14 06:17:30	2025-12-14 06:17:39
+1981	8	1	13	INV-25/00107	\N	37.000	37.930	0.930	2025-11-14	1450	sale	5	0	8	2025-12-14 06:17:39	2025-12-14 06:18:58
+1982	8	1	13	0000141225010322	8795	12.600	0.930	13.530	2025-11-14	532	purchase	5	0	8	2025-12-14 06:18:58	2025-12-14 06:19:07
+1983	8	1	13	INV-25/00108	\N	13.000	13.530	0.530	2025-11-14	1451	sale	5	0	8	2025-12-14 06:19:07	2025-12-14 06:20:52
+1984	8	1	13	0000141225010322	8823	183.980	0.530	184.510	2025-11-16	533	purchase	5	0	8	2025-12-14 06:20:52	2025-12-14 06:21:04
+1985	8	1	13	INV-25/00109	\N	50.000	184.510	134.510	2025-11-16	1452	sale	5	0	8	2025-12-14 06:21:04	2025-12-14 06:21:13
+1986	8	1	13	INV-25/00110	\N	50.000	134.510	84.510	2025-11-16	1453	sale	5	0	8	2025-12-14 06:21:13	2025-12-14 06:21:20
+1987	8	1	13	INV-25/00111	\N	50.000	84.510	34.510	2025-11-16	1454	sale	5	0	8	2025-12-14 06:21:20	2025-12-14 06:21:30
+1988	8	1	13	INV-25/00112	\N	34.000	34.510	0.510	2025-11-16	1455	sale	5	1	8	2025-12-14 06:21:30	2025-12-14 06:21:30
+1989	11	1	14	1055	5390	191.540	0.000	191.540	2025-10-17	534	purchase	5	0	3	2025-12-22 17:38:37	2025-12-22 17:40:10
+1990	11	1	14	INV-25/00001	\N	25.300	191.540	166.240	2025-10-17	1456	sale	5	0	3	2025-12-22 17:40:11	2025-12-22 17:40:24
+1991	11	1	14	INV-25/00002	\N	24.230	166.240	142.010	2025-10-17	1457	sale	5	0	3	2025-12-22 17:40:24	2025-12-22 17:40:41
+1992	11	1	14	INV-25/00003	\N	24.230	142.010	117.780	2025-10-17	1458	sale	5	0	3	2025-12-22 17:40:41	2025-12-22 17:40:55
+1993	11	1	14	INV-25/00004	\N	25.320	117.780	92.460	2025-10-17	1459	sale	5	0	3	2025-12-22 17:40:55	2025-12-22 17:41:09
+1994	11	1	14	INV-25/00005	\N	23.120	92.460	69.340	2025-10-17	1460	sale	5	0	3	2025-12-22 17:41:09	2025-12-22 17:41:20
+1995	11	1	14	INV-25/00006	\N	23.150	69.340	46.190	2025-10-17	1461	sale	5	0	3	2025-12-22 17:41:20	2025-12-22 17:41:32
+1996	11	1	14	INV-25/00007	\N	23.020	46.190	23.170	2025-10-17	1462	sale	5	0	3	2025-12-22 17:41:32	2025-12-22 17:41:43
+1997	11	1	14	INV-25/00008	\N	23.170	23.170	0.000	2025-10-17	1463	sale	5	0	3	2025-12-22 17:41:43	2025-12-22 17:42:46
+1998	11	1	14	1055	5433	119.800	0.000	119.800	2025-10-19	535	purchase	5	0	3	2025-12-22 17:42:46	2025-12-22 17:42:59
+1999	11	1	14	INV-25/00009	\N	23.150	119.800	96.650	2025-10-19	1464	sale	5	0	3	2025-12-22 17:42:59	2025-12-22 17:43:18
+2000	11	1	14	INV-25/00010	\N	24.230	96.650	72.420	2025-10-19	1465	sale	5	0	3	2025-12-22 17:43:18	2025-12-22 17:43:29
+2001	11	1	14	INV-25/00011	\N	24.120	72.420	48.300	2025-10-19	1466	sale	5	0	3	2025-12-22 17:43:29	2025-12-22 17:43:39
+2002	11	1	14	INV-25/00012	\N	24.120	48.300	24.180	2025-10-19	1467	sale	5	0	3	2025-12-22 17:43:39	2025-12-22 17:43:49
+2003	11	1	14	INV-25/00013	\N	24.180	24.180	0.000	2025-10-19	1468	sale	5	0	3	2025-12-22 17:43:49	2025-12-22 17:53:23
+2004	11	1	14	1055	5506	72.100	0.000	72.100	2025-10-23	536	purchase	5	0	3	2025-12-22 17:53:23	2025-12-22 17:53:36
+2005	11	1	14	INV-25/00014	\N	23.690	72.100	48.410	2025-10-23	1469	sale	5	0	3	2025-12-22 17:53:36	2025-12-22 17:53:47
+2006	11	1	14	INV-25/00015	\N	24.150	48.410	24.260	2025-10-23	1470	sale	5	0	3	2025-12-22 17:53:47	2025-12-22 17:53:57
+2007	11	1	14	INV-25/00016	\N	24.260	24.260	0.000	2025-10-23	1471	sale	5	0	3	2025-12-22 17:53:57	2025-12-22 17:55:04
+2008	11	1	14	1055	5507	47.610	0.000	47.610	2025-10-23	537	purchase	5	0	3	2025-12-22 17:55:04	2025-12-22 17:57:08
+2009	11	1	14	INV-25/00017	\N	23.690	47.610	23.920	2025-10-23	1472	sale	5	0	3	2025-12-22 17:57:08	2025-12-22 18:01:16
+2010	11	1	14	INV-25/00018	\N	23.920	23.920	0.000	2025-10-23	1473	sale	5	0	3	2025-12-22 18:01:16	2025-12-22 18:03:36
+2011	11	1	14	1055	5550	167.000	0.000	167.000	2025-10-24	538	purchase	5	0	3	2025-12-22 18:03:36	2025-12-22 18:04:13
+2012	11	1	14	INV-25/00019	\N	25.360	167.000	141.640	2025-10-24	1474	sale	5	0	3	2025-12-22 18:04:13	2025-12-22 18:04:24
+2013	11	1	14	INV-25/00020	\N	26.360	141.640	115.280	2025-10-24	1475	sale	5	0	3	2025-12-22 18:04:24	2025-12-22 18:04:35
+2014	11	1	14	INV-25/00021	\N	25.900	115.280	89.380	2025-10-24	1476	sale	5	0	3	2025-12-22 18:04:35	2025-12-22 18:05:13
+2015	11	1	14	INV-25/00022	\N	22.120	89.380	67.260	2025-10-24	1477	sale	5	0	3	2025-12-22 18:05:13	2025-12-22 18:05:22
+2016	11	1	14	INV-25/00023	\N	22.310	67.260	44.950	2025-10-24	1478	sale	5	0	3	2025-12-22 18:05:22	2025-12-22 18:05:31
+2017	11	1	14	INV-25/00024	\N	22.360	44.950	22.590	2025-10-24	1479	sale	5	0	3	2025-12-22 18:05:31	2025-12-22 18:05:40
+2018	11	1	14	INV-25/00025	\N	22.590	22.590	0.000	2025-10-24	1480	sale	5	0	3	2025-12-22 18:05:40	2025-12-22 18:17:36
+2019	11	1	14	1055	5698	24.370	0.000	24.370	2025-10-28	539	purchase	5	0	3	2025-12-22 18:17:36	2025-12-22 18:17:54
+2020	11	1	14	INV-25/00026	\N	24.370	24.370	0.000	2025-10-28	1481	sale	5	0	3	2025-12-22 18:17:54	2025-12-22 18:18:59
+2021	11	1	14	1055	5725	23.730	0.000	23.730	2025-10-28	540	purchase	5	0	3	2025-12-22 18:18:59	2025-12-22 18:19:11
+2022	11	1	14	INV-25/00027	\N	23.730	23.730	0.000	2025-10-28	1482	sale	5	0	3	2025-12-22 18:19:11	2025-12-22 18:20:14
+2023	11	1	14	1055	5807	47.650	0.000	47.650	2025-10-29	541	purchase	5	0	3	2025-12-22 18:20:14	2025-12-22 18:20:26
+2024	11	1	14	INV-25/00028	\N	23.630	47.650	24.020	2025-10-29	1483	sale	5	0	3	2025-12-22 18:20:26	2025-12-22 18:20:37
+2025	11	1	14	INV-25/00029	\N	24.020	24.020	0.000	2025-10-29	1484	sale	5	0	3	2025-12-22 18:20:37	2025-12-22 18:21:40
+2026	11	1	14	1055	5816	23.930	0.000	23.930	2025-10-29	542	purchase	5	0	3	2025-12-22 18:21:40	2025-12-22 18:21:52
+2027	11	1	14	INV-25/00030	\N	23.930	23.930	0.000	2025-10-29	1485	sale	5	0	3	2025-12-22 18:21:52	2025-12-22 18:22:51
+2028	11	1	14	1055	5828	23.960	0.000	23.960	2025-10-29	543	purchase	5	0	3	2025-12-22 18:22:51	2025-12-22 18:23:03
+2029	11	1	14	INV-25/00031	\N	23.960	23.960	0.000	2025-10-29	1486	sale	5	0	3	2025-12-22 18:23:03	2025-12-22 18:23:59
+2030	11	1	14	1055	5867	46.620	0.000	46.620	2025-10-30	544	purchase	5	0	3	2025-12-22 18:23:59	2025-12-22 18:24:13
+2031	11	1	14	INV-25/00032	\N	23.610	46.620	23.010	2025-10-30	1487	sale	5	0	3	2025-12-22 18:24:13	2025-12-22 18:24:23
+2032	11	1	14	INV-25/00033	\N	23.010	23.010	0.000	2025-10-30	1488	sale	5	0	3	2025-12-22 18:24:23	2025-12-22 18:25:25
+2033	11	1	14	1055	5913	22.360	0.000	22.360	2025-10-31	545	purchase	5	0	3	2025-12-22 18:25:25	2025-12-22 18:25:38
+2034	11	1	14	INV-25/00034	\N	22.360	22.360	0.000	2025-10-31	1489	sale	5	0	3	2025-12-22 18:25:38	2025-12-22 18:39:56
+2035	11	1	15	1216	6534	72.860	0.000	72.860	2025-11-13	546	purchase	5	0	3	2025-12-22 18:39:56	2025-12-22 18:40:13
+2036	11	1	15	INV-25/00035	\N	23.690	72.860	49.170	2025-11-13	1490	sale	5	0	3	2025-12-22 18:40:13	2025-12-22 18:40:26
+2037	11	1	15	INV-25/00036	\N	24.590	49.170	24.580	2025-11-13	1491	sale	5	0	3	2025-12-22 18:40:26	2025-12-22 18:40:35
+2038	11	1	15	INV-25/00037	\N	24.580	24.580	0.000	2025-11-13	1492	sale	5	0	3	2025-12-22 18:40:35	2025-12-22 18:42:35
+2039	11	1	15	1216	6611	121.260	0.000	121.260	2025-11-14	547	purchase	5	0	3	2025-12-22 18:42:35	2025-12-22 20:51:02
+2040	11	1	15	INV-25/00038	\N	24.320	121.260	96.940	2025-11-14	1493	sale	5	0	3	2025-12-22 20:51:02	2025-12-22 20:51:12
+2041	11	1	15	INV-25/00039	\N	24.120	96.940	72.820	2025-11-14	1494	sale	5	0	3	2025-12-22 20:51:12	2025-12-22 20:51:59
+2042	11	1	15	INV-25/00040	\N	24.310	72.820	48.510	2025-11-14	1495	sale	5	0	3	2025-12-22 20:51:59	2025-12-22 20:52:09
+2043	11	1	15	INV-25/00041	\N	23.690	48.510	24.820	2025-11-14	1496	sale	5	0	3	2025-12-22 20:52:09	2025-12-22 20:52:17
+2044	11	1	15	INV-25/00042	\N	24.820	24.820	0.000	2025-11-14	1497	sale	5	0	3	2025-12-22 20:52:17	2025-12-22 20:54:09
+2045	11	1	15	1216	6640	98.110	0.000	98.110	2025-11-15	548	purchase	5	0	3	2025-12-22 20:54:09	2025-12-22 20:54:26
+2046	11	1	15	INV-25/00043	\N	24.120	98.110	73.990	2025-11-15	1498	sale	5	0	3	2025-12-22 20:54:26	2025-12-22 20:54:53
+2047	11	1	15	INV-25/00044	\N	24.630	73.990	49.360	2025-11-15	1499	sale	5	0	3	2025-12-22 20:54:53	2025-12-22 20:55:03
+2048	11	1	15	INV-25/00045	\N	24.960	49.360	24.400	2025-11-15	1500	sale	5	0	3	2025-12-22 20:55:03	2025-12-22 20:55:11
+2049	11	1	15	INV-25/00046	\N	24.400	24.400	0.000	2025-11-15	1501	sale	5	0	3	2025-12-22 20:55:12	2025-12-22 20:56:22
+2050	11	1	15	1216	6674	97.380	0.000	97.380	2025-11-17	549	purchase	5	0	3	2025-12-22 20:56:22	2025-12-22 20:56:35
+2051	11	1	15	INV-25/00047	\N	24.630	97.380	72.750	2025-11-17	1502	sale	5	0	3	2025-12-22 20:56:35	2025-12-22 20:56:44
+2052	11	1	15	INV-25/00048	\N	24.120	72.750	48.630	2025-11-17	1503	sale	5	0	3	2025-12-22 20:56:44	2025-12-22 20:56:53
+2053	11	1	15	INV-25/00049	\N	24.530	48.630	24.100	2025-11-17	1504	sale	5	0	3	2025-12-22 20:56:53	2025-12-22 20:57:02
+2054	11	1	15	INV-25/00050	\N	24.100	24.100	0.000	2025-11-17	1505	sale	5	0	3	2025-12-22 20:57:02	2025-12-22 20:58:05
+2055	11	1	15	1216	6738	98.530	0.000	98.530	2025-11-18	550	purchase	5	0	3	2025-12-22 20:58:05	2025-12-22 20:58:17
+2056	11	1	15	INV-25/00051	\N	24.630	98.530	73.900	2025-11-18	1506	sale	5	0	3	2025-12-22 20:58:17	2025-12-22 20:58:26
+2057	11	1	15	INV-25/00052	\N	24.360	73.900	49.540	2025-11-18	1507	sale	5	0	3	2025-12-22 20:58:26	2025-12-22 20:58:35
+2058	11	1	15	INV-25/00053	\N	24.890	49.540	24.650	2025-11-18	1508	sale	5	0	3	2025-12-22 20:58:35	2025-12-22 20:58:44
+2059	11	1	15	INV-25/00054	\N	24.650	24.650	0.000	2025-11-18	1509	sale	5	0	3	2025-12-22 20:58:44	2025-12-22 21:00:13
+2060	11	1	15	1216	6772	122.320	0.000	122.320	2025-11-18	551	purchase	5	0	3	2025-12-22 21:00:13	2025-12-22 21:00:27
+2061	11	1	15	INV-25/00055	\N	24.120	122.320	98.200	2025-11-18	1510	sale	5	0	3	2025-12-22 21:00:27	2025-12-22 21:01:02
+2062	11	1	15	INV-25/00056	\N	24.360	98.200	73.840	2025-11-18	1511	sale	5	0	3	2025-12-22 21:01:02	2025-12-22 21:01:11
+2063	11	1	15	INV-25/00057	\N	24.860	73.840	48.980	2025-11-18	1512	sale	5	0	3	2025-12-22 21:01:11	2025-12-22 21:01:22
+2064	11	1	15	INV-25/00058	\N	24.860	48.980	24.120	2025-11-18	1513	sale	5	0	3	2025-12-22 21:01:22	2025-12-22 21:01:32
+2065	11	1	15	INV-25/00059	\N	24.120	24.120	0.000	2025-11-18	1514	sale	5	0	3	2025-12-22 21:01:32	2025-12-22 21:06:25
+2066	11	1	15	1216	6822	49.100	0.000	49.100	2025-11-19	552	purchase	5	0	3	2025-12-22 21:06:25	2025-12-22 21:06:37
+2067	11	1	15	INV-25/00060	\N	24.560	49.100	24.540	2025-11-19	1515	sale	5	0	3	2025-12-22 21:06:37	2025-12-22 21:07:05
+2068	11	1	15	INV-25/00061	\N	24.540	24.540	0.000	2025-11-19	1516	sale	5	0	3	2025-12-22 21:07:05	2025-12-22 21:07:59
+2069	11	1	15	1216	6902	24.880	0.000	24.880	2025-11-20	553	purchase	5	0	3	2025-12-22 21:07:59	2025-12-22 21:08:10
+2070	11	1	15	INV-25/00062	\N	24.880	24.880	0.000	2025-11-20	1517	sale	5	0	3	2025-12-22 21:08:10	2025-12-22 21:10:26
+2071	11	1	15	1216	7005	75.260	0.000	75.260	2025-11-25	554	purchase	5	0	3	2025-12-22 21:10:26	2025-12-22 21:10:40
+2072	11	1	15	INV-25/00063	\N	24.980	75.260	50.280	2025-11-25	1518	sale	5	0	3	2025-12-22 21:10:40	2025-12-22 21:10:49
+2073	11	1	15	INV-25/00064	\N	25.410	50.280	24.870	2025-11-25	1519	sale	5	0	3	2025-12-22 21:10:49	2025-12-22 21:10:57
+2074	11	1	15	INV-25/00065	\N	24.870	24.870	0.000	2025-11-25	1520	sale	5	0	3	2025-12-22 21:10:57	2025-12-22 21:11:51
+2075	11	1	15	1216	7012	49.660	0.000	49.660	2025-11-25	555	purchase	5	0	3	2025-12-22 21:11:51	2025-12-22 21:12:02
+2076	11	1	15	INV-25/00066	\N	24.690	49.660	24.970	2025-11-25	1521	sale	5	0	3	2025-12-22 21:12:02	2025-12-22 21:12:11
+2077	11	1	15	INV-25/00067	\N	24.970	24.970	0.000	2025-11-25	1522	sale	5	0	3	2025-12-22 21:12:11	2025-12-22 21:13:23
+2078	11	1	15	1283	7053	103.060	0.000	103.060	2025-11-25	556	purchase	5	0	3	2025-12-22 21:13:23	2025-12-22 21:14:00
+2079	11	1	15	INV-25/00068	\N	25.660	103.060	77.400	2025-11-25	1523	sale	5	0	3	2025-12-22 21:14:00	2025-12-22 21:14:09
+2080	11	1	15	INV-25/00069	\N	25.480	77.400	51.920	2025-11-25	1524	sale	5	0	3	2025-12-22 21:14:09	2025-12-22 21:14:19
+2081	11	1	15	INV-25/00070	\N	25.890	51.920	26.030	2025-11-25	1525	sale	5	0	3	2025-12-22 21:14:19	2025-12-22 21:14:27
+2082	11	1	15	INV-25/00071	\N	26.030	26.030	0.000	2025-11-25	1526	sale	5	0	3	2025-12-22 21:14:28	2025-12-22 21:18:15
+2083	11	1	15	1283	7178	24.620	0.000	24.620	2025-11-27	557	purchase	5	0	3	2025-12-22 21:18:15	2025-12-22 21:18:27
+2084	11	1	15	INV-25/00072	\N	24.620	24.620	0.000	2025-11-27	1527	sale	5	0	3	2025-12-22 21:18:27	2025-12-22 21:20:14
+2085	11	1	15	1283	7157	152.840	0.000	152.840	2025-11-27	558	purchase	5	0	3	2025-12-22 21:20:14	2025-12-22 21:20:32
+2086	11	1	15	INV-25/00073	\N	24.690	152.840	128.150	2025-11-27	1528	sale	5	0	3	2025-12-22 21:20:32	2025-12-22 21:20:42
+2087	11	1	15	INV-25/00074	\N	25.360	128.150	102.790	2025-11-27	1529	sale	5	0	3	2025-12-22 21:20:42	2025-12-22 21:20:51
+2088	11	1	15	INV-25/00075	\N	25.360	102.790	77.430	2025-11-27	1530	sale	5	0	3	2025-12-22 21:20:51	2025-12-22 21:21:00
+2089	11	1	15	INV-25/00076	\N	25.630	77.430	51.800	2025-11-27	1531	sale	5	0	3	2025-12-22 21:21:00	2025-12-22 21:21:09
+2090	11	1	15	INV-25/00077	\N	25.860	51.800	25.940	2025-11-27	1532	sale	5	0	3	2025-12-22 21:21:09	2025-12-22 21:21:19
+2091	11	1	15	INV-25/00078	\N	25.940	25.940	0.000	2025-11-27	1533	sale	5	0	3	2025-12-22 21:21:19	2025-12-22 21:25:27
+2092	11	1	15	1283	7139	51.370	0.000	51.370	2025-11-27	559	purchase	5	0	3	2025-12-22 21:25:27	2025-12-22 21:25:37
+2093	11	1	15	INV-25/00079	\N	25.860	51.370	25.510	2025-11-27	1534	sale	5	0	3	2025-12-22 21:25:37	2025-12-22 21:25:46
+2094	11	1	15	INV-25/00080	\N	25.510	25.510	0.000	2025-11-27	1535	sale	5	0	3	2025-12-22 21:25:46	2025-12-22 21:29:42
+2095	11	1	15	1283	7205	146.640	0.000	146.640	2025-11-28	560	purchase	5	0	3	2025-12-22 21:29:42	2025-12-22 21:29:52
+2096	11	1	15	INV-25/00081	\N	24.360	146.640	122.280	2025-11-28	1536	sale	5	0	3	2025-12-22 21:29:52	2025-12-22 21:30:00
+2097	11	1	15	INV-25/00082	\N	24.360	122.280	97.920	2025-11-28	1537	sale	5	0	3	2025-12-22 21:30:00	2025-12-22 21:30:09
+2098	11	1	15	INV-25/00083	\N	24.630	97.920	73.290	2025-11-28	1538	sale	5	0	3	2025-12-22 21:30:09	2025-12-22 21:30:18
+2099	11	1	15	INV-25/00084	\N	24.560	73.290	48.730	2025-11-28	1539	sale	5	0	3	2025-12-22 21:30:18	2025-12-22 21:30:33
+2100	11	1	15	INV-25/00085	\N	24.360	48.730	24.370	2025-11-28	1540	sale	5	0	3	2025-12-22 21:30:33	2025-12-22 21:30:42
+2101	11	1	15	INV-25/00086	\N	24.370	24.370	0.000	2025-11-28	1541	sale	5	0	3	2025-12-22 21:30:42	2025-12-22 21:31:46
+2102	11	1	15	1283	7254	219.130	0.000	219.130	2025-11-29	561	purchase	5	0	3	2025-12-22 21:31:46	2025-12-22 21:31:56
+2103	11	1	15	INV-25/00087	\N	25.360	219.130	193.770	2025-11-29	1542	sale	5	0	3	2025-12-22 21:31:56	2025-12-22 21:32:04
+2104	11	1	15	INV-25/00088	\N	25.420	193.770	168.350	2025-11-29	1543	sale	5	0	3	2025-12-22 21:32:04	2025-12-22 21:32:13
+2105	11	1	15	INV-25/00089	\N	25.690	168.350	142.660	2025-11-29	1544	sale	5	0	3	2025-12-22 21:32:13	2025-12-22 21:32:20
+2106	11	1	15	INV-25/00090	\N	25.360	142.660	117.300	2025-11-29	1545	sale	5	0	3	2025-12-22 21:32:20	2025-12-22 21:32:29
+2107	11	1	15	INV-25/00091	\N	25.470	117.300	91.830	2025-11-29	1546	sale	5	0	3	2025-12-22 21:32:29	2025-12-22 21:32:39
+2108	11	1	15	INV-25/00092	\N	23.360	91.830	68.470	2025-11-29	1547	sale	5	0	3	2025-12-22 21:32:39	2025-12-22 21:32:47
+2109	11	1	15	INV-25/00093	\N	22.690	68.470	45.780	2025-11-29	1548	sale	5	0	3	2025-12-22 21:32:47	2025-12-22 21:32:56
+2110	11	1	15	INV-25/00094	\N	22.360	45.780	23.420	2025-11-29	1549	sale	5	0	3	2025-12-22 21:32:56	2025-12-22 21:33:04
+2111	11	1	15	INV-25/00095	\N	23.420	23.420	0.000	2025-11-29	1550	sale	5	1	3	2025-12-22 21:33:04	2025-12-22 21:33:04
+2112	7	1	8	984	4990	71.610	0.000	71.610	2025-10-07	562	purchase	5	0	3	2025-12-23 18:17:30	2025-12-23 18:17:46
+2113	7	1	8	INV-25/00167	\N	21.360	71.610	50.250	2025-10-07	1551	sale	5	0	3	2025-12-23 18:17:46	2025-12-23 18:17:54
+2114	7	1	8	INV-25/00168	\N	25.360	50.250	24.890	2025-10-07	1552	sale	5	0	3	2025-12-23 18:17:54	2025-12-23 18:18:01
+2115	7	1	8	INV-25/00169	\N	24.890	24.890	0.000	2025-10-07	1553	sale	5	0	3	2025-12-23 18:18:01	2025-12-23 18:19:45
+2116	7	1	8	984	5012	47.640	0.000	47.640	2025-10-08	563	purchase	5	0	3	2025-12-23 18:19:45	2025-12-23 18:19:57
+2117	7	1	8	INV-25/00170	\N	24.360	47.640	23.280	2025-10-08	1554	sale	5	0	3	2025-12-23 18:19:57	2025-12-23 18:20:05
+2118	7	1	8	INV-25/00171	\N	23.280	23.280	0.000	2025-10-08	1555	sale	5	0	3	2025-12-23 18:20:05	2025-12-23 18:22:14
+2119	7	1	8	976	5014	122.670	0.000	122.670	2025-10-08	564	purchase	5	0	3	2025-12-23 18:22:14	2025-12-23 18:22:29
+2120	7	1	8	INV-25/00172	\N	23.360	122.670	99.310	2025-10-08	1556	sale	5	0	3	2025-12-23 18:22:29	2025-12-23 18:22:39
+2121	7	1	8	INV-25/00173	\N	24.120	99.310	75.190	2025-10-08	1557	sale	5	0	3	2025-12-23 18:22:39	2025-12-23 18:22:52
+2122	7	1	8	INV-25/00174	\N	24.360	75.190	50.830	2025-10-08	1558	sale	5	0	3	2025-12-23 18:22:52	2025-12-23 18:23:00
+2123	7	1	8	INV-25/00175	\N	25.630	50.830	25.200	2025-10-08	1559	sale	5	0	3	2025-12-23 18:23:00	2025-12-23 18:23:07
+2124	7	1	8	INV-25/00176	\N	25.200	25.200	0.000	2025-10-08	1560	sale	5	0	3	2025-12-23 18:23:08	2025-12-23 18:24:50
+2125	7	1	8	976	5057	24.410	0.000	24.410	2025-10-09	565	purchase	5	0	3	2025-12-23 18:24:50	2025-12-23 18:25:00
+2126	7	1	8	INV-25/00177	\N	24.410	24.410	0.000	2025-10-09	1561	sale	5	0	3	2025-12-23 18:25:00	2025-12-23 18:26:31
+2127	7	1	8	976	5058	96.090	0.000	96.090	2025-10-09	566	purchase	5	0	3	2025-12-23 18:26:31	2025-12-23 18:26:43
+2128	7	1	8	INV-25/00178	\N	24.120	96.090	71.970	2025-10-09	1562	sale	5	0	3	2025-12-23 18:26:43	2025-12-23 18:26:51
+2129	7	1	8	INV-25/00179	\N	24.030	71.970	47.940	2025-10-09	1563	sale	5	0	3	2025-12-23 18:26:51	2025-12-23 18:26:59
+2130	7	1	8	INV-25/00180	\N	24.160	47.940	23.780	2025-10-09	1564	sale	5	0	3	2025-12-23 18:26:59	2025-12-23 18:27:11
+2131	7	1	8	INV-25/00181	\N	23.780	23.780	0.000	2025-10-09	1565	sale	5	0	3	2025-12-23 18:27:11	2025-12-23 18:28:38
+2132	7	1	8	984	5059	145.470	0.000	145.470	2025-10-09	567	purchase	5	0	3	2025-12-23 18:28:38	2025-12-23 18:29:02
+2133	7	1	8	INV-25/00182	\N	24.360	145.470	121.110	2025-10-09	1566	sale	5	0	3	2025-12-23 18:29:02	2025-12-23 18:29:09
+2134	7	1	8	INV-25/00183	\N	24.690	121.110	96.420	2025-10-09	1567	sale	5	0	3	2025-12-23 18:29:10	2025-12-23 18:29:17
+2135	7	1	8	INV-25/00184	\N	24.120	96.420	72.300	2025-10-09	1568	sale	5	0	3	2025-12-23 18:29:17	2025-12-23 18:29:24
+2136	7	1	8	INV-25/00185	\N	24.060	72.300	48.240	2025-10-09	1569	sale	5	0	3	2025-12-23 18:29:24	2025-12-23 18:29:32
+2137	7	1	8	INV-25/00186	\N	24.150	48.240	24.090	2025-10-09	1570	sale	5	0	3	2025-12-23 18:29:32	2025-12-23 18:29:39
+2138	7	1	8	INV-25/00187	\N	24.090	24.090	0.000	2025-10-09	1571	sale	5	0	3	2025-12-23 18:29:39	2025-12-23 18:30:53
+2139	7	1	8	976	5082	145.810	0.000	145.810	2025-10-10	568	purchase	5	0	3	2025-12-23 18:30:53	2025-12-23 18:31:04
+2140	7	1	8	INV-25/00188	\N	24.120	145.810	121.690	2025-10-10	1572	sale	5	0	3	2025-12-23 18:31:04	2025-12-23 18:31:11
+2141	7	1	8	INV-25/00189	\N	24.030	121.690	97.660	2025-10-10	1573	sale	5	0	3	2025-12-23 18:31:11	2025-12-23 18:31:19
+2142	7	1	8	INV-25/00190	\N	24.560	97.660	73.100	2025-10-10	1574	sale	5	0	3	2025-12-23 18:31:19	2025-12-23 18:31:26
+2143	7	1	8	INV-25/00191	\N	24.250	73.100	48.850	2025-10-10	1575	sale	5	0	3	2025-12-23 18:31:26	2025-12-23 18:31:32
+2144	7	1	8	INV-25/00192	\N	24.690	48.850	24.160	2025-10-10	1576	sale	5	0	3	2025-12-23 18:31:33	2025-12-23 18:31:41
+2145	7	1	8	INV-25/00193	\N	24.160	24.160	0.000	2025-10-10	1577	sale	5	0	3	2025-12-23 18:31:41	2025-12-23 18:32:59
+2146	7	1	8	984	5084	170.230	0.000	170.230	2025-10-10	569	purchase	5	0	3	2025-12-23 18:32:59	2025-12-23 18:33:12
+2147	7	1	8	INV-25/00194	\N	24.360	170.230	145.870	2025-10-10	1578	sale	5	0	3	2025-12-23 18:33:12	2025-12-23 18:33:21
+2148	7	1	8	INV-25/00195	\N	24.390	145.870	121.480	2025-10-10	1579	sale	5	0	3	2025-12-23 18:33:21	2025-12-23 18:33:29
+2149	7	1	8	INV-25/00196	\N	24.690	121.480	96.790	2025-10-10	1580	sale	5	0	3	2025-12-23 18:33:29	2025-12-23 18:33:38
+2150	7	1	8	INV-25/00197	\N	24.160	96.790	72.630	2025-10-10	1581	sale	5	0	3	2025-12-23 18:33:38	2025-12-23 18:33:45
+2151	7	1	8	INV-25/00198	\N	24.170	72.630	48.460	2025-10-10	1582	sale	5	0	3	2025-12-23 18:33:45	2025-12-23 18:33:52
+2152	7	1	8	INV-25/00199	\N	24.360	48.460	24.100	2025-10-10	1583	sale	5	0	3	2025-12-23 18:33:52	2025-12-23 18:34:00
+2153	7	1	8	INV-25/00200	\N	24.100	24.100	0.000	2025-10-10	1584	sale	5	0	3	2025-12-23 18:34:00	2025-12-23 18:41:07
+2154	7	1	8	976	5099	100.520	0.000	100.520	2025-10-11	570	purchase	5	0	3	2025-12-23 18:41:07	2025-12-23 18:41:17
+2155	7	1	8	INV-25/00201	\N	24.690	100.520	75.830	2025-10-11	1585	sale	5	0	3	2025-12-23 18:41:17	2025-12-23 18:41:24
+2156	7	1	8	INV-25/00202	\N	25.690	75.830	50.140	2025-10-11	1586	sale	5	0	3	2025-12-23 18:41:24	2025-12-23 18:41:29
+2157	7	1	8	INV-25/00203	\N	25.120	50.140	25.020	2025-10-11	1587	sale	5	0	3	2025-12-23 18:41:29	2025-12-23 18:41:36
+2158	7	1	8	INV-25/00204	\N	25.020	25.020	0.000	2025-10-11	1588	sale	5	0	3	2025-12-23 18:41:36	2025-12-23 18:42:52
+2159	7	1	8	976	5123	74.330	0.000	74.330	2025-10-13	571	purchase	5	0	3	2025-12-23 18:42:52	2025-12-23 18:43:00
+2160	7	1	8	INV-25/00205	\N	24.360	74.330	49.970	2025-10-13	1589	sale	5	0	3	2025-12-23 18:43:00	2025-12-23 18:43:07
+2161	7	1	8	INV-25/00206	\N	25.360	49.970	24.610	2025-10-13	1590	sale	5	0	3	2025-12-23 18:43:07	2025-12-23 18:43:13
+2162	7	1	8	INV-25/00207	\N	24.610	24.610	0.000	2025-10-13	1591	sale	5	0	3	2025-12-23 18:43:13	2025-12-23 19:03:52
+2163	7	1	8	984	5138	96.740	0.000	96.740	2025-10-13	572	purchase	5	0	3	2025-12-23 19:03:52	2025-12-23 19:04:19
+2164	7	1	8	INV-25/00208	\N	24.120	96.740	72.620	2025-10-13	1592	sale	5	0	3	2025-12-23 19:04:19	2025-12-23 19:04:27
+2165	7	1	8	INV-25/00209	\N	24.120	72.620	48.500	2025-10-13	1593	sale	5	0	3	2025-12-23 19:04:27	2025-12-23 19:04:40
+2166	7	1	8	INV-25/00210	\N	24.100	48.500	24.400	2025-10-13	1594	sale	5	0	3	2025-12-23 19:04:40	2025-12-23 19:05:24
+2167	7	1	8	INV-25/00211	\N	24.400	24.400	0.000	2025-10-13	1595	sale	5	0	3	2025-12-23 19:05:24	2025-12-23 21:47:51
+2168	7	1	8	976	5181	98.680	0.000	98.680	2025-10-14	573	purchase	5	0	3	2025-12-23 21:47:51	2025-12-23 21:48:20
+2169	7	1	8	INV-25/00212	\N	24.690	98.680	73.990	2025-10-14	1596	sale	5	0	3	2025-12-23 21:48:20	2025-12-23 21:48:28
+2170	7	1	8	INV-25/00213	\N	24.690	73.990	49.300	2025-10-14	1597	sale	5	0	3	2025-12-23 21:48:28	2025-12-23 21:48:38
+2171	7	1	8	INV-25/00214	\N	24.690	49.300	24.610	2025-10-14	1598	sale	5	0	3	2025-12-23 21:48:38	2025-12-23 21:48:46
+2172	7	1	8	INV-25/00215	\N	24.610	24.610	0.000	2025-10-14	1599	sale	5	0	3	2025-12-23 21:48:46	2025-12-23 21:56:38
+2173	7	1	8	976	5215	49.450	0.000	49.450	2025-10-14	574	purchase	5	0	3	2025-12-23 21:56:38	2025-12-23 21:56:47
+2174	7	1	8	INV-25/00216	\N	24.360	49.450	25.090	2025-10-14	1600	sale	5	0	3	2025-12-23 21:56:47	2025-12-23 21:56:56
+2175	7	1	8	INV-25/00217	\N	25.090	25.090	0.000	2025-10-14	1601	sale	5	0	3	2025-12-23 21:56:56	2025-12-23 21:59:00
+2176	7	1	8	984	5219	95.420	0.000	95.420	2025-10-14	575	purchase	5	0	3	2025-12-23 21:59:00	2025-12-23 21:59:13
+2177	7	1	8	INV-25/00218	\N	23.690	95.420	71.730	2025-10-14	1602	sale	5	0	3	2025-12-23 21:59:13	2025-12-23 21:59:21
+2178	7	1	8	INV-25/00219	\N	23.690	71.730	48.040	2025-10-14	1603	sale	5	0	3	2025-12-23 21:59:21	2025-12-23 21:59:29
+2179	7	1	8	INV-25/00220	\N	24.260	48.040	23.780	2025-10-14	1604	sale	5	0	3	2025-12-23 21:59:29	2025-12-23 21:59:36
+2180	7	1	8	INV-25/00221	\N	23.780	23.780	0.000	2025-10-14	1605	sale	5	0	3	2025-12-23 21:59:36	2025-12-23 22:01:02
+2181	7	1	8	984	5270	92.540	0.000	92.540	2025-10-15	576	purchase	5	0	3	2025-12-23 22:01:02	2025-12-23 22:01:12
+2182	7	1	8	INV-25/00222	\N	23.690	92.540	68.850	2025-10-15	1606	sale	5	0	3	2025-12-23 22:01:12	2025-12-23 22:01:19
+2183	7	1	8	INV-25/00223	\N	23.470	68.850	45.380	2025-10-15	1607	sale	5	0	3	2025-12-23 22:01:19	2025-12-23 22:01:28
+2184	7	1	8	INV-25/00224	\N	23.630	45.380	21.750	2025-10-15	1608	sale	5	0	3	2025-12-23 22:01:28	2025-12-23 22:01:35
+2185	7	1	8	INV-25/00225	\N	21.750	21.750	0.000	2025-10-15	1609	sale	5	0	3	2025-12-23 22:01:35	2025-12-23 22:03:06
+2186	7	1	8	976	5279	100.490	0.000	100.490	2025-10-15	577	purchase	5	0	3	2025-12-23 22:03:06	2025-12-23 22:03:16
+2187	7	1	8	INV-25/00226	\N	24.690	100.490	75.800	2025-10-15	1610	sale	5	0	3	2025-12-23 22:03:16	2025-12-23 22:03:23
+2188	7	1	8	INV-25/00227	\N	24.630	75.800	51.170	2025-10-15	1611	sale	5	0	3	2025-12-23 22:03:23	2025-12-23 22:03:30
+2189	7	1	8	INV-25/00228	\N	25.690	51.170	25.480	2025-10-15	1612	sale	5	0	3	2025-12-23 22:03:30	2025-12-23 22:03:37
+2190	7	1	8	INV-25/00229	\N	25.480	25.480	0.000	2025-10-15	1613	sale	5	0	3	2025-12-23 22:03:37	2025-12-23 22:08:15
+2191	7	1	8	984	5330	70.100	0.000	70.100	2025-10-16	578	purchase	5	0	3	2025-12-23 22:08:15	2025-12-23 22:08:33
+2192	7	1	8	INV-25/00230	\N	23.230	70.100	46.870	2025-10-16	1614	sale	5	0	3	2025-12-23 22:08:33	2025-12-23 22:08:40
+2193	7	1	8	INV-25/00231	\N	23.630	46.870	23.240	2025-10-16	1615	sale	5	0	3	2025-12-23 22:08:40	2025-12-23 22:08:48
+2194	7	1	8	INV-25/00232	\N	23.240	23.240	0.000	2025-10-16	1616	sale	5	0	3	2025-12-23 22:08:48	2025-12-23 22:10:16
+2195	7	1	8	1045	5335	50.440	0.000	50.440	2025-10-16	579	purchase	5	0	3	2025-12-23 22:10:16	2025-12-23 22:10:33
+2196	7	1	8	INV-25/00233	\N	25.630	50.440	24.810	2025-10-16	1617	sale	5	0	3	2025-12-23 22:10:33	2025-12-23 22:10:40
+2197	7	1	8	INV-25/00234	\N	24.810	24.810	0.000	2025-10-16	1618	sale	5	0	3	2025-12-23 22:10:40	2025-12-23 22:13:04
+2198	7	1	8	1045	5339	24.580	0.000	24.580	2025-10-16	580	purchase	5	0	3	2025-12-23 22:13:04	2025-12-23 22:13:14
+2199	7	1	8	INV-25/00235	\N	24.580	24.580	0.000	2025-10-16	1619	sale	5	0	3	2025-12-23 22:13:14	2025-12-23 22:14:42
+2200	7	1	8	1045	5378	246.650	0.000	246.650	2025-10-17	581	purchase	5	0	3	2025-12-23 22:14:42	2025-12-23 22:14:56
+2201	7	1	8	INV-25/00236	\N	24.360	246.650	222.290	2025-10-17	1620	sale	5	0	3	2025-12-23 22:14:56	2025-12-23 22:15:06
+2202	7	1	8	INV-25/00237	\N	24.360	222.290	197.930	2025-10-17	1621	sale	5	0	3	2025-12-23 22:15:06	2025-12-23 22:15:14
+2203	7	1	8	INV-25/00238	\N	24.630	197.930	173.300	2025-10-17	1622	sale	5	0	3	2025-12-23 22:15:14	2025-12-23 22:15:22
+2204	7	1	8	INV-25/00239	\N	24.690	173.300	148.610	2025-10-17	1623	sale	5	0	3	2025-12-23 22:15:22	2025-12-23 22:15:30
+2205	7	1	8	INV-25/00240	\N	24.140	148.610	124.470	2025-10-17	1624	sale	5	0	3	2025-12-23 22:15:30	2025-12-23 22:15:39
+2206	7	1	8	INV-25/00241	\N	24.310	124.470	100.160	2025-10-17	1625	sale	5	0	3	2025-12-23 22:15:39	2025-12-23 22:15:56
+2207	7	1	8	INV-25/00242	\N	24.360	100.160	75.800	2025-10-17	1626	sale	5	0	3	2025-12-23 22:15:56	2025-12-23 22:16:05
+2208	7	1	8	INV-25/00243	\N	24.120	75.800	51.680	2025-10-17	1627	sale	5	0	3	2025-12-23 22:16:05	2025-12-23 22:16:13
+2209	7	1	8	INV-25/00244	\N	25.450	51.680	26.230	2025-10-17	1628	sale	5	0	3	2025-12-23 22:16:13	2025-12-23 22:16:21
+2210	7	1	8	INV-25/00245	\N	26.230	26.230	0.000	2025-10-17	1629	sale	5	0	3	2025-12-23 22:16:21	2025-12-23 22:28:30
+2211	7	1	8	1045	5427	100.630	0.000	100.630	2025-10-19	582	purchase	5	0	3	2025-12-23 22:28:30	2025-12-23 22:28:50
+2212	7	1	8	INV-25/00246	\N	24.580	100.630	76.050	2025-10-19	1630	sale	5	0	3	2025-12-23 22:28:50	2025-12-23 22:29:01
+2213	7	1	8	INV-25/00247	\N	24.560	76.050	51.490	2025-10-19	1631	sale	5	0	3	2025-12-23 22:29:01	2025-12-23 22:29:08
+2214	7	1	8	INV-25/00248	\N	25.690	51.490	25.800	2025-10-19	1632	sale	5	0	3	2025-12-23 22:29:08	2025-12-23 22:29:16
+2215	7	1	8	INV-25/00249	\N	25.800	25.800	0.000	2025-10-19	1633	sale	5	0	3	2025-12-23 22:29:16	2025-12-23 22:32:12
+2216	7	1	8	1045	5458	99.510	0.000	99.510	2025-10-22	583	purchase	5	0	3	2025-12-23 22:32:12	2025-12-23 22:32:25
+2217	7	1	8	INV-25/00250	\N	24.630	99.510	74.880	2025-10-22	1634	sale	5	0	3	2025-12-23 22:32:25	2025-12-23 22:32:42
+2218	7	1	8	INV-25/00251	\N	24.980	74.880	49.900	2025-10-22	1635	sale	5	0	3	2025-12-23 22:32:42	2025-12-23 22:32:51
+2219	7	1	8	INV-25/00252	\N	24.560	49.900	25.340	2025-10-22	1636	sale	5	0	3	2025-12-23 22:32:51	2025-12-23 22:32:58
+2220	7	1	8	INV-25/00253	\N	25.340	25.340	0.000	2025-10-22	1637	sale	5	0	3	2025-12-23 22:32:58	2025-12-23 23:04:36
+2221	7	1	8	1088	5461	98.510	0.000	98.510	2025-10-22	584	purchase	5	0	3	2025-12-23 23:04:36	2025-12-23 23:04:45
+2222	7	1	8	INV-25/00254	\N	24.560	98.510	73.950	2025-10-22	1638	sale	5	0	3	2025-12-23 23:04:45	2025-12-23 23:04:53
+2223	7	1	8	INV-25/00255	\N	24.960	73.950	48.990	2025-10-22	1639	sale	5	0	3	2025-12-23 23:04:53	2025-12-23 23:04:59
+2224	7	1	8	INV-25/00256	\N	24.850	48.990	24.140	2025-10-22	1640	sale	5	0	3	2025-12-23 23:04:59	2025-12-23 23:05:11
+2225	7	1	8	INV-25/00257	\N	24.140	24.140	0.000	2025-10-22	1641	sale	5	0	3	2025-12-23 23:05:11	2025-12-23 23:06:48
+2226	7	1	8	1088	5513	49.080	0.000	49.080	2025-10-23	585	purchase	5	0	3	2025-12-23 23:06:48	2025-12-23 23:07:07
+2227	7	1	8	INV-25/00258	\N	24.850	49.080	24.230	2025-10-23	1642	sale	5	0	3	2025-12-23 23:07:07	2025-12-23 23:07:15
+2228	7	1	8	INV-25/00259	\N	24.230	24.230	0.000	2025-10-23	1643	sale	5	0	3	2025-12-23 23:07:15	2025-12-23 23:12:38
+2229	7	1	8	1045	5515	73.340	0.000	73.340	2025-10-23	586	purchase	5	0	3	2025-12-23 23:12:38	2025-12-23 23:12:54
+2230	7	1	8	INV-25/00260	\N	24.230	73.340	49.110	2025-10-23	1644	sale	5	0	3	2025-12-23 23:12:54	2025-12-23 23:13:01
+2231	7	1	8	INV-25/00261	\N	24.560	49.110	24.550	2025-10-23	1645	sale	5	0	3	2025-12-23 23:13:01	2025-12-23 23:13:15
+2232	7	1	8	INV-25/00262	\N	24.550	24.550	0.000	2025-10-23	1646	sale	5	0	3	2025-12-23 23:13:15	2025-12-24 00:07:31
+2233	7	1	8	1088	5555	244.580	0.000	244.580	2025-10-24	587	purchase	5	0	3	2025-12-24 00:07:31	2025-12-24 00:07:41
+2234	7	1	8	INV-25/00263	\N	24.360	244.580	220.220	2025-10-24	1647	sale	5	0	3	2025-12-24 00:07:42	2025-12-24 00:07:52
+2235	7	1	8	INV-25/00264	\N	25.690	220.220	194.530	2025-10-24	1648	sale	5	0	3	2025-12-24 00:07:52	2025-12-24 00:07:59
+2236	7	1	8	INV-25/00265	\N	25.690	194.530	168.840	2025-10-24	1649	sale	5	0	3	2025-12-24 00:07:59	2025-12-24 00:08:06
+2237	7	1	8	INV-25/00266	\N	25.740	168.840	143.100	2025-10-24	1650	sale	5	0	3	2025-12-24 00:08:06	2025-12-24 00:08:15
+2238	7	1	8	INV-25/00267	\N	25.470	143.100	117.630	2025-10-24	1651	sale	5	0	3	2025-12-24 00:08:15	2025-12-24 00:08:52
+2239	7	1	8	INV-25/00268	\N	23.360	117.630	94.270	2025-10-24	1652	sale	5	0	3	2025-12-24 00:08:52	2025-12-24 00:09:05
+2240	7	1	8	INV-25/00269	\N	23.580	94.270	70.690	2025-10-24	1653	sale	5	0	3	2025-12-24 00:09:05	2025-12-24 00:09:13
+2241	7	1	8	INV-25/00270	\N	23.850	70.690	46.840	2025-10-24	1654	sale	5	0	3	2025-12-24 00:09:13	2025-12-24 00:09:22
+2242	7	1	8	INV-25/00271	\N	23.470	46.840	23.370	2025-10-24	1655	sale	5	0	3	2025-12-24 00:09:22	2025-12-24 00:09:31
+2243	7	1	8	INV-25/00272	\N	23.370	23.370	0.000	2025-10-24	1656	sale	5	0	3	2025-12-24 00:09:31	2025-12-24 16:23:51
+2244	7	1	8	1045	5578	98.730	0.000	98.730	2025-10-25	588	purchase	5	0	3	2025-12-24 16:23:51	2025-12-24 16:24:05
+2245	7	1	8	INV-25/00273	\N	24.890	98.730	73.840	2025-10-25	1657	sale	5	0	3	2025-12-24 16:24:05	2025-12-24 16:24:12
+2246	7	1	8	INV-25/00274	\N	24.780	73.840	49.060	2025-10-25	1658	sale	5	0	3	2025-12-24 16:24:12	2025-12-24 16:24:20
+2247	7	1	8	INV-25/00275	\N	24.960	49.060	24.100	2025-10-25	1659	sale	5	0	3	2025-12-24 16:24:20	2025-12-24 16:24:26
+2248	7	1	8	INV-25/00276	\N	24.100	24.100	0.000	2025-10-25	1660	sale	5	0	3	2025-12-24 16:24:26	2025-12-24 16:36:50
+2249	7	1	8	1088	5625	146.250	0.000	146.250	2025-10-27	589	purchase	5	0	3	2025-12-24 16:36:50	2025-12-24 16:37:07
+2250	7	1	8	INV-25/00277	\N	24.360	146.250	121.890	2025-10-27	1661	sale	5	0	3	2025-12-24 16:37:07	2025-12-24 16:37:17
+2251	7	1	8	INV-25/00278	\N	24.580	121.890	97.310	2025-10-27	1662	sale	5	0	3	2025-12-24 16:37:17	2025-12-24 16:37:27
+2252	7	1	8	INV-25/00279	\N	24.960	97.310	72.350	2025-10-27	1663	sale	5	0	3	2025-12-24 16:37:27	2025-12-24 16:37:35
+2253	7	1	8	INV-25/00280	\N	24.740	72.350	47.610	2025-10-27	1664	sale	5	0	3	2025-12-24 16:37:35	2025-12-24 16:37:42
+2254	7	1	8	INV-25/00281	\N	24.250	47.610	23.360	2025-10-27	1665	sale	5	0	3	2025-12-24 16:37:42	2025-12-24 16:37:49
+2255	7	1	8	INV-25/00282	\N	23.360	23.360	0.000	2025-10-27	1666	sale	5	0	3	2025-12-24 16:37:49	2025-12-24 16:39:16
+2256	7	1	8	1045	5634	120.400	0.000	120.400	2025-10-27	590	purchase	5	0	3	2025-12-24 16:39:16	2025-12-24 16:39:37
+2257	7	1	8	INV-25/00283	\N	24.000	120.400	96.400	2025-10-27	1667	sale	5	0	3	2025-12-24 16:39:37	2025-12-24 16:39:44
+2258	7	1	8	INV-25/00284	\N	23.690	96.400	72.710	2025-10-27	1668	sale	5	0	3	2025-12-24 16:39:44	2025-12-24 16:39:52
+2259	7	1	8	INV-25/00285	\N	23.870	72.710	48.840	2025-10-27	1669	sale	5	0	3	2025-12-24 16:39:52	2025-12-24 16:40:01
+2260	7	1	8	INV-25/00286	\N	24.170	48.840	24.670	2025-10-27	1670	sale	5	0	3	2025-12-24 16:40:01	2025-12-24 16:40:09
+2261	7	1	8	INV-25/00287	\N	24.670	24.670	0.000	2025-10-27	1671	sale	5	0	3	2025-12-24 16:40:09	2025-12-24 16:41:57
+2262	7	1	8	1121	5702	24.620	0.000	24.620	2025-10-28	591	purchase	5	0	3	2025-12-24 16:41:57	2025-12-24 16:42:07
+2263	7	1	8	INV-25/00288	\N	24.620	24.620	0.000	2025-10-28	1672	sale	5	0	3	2025-12-24 16:42:07	2025-12-24 16:43:40
+2264	7	1	8	1124	5773	23.870	0.000	23.870	2025-10-29	592	purchase	5	0	3	2025-12-24 16:43:40	2025-12-24 16:43:53
+2265	7	1	8	INV-25/00289	\N	23.870	23.870	0.000	2025-10-29	1673	sale	5	0	3	2025-12-24 16:43:53	2025-12-24 16:45:32
+2266	7	1	8	1121	5775	74.690	0.000	74.690	2025-10-29	593	purchase	5	0	3	2025-12-24 16:45:32	2025-12-24 16:45:43
+2267	7	1	8	INV-25/00290	\N	24.780	74.690	49.910	2025-10-29	1674	sale	5	0	3	2025-12-24 16:45:43	2025-12-24 16:45:50
+2268	7	1	8	INV-25/00291	\N	24.960	49.910	24.950	2025-10-29	1675	sale	5	0	3	2025-12-24 16:45:50	2025-12-24 16:45:58
+2269	7	1	8	INV-25/00292	\N	24.950	24.950	0.000	2025-10-29	1676	sale	5	0	3	2025-12-24 16:45:58	2025-12-24 16:47:31
+2270	7	1	8	1121	5785	25.020	0.000	25.020	2025-10-29	594	purchase	5	0	3	2025-12-24 16:47:31	2025-12-24 16:47:43
+2271	7	1	8	INV-25/00293	\N	25.020	25.020	0.000	2025-10-29	1677	sale	5	0	3	2025-12-24 16:47:43	2025-12-24 16:49:02
+2272	7	1	8	1124	5811	48.640	0.000	48.640	2025-10-29	595	purchase	5	0	3	2025-12-24 16:49:02	2025-12-24 16:49:12
+2273	7	1	8	INV-25/00294	\N	24.260	48.640	24.380	2025-10-29	1678	sale	5	0	3	2025-12-24 16:49:12	2025-12-24 16:49:21
+2274	7	1	8	INV-25/00295	\N	24.380	24.380	0.000	2025-10-29	1679	sale	5	0	3	2025-12-24 16:49:21	2025-12-24 16:50:34
+2275	7	1	8	1124	5815	23.720	0.000	23.720	2025-10-29	596	purchase	5	0	3	2025-12-24 16:50:34	2025-12-24 16:50:45
+2276	7	1	8	INV-25/00296	\N	23.720	23.720	0.000	2025-10-29	1680	sale	5	0	3	2025-12-24 16:50:45	2025-12-24 16:52:49
+2277	7	1	8	1088	5827	122.740	0.000	122.740	2025-10-29	597	purchase	5	0	3	2025-12-24 16:52:49	2025-12-24 16:53:04
+2278	7	1	8	INV-25/00297	\N	24.120	122.740	98.620	2025-10-29	1681	sale	5	0	3	2025-12-24 16:53:04	2025-12-24 16:53:12
+2279	7	1	8	INV-25/00298	\N	24.260	98.620	74.360	2025-10-29	1682	sale	5	0	3	2025-12-24 16:53:12	2025-12-24 16:53:19
+2280	7	1	8	INV-25/00299	\N	24.690	74.360	49.670	2025-10-29	1683	sale	5	0	3	2025-12-24 16:53:19	2025-12-24 16:53:26
+2281	7	1	8	INV-25/00300	\N	24.890	49.670	24.780	2025-10-29	1684	sale	5	0	3	2025-12-24 16:53:26	2025-12-24 16:53:33
+2282	7	1	8	INV-25/00301	\N	24.780	24.780	0.000	2025-10-29	1685	sale	5	0	3	2025-12-24 16:53:33	2025-12-24 16:56:15
+2283	7	1	8	1124	5874	49.090	0.000	49.090	2025-10-30	598	purchase	5	0	3	2025-12-24 16:56:15	2025-12-24 16:56:26
+2284	7	1	8	INV-25/00302	\N	24.870	49.090	24.220	2025-10-30	1686	sale	5	0	3	2025-12-24 16:56:26	2025-12-24 16:56:33
+2285	7	1	8	INV-25/00303	\N	24.220	24.220	0.000	2025-10-30	1687	sale	5	0	3	2025-12-24 16:56:33	2025-12-24 16:57:50
+2286	7	1	8	1121	5876	48.180	0.000	48.180	2025-10-30	599	purchase	5	0	3	2025-12-24 16:57:50	2025-12-24 16:58:00
+2287	7	1	8	INV-25/00304	\N	24.100	48.180	24.080	2025-10-30	1688	sale	5	0	3	2025-12-24 16:58:00	2025-12-24 16:58:08
+2288	7	1	8	INV-25/00305	\N	24.080	24.080	0.000	2025-10-30	1689	sale	5	0	3	2025-12-24 16:58:08	2025-12-24 16:59:51
+2289	7	1	8	1124	5897	71.890	0.000	71.890	2025-10-31	600	purchase	5	0	3	2025-12-24 16:59:51	2025-12-24 17:00:02
+2290	7	1	8	INV-25/00306	\N	23.360	71.890	48.530	2025-10-31	1690	sale	5	0	3	2025-12-24 17:00:02	2025-12-24 17:00:11
+2291	7	1	8	INV-25/00307	\N	24.180	48.530	24.350	2025-10-31	1691	sale	5	0	3	2025-12-24 17:00:11	2025-12-24 17:00:18
+2292	7	1	8	INV-25/00308	\N	24.350	24.350	0.000	2025-10-31	1692	sale	5	0	3	2025-12-24 17:00:18	2025-12-24 17:02:04
+2293	7	1	8	1124	5903	74.170	0.000	74.170	2025-10-31	601	purchase	5	0	3	2025-12-24 17:02:04	2025-12-24 17:02:17
+2294	7	1	8	INV-25/00309	\N	24.890	74.170	49.280	2025-10-31	1693	sale	5	0	3	2025-12-24 17:02:17	2025-12-24 17:02:25
+2295	7	1	8	INV-25/00310	\N	24.960	49.280	24.320	2025-10-31	1694	sale	5	0	3	2025-12-24 17:02:25	2025-12-24 17:02:32
+2296	7	1	8	INV-25/00311	\N	24.320	24.320	0.000	2025-10-31	1695	sale	5	0	3	2025-12-24 17:02:32	2025-12-24 17:03:58
+2297	7	1	8	1088	5929	125.240	0.000	125.240	2025-10-31	602	purchase	5	0	3	2025-12-24 17:03:58	2025-12-24 17:04:13
+2298	7	1	8	INV-25/00312	\N	24.890	125.240	100.350	2025-10-31	1696	sale	5	0	3	2025-12-24 17:04:13	2025-12-24 17:04:20
+2299	7	1	8	INV-25/00313	\N	24.960	100.350	75.390	2025-10-31	1697	sale	5	0	3	2025-12-24 17:04:20	2025-12-24 17:04:27
+2300	7	1	8	INV-25/00314	\N	25.310	75.390	50.080	2025-10-31	1698	sale	5	0	3	2025-12-24 17:04:27	2025-12-24 17:04:34
+2301	7	1	8	INV-25/00315	\N	25.020	50.080	25.060	2025-10-31	1699	sale	5	0	3	2025-12-24 17:04:34	2025-12-24 17:04:45
+2302	7	1	8	INV-25/00316	\N	25.060	25.060	0.000	2025-10-31	1700	sale	5	0	3	2025-12-24 17:04:45	2025-12-24 17:57:04
+2303	7	1	16	1124	5970	144.900	0.000	144.900	2025-11-01	603	purchase	5	0	3	2025-12-24 17:57:04	2025-12-24 17:57:19
+2304	7	1	16	INV-25/00317	\N	24.250	144.900	120.650	2025-11-01	1701	sale	5	0	3	2025-12-24 17:57:19	2025-12-24 17:57:24
+2305	7	1	16	INV-25/00318	\N	24.000	120.650	96.650	2025-11-01	1702	sale	5	0	3	2025-12-24 17:57:24	2025-12-24 17:57:31
+2306	7	1	16	INV-25/00319	\N	24.100	96.650	72.550	2025-11-01	1703	sale	5	0	3	2025-12-24 17:57:31	2025-12-24 17:57:38
+2307	7	1	16	INV-25/00320	\N	24.050	72.550	48.500	2025-11-01	1704	sale	5	0	3	2025-12-24 17:57:38	2025-12-24 17:57:46
+2308	7	1	16	INV-25/00321	\N	24.120	48.500	24.380	2025-11-01	1705	sale	5	0	3	2025-12-24 17:57:46	2025-12-24 17:57:53
+2309	7	1	16	INV-25/00322	\N	24.380	24.380	0.000	2025-11-01	1706	sale	5	0	3	2025-12-24 17:57:53	2025-12-24 18:00:02
+2310	7	1	16	1124	5979	145.610	0.000	145.610	2025-11-01	604	purchase	5	0	3	2025-12-24 18:00:02	2025-12-24 18:00:15
+2311	7	1	16	INV-25/00323	\N	24.230	145.610	121.380	2025-11-01	1707	sale	5	0	3	2025-12-24 18:00:15	2025-12-24 18:00:22
+2312	7	1	16	INV-25/00324	\N	24.250	121.380	97.130	2025-11-01	1708	sale	5	0	3	2025-12-24 18:00:22	2025-12-24 18:00:29
+2313	7	1	16	INV-25/00325	\N	24.120	97.130	73.010	2025-11-01	1709	sale	5	0	3	2025-12-24 18:00:29	2025-12-24 18:00:35
+2314	7	1	16	INV-25/00326	\N	24.260	73.010	48.750	2025-11-01	1710	sale	5	0	3	2025-12-24 18:00:35	2025-12-24 18:00:42
+2315	7	1	16	INV-25/00327	\N	24.280	48.750	24.470	2025-11-01	1711	sale	5	0	3	2025-12-24 18:00:42	2025-12-24 18:00:48
+2316	7	1	16	INV-25/00328	\N	24.470	24.470	0.000	2025-11-01	1712	sale	5	0	3	2025-12-24 18:00:48	2025-12-24 18:02:20
+2317	7	1	16	1121	6015	121.490	0.000	121.490	2025-11-03	605	purchase	5	0	3	2025-12-24 18:02:20	2025-12-24 18:02:46
+2318	7	1	16	INV-25/00329	\N	24.200	121.490	97.290	2025-11-03	1713	sale	5	0	3	2025-12-24 18:02:46	2025-12-24 18:02:52
+2319	7	1	16	INV-25/00330	\N	23.630	97.290	73.660	2025-11-03	1714	sale	5	0	3	2025-12-24 18:02:52	2025-12-24 18:03:00
+2320	7	1	16	INV-25/00331	\N	23.140	73.660	50.520	2025-11-03	1715	sale	5	0	3	2025-12-24 18:03:00	2025-12-24 18:03:08
+2321	7	1	16	INV-25/00332	\N	25.410	50.520	25.110	2025-11-03	1716	sale	5	0	3	2025-12-24 18:03:08	2025-12-24 18:03:15
+2322	7	1	16	INV-25/00333	\N	25.110	25.110	0.000	2025-11-03	1717	sale	5	0	3	2025-12-24 18:03:15	2025-12-24 18:42:31
+2323	7	1	16	1124	6024	73.840	0.000	73.840	2025-11-03	606	purchase	5	0	3	2025-12-24 18:42:31	2025-12-24 18:42:42
+2324	7	1	16	INV-25/00334	\N	24.850	73.840	48.990	2025-11-03	1718	sale	5	0	3	2025-12-24 18:42:42	2025-12-24 18:42:49
+2325	7	1	16	INV-25/00335	\N	24.360	48.990	24.630	2025-11-03	1719	sale	5	0	3	2025-12-24 18:42:49	2025-12-24 18:42:56
+2326	7	1	16	INV-25/00336	\N	24.630	24.630	0.000	2025-11-03	1720	sale	5	0	3	2025-12-24 18:42:56	2025-12-24 18:44:07
+2327	7	1	16	1124	6026	73.610	0.000	73.610	2025-11-03	607	purchase	5	0	3	2025-12-24 18:44:07	2025-12-24 18:44:18
+2328	7	1	16	INV-25/00337	\N	24.560	73.610	49.050	2025-11-03	1721	sale	5	0	3	2025-12-24 18:44:18	2025-12-24 18:44:25
+2329	7	1	16	INV-25/00338	\N	24.870	49.050	24.180	2025-11-03	1722	sale	5	0	3	2025-12-24 18:44:25	2025-12-24 18:44:31
+2330	7	1	16	INV-25/00339	\N	24.180	24.180	0.000	2025-11-03	1723	sale	5	0	3	2025-12-24 18:44:31	2025-12-24 18:45:55
+2331	7	1	16	1124	6041	24.030	0.000	24.030	2025-11-03	608	purchase	5	0	3	2025-12-24 18:45:55	2025-12-24 18:46:06
+2332	7	1	16	INV-25/00340	\N	24.030	24.030	0.000	2025-11-03	1724	sale	5	0	3	2025-12-24 18:46:06	2025-12-24 18:47:59
+2333	7	1	16	1124	6082	25.190	0.000	25.190	2025-11-04	609	purchase	5	0	3	2025-12-24 18:47:59	2025-12-24 18:48:09
+2334	7	1	16	INV-25/00341	\N	25.190	25.190	0.000	2025-11-04	1725	sale	5	0	3	2025-12-24 18:48:09	2025-12-24 18:50:26
+2335	7	1	16	1165	6091	218.590	0.000	218.590	2025-11-04	610	purchase	5	0	3	2025-12-24 18:50:26	2025-12-24 18:50:36
+2336	7	1	16	INV-25/00342	\N	24.360	218.590	194.230	2025-11-04	1726	sale	5	0	3	2025-12-24 18:50:36	2025-12-24 18:50:51
+2337	7	1	16	INV-25/00343	\N	24.120	194.230	170.110	2025-11-04	1727	sale	5	0	3	2025-12-24 18:50:51	2025-12-24 18:50:58
+2338	7	1	16	INV-25/00344	\N	24.360	170.110	145.750	2025-11-04	1728	sale	5	0	3	2025-12-24 18:50:58	2025-12-24 18:51:05
+2339	7	1	16	INV-25/00345	\N	24.170	145.750	121.580	2025-11-04	1729	sale	5	0	3	2025-12-24 18:51:05	2025-12-24 18:51:12
+2340	7	1	16	INV-25/00346	\N	24.120	121.580	97.460	2025-11-04	1730	sale	5	0	3	2025-12-24 18:51:12	2025-12-24 18:51:19
+2341	7	1	16	INV-25/00347	\N	24.650	97.460	72.810	2025-11-04	1731	sale	5	0	3	2025-12-24 18:51:19	2025-12-24 18:51:27
+2342	7	1	16	INV-25/00348	\N	24.100	72.810	48.710	2025-11-04	1732	sale	5	0	3	2025-12-24 18:51:27	2025-12-24 18:51:35
+2343	7	1	16	INV-25/00349	\N	24.320	48.710	24.390	2025-11-04	1733	sale	5	0	3	2025-12-24 18:51:35	2025-12-24 18:51:41
+2344	7	1	16	INV-25/00350	\N	24.390	24.390	0.000	2025-11-04	1734	sale	5	0	3	2025-12-24 18:51:41	2025-12-24 18:54:24
+2345	7	1	16	1121	6128	48.690	0.000	48.690	2025-11-04	611	purchase	5	0	3	2025-12-24 18:54:24	2025-12-24 18:54:33
+2346	7	1	16	INV-25/00351	\N	24.250	48.690	24.440	2025-11-04	1735	sale	5	0	3	2025-12-24 18:54:33	2025-12-24 18:54:39
+2347	7	1	16	INV-25/00352	\N	24.440	24.440	0.000	2025-11-04	1736	sale	5	0	3	2025-12-24 18:54:39	2025-12-24 18:56:00
+2348	7	1	16	1165	6147	193.560	0.000	193.560	2025-11-05	612	purchase	5	0	3	2025-12-24 18:56:00	2025-12-24 18:56:26
+2349	7	1	16	INV-25/00353	\N	24.250	193.560	169.310	2025-11-05	1737	sale	5	0	3	2025-12-24 18:56:26	2025-12-24 18:56:33
+2350	7	1	16	INV-25/00354	\N	24.260	169.310	145.050	2025-11-05	1738	sale	5	0	3	2025-12-24 18:56:33	2025-12-24 18:56:40
+2351	7	1	16	INV-25/00355	\N	24.360	145.050	120.690	2025-11-05	1739	sale	5	0	3	2025-12-24 18:56:40	2025-12-24 18:56:50
+2352	7	1	16	INV-25/00356	\N	24.360	120.690	96.330	2025-11-05	1740	sale	5	0	3	2025-12-24 18:56:50	2025-12-24 18:56:58
+2353	7	1	16	INV-25/00357	\N	24.630	96.330	71.700	2025-11-05	1741	sale	5	0	3	2025-12-24 18:56:58	2025-12-24 18:57:07
+2354	7	1	16	INV-25/00358	\N	24.310	71.700	47.390	2025-11-05	1742	sale	5	0	3	2025-12-24 18:57:07	2025-12-24 18:57:15
+2355	7	1	16	INV-25/00359	\N	23.740	47.390	23.650	2025-11-05	1743	sale	5	0	3	2025-12-24 18:57:15	2025-12-24 18:57:22
+2356	7	1	16	INV-25/00360	\N	23.650	23.650	0.000	2025-11-05	1744	sale	5	0	3	2025-12-24 18:57:22	2025-12-24 19:00:32
+2357	7	1	16	1165	6174	47.790	0.000	47.790	2025-11-05	613	purchase	5	0	3	2025-12-24 19:00:32	2025-12-24 19:00:41
+2358	7	1	16	INV-25/00361	\N	23.690	47.790	24.100	2025-11-05	1745	sale	5	0	3	2025-12-24 19:00:41	2025-12-24 19:00:48
+2359	7	1	16	INV-25/00362	\N	24.100	24.100	0.000	2025-11-05	1746	sale	5	0	3	2025-12-24 19:00:48	2025-12-24 19:02:37
+2360	7	1	16	1121	6214	74.210	0.000	74.210	2025-11-06	614	purchase	5	0	3	2025-12-24 19:02:37	2025-12-24 19:02:49
+2361	7	1	16	INV-25/00363	\N	24.150	74.210	50.060	2025-11-06	1747	sale	5	0	3	2025-12-24 19:02:49	2025-12-24 19:02:56
+2362	7	1	16	INV-25/00364	\N	24.560	50.060	25.500	2025-11-06	1748	sale	5	0	3	2025-12-24 19:02:56	2025-12-24 19:03:02
+2363	7	1	16	INV-25/00365	\N	25.500	25.500	0.000	2025-11-06	1749	sale	5	0	3	2025-12-24 19:03:02	2025-12-24 19:05:46
+2364	7	1	16	1165	6216	123.050	0.000	123.050	2025-11-06	615	purchase	5	0	3	2025-12-24 19:05:46	2025-12-24 19:05:57
+2365	7	1	16	INV-25/00366	\N	24.360	123.050	98.690	2025-11-06	1750	sale	5	0	3	2025-12-24 19:05:57	2025-12-24 19:06:05
+2366	7	1	16	INV-25/00367	\N	24.850	98.690	73.840	2025-11-06	1751	sale	5	0	3	2025-12-24 19:06:05	2025-12-24 19:06:12
+2367	7	1	16	INV-25/00368	\N	24.790	73.840	49.050	2025-11-06	1752	sale	5	0	3	2025-12-24 19:06:12	2025-12-24 19:06:19
+2368	7	1	16	INV-25/00369	\N	24.980	49.050	24.070	2025-11-06	1753	sale	5	0	3	2025-12-24 19:06:19	2025-12-24 19:06:25
+2369	7	1	16	INV-25/00370	\N	24.070	24.070	0.000	2025-11-06	1754	sale	5	0	3	2025-12-24 19:06:25	2025-12-24 19:07:48
+2370	7	1	16	1165	6217	24.100	0.000	24.100	2025-11-06	616	purchase	5	0	3	2025-12-24 19:07:48	2025-12-24 19:07:57
+2371	7	1	16	INV-25/00371	\N	24.100	24.100	0.000	2025-11-06	1755	sale	5	0	3	2025-12-24 19:07:57	2025-12-24 19:09:14
+2372	7	1	16	1165	6221	24.110	0.000	24.110	2025-11-06	617	purchase	5	0	3	2025-12-24 19:09:14	2025-12-24 19:09:25
+2373	7	1	16	INV-25/00372	\N	24.110	24.110	0.000	2025-11-06	1756	sale	5	0	3	2025-12-24 19:09:25	2025-12-24 19:10:42
+2374	7	1	16	1165	6243	161.840	0.000	161.840	2025-11-07	618	purchase	5	0	3	2025-12-24 19:10:42	2025-12-24 19:10:56
+2375	7	1	16	INV-25/00373	\N	26.690	161.840	135.150	2025-11-07	1757	sale	5	0	3	2025-12-24 19:10:56	2025-12-24 19:11:03
+2376	7	1	16	INV-25/00374	\N	27.630	135.150	107.520	2025-11-07	1758	sale	5	0	3	2025-12-24 19:11:03	2025-12-24 19:11:10
+2377	7	1	16	INV-25/00375	\N	26.360	107.520	81.160	2025-11-07	1759	sale	5	0	3	2025-12-24 19:11:10	2025-12-24 19:11:27
+2378	7	1	16	INV-25/00376	\N	27.360	81.160	53.800	2025-11-07	1760	sale	5	0	3	2025-12-24 19:11:27	2025-12-24 19:11:35
+2379	7	1	16	INV-25/00377	\N	26.850	53.800	26.950	2025-11-07	1761	sale	5	0	3	2025-12-24 19:11:35	2025-12-24 19:11:44
+2380	7	1	16	INV-25/00378	\N	26.950	26.950	0.000	2025-11-07	1762	sale	5	0	3	2025-12-24 19:11:44	2025-12-24 19:13:05
+2381	7	1	16	1121	6287	96.690	0.000	96.690	2025-11-07	619	purchase	5	0	3	2025-12-24 19:13:05	2025-12-24 19:13:14
+2382	7	1	16	INV-25/00379	\N	24.100	96.690	72.590	2025-11-07	1763	sale	5	0	3	2025-12-24 19:13:14	2025-12-24 19:13:20
+2383	7	1	16	INV-25/00380	\N	24.060	72.590	48.530	2025-11-07	1764	sale	5	0	3	2025-12-24 19:13:20	2025-12-24 19:13:27
+2384	7	1	16	INV-25/00381	\N	24.230	48.530	24.300	2025-11-07	1765	sale	5	0	3	2025-12-24 19:13:27	2025-12-24 19:13:33
+2385	7	1	16	INV-25/00382	\N	24.300	24.300	0.000	2025-11-07	1766	sale	5	0	3	2025-12-24 19:13:33	2025-12-24 19:14:48
+2386	7	1	16	1121	6289	25.030	0.000	25.030	2025-11-07	620	purchase	5	0	3	2025-12-24 19:14:48	2025-12-24 19:14:57
+2387	7	1	16	INV-25/00383	\N	25.030	25.030	0.000	2025-11-07	1767	sale	5	0	3	2025-12-24 19:14:57	2025-12-24 19:16:48
+2388	7	1	16	1121	6311	198.570	0.000	198.570	2025-11-08	621	purchase	5	0	3	2025-12-24 19:16:48	2025-12-24 19:17:00
+2389	7	1	16	INV-25/00384	\N	24.580	198.570	173.990	2025-11-08	1768	sale	5	0	3	2025-12-24 19:17:00	2025-12-24 19:17:10
+2390	7	1	16	INV-25/00385	\N	24.360	173.990	149.630	2025-11-08	1769	sale	5	0	3	2025-12-24 19:17:10	2025-12-24 19:17:17
+2391	7	1	16	INV-25/00386	\N	23.690	149.630	125.940	2025-11-08	1770	sale	5	0	3	2025-12-24 19:17:17	2025-12-24 19:17:23
+2392	7	1	16	INV-25/00387	\N	24.580	125.940	101.360	2025-11-08	1771	sale	5	0	3	2025-12-24 19:17:23	2025-12-24 19:17:31
+2393	7	1	16	INV-25/00388	\N	24.360	101.360	77.000	2025-11-08	1772	sale	5	0	3	2025-12-24 19:17:31	2025-12-24 19:17:38
+2394	7	1	16	INV-25/00389	\N	25.360	77.000	51.640	2025-11-08	1773	sale	5	0	3	2025-12-24 19:17:38	2025-12-24 19:17:45
+2395	7	1	16	INV-25/00390	\N	25.860	51.640	25.780	2025-11-08	1774	sale	5	0	3	2025-12-24 19:17:45	2025-12-24 19:17:54
+2396	7	1	16	INV-25/00391	\N	25.780	25.780	0.000	2025-11-08	1775	sale	5	0	3	2025-12-24 19:17:54	2025-12-24 19:19:12
+2397	7	1	16	1121	6335	50.560	0.000	50.560	2025-11-10	622	purchase	5	0	3	2025-12-24 19:19:12	2025-12-24 19:19:25
+2398	7	1	16	INV-25/00392	\N	25.310	50.560	25.250	2025-11-10	1776	sale	5	0	3	2025-12-24 19:19:25	2025-12-24 19:19:32
+2399	7	1	16	INV-25/00393	\N	25.250	25.250	0.000	2025-11-10	1777	sale	5	0	3	2025-12-24 19:19:32	2025-12-24 19:21:01
+2400	7	1	16	1226	6612	193.660	0.000	193.660	2025-11-14	623	purchase	5	0	3	2025-12-24 19:21:01	2025-12-24 19:21:11
+2401	7	1	16	INV-25/00394	\N	24.230	193.660	169.430	2025-11-14	1778	sale	5	0	3	2025-12-24 19:21:11	2025-12-24 19:21:18
+2402	7	1	16	INV-25/00395	\N	24.090	169.430	145.340	2025-11-14	1779	sale	5	0	3	2025-12-24 19:21:18	2025-12-24 19:21:25
+2403	7	1	16	INV-25/00396	\N	25.310	145.340	120.030	2025-11-14	1780	sale	5	0	3	2025-12-24 19:21:25	2025-12-24 19:21:34
+2404	7	1	16	INV-25/00397	\N	24.150	120.030	95.880	2025-11-14	1781	sale	5	0	3	2025-12-24 19:21:34	2025-12-24 19:21:43
+2405	7	1	16	INV-25/00398	\N	24.170	95.880	71.710	2025-11-14	1782	sale	5	0	3	2025-12-24 19:21:43	2025-12-24 19:21:51
+2406	7	1	16	INV-25/00399	\N	23.360	71.710	48.350	2025-11-14	1783	sale	5	0	3	2025-12-24 19:21:51	2025-12-24 19:21:58
+2407	7	1	16	INV-25/00400	\N	24.320	48.350	24.030	2025-11-14	1784	sale	5	0	3	2025-12-24 19:21:58	2025-12-24 19:22:06
+2408	7	1	16	INV-25/00401	\N	24.030	24.030	0.000	2025-11-14	1785	sale	5	0	3	2025-12-24 19:22:06	2025-12-24 19:25:05
+2409	7	1	16	1226	6686	72.290	0.000	72.290	2025-11-17	624	purchase	5	0	3	2025-12-24 19:25:05	2025-12-24 19:26:49
+2410	7	1	16	INV-25/00402	\N	24.120	72.290	48.170	2025-11-17	1786	sale	5	0	3	2025-12-24 19:26:49	2025-12-24 19:26:56
+2411	7	1	16	INV-25/00403	\N	24.100	48.170	24.070	2025-11-17	1787	sale	5	0	3	2025-12-24 19:26:56	2025-12-24 19:27:03
+2412	7	1	16	INV-25/00404	\N	24.070	24.070	0.000	2025-11-17	1788	sale	5	0	3	2025-12-24 19:27:03	2025-12-24 19:30:01
+2413	7	1	16	1226	6725	47.780	0.000	47.780	2025-11-17	625	purchase	5	0	3	2025-12-24 19:30:01	2025-12-24 19:30:10
+2414	7	1	16	INV-25/00405	\N	23.580	47.780	24.200	2025-11-17	1789	sale	5	0	3	2025-12-24 19:30:10	2025-12-24 19:30:17
+2415	7	1	16	INV-25/00406	\N	24.200	24.200	0.000	2025-11-17	1790	sale	5	0	3	2025-12-24 19:30:17	2025-12-24 19:34:02
+2416	7	1	16	1269	6885	96.930	0.000	96.930	2025-11-20	626	purchase	5	0	3	2025-12-24 19:34:02	2025-12-24 19:34:11
+2417	7	1	16	INV-25/00407	\N	24.120	96.930	72.810	2025-11-20	1791	sale	5	0	3	2025-12-24 19:34:11	2025-12-24 19:34:19
+2418	7	1	16	INV-25/00408	\N	24.060	72.810	48.750	2025-11-20	1792	sale	5	0	3	2025-12-24 19:34:19	2025-12-24 19:34:44
+2419	7	1	16	INV-25/00409	\N	24.250	48.750	24.500	2025-11-20	1793	sale	5	0	3	2025-12-24 19:34:44	2025-12-24 19:34:59
+2420	7	1	16	INV-25/00410	\N	24.500	24.500	0.000	2025-11-20	1794	sale	5	0	3	2025-12-24 19:34:59	2025-12-24 19:36:32
+2421	7	1	16	1269	6891	73.070	0.000	73.070	2025-11-20	627	purchase	5	0	3	2025-12-24 19:36:32	2025-12-24 19:36:47
+2422	7	1	16	INV-25/00411	\N	24.870	73.070	48.200	2025-11-20	1795	sale	5	0	3	2025-12-24 19:36:47	2025-12-24 19:36:53
+2423	7	1	16	INV-25/00412	\N	24.120	48.200	24.080	2025-11-20	1796	sale	5	0	3	2025-12-24 19:36:53	2025-12-24 19:37:02
+2424	7	1	16	INV-25/00413	\N	24.080	24.080	0.000	2025-11-20	1797	sale	5	0	3	2025-12-24 19:37:02	2025-12-24 19:38:27
+2425	7	1	16	1269	6918	96.190	0.000	96.190	2025-11-21	628	purchase	5	0	3	2025-12-24 19:38:27	2025-12-24 19:38:37
+2426	7	1	16	INV-25/00414	\N	24.120	96.190	72.070	2025-11-21	1798	sale	5	0	3	2025-12-24 19:38:37	2025-12-24 19:38:44
+2427	7	1	16	INV-25/00415	\N	24.150	72.070	47.920	2025-11-21	1799	sale	5	0	3	2025-12-24 19:38:44	2025-12-24 19:38:50
+2428	7	1	16	INV-25/00416	\N	23.630	47.920	24.290	2025-11-21	1800	sale	5	0	3	2025-12-24 19:38:50	2025-12-24 19:38:56
+2429	7	1	16	INV-25/00417	\N	24.290	24.290	0.000	2025-11-21	1801	sale	5	0	3	2025-12-24 19:38:56	2025-12-24 19:40:57
+2430	7	1	16	1226	6996	146.150	0.000	146.150	2025-11-25	629	purchase	5	0	3	2025-12-24 19:40:57	2025-12-24 19:41:08
+2431	7	1	16	INV-25/00418	\N	24.360	146.150	121.790	2025-11-25	1802	sale	5	0	3	2025-12-24 19:41:08	2025-12-24 19:41:17
+2432	7	1	16	INV-25/00419	\N	24.310	121.790	97.480	2025-11-25	1803	sale	5	0	3	2025-12-24 19:41:17	2025-12-24 19:41:51
+2433	7	1	16	INV-25/00420	\N	24.580	97.480	72.900	2025-11-25	1804	sale	5	0	3	2025-12-24 19:41:51	2025-12-24 19:42:43
+2434	7	1	16	INV-25/00421	\N	24.230	72.900	48.670	2025-11-25	1805	sale	5	0	3	2025-12-24 19:42:43	2025-12-24 19:42:50
+2435	7	1	16	INV-25/00422	\N	24.360	48.670	24.310	2025-11-25	1806	sale	5	0	3	2025-12-24 19:42:50	2025-12-24 19:42:58
+2436	7	1	16	INV-25/00423	\N	24.310	24.310	0.000	2025-11-25	1807	sale	5	0	3	2025-12-24 19:42:58	2025-12-24 19:46:07
+2437	7	1	16	1269	7025	24.230	0.000	24.230	2025-11-25	630	purchase	5	0	3	2025-12-24 19:46:07	2025-12-24 19:46:33
+2438	7	1	16	INV-25/00424	\N	24.230	24.230	0.000	2025-11-25	1808	sale	5	0	3	2025-12-24 19:46:33	2025-12-24 19:49:46
+2439	7	1	16	1269	7040	48.180	0.000	48.180	2025-11-25	631	purchase	5	0	3	2025-12-24 19:49:46	2025-12-24 19:49:59
+2440	7	1	16	INV-25/00425	\N	24.120	48.180	24.060	2025-11-25	1809	sale	5	0	3	2025-12-24 19:49:59	2025-12-24 19:50:07
+2441	7	1	16	INV-25/00426	\N	24.060	24.060	0.000	2025-11-25	1810	sale	5	0	3	2025-12-24 19:50:07	2025-12-24 19:52:20
+2442	7	1	16	1226	7100	96.900	0.000	96.900	2025-11-26	632	purchase	5	0	3	2025-12-24 19:52:20	2025-12-24 19:52:29
+2443	7	1	16	INV-25/00427	\N	24.360	96.900	72.540	2025-11-26	1811	sale	5	0	3	2025-12-24 19:52:29	2025-12-24 19:52:37
+2444	7	1	16	INV-25/00428	\N	24.120	72.540	48.420	2025-11-26	1812	sale	5	0	3	2025-12-24 19:52:37	2025-12-24 19:52:44
+2445	7	1	16	INV-25/00429	\N	24.120	48.420	24.300	2025-11-26	1813	sale	5	0	3	2025-12-24 19:52:44	2025-12-24 19:52:52
+2446	7	1	16	INV-25/00430	\N	24.300	24.300	0.000	2025-11-26	1814	sale	5	0	3	2025-12-24 19:52:52	2025-12-24 19:58:42
+2447	7	1	16	1269	7105	71.830	0.000	71.830	2025-11-26	633	purchase	5	0	3	2025-12-24 19:58:42	2025-12-24 19:59:04
+2448	7	1	16	INV-25/00431	\N	23.690	71.830	48.140	2025-11-26	1815	sale	5	0	3	2025-12-24 19:59:04	2025-12-24 19:59:11
+2449	7	1	16	INV-25/00432	\N	24.050	48.140	24.090	2025-11-26	1816	sale	5	0	3	2025-12-24 19:59:11	2025-12-24 19:59:18
+2450	7	1	16	INV-25/00433	\N	24.090	24.090	0.000	2025-11-26	1817	sale	5	0	3	2025-12-24 19:59:18	2025-12-24 20:03:24
+2451	7	1	16	1269	7154	143.970	0.000	143.970	2025-11-27	634	purchase	5	0	3	2025-12-24 20:03:24	2025-12-24 20:04:13
+2452	7	1	16	INV-25/00434	\N	24.360	143.970	119.610	2025-11-27	1818	sale	5	0	3	2025-12-24 20:04:13	2025-12-24 20:04:43
+2453	7	1	16	INV-25/00435	\N	24.360	119.610	95.250	2025-11-27	1819	sale	5	0	3	2025-12-24 20:04:43	2025-12-24 20:04:49
+2454	7	1	16	INV-25/00436	\N	24.690	95.250	70.560	2025-11-27	1820	sale	5	0	3	2025-12-24 20:04:49	2025-12-24 20:04:56
+2455	7	1	16	INV-25/00437	\N	23.120	70.560	47.440	2025-11-27	1821	sale	5	0	3	2025-12-24 20:04:56	2025-12-24 20:05:04
+2456	7	1	16	INV-25/00438	\N	24.230	47.440	23.210	2025-11-27	1822	sale	5	0	3	2025-12-24 20:05:04	2025-12-24 20:05:11
+2457	7	1	16	INV-25/00439	\N	23.210	23.210	0.000	2025-11-27	1823	sale	5	0	3	2025-12-24 20:05:11	2025-12-24 20:07:23
+2458	7	1	16	1226	7214	221.240	0.000	221.240	2025-11-28	635	purchase	5	0	3	2025-12-24 20:07:23	2025-12-24 20:07:42
+2459	7	1	16	INV-25/00440	\N	24.360	221.240	196.880	2025-11-28	1824	sale	5	0	3	2025-12-24 20:07:42	2025-12-24 20:07:49
+2460	7	1	16	INV-25/00441	\N	25.360	196.880	171.520	2025-11-28	1825	sale	5	0	3	2025-12-24 20:07:49	2025-12-24 20:07:55
+2461	7	1	16	INV-25/00442	\N	25.120	171.520	146.400	2025-11-28	1826	sale	5	0	3	2025-12-24 20:07:55	2025-12-24 20:08:02
+2462	7	1	16	INV-25/00443	\N	25.100	146.400	121.300	2025-11-28	1827	sale	5	0	3	2025-12-24 20:08:02	2025-12-24 20:08:09
+2463	7	1	16	INV-25/00444	\N	24.360	121.300	96.940	2025-11-28	1828	sale	5	0	3	2025-12-24 20:08:09	2025-12-24 20:08:15
+2464	7	1	16	INV-25/00445	\N	24.250	96.940	72.690	2025-11-28	1829	sale	5	0	3	2025-12-24 20:08:15	2025-12-24 20:08:25
+2465	7	1	16	INV-25/00446	\N	24.180	72.690	48.510	2025-11-28	1830	sale	5	0	3	2025-12-24 20:08:25	2025-12-24 20:08:36
+2466	7	1	16	INV-25/00447	\N	24.230	48.510	24.280	2025-11-28	1831	sale	5	0	3	2025-12-24 20:08:36	2025-12-24 20:08:51
+2467	7	1	16	INV-25/00448	\N	24.280	24.280	0.000	2025-11-28	1832	sale	5	0	3	2025-12-24 20:08:51	2025-12-24 20:12:41
+2468	7	1	16	1269	7239	46.790	0.000	46.790	2025-11-29	636	purchase	5	0	3	2025-12-24 20:12:41	2025-12-24 20:12:53
+2469	7	1	16	INV-25/00449	\N	23.120	46.790	23.670	2025-11-29	1833	sale	5	0	3	2025-12-24 20:12:53	2025-12-24 20:13:02
+2470	7	1	16	INV-25/00450	\N	23.670	23.670	0.000	2025-11-29	1834	sale	5	1	3	2025-12-24 20:13:02	2025-12-24 20:13:02
+2628	12	1	18	472	4403	306.280	0.000	306.280	2025-09-02	657	purchase	5	0	3	2025-12-30 16:16:59	2025-12-30 16:19:37
+2629	12	1	18	INV-25/00001	\N	24.690	306.280	281.590	2025-09-02	1972	sale	5	0	3	2025-12-30 16:19:37	2025-12-30 16:19:47
+2630	12	1	18	INV-25/00002	\N	24.870	281.590	256.720	2025-09-02	1973	sale	5	0	3	2025-12-30 16:19:47	2025-12-30 16:19:56
+2631	12	1	18	INV-25/00003	\N	24.780	256.720	231.940	2025-09-02	1974	sale	5	0	3	2025-12-30 16:19:56	2025-12-30 16:20:06
+2632	12	1	18	INV-25/00004	\N	24.890	231.940	207.050	2025-09-02	1975	sale	5	0	3	2025-12-30 16:20:06	2025-12-30 16:20:14
+2633	12	1	18	INV-25/00005	\N	25.010	207.050	182.040	2025-09-02	1976	sale	5	0	3	2025-12-30 16:20:14	2025-12-30 16:20:22
+2634	12	1	18	INV-25/00006	\N	25.320	182.040	156.720	2025-09-02	1977	sale	5	0	3	2025-12-30 16:20:22	2025-12-30 16:20:30
+2635	12	1	18	INV-25/00007	\N	25.310	156.720	131.410	2025-09-02	1978	sale	5	0	3	2025-12-30 16:20:30	2025-12-30 16:20:39
+2636	12	1	18	INV-25/00008	\N	25.140	131.410	106.270	2025-09-02	1979	sale	5	0	3	2025-12-30 16:20:39	2025-12-30 16:20:50
+2637	12	1	18	INV-25/00009	\N	26.980	106.270	79.290	2025-09-02	1980	sale	5	0	3	2025-12-30 16:20:50	2025-12-30 16:21:00
+2638	12	1	18	INV-25/00010	\N	27.450	79.290	51.840	2025-09-02	1981	sale	5	0	3	2025-12-30 16:21:00	2025-12-30 16:21:10
+2639	12	1	18	INV-25/00011	\N	26.360	51.840	25.480	2025-09-02	1982	sale	5	0	3	2025-12-30 16:21:10	2025-12-30 16:21:18
+2640	12	1	18	INV-25/00012	\N	25.480	25.480	0.000	2025-09-02	1983	sale	5	0	3	2025-12-30 16:21:18	2025-12-30 16:22:46
+2641	12	1	18	472	4495	286.200	0.000	286.200	2025-09-08	658	purchase	5	0	3	2025-12-30 16:22:46	2025-12-30 16:23:04
+2642	12	1	18	INV-25/00013	\N	24.320	286.200	261.880	2025-09-08	1984	sale	5	0	3	2025-12-30 16:23:04	2025-12-30 16:23:15
+2643	12	1	18	INV-25/00014	\N	24.310	261.880	237.570	2025-09-08	1985	sale	5	0	3	2025-12-30 16:23:15	2025-12-30 16:23:24
+2644	12	1	18	INV-25/00015	\N	24.740	237.570	212.830	2025-09-08	1986	sale	5	0	3	2025-12-30 16:23:24	2025-12-30 16:23:33
+2645	12	1	18	INV-25/00016	\N	24.120	212.830	188.710	2025-09-08	1987	sale	5	0	3	2025-12-30 16:23:33	2025-12-30 16:23:43
+2646	12	1	18	INV-25/00017	\N	24.210	188.710	164.500	2025-09-08	1988	sale	5	0	3	2025-12-30 16:23:43	2025-12-30 16:23:54
+2647	12	1	18	INV-25/00018	\N	24.120	164.500	140.380	2025-09-08	1989	sale	5	0	3	2025-12-30 16:23:54	2025-12-30 16:24:07
+2648	12	1	18	INV-25/00019	\N	24.020	140.380	116.360	2025-09-08	1990	sale	5	0	3	2025-12-30 16:24:07	2025-12-30 16:24:24
+2649	12	1	18	INV-25/00020	\N	23.210	116.360	93.150	2025-09-08	1991	sale	5	0	3	2025-12-30 16:24:24	2025-12-30 16:24:32
+2650	12	1	18	INV-25/00021	\N	22.310	93.150	70.840	2025-09-08	1992	sale	5	0	3	2025-12-30 16:24:32	2025-12-30 16:24:41
+2651	12	1	18	INV-25/00022	\N	22.310	70.840	48.530	2025-09-08	1993	sale	5	0	3	2025-12-30 16:24:41	2025-12-30 16:24:50
+2652	12	1	18	INV-25/00023	\N	24.120	48.530	24.410	2025-09-08	1994	sale	5	0	3	2025-12-30 16:24:50	2025-12-30 16:24:59
+2653	12	1	18	INV-25/00024	\N	24.410	24.410	0.000	2025-09-08	1995	sale	5	0	3	2025-12-30 16:24:59	2025-12-30 16:32:06
+2654	12	1	18	912	4571	165.580	0.000	165.580	2025-09-10	659	purchase	5	0	3	2025-12-30 16:32:06	2025-12-30 16:32:22
+2655	12	1	18	INV-25/00025	\N	24.320	165.580	141.260	2025-09-10	1996	sale	5	0	3	2025-12-30 16:32:22	2025-12-30 16:32:56
+2656	12	1	18	INV-25/00026	\N	24.120	141.260	117.140	2025-09-10	1997	sale	5	0	3	2025-12-30 16:32:56	2025-12-30 16:33:07
+2657	12	1	18	INV-25/00027	\N	24.000	117.140	93.140	2025-09-10	1998	sale	5	0	3	2025-12-30 16:33:07	2025-12-30 16:33:18
+2658	12	1	18	INV-25/00028	\N	24.320	93.140	68.820	2025-09-10	1999	sale	5	0	3	2025-12-30 16:33:18	2025-12-30 16:33:22
+2659	12	1	18	INV-25/00029	\N	22.000	68.820	46.820	2025-09-10	2000	sale	5	0	3	2025-12-30 16:33:22	2025-12-30 16:33:29
+2660	12	1	18	INV-25/00030	\N	23.210	46.820	23.610	2025-09-10	2001	sale	5	0	3	2025-12-30 16:33:29	2025-12-30 16:33:38
+2661	12	1	18	INV-25/00031	\N	23.610	23.610	0.000	2025-09-10	2002	sale	5	0	3	2025-12-30 16:33:38	2025-12-30 16:34:24
+2662	12	1	18	912	4606	188.720	0.000	188.720	2025-09-11	660	purchase	5	0	3	2025-12-30 16:34:24	2025-12-30 16:34:36
+2663	12	1	18	INV-25/00032	\N	24.120	188.720	164.600	2025-09-11	2003	sale	5	0	3	2025-12-30 16:34:36	2025-12-30 16:34:44
+2664	12	1	18	INV-25/00033	\N	24.120	164.600	140.480	2025-09-11	2004	sale	5	0	3	2025-12-30 16:34:44	2025-12-30 16:34:44
+2665	12	1	18	INV-25/00034	\N	24.000	140.480	116.480	2025-09-11	2005	sale	5	0	3	2025-12-30 16:34:44	2025-12-30 16:34:53
+2666	12	1	18	INV-25/00035	\N	22.120	116.480	94.360	2025-09-11	2006	sale	5	0	3	2025-12-30 16:34:53	2025-12-30 16:35:02
+2667	12	1	18	INV-25/00036	\N	23.000	94.360	71.360	2025-09-11	2007	sale	5	0	3	2025-12-30 16:35:02	2025-12-30 16:35:05
+2668	12	1	18	INV-25/00037	\N	22.120	71.360	49.240	2025-09-11	2008	sale	5	0	3	2025-12-30 16:35:05	2025-12-30 16:35:16
+2669	12	1	18	INV-25/00038	\N	24.500	49.240	24.740	2025-09-11	2009	sale	5	0	3	2025-12-30 16:35:16	2025-12-30 16:35:26
+2670	12	1	18	INV-25/00039	\N	24.740	24.740	0.000	2025-09-11	2010	sale	5	0	3	2025-12-30 16:35:26	2025-12-30 16:36:23
+2671	12	1	18	912	4610	142.350	0.000	142.350	2025-09-11	661	purchase	5	0	3	2025-12-30 16:36:23	2025-12-30 16:36:39
+2672	12	1	18	INV-25/00040	\N	22.320	142.350	120.030	2025-09-11	2011	sale	5	0	3	2025-12-30 16:36:39	2025-12-30 16:36:49
+2673	12	1	18	INV-25/00041	\N	24.980	120.030	95.050	2025-09-11	2012	sale	5	0	3	2025-12-30 16:36:49	2025-12-30 16:36:51
+2674	12	1	18	INV-25/00042	\N	24.000	95.050	71.050	2025-09-11	2013	sale	5	0	3	2025-12-30 16:36:51	2025-12-30 16:36:59
+2675	12	1	18	INV-25/00043	\N	23.360	71.050	47.690	2025-09-11	2014	sale	5	0	3	2025-12-30 16:36:59	2025-12-30 16:37:01
+2676	12	1	18	INV-25/00044	\N	24.000	47.690	23.690	2025-09-11	2015	sale	5	0	3	2025-12-30 16:37:01	2025-12-30 16:37:12
+2677	12	1	18	INV-25/00045	\N	23.690	23.690	0.000	2025-09-11	2016	sale	5	0	3	2025-12-30 16:37:12	2025-12-30 16:38:18
+2678	12	1	18	912	4647	208.710	0.000	208.710	2025-09-12	662	purchase	5	0	3	2025-12-30 16:38:18	2025-12-30 16:38:32
+2679	12	1	18	INV-25/00046	\N	24.000	208.710	184.710	2025-09-12	2017	sale	5	0	3	2025-12-30 16:38:32	2025-12-30 16:38:42
+2680	12	1	18	INV-25/00047	\N	25.120	184.710	159.590	2025-09-12	2018	sale	5	0	3	2025-12-30 16:38:42	2025-12-30 16:38:46
+2681	12	1	18	INV-25/00048	\N	24.000	159.590	135.590	2025-09-12	2019	sale	5	0	3	2025-12-30 16:38:46	2025-12-30 16:38:52
+2682	12	1	18	INV-25/00049	\N	25.010	135.590	110.580	2025-09-12	2020	sale	5	0	3	2025-12-30 16:38:52	2025-12-30 16:39:03
+2683	12	1	18	INV-25/00050	\N	23.000	110.580	87.580	2025-09-12	2021	sale	5	0	3	2025-12-30 16:39:03	2025-12-30 16:40:13
+2684	12	1	18	INV-25/00051	\N	29.500	87.580	58.080	2025-09-12	2022	sale	5	0	3	2025-12-30 16:40:13	2025-12-30 16:40:25
+2685	12	1	18	INV-25/00052	\N	29.000	58.080	29.080	2025-09-12	2023	sale	5	0	3	2025-12-30 16:40:25	2025-12-30 16:40:39
+2686	12	1	18	INV-25/00053	\N	29.080	29.080	0.000	2025-09-12	2024	sale	5	0	3	2025-12-30 16:40:39	2025-12-30 16:41:25
+2687	12	1	18	937	4788	144.490	0.000	144.490	2025-09-22	663	purchase	5	0	3	2025-12-30 16:41:25	2025-12-30 16:42:09
+2688	12	1	18	INV-25/00054	\N	24.190	144.490	120.300	2025-09-22	2025	sale	5	0	3	2025-12-30 16:42:09	2025-12-30 16:42:24
+2689	12	1	18	INV-25/00055	\N	24.000	120.300	96.300	2025-09-22	2026	sale	5	0	3	2025-12-30 16:42:24	2025-12-30 16:42:37
+2690	12	1	18	INV-25/00056	\N	24.360	96.300	71.940	2025-09-22	2027	sale	5	0	3	2025-12-30 16:42:37	2025-12-30 16:42:50
+2691	12	1	18	INV-25/00057	\N	24.180	71.940	47.760	2025-09-22	2028	sale	5	0	3	2025-12-30 16:42:50	2025-12-30 16:43:02
+2692	12	1	18	INV-25/00058	\N	24.580	47.760	23.180	2025-09-22	2029	sale	5	0	3	2025-12-30 16:43:02	2025-12-30 16:43:16
+2693	12	1	18	INV-25/00059	\N	23.180	23.180	0.000	2025-09-22	2030	sale	5	0	3	2025-12-30 16:43:16	2025-12-30 16:43:29
+2694	12	1	18	937	4812	260.730	0.000	260.730	2025-09-23	664	purchase	5	0	3	2025-12-30 16:43:29	2025-12-30 16:43:55
+2695	12	1	18	INV-25/00060	\N	25.120	260.730	235.610	2025-09-23	2031	sale	5	0	3	2025-12-30 16:43:55	2025-12-30 16:44:01
+2696	12	1	18	INV-25/00061	\N	25.810	235.610	209.800	2025-09-23	2032	sale	5	0	3	2025-12-30 16:44:01	2025-12-30 16:44:03
+2697	12	1	18	INV-25/00062	\N	25.470	209.800	184.330	2025-09-23	2033	sale	5	0	3	2025-12-30 16:44:03	2025-12-30 16:44:13
+2698	12	1	18	INV-25/00063	\N	25.780	184.330	158.550	2025-09-23	2034	sale	5	0	3	2025-12-30 16:44:13	2025-12-30 16:44:14
+2699	12	1	18	INV-25/00064	\N	25.410	158.550	133.140	2025-09-23	2035	sale	5	0	3	2025-12-30 16:44:14	2025-12-30 16:44:21
+2700	12	1	18	INV-25/00065	\N	26.870	133.140	106.270	2025-09-23	2036	sale	5	0	3	2025-12-30 16:44:21	2025-12-30 16:44:34
+2701	12	1	18	INV-25/00066	\N	27.560	106.270	78.710	2025-09-23	2037	sale	5	0	3	2025-12-30 16:44:34	2025-12-30 16:44:49
+2702	12	1	18	INV-25/00067	\N	27.560	78.710	51.150	2025-09-23	2038	sale	5	0	3	2025-12-30 16:44:49	2025-12-30 16:45:05
+2703	12	1	18	INV-25/00068	\N	25.890	51.150	25.260	2025-09-23	2039	sale	5	0	3	2025-12-30 16:45:05	2025-12-30 16:45:18
+2704	12	1	18	INV-25/00069	\N	25.260	25.260	0.000	2025-09-23	2040	sale	5	0	3	2025-12-30 16:45:18	2025-12-30 16:46:02
+2705	12	1	18	937	4836	163.070	0.000	163.070	2025-09-24	665	purchase	5	0	3	2025-12-30 16:46:02	2025-12-30 16:46:49
+2706	12	1	18	INV-25/00070	\N	27.590	163.070	135.480	2025-09-24	2041	sale	5	0	3	2025-12-30 16:46:49	2025-12-30 16:47:09
+2707	12	1	18	INV-25/00071	\N	27.250	135.480	108.230	2025-09-24	2042	sale	5	0	3	2025-12-30 16:47:09	2025-12-30 16:47:23
+2708	12	1	18	INV-25/00072	\N	26.000	108.230	82.230	2025-09-24	2043	sale	5	0	3	2025-12-30 16:47:23	2025-12-30 16:47:50
+2709	12	1	18	INV-25/00073	\N	27.590	82.230	54.640	2025-09-24	2044	sale	5	0	3	2025-12-30 16:47:50	2025-12-30 16:48:03
+2710	12	1	18	INV-25/00074	\N	27.590	54.640	27.050	2025-09-24	2045	sale	5	0	3	2025-12-30 16:48:03	2025-12-30 16:48:21
+2711	12	1	18	INV-25/00075	\N	27.050	27.050	0.000	2025-09-24	2046	sale	5	0	3	2025-12-30 16:48:21	2025-12-30 16:49:13
+2712	12	1	18	937	4899	138.760	0.000	138.760	2025-09-25	666	purchase	5	0	3	2025-12-30 16:49:13	2025-12-30 16:50:08
+2713	12	1	18	INV-25/00076	\N	24.000	138.760	114.760	2025-09-25	2047	sale	5	0	3	2025-12-30 16:50:08	2025-12-30 16:50:38
+2714	12	1	18	INV-25/00077	\N	23.580	114.760	91.180	2025-09-25	2048	sale	5	0	3	2025-12-30 16:50:38	2025-12-30 16:50:53
+2715	12	1	18	INV-25/00078	\N	23.890	91.180	67.290	2025-09-25	2049	sale	5	0	3	2025-12-30 16:50:53	2025-12-30 16:51:22
+2716	12	1	18	INV-25/00079	\N	23.100	67.290	44.190	2025-09-25	2050	sale	5	0	3	2025-12-30 16:51:22	2025-12-30 16:51:51
+2717	12	1	18	INV-25/00080	\N	22.080	44.190	22.110	2025-09-25	2051	sale	5	0	3	2025-12-30 16:51:51	2025-12-30 16:52:04
+2718	12	1	18	INV-25/00081	\N	22.110	22.110	0.000	2025-09-25	2052	sale	5	0	3	2025-12-30 16:52:04	2025-12-30 16:52:13
+2719	12	1	18	962	4960	380.360	0.000	380.360	2025-09-27	667	purchase	5	0	3	2025-12-30 16:52:13	2025-12-30 16:52:48
+2720	12	1	18	INV-25/00082	\N	24.580	380.360	355.780	2025-09-27	2053	sale	5	0	3	2025-12-30 16:52:48	2025-12-30 16:53:00
+2721	12	1	18	INV-25/00083	\N	25.690	355.780	330.090	2025-09-27	2054	sale	5	0	3	2025-12-30 16:53:00	2025-12-30 16:53:03
+2722	12	1	18	INV-25/00084	\N	25.450	330.090	304.640	2025-09-27	2055	sale	5	0	3	2025-12-30 16:53:03	2025-12-30 16:53:08
+2723	12	1	18	INV-25/00085	\N	25.690	304.640	278.950	2025-09-27	2056	sale	5	0	3	2025-12-30 16:53:08	2025-12-30 16:53:17
+2724	12	1	18	INV-25/00086	\N	25.780	278.950	253.170	2025-09-27	2057	sale	5	0	3	2025-12-30 16:53:17	2025-12-30 16:53:17
+2725	12	1	18	INV-25/00087	\N	24.890	253.170	228.280	2025-09-27	2058	sale	5	0	3	2025-12-30 16:53:17	2025-12-30 16:53:25
+2726	12	1	18	INV-25/00088	\N	26.690	228.280	201.590	2025-09-27	2059	sale	5	0	3	2025-12-30 16:53:25	2025-12-30 16:53:32
+2727	12	1	18	INV-25/00089	\N	25.500	201.590	176.090	2025-09-27	2060	sale	5	0	3	2025-12-30 16:53:32	2025-12-30 16:53:37
+2728	12	1	18	INV-25/00090	\N	25.120	176.090	150.970	2025-09-27	2061	sale	5	0	3	2025-12-30 16:53:37	2025-12-30 16:53:44
+2729	12	1	18	INV-25/00091	\N	25.750	150.970	125.220	2025-09-27	2062	sale	5	0	3	2025-12-30 16:53:44	2025-12-30 16:53:45
+2730	12	1	18	INV-25/00092	\N	25.030	125.220	100.190	2025-09-27	2063	sale	5	0	3	2025-12-30 16:53:45	2025-12-30 16:53:54
+2731	12	1	18	INV-25/00093	\N	25.140	100.190	75.050	2025-09-27	2064	sale	5	0	3	2025-12-30 16:53:54	2025-12-30 16:53:55
+2732	12	1	18	INV-25/00094	\N	25.430	75.050	49.620	2025-09-27	2065	sale	5	0	3	2025-12-30 16:53:55	2025-12-30 16:54:07
+2733	12	1	18	INV-25/00095	\N	24.580	49.620	25.040	2025-09-27	2066	sale	5	0	3	2025-12-30 16:54:07	2025-12-30 16:54:20
+2734	12	1	18	INV-25/00096	\N	25.040	25.040	0.000	2025-09-27	2067	sale	5	0	3	2025-12-30 16:54:20	2025-12-30 16:54:52
+2735	12	1	18	962	4978	95.370	0.000	95.370	2025-09-27	668	purchase	5	0	3	2025-12-30 16:54:52	2025-12-30 16:55:12
+2736	12	1	18	INV-25/00097	\N	24.580	95.370	70.790	2025-09-27	2068	sale	5	0	3	2025-12-30 16:55:12	2025-12-30 16:55:26
+2737	12	1	18	INV-25/00098	\N	23.500	70.790	47.290	2025-09-27	2069	sale	5	0	3	2025-12-30 16:55:26	2025-12-30 16:55:40
+2738	12	1	18	INV-25/00099	\N	23.120	47.290	24.170	2025-09-27	2070	sale	5	0	3	2025-12-30 16:55:40	2025-12-30 16:55:53
+2739	12	1	18	INV-25/00100	\N	24.170	24.170	0.000	2025-09-27	2071	sale	5	1	3	2025-12-30 16:55:53	2025-12-30 16:55:53
+\.
+
+
+--
+-- TOC entry 3911 (class 0 OID 17279)
+-- Dependencies: 251
+-- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.items (id, name, hs_code, description, cd, rd, sd, vat, at, created_at, updated_at) FROM stdin;
+1	Limestone	2521.00.10	Boulder Limestone	5.00	0.00	10.00	15.00	7.50	2025-12-07 20:38:35	2025-12-08 16:52:44
+2	Boulder Stone	2516.90.10	Boulder Stone	5.00	0.00	10.00	15.00	7.50	2025-12-07 20:39:32	2025-12-08 16:52:54
+\.
+
+
+--
+-- TOC entry 3913 (class 0 OID 17286)
+-- Dependencies: 253
+-- Data for Name: job_batches; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.job_batches (id, name, total_jobs, pending_jobs, failed_jobs, failed_job_ids, options, cancelled_at, created_at, finished_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3914 (class 0 OID 17291)
+-- Dependencies: 254
+-- Data for Name: jobs; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.jobs (id, queue, payload, attempts, reserved_at, available_at, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3916 (class 0 OID 17297)
+-- Dependencies: 256
+-- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.migrations (id, migration, batch) FROM stdin;
+1	0001_01_01_000001_create_cache_table	1
+2	0001_01_01_000002_create_jobs_table	1
+3	2025_10_08_062202_create_personal_access_tokens_table	1
+4	2025_10_08_113146_create_role_table	1
+5	2025_10_08_113346_create_users_table	1
+6	2025_10_22_132206_create_divisions_table	1
+7	2025_10_22_132406_create_clients_table	1
+8	2025_10_25_040033_create_banks_table	1
+9	2025_10_25_060033_create_branches_table	1
+10	2025_10_28_121936_create_vatfactors_table	1
+11	2025_10_29_032733_create_items_table	1
+12	2025_10_29_084742_create_units_table	1
+13	2025_10_29_123147_create_stationcodes_table	1
+14	2025_10_30_123505_create_form43s_table	1
+15	2025_11_02_072338_create_costsheets_table	1
+16	2025_11_02_073533_create_additions_table	1
+17	2025_11_03_071306_create_mushaknotes_table	1
+18	2025_11_03_071506_create_purchases_table	1
+19	2025_11_03_093347_create_expenses_table	1
+20	2025_11_03_093805_create_adjustments_table	1
+21	2025_11_03_094239_create_treasuries_table	1
+22	2025_11_03_191058_create_rates_table	1
+23	2025_11_03_191150_create_debitnotes_table	1
+24	2025_11_03_191223_create_creditnotes_table	1
+25	2025_11_04_150546_create_sales_table	1
+26	2025_11_04_151758_create_form621s_table	1
+27	2025_11_05_173724_create_form44s_table	1
+28	2025_11_05_173820_create_form45s_table	1
+29	2025_11_06_073926_create_customer_management_table	1
+30	2025_11_08_064342_create_economic_areas_table	1
+31	2025_11_28_023947_create_reports_table	1
+\.
+
+
+--
+-- TOC entry 3918 (class 0 OID 17301)
+-- Dependencies: 258
+-- Data for Name: mushaknotes; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.mushaknotes (id, name_note_no, percent, created_at, updated_at) FROM stdin;
+1	note_13	0.00	2025-12-03 06:17:28	\N
+2	note_15	15.00	2025-12-03 06:17:28	\N
+3	note_22	7.50	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3920 (class 0 OID 17305)
+-- Dependencies: 260
+-- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.password_reset_tokens (email, token, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3921 (class 0 OID 17310)
+-- Dependencies: 261
+-- Data for Name: personal_access_tokens; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, last_used_at, expires_at, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3923 (class 0 OID 17316)
+-- Dependencies: 263
+-- Data for Name: purchases; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.purchases (id, client_id, item_id, unit_id, stationcode_id, mushaknote_id, lc_no, lc_date, boe, boe_date, entry_date, df_cvat_cf, assessable_value, factor, opening_stock, stock, quantity, excess_quantity, wastage, total_quantity, base_value, unit_price, cd, cd_value, rd, rd_value, sd, sd_value, vat, vat_value, at, at_value, mcu, mcu_amount, receipt_number, receipt_date, exporter_name, address, created_at, updated_at) FROM stdin;
+1	2	1	5	5	3	0000021825010221	\N	2154	2025-06-28	2025-10-01	0.00	122176.88	1.00	0.000	77.000	72.00	5.00	0.00	77.00	141114.30	1832.65	5.00	6108.84	0.00	0.00	10.00	12828.57	15.00	21167.14	5.00	7055.71	0.001100	134.39	\N	\N	\N	\N	2025-12-08 08:37:25	2025-12-08 08:37:25
+2	2	1	5	5	3	0000021825010202	\N	2165	2025-06-30	2025-10-01	0.00	285617.80	1.00	0.000	180.000	180.00	0.00	0.00	180.00	329888.56	1832.71	5.00	14280.89	0.00	0.00	10.00	29989.87	15.00	49483.28	5.00	16494.43	0.001100	314.18	\N	\N	\N	\N	2025-12-08 16:42:55	2025-12-08 16:42:55
+3	2	1	5	5	3	0000021825010202	\N	2184	2025-07-08	2025-10-01	0.00	209452.74	1.00	0.000	132.000	132.00	0.00	0.00	132.00	241917.91	1832.71	5.00	10472.64	0.00	0.00	10.00	21992.54	15.00	36287.69	7.50	18143.84	0.001100	230.40	\N	\N	\N	\N	2025-12-08 16:53:37	2025-12-08 16:53:37
+4	2	1	5	5	3	0000021825010534	\N	2270	2025-10-23	2025-10-23	0.00	229617.35	1.00	0.000	144.000	144.00	0.00	0.00	144.00	265208.04	1841.72	5.00	11480.87	0.00	0.00	10.00	24109.82	15.00	39781.21	7.50	19890.60	0.001100	252.58	\N	\N	\N	\N	2025-12-08 16:57:54	2025-12-08 16:57:54
+5	2	1	5	5	3	0000021825010534	\N	2278	2025-10-27	2025-10-27	0.00	267886.40	1.00	0.000	168.000	168.00	0.00	0.00	168.00	309408.79	1841.72	5.00	13394.32	0.00	0.00	10.00	28128.07	15.00	46411.32	7.50	23205.66	0.001100	294.68	\N	\N	\N	\N	2025-12-08 17:02:33	2025-12-08 17:02:33
+6	2	1	5	5	3	0000021825010534	\N	2284	2025-10-28	2025-10-28	0.00	363560.55	1.00	0.000	228.000	228.00	0.00	0.00	228.00	419912.44	1841.72	5.00	18178.03	0.00	0.00	10.00	38173.86	15.00	62986.87	7.50	31493.43	0.001100	399.92	\N	\N	\N	\N	2025-12-08 17:06:29	2025-12-08 17:06:29
+11	1	1	5	1	2	557	\N	6772	2025-09-20	2025-09-20	148.59	39092.06	1.00	0.000	24.500	24.00	0.50	0.00	24.50	45151.33	1842.91	5.00	1954.60	0.00	0.00	10.00	4104.67	15.00	6772.70	7.50	3386.35	0.000000	0.00	6903	2025-09-20	GABRIEL RABON	MEGHALAYA, INDIA	2025-12-09 00:30:53	2025-12-09 00:30:53
+12	1	1	5	1	2	557	\N	6953	2025-09-24	2025-09-24	281.35	98737.97	1.00	0.000	61.880	60.00	1.88	0.00	61.88	114042.36	1842.96	5.00	4936.90	0.00	0.00	10.00	10367.49	15.00	17106.35	7.50	8553.18	0.000000	0.00	7039	2025-09-24	GABRIEL RABON	meghalaya	2025-12-09 00:37:22	2025-12-09 00:37:22
+13	1	1	5	1	2	557	\N	7010	2025-09-25	2025-09-25	180.90	58556.98	1.00	0.000	36.700	36.00	0.70	0.00	36.70	67633.31	1842.87	5.00	2927.85	0.00	0.00	10.00	6148.48	15.00	10145.00	7.50	5072.50	0.000000	0.00	7127	2025-09-25	GABRIEL RABON	meghalaya	2025-12-09 00:41:17	2025-12-09 00:41:17
+14	1	1	5	1	2	557	\N	7183	2025-09-30	2025-09-30	184.53	60012.23	1.00	0.000	37.610	36.00	1.61	0.00	37.61	69314.13	1842.97	5.00	3000.61	0.00	0.00	10.00	6301.28	15.00	10397.12	7.50	5198.56	0.000000	0.00	7287	2025-10-01	GABRIEL RABON	meghalaya	2025-12-09 00:43:48	2025-12-09 00:43:48
+15	1	1	5	1	2	557	\N	7217	2025-10-06	2025-10-06	182.87	59348.53	1.00	0.000	37.220	36.00	1.22	0.00	37.22	68547.55	1841.69	5.00	2967.43	0.00	0.00	10.00	6231.60	15.00	10282.13	7.50	5141.07	0.000000	0.00	7335	2025-10-06	GABRIEL RABON	meghalaya	2025-12-09 00:49:19	2025-12-09 00:49:19
+16	1	1	5	1	2	557	\N	7286	2025-10-07	2025-10-07	183.94	59776.24	1.00	0.000	37.490	36.00	1.49	0.00	37.49	69041.56	1841.60	5.00	2988.81	0.00	0.00	10.00	6276.51	15.00	10356.23	7.50	5178.12	0.000000	0.00	7399	2025-10-07	GABRIEL RABON	meghalaya	2025-12-09 00:50:57	2025-12-09 00:50:57
+17	1	1	5	1	2	557	\N	7381	2025-10-09	2025-10-09	148.88	39382.59	1.00	0.000	24.700	24.00	0.70	0.00	24.70	45486.89	1841.57	5.00	1969.13	0.00	0.00	10.00	4135.17	15.00	6823.03	7.50	3411.52	0.000000	0.00	7500	2025-10-09	\N	\N	2025-12-09 00:52:10	2025-12-09 00:52:10
+18	1	1	5	1	2	557	\N	7469	2025-10-13	2025-10-13	159.50	19691.30	1.00	0.000	12.350	12.00	0.35	0.00	12.35	22743.45	1841.58	5.00	984.57	0.00	0.00	10.00	2067.59	15.00	3411.52	7.50	1705.76	0.000000	0.00	7605	2025-10-13	GABRIEL RABON	meghalaya	2025-12-09 00:53:23	2025-12-09 00:53:23
+19	1	1	5	1	2	557	\N	7594	2025-10-15	2025-10-15	180.08	58231.97	1.00	0.000	36.520	36.00	0.52	0.00	36.52	67257.93	1841.67	5.00	2911.60	0.00	0.00	10.00	6114.36	15.00	10088.69	7.50	5044.34	0.000000	0.00	7701	2025-10-15	GABRIEL RABON	meghalaya	2025-12-09 00:55:00	2025-12-09 00:55:00
+20	1	1	5	1	2	557	\N	7669	2025-10-16	2025-10-16	229.22	77888.74	1.00	0.000	48.850	48.00	0.85	0.00	48.85	89961.49	1841.59	5.00	3894.44	0.00	0.00	10.00	8178.32	15.00	13494.22	7.50	6747.11	0.000000	0.00	7792	2025-10-16	GABRIEL RABON	meghalaya	2025-12-09 00:56:26	2025-12-09 00:56:26
+21	1	1	5	1	2	557	\N	7863	2025-10-22	2025-10-22	159.50	19134.52	1.00	0.000	12.000	12.00	0.00	0.00	12.00	22100.37	1841.70	5.00	956.73	0.00	0.00	10.00	2009.12	15.00	3315.06	7.50	1657.53	0.000000	0.00	7954	2025-10-22	GABRIEL RABON	meghalaya	2025-12-09 00:58:26	2025-12-09 00:58:26
+22	1	1	5	2	2	667	\N	5571	2025-10-24	2025-10-24	329.61	118044.16	1.00	0.000	74.030	73.46	0.57	0.00	74.03	136341.00	1841.70	5.00	5902.21	0.00	0.00	10.00	12394.64	15.00	20451.15	7.50	10225.58	0.000000	0.00	5629	2025-10-25	M/S ROYAL ENT	KARIMGANJ, ASSAM, INDIA	2025-12-09 01:00:50	2025-12-09 01:00:50
+23	1	1	5	2	2	667	\N	5623	2025-10-27	2025-10-27	329.67	118066.76	1.00	0.000	74.040	73.87	0.17	0.00	74.04	136367.11	1841.80	5.00	5903.34	0.00	0.00	10.00	12397.01	15.00	20455.07	7.50	10227.53	0.000000	0.00	5679	2025-10-27	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 01:06:00	2025-12-09 01:06:00
+24	1	1	5	1	2	672	\N	8059	2025-10-27	2025-10-27	377.90	137357.44	1.00	0.000	86.140	84.00	2.14	0.00	86.14	158647.84	1841.74	5.00	6867.87	0.00	0.00	10.00	14422.53	15.00	23797.18	7.50	11898.59	0.000000	0.00	8164	2025-10-27	GABRIEL RABON	meghalaya	2025-12-09 01:07:38	2025-12-09 01:07:38
+25	1	1	5	2	2	667	\N	5823	2025-10-29	2025-10-29	228.96	77783.94	1.00	0.000	48.780	48.42	0.36	0.00	48.78	89840.45	1841.75	5.00	3889.20	0.00	0.00	10.00	8167.31	15.00	13476.07	7.50	6738.03	0.000000	0.00	5904	2025-10-30	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 01:10:09	2025-12-09 01:10:09
+26	1	1	5	1	2	672	\N	8232	2025-10-30	2025-10-30	275.67	96469.57	1.00	0.000	60.500	60.00	0.50	0.00	60.50	111422.35	1841.69	5.00	4823.48	0.00	0.00	10.00	10129.30	15.00	16713.35	7.50	8356.68	0.000000	0.00	8349	2025-10-30	GABRIEL RABON	meghalaya	2025-12-09 01:11:28	2025-12-09 01:11:28
+27	1	1	5	2	2	667	\N	5896	2025-10-31	2025-10-31	233.00	79399.80	1.00	0.000	49.790	49.43	0.36	0.00	49.79	91706.77	1841.87	5.00	3969.99	0.00	0.00	10.00	8336.98	15.00	13756.02	7.50	6878.01	0.000000	0.00	6010	2025-11-01	M/S ROYAL ENT	Karimganj, Asssam	2025-12-09 01:13:20	2025-12-09 01:13:20
+33	3	1	5	5	3	0000034825010015	\N	2297	2025-10-29	2025-10-29	0.00	76538.07	1.00	0.000	48.000	48.00	0.00	0.00	48.00	88401.47	1841.70	5.00	3826.90	0.00	0.00	10.00	8036.50	15.00	13260.22	7.50	6630.11	0.001120	85.72	\N	\N	\N	\N	2025-12-09 06:41:38	2025-12-09 06:41:38
+34	3	1	5	5	3	0000034825010015	\N	2304	2025-10-30	2025-10-30	0.00	478370.79	1.00	0.000	300.000	300.00	0.00	0.00	300.00	552518.26	1841.73	5.00	23918.54	0.00	0.00	10.00	50228.93	15.00	82877.74	7.50	41438.87	0.001120	535.78	\N	\N	\N	\N	2025-12-09 06:45:06	2025-12-09 06:45:06
+35	4	1	5	5	2	0000021825010265	\N	3790	2025-06-30	2025-10-01	0.00	70003.81	1.00	0.000	44.110	44.11	0.00	0.00	44.11	80854.40	1833.02	5.00	3500.19	0.00	0.00	10.00	7350.40	15.00	12128.16	5.00	4042.72	0.001120	78.40	1	2025-06-30	\N	\N	2025-12-09 17:11:54	2025-12-09 17:11:54
+36	4	1	5	2	3	0000021825010265	\N	3821	2025-07-01	2025-10-01	0.00	70232.38	1.00	0.110	44.370	44.26	0.00	0.00	44.26	81118.40	1832.77	5.00	3511.62	0.00	0.00	10.00	7374.40	15.00	12167.76	7.50	6083.88	0.001120	78.66	\N	\N	\N	\N	2025-12-09 17:19:33	2025-12-09 17:23:10
+37	4	1	5	2	3	0000021825010302	\N	3828	2025-07-02	2025-10-01	0.00	70801.69	1.00	0.370	44.990	44.62	0.00	0.00	44.62	81775.95	1832.72	5.00	3540.08	0.00	0.00	10.00	7434.18	15.00	12266.39	7.50	6133.20	0.001120	79.30	\N	\N	\N	\N	2025-12-09 17:25:58	2025-12-09 17:25:58
+38	4	1	5	2	3	0000021825010302	\N	3869	2025-07-10	2025-10-02	0.00	321042.95	1.00	0.990	205.290	200.97	3.33	0.00	204.30	370804.61	1815.00	5.00	16052.15	0.00	0.00	10.00	33709.51	15.00	55620.69	7.50	27810.35	0.001120	359.57	\N	\N	\N	\N	2025-12-09 17:31:36	2025-12-09 17:31:36
+39	4	1	5	2	3	0000021825010302	\N	3870	2025-07-10	2025-10-02	0.00	251356.03	1.00	0.290	160.240	159.95	0.00	0.00	159.95	290316.21	1815.04	5.00	12567.80	0.00	0.00	10.00	26392.38	15.00	43547.43	7.50	21773.72	0.001120	281.52	\N	\N	\N	\N	2025-12-09 17:37:14	2025-12-09 17:37:14
+40	4	1	5	2	3	0000021825010302	\N	3923	2025-08-06	2025-10-02	0.00	113341.85	1.00	0.240	71.240	70.54	0.46	0.00	71.00	130909.84	1843.80	5.00	5667.09	0.00	0.00	10.00	11900.89	15.00	19636.48	7.50	9818.24	0.001120	126.94	\N	\N	\N	\N	2025-12-09 17:41:37	2025-12-09 17:41:37
+41	4	1	5	2	3	0000021825010302	\N	3926	2025-08-06	2025-10-02	0.00	111974.31	1.00	0.240	71.080	70.61	0.23	0.00	70.84	129330.33	1825.67	5.00	5598.72	0.00	0.00	10.00	11757.30	15.00	19399.55	7.50	9699.77	0.001120	125.41	\N	\N	\N	\N	2025-12-09 17:44:36	2025-12-09 17:44:36
+42	4	1	5	2	3	0000021825010372	\N	3958	2025-08-12	2025-10-03	0.00	114487.78	1.00	0.080	71.800	71.38	0.34	0.00	71.72	132233.39	1843.74	5.00	5724.39	0.00	0.00	10.00	12021.22	15.00	19835.01	7.50	9917.50	0.001120	128.23	\N	\N	\N	\N	2025-12-09 17:46:50	2025-12-09 17:46:50
+43	4	1	5	2	3	0000021825010372	\N	3960	2025-08-12	2025-10-03	0.00	113465.94	1.00	0.800	71.880	70.76	0.32	0.00	71.08	131053.16	1843.74	5.00	5673.30	0.00	0.00	10.00	11913.92	15.00	19657.97	7.50	9828.99	0.001120	127.08	\N	\N	\N	\N	2025-12-09 17:48:30	2025-12-09 17:48:30
+44	4	1	5	2	3	0000021825010372	\N	3987	2025-08-13	2025-10-03	0.00	112991.52	1.00	0.880	71.660	70.25	0.53	0.00	70.78	130505.21	1843.81	5.00	5649.58	0.00	0.00	10.00	11864.11	15.00	19575.78	7.50	9787.89	0.001120	126.55	\N	\N	\N	\N	2025-12-09 17:50:58	2025-12-09 17:50:58
+45	4	1	5	2	3	0000021825010372	\N	3990	2025-08-13	2025-10-03	0.00	111355.69	1.00	0.660	70.420	69.44	0.32	0.00	69.76	128615.82	1843.69	5.00	5567.78	0.00	0.00	10.00	11692.35	15.00	19292.37	7.50	9646.19	0.001120	124.72	\N	\N	\N	\N	2025-12-09 17:52:50	2025-12-09 17:52:50
+46	4	1	5	2	3	0000021825010372	\N	4011	2025-08-14	2025-10-04	0.00	110882.22	1.00	0.420	69.890	69.22	0.25	0.00	69.47	128068.96	1843.51	5.00	5544.11	0.00	0.00	10.00	11642.63	15.00	19210.34	7.50	9605.17	0.001120	124.19	\N	\N	\N	\N	2025-12-09 17:54:22	2025-12-09 17:54:22
+47	4	1	5	2	3	0000021825010372	\N	4014	2025-08-14	2025-10-04	0.00	108240.83	1.00	0.890	68.700	67.46	0.35	0.00	67.81	125018.16	1843.65	5.00	5412.04	0.00	0.00	10.00	11365.29	15.00	18752.72	7.50	9376.36	0.001120	121.23	\N	\N	\N	\N	2025-12-09 17:55:57	2025-12-09 17:55:57
+48	4	1	5	2	3	0000021825010372	\N	4039	2025-08-16	2025-10-04	0.00	72319.11	1.00	0.700	46.000	45.16	0.14	0.00	45.30	83528.57	1843.90	5.00	3615.96	0.00	0.00	10.00	7593.51	15.00	12529.29	7.50	6264.64	0.001120	81.00	\N	\N	\N	\N	2025-12-09 17:58:07	2025-12-09 17:58:07
+49	4	1	5	2	3	0000021825010372	\N	4063	2025-08-17	2025-10-04	0.00	109225.12	1.00	0.000	68.360	67.93	0.43	0.00	68.36	126155.01	1845.45	5.00	5461.26	0.00	0.00	10.00	11468.64	15.00	18923.25	7.50	9461.63	0.001120	122.33	\N	\N	\N	\N	2025-12-09 18:02:17	2025-12-09 18:02:17
+50	4	1	5	2	3	0000021825010372	\N	4077	2025-08-18	2025-10-05	0.00	109173.98	1.00	0.360	68.760	68.40	0.00	0.00	68.40	126095.95	1843.51	5.00	5458.70	0.00	0.00	10.00	11463.27	15.00	18914.39	7.50	9457.20	0.001120	122.27	\N	\N	\N	\N	2025-12-09 18:04:00	2025-12-09 18:04:00
+51	4	1	5	2	3	0000021825010407	\N	4148	2025-08-20	2025-10-05	0.00	108553.30	1.00	0.760	68.770	67.46	0.55	0.00	68.01	125379.06	1843.54	5.00	5427.67	0.00	0.00	10.00	11398.10	15.00	18806.86	7.50	9403.43	0.001120	121.58	\N	\N	\N	\N	2025-12-09 18:05:41	2025-12-09 18:05:41
+52	4	1	5	2	3	0000021825010407	\N	4177	2025-08-21	2025-10-05	0.00	109318.76	1.00	0.770	69.260	68.00	0.49	0.00	68.49	126263.17	1843.53	5.00	5465.94	0.00	0.00	10.00	11478.47	15.00	18939.48	7.50	9469.74	0.001120	122.44	\N	\N	\N	\N	2025-12-09 18:09:00	2025-12-09 18:09:00
+53	4	1	5	2	3	0000021825010407	\N	4178	2025-08-21	2025-10-05	0.00	74894.62	1.00	0.260	47.180	46.79	0.13	0.00	46.92	86503.29	1843.63	5.00	3744.73	0.00	0.00	10.00	7863.94	15.00	12975.49	7.50	6487.75	0.001120	83.88	\N	\N	\N	\N	2025-12-09 18:10:41	2025-12-09 18:10:41
+54	4	1	5	2	3	0000021825010407	\N	4206	2025-08-24	2025-10-05	0.00	113222.85	1.00	0.180	71.120	70.72	0.22	0.00	70.94	130772.39	1843.42	5.00	5661.14	0.00	0.00	10.00	11888.40	15.00	19615.86	7.50	9807.93	0.001120	126.81	\N	\N	\N	\N	2025-12-09 18:12:27	2025-12-09 18:12:27
+55	4	1	5	2	3	0000021825010407	\N	4221	2025-08-24	2025-10-05	0.00	75754.36	1.00	0.120	47.580	47.03	0.43	0.00	47.46	87496.29	1843.58	5.00	3787.72	0.00	0.00	10.00	7954.21	15.00	13124.44	7.50	6562.22	0.001120	84.84	\N	\N	\N	\N	2025-12-09 18:14:24	2025-12-09 18:14:24
+56	4	1	5	2	3	0000021825010419	\N	4238	2025-08-25	2025-10-05	0.00	113171.75	1.00	0.580	71.500	70.56	0.36	0.00	70.92	130713.37	1843.11	5.00	5658.59	0.00	0.00	10.00	11883.03	15.00	19607.01	7.50	9803.50	0.001120	126.75	\N	\N	\N	\N	2025-12-09 18:16:09	2025-12-09 18:16:09
+57	4	1	5	2	3	0000021825010419	\N	4266	2025-08-26	2025-10-06	0.00	113266.09	1.00	0.500	71.460	70.62	0.34	0.00	70.96	130822.33	1843.61	5.00	5663.30	0.00	0.00	10.00	11892.94	15.00	19623.35	7.50	9811.68	0.001120	126.86	\N	\N	\N	\N	2025-12-09 18:18:59	2025-12-09 18:18:59
+58	4	1	5	2	3	0000021825010419	\N	4270	2025-08-26	2025-10-06	0.00	111308.18	1.00	0.460	70.190	69.34	0.39	0.00	69.73	128560.95	1843.70	5.00	5565.41	0.00	0.00	10.00	11687.36	15.00	19284.14	7.50	9642.07	0.001120	124.67	\N	\N	\N	\N	2025-12-09 18:26:14	2025-12-09 18:26:14
+59	1	1	5	2	3	667	\N	6000	2025-11-03	2025-11-03	342.88	123350.23	1.00	0.000	77.470	76.62	0.85	0.00	77.47	142469.52	1839.03	5.00	6167.51	0.00	0.00	10.00	12951.77	15.00	21370.43	7.50	10685.21	0.000000	0.00	6073	2025-11-04	M/S ROYAL ENT	Karimganj, Assam	2025-12-09 18:45:32	2025-12-09 18:45:32
+60	1	1	5	1	3	672	\N	8335	2025-11-03	2025-11-03	159.50	20235.77	1.00	0.000	12.710	12.00	0.71	0.00	12.71	23372.31	1838.89	5.00	1011.79	0.00	0.00	10.00	2124.76	15.00	3505.85	7.50	1752.92	0.000000	0.00	8432	2025-11-04	GABRIEL RABON	MEGHALAYA	2025-12-09 18:57:44	2025-12-09 18:57:44
+61	1	1	5	1	3	672	\N	8382	2025-11-04	2025-11-04	183.29	59516.03	1.00	0.000	37.380	36.00	1.38	0.00	37.38	68741.01	1838.98	5.00	2975.80	0.00	0.00	10.00	6249.18	15.00	10311.15	7.50	5155.58	0.000000	0.00	8458	2025-11-04	GABRIEL RABON	MEGHALAYA	2025-12-09 18:59:00	2025-12-09 18:59:00
+62	1	1	5	2	3	694	\N	6117	2025-11-04	2025-11-04	148.38	38883.65	1.00	0.000	24.420	24.33	0.09	0.00	24.42	44910.62	1839.09	5.00	1944.18	0.00	0.00	10.00	4082.78	15.00	6736.59	7.50	3368.30	0.000000	0.00	6187	2025-11-04	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 19:03:16	2025-12-09 19:03:16
+63	1	1	5	2	3	694	\N	6171	2025-11-04	2025-11-04	328.70	117682.65	1.00	0.000	73.910	73.66	0.25	0.00	73.91	135923.46	1839.04	5.00	5884.13	0.00	0.00	10.00	12356.68	15.00	20388.52	7.50	10194.26	0.000000	0.00	6231	2025-11-05	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 19:04:37	2025-12-09 19:04:37
+64	1	1	5	1	3	672	\N	8446	2025-11-05	2025-11-05	479.93	178172.11	1.00	0.000	111.910	108.00	3.91	0.00	111.91	205788.79	1838.88	5.00	8908.61	0.00	0.00	10.00	18708.07	15.00	30868.32	7.50	15434.16	0.000000	0.00	8534	2025-11-05	GABRIEL RABON	MEGHALAYA	2025-12-09 19:06:30	2025-12-09 19:06:30
+65	1	1	5	2	3	694	\N	6220	2025-11-06	2025-11-06	326.45	116778.63	1.00	0.000	73.340	72.96	0.38	0.00	73.34	134879.32	1839.10	5.00	5838.93	0.00	0.00	10.00	12261.76	15.00	20231.90	7.50	10115.95	0.000000	0.00	6298	2025-11-07	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 19:08:46	2025-12-09 19:08:46
+66	1	1	5	2	3	694	\N	6314	2025-11-08	2025-11-08	323.25	115498.76	1.00	0.000	72.530	72.19	0.34	0.00	72.53	133401.07	1839.25	5.00	5774.94	0.00	0.00	10.00	12127.37	15.00	20010.16	7.50	10005.08	0.000000	0.00	6388	2025-11-08	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 19:10:39	2025-12-09 19:10:39
+67	1	1	5	2	3	694	\N	6505	2025-11-13	2025-11-13	336.43	120771.15	1.00	0.000	75.850	75.00	0.85	0.00	75.85	139490.68	1839.03	5.00	6038.56	0.00	0.00	10.00	12680.97	15.00	20923.60	7.50	10461.80	0.000000	0.00	6614	2025-11-13	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 19:12:27	2025-12-09 19:12:27
+68	1	1	5	1	3	733	\N	8803	2025-11-13	2025-11-13	430.59	158435.32	1.00	0.000	99.510	96.00	3.51	0.00	99.51	182992.79	1838.94	5.00	7921.77	0.00	0.00	10.00	16635.71	15.00	27448.92	7.50	13724.46	0.000000	0.00	8881	2025-11-13	GABRIEL RABON	MEGHALAYA	2025-12-09 19:13:54	2025-12-09 19:13:54
+69	1	1	5	2	3	694	\N	6606	2025-11-14	2025-11-14	230.58	78432.42	1.00	0.000	49.260	49.26	0.00	0.00	49.26	90589.45	1839.01	5.00	3921.62	0.00	0.00	10.00	8235.40	15.00	13588.42	7.50	6794.21	0.000000	0.00	6661	2025-11-15	M/S ROYAL ENT	KARIMGANJ, ASSAM	2025-12-09 19:16:02	2025-12-09 19:16:02
+70	1	1	5	1	3	733	\N	8856	2025-11-15	2025-11-15	234.83	80133.95	1.00	0.000	50.330	48.00	2.33	0.00	50.33	92554.71	1838.96	5.00	4006.70	0.00	0.00	10.00	8414.06	15.00	13883.21	7.50	6941.60	0.000000	0.00	8982	2025-11-15	GABRIEL RABON	MEGHALAYA	2025-12-09 19:17:23	2025-12-09 19:17:23
+71	1	1	5	1	3	733	\N	8972	2025-11-18	2025-11-18	277.32	97127.05	1.00	0.000	61.000	60.00	1.00	0.00	61.00	112181.74	1839.04	5.00	4856.35	0.00	0.00	10.00	10198.34	15.00	16827.26	7.50	8413.63	0.000000	0.00	9069	2025-11-18	GABRIEL RABON	MEGHALAYA	2025-12-09 19:19:50	2025-12-09 19:19:50
+72	1	1	5	1	3	733	\N	9023	2025-11-19	2025-11-19	149.65	40153.89	1.00	0.000	25.220	24.00	1.22	0.00	25.22	46377.74	1838.93	5.00	2007.69	0.00	0.00	10.00	4216.16	15.00	6956.66	7.50	3478.33	0.000000	0.00	9128	2025-11-19	GABRIEL RABON	MEGHALAYA	2025-12-09 19:23:10	2025-12-09 19:23:10
+73	1	1	5	2	3	763	\N	6887	2025-11-20	2025-11-20	333.36	119543.58	1.00	0.000	75.080	73.98	1.10	0.00	75.08	138072.83	1839.01	5.00	5977.18	0.00	0.00	10.00	12552.08	15.00	20710.93	7.50	10355.46	0.000000	0.00	6983	2025-11-20	M/S SHOHID AHMED	KARIMGANJ, ASSAM	2025-12-09 19:54:01	2025-12-09 19:54:01
+74	1	1	5	2	3	763	\N	6922	2025-11-21	2025-11-21	433.73	159693.78	1.00	0.000	100.280	98.94	1.34	0.00	100.28	184446.32	1839.31	5.00	7984.69	0.00	0.00	10.00	16767.85	15.00	27666.95	7.50	13833.47	0.000000	0.00	6995	2025-11-21	M/S SHOHID AHMED	KARIMGANJ, ASSAM	2025-12-09 20:23:18	2025-12-09 20:23:18
+75	1	1	5	2	3	763	\N	7018	2025-11-25	2025-11-25	149.77	40267.65	1.00	0.000	25.290	24.94	0.35	0.00	25.29	46509.14	1839.03	5.00	2013.38	0.00	0.00	10.00	4228.10	15.00	6976.37	7.50	3488.19	0.000000	0.00	7136	2025-11-26	M/S SHOHID AHMED	KARIMGANJ, ASSAM	2025-12-09 20:25:40	2025-12-09 20:25:40
+76	1	1	5	1	3	733	\N	9108	2025-11-25	2025-11-25	159.50	19105.90	1.00	0.000	12.000	12.00	0.00	0.00	12.00	22067.31	1838.94	5.00	955.30	0.00	0.00	10.00	2006.12	15.00	3310.10	7.50	1655.05	0.000000	0.00	9249	2025-11-25	GABRIEL RABON	MEGHALAYA	2025-12-09 20:26:52	2025-12-09 20:26:52
+77	1	1	5	2	3	763	\N	7015	2025-11-25	2025-11-25	332.85	119337.41	1.00	0.000	74.950	73.67	1.28	0.00	74.95	137834.71	1839.02	5.00	5966.87	0.00	0.00	10.00	12530.43	15.00	20675.21	7.50	10337.60	0.000000	0.00	7134	2025-11-26	M/S SHOHID AHMED	KARIMGANJ, ASSAM	2025-12-09 20:29:24	2025-12-09 20:29:24
+78	1	1	5	2	3	763	\N	7079	2025-11-26	2025-11-26	533.37	199546.80	1.00	0.000	125.330	123.94	1.39	0.00	125.33	230476.55	1838.96	5.00	9977.34	0.00	0.00	10.00	20952.41	15.00	34571.48	7.50	17285.74	0.000000	0.00	7164	2025-11-26	M/S SHOHID AHMED	KARIMGANJ, ASSAM	2025-12-09 20:31:13	2025-12-09 20:31:13
+79	1	1	5	1	3	733	\N	9154	2025-11-26	2025-11-26	177.80	57317.73	1.00	0.000	36.000	36.00	0.00	0.00	36.00	66201.98	1838.94	5.00	2865.89	0.00	0.00	10.00	6018.36	15.00	9930.30	7.50	4965.15	0.000000	0.00	9306	2025-11-26	GABRIEL RABON	MEGHALAYA	2025-12-09 20:32:59	2025-12-09 20:32:59
+80	1	1	5	1	3	733	\N	9257	2025-11-27	2025-11-27	147.71	38211.83	1.00	0.000	24.000	24.00	0.00	0.00	24.00	44134.66	1838.94	5.00	1910.59	0.00	0.00	10.00	4012.24	15.00	6620.20	7.50	3310.10	0.000000	0.00	9356	2025-11-27	GABRIEL RABON	MEGHALAYA	2025-12-09 20:34:18	2025-12-09 20:34:18
+81	1	1	5	2	3	763	\N	7201	2025-11-28	2025-11-28	342.60	123243.27	1.00	0.000	77.400	76.53	0.87	0.00	77.40	142345.98	1839.10	5.00	6162.16	0.00	0.00	10.00	12940.54	15.00	21351.90	7.50	10675.95	0.000000	0.00	7317	2025-11-29	M/S SHOHID AHMED	KARIMGANJ, ASSAM	2025-12-09 20:35:56	2025-12-09 20:35:56
+82	4	1	5	2	3	0000021825010419	\N	4302	2025-08-27	2025-10-06	0.00	106484.15	1.00	0.190	66.900	66.38	0.33	0.00	66.71	122989.19	1843.64	5.00	5324.21	0.00	0.00	10.00	11180.84	15.00	18448.38	7.50	9224.19	0.001120	119.26	\N	\N	\N	\N	2025-12-09 23:30:31	2025-12-09 23:30:31
+83	4	1	5	2	3	0000021825010419	\N	4303	2025-08-27	2025-10-06	0.00	36936.63	1.00	0.900	24.040	23.10	0.04	0.00	23.14	42661.81	1843.64	5.00	1846.83	0.00	0.00	10.00	3878.35	15.00	6399.27	7.50	3199.64	0.001120	41.37	\N	\N	\N	\N	2025-12-09 23:34:14	2025-12-09 23:34:14
+84	4	1	5	2	3	0000021825010438	\N	4334	2025-08-28	2025-10-06	0.00	110382.16	1.00	0.040	69.870	69.53	0.30	0.00	69.83	127491.39	1825.74	5.00	5519.11	0.00	0.00	10.00	11590.13	15.00	19123.71	7.50	9561.85	0.001120	123.63	\N	\N	\N	\N	2025-12-09 23:42:53	2025-12-09 23:42:53
+85	4	1	5	2	3	0000021825010438	\N	4335	2025-08-28	2025-10-06	0.00	109425.33	1.00	0.870	70.090	68.68	0.54	0.00	69.22	126386.26	1825.86	5.00	5471.27	0.00	0.00	10.00	11489.66	15.00	18957.94	7.50	9478.97	0.001120	122.56	\N	\N	\N	\N	2025-12-09 23:45:40	2025-12-09 23:45:40
+86	4	1	5	2	3	0000021825010438	\N	4364	2025-08-31	2025-10-07	0.00	106751.59	1.00	0.090	67.620	67.19	0.34	0.00	67.53	123298.09	1825.83	5.00	5337.58	0.00	0.00	10.00	11208.92	15.00	18494.71	7.50	9247.36	0.001120	119.56	\N	\N	\N	\N	2025-12-09 23:47:44	2025-12-09 23:47:44
+87	4	1	5	2	3	0000021825010438	\N	4375	2025-09-01	2025-10-07	0.00	111150.61	1.00	0.620	70.960	70.00	0.34	0.00	70.34	128378.95	1825.12	5.00	5557.53	0.00	0.00	10.00	11670.81	15.00	19256.84	7.50	9628.42	0.001120	124.49	\N	\N	\N	\N	2025-12-09 23:51:58	2025-12-09 23:51:58
+88	4	1	5	2	3	0000021825010438	\N	4377	2025-09-01	2025-10-08	0.00	39253.43	1.00	0.960	25.560	24.60	0.00	0.00	24.60	45337.71	1843.00	5.00	1962.67	0.00	0.00	10.00	4121.61	15.00	6800.66	7.50	3400.33	0.001120	43.96	\N	\N	\N	\N	2025-12-09 23:53:27	2025-12-09 23:53:27
+89	4	1	5	2	3	0000021825010452	\N	4430	2025-09-04	2025-10-08	0.00	111492.49	1.00	0.560	70.430	69.50	0.37	0.00	69.87	128773.83	1843.05	5.00	5574.62	0.00	0.00	10.00	11706.71	15.00	19316.07	7.50	9658.04	0.001120	124.87	\N	\N	\N	\N	2025-12-09 23:54:58	2025-12-09 23:54:58
+90	4	1	5	2	3	0000021825010452	\N	4458	2025-09-05	2025-10-09	0.00	112383.04	1.00	0.430	70.240	69.40	0.41	0.00	69.81	129802.41	1859.37	5.00	5619.15	0.00	0.00	10.00	11800.22	15.00	19470.36	7.50	9735.18	0.001120	125.87	\N	\N	\N	\N	2025-12-09 23:57:03	2025-12-09 23:57:03
+91	4	1	5	2	3	0000021825010452	\N	4469	2025-09-05	2025-10-09	0.00	110918.20	1.00	0.240	69.750	69.24	0.27	0.00	69.51	128110.52	1843.05	5.00	5545.91	0.00	0.00	10.00	11646.41	15.00	19216.58	7.50	9608.29	0.001120	124.23	\N	\N	\N	\N	2025-12-09 23:59:40	2025-12-09 23:59:40
+92	4	1	5	2	3	0000021825010452	\N	4498	2025-09-08	2025-10-09	0.00	110187.62	1.00	0.750	69.800	68.73	0.32	0.00	69.05	127266.70	1843.11	5.00	5509.38	0.00	0.00	10.00	11569.70	15.00	19090.01	7.50	9545.00	0.001120	123.41	\N	\N	\N	\N	2025-12-10 00:14:56	2025-12-10 00:14:56
+93	4	1	5	2	3	0000021825010452	\N	4524	2025-09-09	2025-10-10	0.00	110999.32	1.00	0.800	70.360	68.13	1.43	0.00	69.56	128204.21	1843.07	5.00	5549.97	0.00	0.00	10.00	11654.93	15.00	19230.63	7.50	9615.32	0.001120	124.32	\N	\N	\N	\N	2025-12-10 00:16:48	2025-12-10 00:16:48
+94	4	1	5	2	3	0000021825010480	\N	4680	2025-09-15	2025-10-10	0.00	111029.42	1.00	0.360	69.930	68.75	0.82	0.00	69.57	128238.98	1843.31	5.00	5551.47	0.00	0.00	10.00	11658.09	15.00	19235.85	7.50	9617.92	0.001120	124.35	\N	\N	\N	\N	2025-12-10 00:18:31	2025-12-10 00:18:31
+95	4	1	5	2	3	0000021825010480	\N	4700	2025-09-16	2025-10-10	0.00	111532.25	1.00	0.930	70.790	69.47	0.39	0.00	69.86	128819.75	1843.97	5.00	5576.61	0.00	0.00	10.00	11710.89	15.00	19322.96	7.50	9661.48	0.001120	124.92	\N	\N	\N	\N	2025-12-10 00:20:13	2025-12-10 00:20:13
+96	4	1	5	2	3	0000021825010480	\N	4735	2025-09-18	2025-10-10	0.00	111677.91	1.00	0.790	70.780	69.74	0.25	0.00	69.99	128987.99	1842.95	5.00	5583.90	0.00	0.00	10.00	11726.18	15.00	19348.20	7.50	9674.10	0.001120	125.08	\N	\N	\N	\N	2025-12-10 00:21:56	2025-12-10 00:21:56
+97	4	1	5	2	3	0000021825010480	\N	4771	2025-09-22	2025-10-10	0.00	113528.04	1.00	0.780	71.920	69.37	1.77	0.00	71.14	131124.89	1843.19	5.00	5676.40	0.00	0.00	10.00	11920.44	15.00	19668.73	7.50	9834.37	0.001120	127.15	\N	\N	\N	\N	2025-12-10 00:23:27	2025-12-10 00:23:27
+98	4	1	5	2	3	0000021825010480	\N	4807	2025-09-23	2025-10-10	0.00	108691.95	1.00	0.920	69.030	67.67	0.44	0.00	68.11	125539.20	1843.18	5.00	5434.60	0.00	0.00	10.00	11412.65	15.00	18830.88	7.50	9415.44	0.001120	121.73	\N	\N	\N	\N	2025-12-10 00:25:05	2025-12-10 00:25:05
+99	4	1	5	2	3	0000021825010494	\N	4838	2025-09-24	2025-10-10	0.00	114007.50	1.00	0.030	71.470	71.04	0.40	0.00	71.44	131678.66	1843.21	5.00	5700.38	0.00	0.00	10.00	11970.79	15.00	19751.80	7.50	9875.90	0.001120	127.69	\N	\N	\N	\N	2025-12-10 00:26:29	2025-12-10 00:26:29
+100	4	1	5	2	3	0000021825010494	\N	4903	2025-09-25	2025-10-11	0.00	113230.10	1.00	0.470	71.420	70.43	0.52	0.00	70.95	130780.77	1843.28	5.00	5661.51	0.00	0.00	10.00	11889.16	15.00	19617.11	7.50	9808.56	0.001120	126.82	\N	\N	\N	\N	2025-12-10 00:27:52	2025-12-10 00:27:52
+101	4	1	5	2	3	0000021825010494	\N	4914	2025-09-25	2025-10-11	0.00	72339.56	1.00	0.420	45.750	45.05	0.28	0.00	45.33	83552.19	1843.20	5.00	3616.98	0.00	0.00	10.00	7595.65	15.00	12532.83	7.50	6266.41	0.001120	81.02	\N	\N	\N	\N	2025-12-10 00:29:20	2025-12-10 00:29:20
+102	4	1	5	2	3	0000021825010494	\N	4940	2025-09-26	2025-10-11	0.00	108077.95	1.00	0.750	68.480	67.36	0.37	0.00	67.73	124830.03	1843.05	5.00	5403.90	0.00	0.00	10.00	11348.18	15.00	18724.50	7.50	9362.25	0.001120	121.05	\N	\N	\N	\N	2025-12-10 00:30:42	2025-12-10 00:30:42
+103	4	1	5	2	3	0000021825010494	\N	4968	2025-09-27	2025-10-12	0.00	146824.59	1.00	0.480	92.490	91.12	0.89	0.00	92.01	169582.40	1843.09	5.00	7341.23	0.00	0.00	10.00	15416.58	15.00	25437.36	7.50	12718.68	0.001120	164.44	\N	\N	\N	\N	2025-12-10 00:33:20	2025-12-10 00:33:20
+104	4	1	5	2	3	0000021825010535	\N	5188	2025-10-14	2025-10-15	0.00	112761.00	1.00	0.490	71.200	69.84	0.87	0.00	70.71	130238.96	1841.87	5.00	5638.05	0.00	0.00	10.00	11839.91	15.00	19535.84	7.50	9767.92	0.001120	126.29	\N	\N	\N	\N	2025-12-10 00:35:04	2025-12-10 00:35:04
+105	4	1	5	2	3	0000021825010535	\N	5209	2025-10-14	2025-10-15	0.00	75523.15	1.00	0.200	47.560	46.74	0.62	0.00	47.36	87229.24	1841.83	5.00	3776.16	0.00	0.00	10.00	7929.93	15.00	13084.39	7.50	6542.19	0.001120	84.59	\N	\N	\N	\N	2025-12-10 00:36:48	2025-12-10 00:36:48
+106	4	1	5	2	3	0000021825010535	\N	5233	2025-10-15	2025-10-16	0.00	112608.01	1.00	0.560	71.170	69.14	1.47	0.00	70.61	130062.25	1841.98	5.00	5630.40	0.00	0.00	10.00	11823.84	15.00	19509.34	7.50	9754.67	0.001120	126.12	\N	\N	\N	\N	2025-12-10 00:38:02	2025-12-10 00:38:02
+107	4	1	5	2	3	0000021825010535	\N	5348	2025-10-16	2025-10-17	0.00	111284.33	1.00	0.170	69.960	68.84	0.95	0.00	69.79	128533.40	1841.72	5.00	5564.22	0.00	0.00	10.00	11684.85	15.00	19280.01	7.50	9640.01	0.001120	124.64	\N	\N	\N	\N	2025-12-10 00:39:16	2025-12-10 00:39:16
+108	4	1	5	2	3	0000021825010535	\N	5380	2025-10-17	2025-10-18	0.00	112939.25	1.00	0.960	71.780	69.92	0.90	0.00	70.82	130444.83	1841.92	5.00	5646.96	0.00	0.00	10.00	11858.62	15.00	19566.73	7.50	9783.36	0.001120	126.49	\N	\N	\N	\N	2025-12-10 00:40:47	2025-12-10 00:40:47
+109	4	1	5	2	3	0000021825010535	\N	5493	2025-10-23	2025-10-24	0.00	33233.11	1.00	0.780	21.620	20.52	0.32	0.00	20.84	38384.24	1841.85	5.00	1661.66	0.00	0.00	10.00	3489.48	15.00	5757.64	7.50	2878.82	0.001120	37.22	\N	\N	\N	\N	2025-12-10 00:42:19	2025-12-10 00:42:19
+110	4	1	5	2	3	0000021825010577	\N	5521	2025-10-23	2025-10-24	0.00	76881.59	1.00	0.620	48.830	47.84	0.37	0.00	48.21	88798.24	1841.90	5.00	3844.08	0.00	0.00	10.00	8072.57	15.00	13319.74	7.50	6659.87	0.001120	86.11	\N	\N	\N	\N	2025-12-10 00:43:30	2025-12-10 00:43:30
+111	4	1	5	2	3	0000021825010577	\N	5573	2025-10-24	2025-10-25	0.00	116394.83	1.00	0.830	73.820	72.41	0.58	0.00	72.99	134436.03	1841.84	5.00	5819.74	0.00	0.00	10.00	12221.46	15.00	20165.40	7.50	10082.70	0.001120	130.36	\N	\N	\N	\N	2025-12-10 00:46:16	2025-12-10 00:46:16
+112	4	1	5	2	3	0000021825010577	\N	5575	2025-10-25	2025-10-26	0.00	236625.18	1.00	0.820	149.210	145.72	2.67	0.00	148.39	273302.08	1841.78	5.00	11831.26	0.00	0.00	10.00	24845.64	15.00	40995.31	7.50	20497.66	0.001120	265.02	\N	\N	\N	\N	2025-12-10 00:47:52	2025-12-10 00:47:52
+113	4	1	5	2	3	0000021825010577	\N	5628	2025-10-27	2025-10-28	0.00	152769.86	1.00	0.210	96.010	94.03	1.77	0.00	95.80	176449.19	1841.85	5.00	7638.49	0.00	0.00	10.00	16040.84	15.00	26467.38	7.50	13233.69	0.001120	171.10	\N	\N	\N	\N	2025-12-10 00:50:19	2025-12-10 00:50:19
+114	4	1	5	2	3	0000021825010606	\N	5790	2025-10-29	2025-10-30	0.00	37758.71	1.00	0.010	23.690	23.56	0.12	0.00	23.68	43611.31	1841.69	5.00	1887.94	0.00	0.00	10.00	3964.66	15.00	6541.70	7.50	3270.85	0.001120	42.29	\N	\N	\N	\N	2025-12-10 00:52:33	2025-12-10 00:52:33
+115	4	1	5	2	3	0000021825010606	\N	5797	2025-10-29	2025-10-30	0.00	39799.35	1.00	0.690	25.650	24.96	0.00	0.00	24.96	45968.25	1841.68	5.00	1989.97	0.00	0.00	10.00	4178.93	15.00	6895.24	7.50	3447.62	0.001120	44.58	\N	\N	\N	\N	2025-12-10 00:53:37	2025-12-10 00:53:37
+116	4	1	5	2	3	0000021825010606	\N	5798	2025-10-29	2025-10-30	0.00	39227.97	1.00	0.650	25.250	24.06	0.54	0.00	24.60	45308.31	1841.80	5.00	1961.40	0.00	0.00	10.00	4118.94	15.00	6796.25	7.50	3398.12	0.001120	43.94	\N	\N	\N	\N	2025-12-10 00:55:34	2025-12-10 00:55:34
+117	4	1	5	2	3	0000021825010606	\N	5880	2025-10-30	2025-10-30	0.00	115080.81	1.00	0.250	72.420	71.46	0.71	0.00	72.17	132918.34	1841.74	5.00	5754.04	0.00	0.00	10.00	12083.49	15.00	19937.75	7.50	9968.88	0.001120	128.89	\N	\N	\N	\N	2025-12-10 00:56:44	2025-12-10 00:56:44
+118	4	1	5	2	3	0000021825010606	\N	5904	2025-10-31	2025-11-01	0.00	76980.79	1.00	0.420	48.690	47.92	0.35	0.00	48.27	88912.81	1841.99	5.00	3849.04	0.00	0.00	10.00	8082.98	15.00	13336.92	7.50	6668.46	0.001120	86.22	\N	\N	\N	\N	2025-12-10 02:09:56	2025-12-10 02:09:56
+119	4	1	5	2	3	0000021825010606	\N	6052	2025-11-03	2025-11-04	0.00	116309.21	1.00	0.690	73.740	71.74	1.31	0.00	73.05	134337.14	1838.98	5.00	5815.46	0.00	0.00	10.00	12212.47	15.00	20150.57	7.50	10075.29	0.001120	130.27	\N	\N	\N	\N	2025-12-10 02:17:24	2025-12-10 02:17:24
+121	4	1	5	2	3	0000021825010606	\N	6053	2025-11-03	2025-11-04	0.00	38948.80	1.00	0.740	25.200	24.03	0.43	0.00	24.46	44985.86	1839.16	5.00	1947.44	0.00	0.00	10.00	4089.62	15.00	6747.88	7.50	3373.94	0.001120	43.62	\N	\N	\N	\N	2025-12-10 02:31:48	2025-12-10 02:31:48
+122	4	1	5	2	3	0000021825010606	\N	6099	2025-11-04	2025-11-05	0.00	117822.01	1.00	0.200	74.190	72.27	1.72	0.00	73.99	136084.42	1839.23	5.00	5891.10	0.00	0.00	10.00	12371.31	15.00	20412.66	7.50	10206.33	0.001120	131.96	\N	\N	\N	\N	2025-12-10 02:33:13	2025-12-10 02:33:13
+123	4	1	5	2	3	0000021825010624	\N	6139	2025-11-05	2025-11-06	0.00	113884.04	1.00	0.190	71.710	71.06	0.46	0.00	71.52	131536.07	1839.15	5.00	5694.20	0.00	0.00	10.00	11957.82	15.00	19730.41	7.50	9865.20	0.001120	127.55	\N	\N	\N	\N	2025-12-10 02:34:58	2025-12-10 02:34:58
+124	4	1	5	2	3	0000021825010624	\N	6143	2025-11-05	2025-11-06	0.00	39294.92	1.00	0.710	25.390	24.10	0.58	0.00	24.68	45385.63	1838.96	5.00	1964.75	0.00	0.00	10.00	4125.97	15.00	6807.84	7.50	3403.92	0.001120	44.01	\N	\N	\N	\N	2025-12-10 02:38:34	2025-12-10 02:38:34
+125	4	1	5	2	3	0000021825010624	\N	6288	2025-11-07	2025-11-08	0.00	78198.21	1.00	0.390	49.500	48.36	0.75	0.00	49.11	90318.93	1839.11	5.00	3909.91	0.00	0.00	10.00	8210.81	15.00	13547.84	7.50	6773.92	0.001120	87.58	\N	\N	\N	\N	2025-12-10 02:39:41	2025-12-10 02:39:41
+126	4	1	5	2	3	0000021825010624	\N	6299	2025-11-08	2025-11-09	0.00	190508.22	1.00	0.500	120.140	118.16	1.48	0.00	119.64	220036.99	1839.16	5.00	9525.41	0.00	0.00	10.00	20003.36	15.00	33005.55	7.50	16502.77	0.001120	213.37	\N	\N	\N	\N	2025-12-10 02:42:21	2025-12-10 02:42:21
+127	4	1	5	2	3	0000021825010624	\N	6340	2025-11-10	2025-11-11	0.00	158507.77	1.00	0.140	99.680	98.32	1.22	0.00	99.54	183076.47	1839.23	5.00	7925.39	0.00	0.00	10.00	16643.32	15.00	27461.47	7.50	13730.74	0.001120	177.53	\N	\N	\N	\N	2025-12-10 02:44:01	2025-12-10 02:44:01
+128	4	1	5	2	3	0000021825010653	\N	6556	2025-11-13	2025-11-14	0.00	79105.83	1.00	0.680	50.360	49.11	0.57	0.00	49.68	91367.23	1839.12	5.00	3955.29	0.00	0.00	10.00	8306.11	15.00	13705.09	7.50	6852.54	0.001120	88.60	\N	\N	\N	\N	2025-12-10 02:45:56	2025-12-10 02:45:56
+129	4	1	5	2	3	0000021825010653	\N	6558	2025-11-13	2025-11-14	0.00	156918.13	1.00	0.360	98.900	96.98	1.56	0.00	98.54	181240.44	1839.26	5.00	7845.91	0.00	0.00	10.00	16476.40	15.00	27186.07	7.50	13593.03	0.001120	175.75	\N	\N	\N	\N	2025-12-10 02:49:19	2025-12-10 02:49:19
+130	4	1	5	2	3	0000021825010653	\N	6656	2025-11-15	2025-11-16	0.00	350119.75	1.00	0.900	220.790	213.91	5.98	0.00	219.89	404388.31	1839.05	5.00	17505.99	0.00	0.00	10.00	36762.57	15.00	60658.25	7.50	30329.12	0.001120	392.13	\N	\N	\N	\N	2025-12-10 02:52:28	2025-12-10 02:52:28
+131	4	1	5	2	3	0000021825010685	\N	6780	2025-11-18	2025-11-19	0.00	194782.27	1.00	0.790	123.110	120.04	2.28	0.00	122.32	224973.52	1839.22	5.00	9739.11	0.00	0.00	10.00	20452.14	15.00	33746.03	7.50	16873.01	0.001120	218.16	\N	\N	\N	\N	2025-12-10 02:55:48	2025-12-10 02:55:48
+132	4	1	5	2	3	0000021825010685	\N	6940	2025-11-22	2025-11-23	0.00	317263.10	1.00	0.110	199.350	195.25	3.99	0.00	199.24	366438.88	1839.18	5.00	15863.16	0.00	0.00	10.00	33312.63	15.00	54965.83	7.50	27482.92	0.001120	355.33	\N	\N	\N	\N	2025-12-10 02:57:45	2025-12-10 02:57:45
+133	4	1	5	2	3	0000021825010685	\N	6966	2025-11-24	2025-11-25	0.00	73697.99	1.00	0.350	46.630	44.71	1.57	0.00	46.28	85121.18	1839.26	5.00	3684.90	0.00	0.00	10.00	7738.29	15.00	12768.18	7.50	6384.09	0.001120	82.54	\N	\N	\N	\N	2025-12-10 03:00:22	2025-12-10 03:00:22
+134	4	1	5	2	3	0000021825010736	\N	7054	2025-11-25	2025-11-26	0.00	75233.52	1.00	0.630	47.880	46.33	0.92	0.00	47.25	86894.72	1839.04	5.00	3761.68	0.00	0.00	10.00	7899.52	15.00	13034.21	7.50	6517.10	0.001120	84.26	\N	\N	\N	\N	2025-12-10 03:02:39	2025-12-10 03:02:39
+135	4	1	5	2	3	0000021825010736	\N	7056	2025-11-25	2025-11-26	0.00	185343.30	1.00	0.880	117.280	114.25	2.15	0.00	116.40	214071.51	1839.10	5.00	9267.17	0.00	0.00	10.00	19461.05	15.00	32110.73	7.50	16055.36	0.001120	207.58	\N	\N	\N	\N	2025-12-10 03:04:12	2025-12-10 03:04:12
+136	4	1	5	2	3	0000021825010736	\N	7110	2025-11-26	2025-11-27	0.00	272110.60	1.00	0.280	171.180	170.53	0.37	0.00	170.90	314287.74	1839.02	5.00	13605.53	0.00	0.00	10.00	28571.61	15.00	47143.16	7.50	23571.58	0.001120	304.76	\N	\N	\N	\N	2025-12-10 03:06:17	2025-12-10 03:06:17
+137	4	1	5	2	3	0000021825010736	\N	7190	2025-11-27	2025-11-28	0.00	41219.51	1.00	0.180	26.070	25.89	0.00	0.00	25.89	47608.53	1838.88	5.00	2060.98	0.00	0.00	10.00	4328.05	15.00	7141.28	7.50	3570.64	0.001120	46.17	\N	\N	\N	\N	2025-12-10 03:08:42	2025-12-10 03:08:42
+138	5	1	5	1	3	0000141225010173	\N	4563	2025-07-10	2025-10-01	0.00	19040.88	1.00	0.000	12.000	12.00	0.00	0.00	12.00	21992.22	1832.68	5.00	952.04	0.00	0.00	10.00	1999.29	15.00	3298.83	7.50	1649.42	0.001120	21.33	\N	\N	\N	\N	2025-12-10 03:47:53	2025-12-10 03:47:53
+141	7	1	5	2	2	764	\N	4124	2025-08-20	2025-08-20	223.56	75623.87	1.00	0.000	47.380	47.18	0.20	0.00	47.38	87345.57	1843.51	5.00	3781.19	0.00	0.00	10.00	7940.51	15.00	13101.84	7.50	6550.92	0.000000	0.00	4176	2025-08-21	M/S F A ENT	INDIA	2025-12-10 17:44:26	2025-12-10 17:44:26
+142	7	1	5	2	2	764	\N	4126	2025-08-20	2025-08-20	316.23	112690.55	1.00	0.000	70.600	70.37	0.23	0.00	70.60	130157.59	1843.59	5.00	5634.53	0.00	0.00	10.00	11832.51	15.00	19523.64	7.50	9761.82	0.000000	0.00	4177	2025-08-21	M/S F A ENT	INDIA	2025-12-10 17:50:25	2025-12-10 17:50:25
+143	7	1	5	2	2	764	\N	4130	2025-08-20	2025-08-20	506.42	188767.26	1.00	0.000	118.260	117.29	0.97	0.00	118.26	218026.19	1843.62	5.00	9438.36	0.00	0.00	10.00	19820.56	15.00	32703.93	7.50	16351.96	0.000000	0.00	4178	2025-08-21	M/S F A ENT	INDIA	2025-12-10 17:52:32	2025-12-10 17:52:32
+144	7	1	5	2	2	764	\N	4150	2025-08-20	2025-08-20	409.06	149823.39	1.00	0.000	93.860	93.15	0.71	0.00	93.86	173046.02	1843.66	5.00	7491.17	0.00	0.00	10.00	15731.46	15.00	25956.90	7.50	12978.45	0.000000	0.00	4179	2025-08-21	M/S F A ENT	INDIA	2025-12-10 17:54:26	2025-12-10 17:54:26
+145	7	1	5	2	2	764	\N	4168	2025-08-21	2025-08-21	505.97	188588.32	1.00	0.000	118.150	117.16	0.99	0.00	118.15	217819.51	1843.58	5.00	9429.42	0.00	0.00	10.00	19801.77	15.00	32672.93	7.50	16336.46	0.000000	0.00	4215	2025-08-24	M/S FA ENT	INDIA	2025-12-10 17:56:39	2025-12-10 17:56:39
+146	7	1	5	2	2	764	\N	4176	2025-08-21	2025-08-21	516.15	192663.15	1.00	0.000	120.690	119.22	1.47	0.00	120.69	222525.94	1843.78	5.00	9633.16	0.00	0.00	10.00	20229.63	15.00	33378.89	7.50	16689.45	0.000000	0.00	4216	2025-08-24	M/S F A ENT	INDIA	2025-12-10 17:59:35	2025-12-10 17:59:35
+147	7	1	5	2	2	764	\N	4202	2025-08-23	2025-08-23	515.00	192197.72	1.00	0.000	120.400	118.95	1.45	0.00	120.40	221988.37	1843.76	5.00	9609.89	0.00	0.00	10.00	20180.76	15.00	33298.25	7.50	16649.13	0.000000	0.00	4217	2025-08-24	M/S F A ENT	INDIA	2025-12-10 18:01:29	2025-12-10 18:01:29
+148	7	1	5	2	2	764	\N	4208	2025-08-24	2025-08-24	503.02	187406.15	1.00	0.000	117.400	116.68	0.72	0.00	117.40	216454.10	1843.73	5.00	9370.31	0.00	0.00	10.00	19677.65	15.00	32468.12	7.50	16234.06	0.000000	0.00	4284	2025-08-26	M/S F A ENT	INDIA	2025-12-10 18:03:17	2025-12-10 18:03:17
+149	7	1	5	2	2	800	\N	4263	2025-08-26	2025-08-26	514.76	192104.36	1.00	0.000	120.350	119.28	1.07	0.00	120.35	221880.54	1843.63	5.00	9605.22	0.00	0.00	10.00	20170.96	15.00	33282.08	7.50	16641.04	0.000000	0.00	4358	2025-08-28	M/S F A ENT	INDIA	2025-12-10 18:05:22	2025-12-10 18:05:22
+150	7	1	5	2	2	800	\N	4301	2025-08-27	2025-08-27	514.55	192022.26	1.00	0.000	120.290	119.23	1.06	0.00	120.29	221785.71	1843.76	5.00	9601.11	0.00	0.00	10.00	20162.34	15.00	33267.86	7.50	16633.93	0.000000	0.00	4357	2025-08-28	M/S F A ENT	INDIA	2025-12-10 18:07:11	2025-12-10 18:07:11
+151	7	1	5	2	2	800	\N	4322	2025-08-28	2025-08-28	515.44	192376.24	1.00	0.000	120.510	119.71	0.80	0.00	120.51	222194.56	1843.79	5.00	9618.81	0.00	0.00	10.00	20199.51	15.00	33329.18	7.50	16664.59	0.000000	0.00	4379	2025-08-31	M/S F A ENT	INDIA	2025-12-10 18:11:44	2025-12-10 18:11:44
+152	7	1	5	2	2	800	\N	4354	2025-08-31	2025-08-31	514.20	191881.90	1.00	0.000	120.210	119.16	1.05	0.00	120.21	221623.59	1843.64	5.00	9594.10	0.00	0.00	10.00	20147.60	15.00	33243.54	7.50	16621.77	0.000000	0.00	4406	2025-09-01	M/S F A ENT	INDIA	2025-12-10 18:19:06	2025-12-10 18:19:06
+153	7	1	5	2	2	800	\N	4356	2025-08-31	2025-08-31	513.63	191651.24	1.00	0.000	120.070	119.00	1.07	0.00	120.07	221357.18	1843.57	5.00	9582.56	0.00	0.00	10.00	20123.38	15.00	33203.58	7.50	16601.79	0.000000	0.00	4405	2025-09-01	M/S F A ENT	INDIA	2025-12-10 18:21:59	2025-12-10 18:21:59
+154	7	1	5	2	2	800	\N	4374	2025-09-01	2025-09-01	419.04	153816.52	1.00	0.000	96.390	95.57	0.82	0.00	96.39	177658.08	1843.12	5.00	7690.83	0.00	0.00	10.00	16150.73	15.00	26648.71	7.50	13324.36	0.000000	0.00	4433	2025-09-02	M/S F A ENT	INDIA	2025-12-10 19:20:04	2025-12-10 19:20:04
+155	7	1	5	2	2	800	\N	4384	2025-09-01	2025-09-01	469.87	174146.27	1.00	0.000	109.120	108.05	1.07	0.00	109.12	201138.94	1843.28	5.00	8707.31	0.00	0.00	10.00	18285.36	15.00	30170.84	7.50	15085.42	0.000000	0.00	4434	2025-09-02	M/S F A ENT	INDIA	2025-12-10 19:22:56	2025-12-10 19:22:56
+156	7	1	5	2	2	891	\N	4449	2025-09-05	2025-09-05	515.13	192252.94	1.00	0.000	120.470	119.46	1.01	0.00	120.47	222052.15	1843.22	5.00	9612.65	0.00	0.00	10.00	20186.56	15.00	33307.82	7.50	16653.91	0.000000	0.00	4536	2025-09-08	M/S F A ENT	INDIA	2025-12-10 19:25:36	2025-12-10 19:25:36
+157	7	1	5	2	2	891	\N	4478	2025-09-06	2025-09-06	513.76	191703.93	1.00	0.000	120.130	119.12	1.01	0.00	120.13	221418.04	1843.15	5.00	9585.20	0.00	0.00	10.00	20128.91	15.00	33212.71	7.50	16606.35	0.000000	0.00	4537	2025-09-08	M/S FA ENT	INDIA	2025-12-10 19:27:54	2025-12-10 19:27:54
+158	7	1	5	2	2	891	\N	4493	2025-09-08	2025-09-08	514.05	191817.88	1.00	0.000	120.200	119.06	1.14	0.00	120.20	221549.65	1843.18	5.00	9590.89	0.00	0.00	10.00	20140.88	15.00	33232.45	7.50	16616.22	0.000000	0.00	4577	2025-09-10	M/S F A ENT	INDIA	2025-12-10 19:30:16	2025-12-10 19:30:16
+159	7	1	5	2	2	891	\N	4527	2025-09-09	2025-09-09	521.88	194953.10	1.00	0.000	121.340	120.38	0.96	0.00	121.34	225170.83	1855.70	5.00	9747.66	0.00	0.00	10.00	20470.08	15.00	33775.62	7.50	16887.81	0.000000	0.00	4588	2025-09-10	M/S F A ENT	INDIA	2025-12-10 19:34:58	2025-12-10 19:34:58
+160	7	1	5	2	2	891	\N	4535	2025-09-09	2025-09-09	323.70	115682.54	1.00	0.000	72.490	71.77	0.72	0.00	72.49	133613.33	1843.20	5.00	5784.13	0.00	0.00	10.00	12146.67	15.00	20042.00	7.50	10021.00	0.000000	0.00	4589	2025-09-10	M/S FA ENT	INDIA	2025-12-10 19:37:47	2025-12-10 19:37:47
+161	7	1	5	2	2	891	\N	4567	2025-09-10	2025-09-10	419.36	153943.79	1.00	0.000	96.760	96.01	0.75	0.00	96.76	177805.08	1837.59	5.00	7697.19	0.00	0.00	10.00	16164.10	15.00	26670.76	7.50	13335.38	0.000000	0.00	4624	2025-09-11	M/S F A ENT	INDIA	2025-12-10 19:39:40	2025-12-10 19:39:40
+162	7	1	5	2	2	898	\N	4568	2025-09-10	2025-09-10	318.18	113473.58	1.00	0.000	71.110	70.40	0.71	0.00	71.11	131061.98	1843.09	5.00	5673.68	0.00	0.00	10.00	11914.73	15.00	19659.30	7.50	9829.65	0.000000	0.00	4625	2025-09-11	JAFOR ENT	INDIA	2025-12-10 19:42:14	2025-12-10 19:42:14
+163	7	1	5	2	2	891	\N	4599	2025-09-11	2025-09-11	565.37	224695.95	1.00	0.000	140.800	139.70	1.10	0.00	140.80	259523.82	1843.21	5.00	11234.80	0.00	0.00	10.00	23593.07	15.00	38928.57	7.50	19464.29	0.000000	0.00	4666	2025-09-14	M/S F A ENT	INDIA	2025-12-10 19:45:36	2025-12-10 19:45:36
+164	7	1	5	2	2	898	\N	4604	2025-09-11	2025-09-11	319.13	113854.51	1.00	0.000	71.350	69.70	1.65	0.00	71.35	131501.96	1843.05	5.00	5692.73	0.00	0.00	10.00	11954.72	15.00	19725.29	7.50	9862.65	0.000000	0.00	4667	2025-09-14	JAFOR ENT	INDIA	2025-12-10 19:49:12	2025-12-10 19:49:12
+165	7	1	5	2	2	898	\N	4648	2025-09-12	2025-09-12	416.70	152879.87	1.00	0.000	95.800	94.90	0.90	0.00	95.80	176576.25	1843.18	5.00	7643.99	0.00	0.00	10.00	16052.39	15.00	26486.44	7.50	13243.22	0.000000	0.00	4714	2025-09-15	JAFOR ENT	INDIA	2025-12-10 19:52:18	2025-12-10 19:52:18
+166	7	1	5	2	2	898	\N	4651	2025-09-13	2025-09-13	509.47	189989.30	1.00	0.000	119.060	118.00	1.06	0.00	119.06	219437.64	1843.08	5.00	9499.47	0.00	0.00	10.00	19948.88	15.00	32915.65	7.50	16457.82	0.000000	0.00	4715	2025-09-15	JAFOR ENT	INDIA	2025-12-10 19:57:36	2025-12-10 19:57:36
+167	7	1	5	2	2	917	\N	4653	2025-09-13	2025-09-13	423.72	155687.52	1.00	0.000	97.560	95.12	2.44	0.00	97.56	179819.09	1843.16	5.00	7784.38	0.00	0.00	10.00	16347.19	15.00	26972.86	7.50	13486.43	0.000000	0.00	4716	2025-09-15	PRAGATI INT.	INDIA	2025-12-10 20:03:02	2025-12-10 20:03:02
+168	5	1	5	1	3	0000141225010173	\N	4586	2025-07-12	2025-10-01	0.00	39001.69	1.00	0.000	24.580	24.00	0.58	0.00	24.58	45046.95	1832.67	5.00	1950.08	0.00	0.00	10.00	4095.18	15.00	6757.04	7.50	3378.52	0.001120	43.68	\N	\N	\N	\N	2025-12-10 20:39:17	2025-12-10 20:39:17
+169	2	1	5	5	3	0000021825010534	\N	2306	2025-11-04	2025-11-04	0.00	95531.12	1.00	0.000	60.000	60.00	0.00	0.00	60.00	110338.44	1838.97	5.00	4776.56	0.00	0.00	10.00	10030.77	15.00	16550.77	7.50	8275.38	0.001100	105.08	\N	\N	\N	\N	2025-12-10 21:37:24	2025-12-10 21:37:24
+170	7	1	5	2	2	898	\N	4684	2025-09-15	2025-09-15	505.40	188359.80	1.00	0.000	119.000	119.00	0.00	0.00	119.00	217555.57	1828.20	5.00	9417.99	0.00	0.00	10.00	19777.78	15.00	32633.34	7.50	16316.67	0.000000	0.00	4735	2025-09-16	JAFOR ENT	INDIA	2025-12-10 21:46:11	2025-12-10 21:46:11
+171	3	1	5	5	3	0000034825010015	\N	2309	2025-11-04	2025-11-04	0.00	401230.37	1.00	0.000	252.000	252.00	0.00	0.00	252.00	463421.08	1838.97	5.00	20061.52	0.00	0.00	10.00	42129.19	15.00	69513.16	7.50	34756.58	0.001120	449.38	\N	\N	\N	\N	2025-12-10 21:47:34	2025-12-10 21:47:34
+172	7	1	5	2	2	917	\N	4699	2025-09-16	2025-09-16	327.77	117309.89	1.00	0.000	73.510	70.88	2.63	0.00	73.51	135492.92	1843.19	5.00	5865.49	0.00	0.00	10.00	12317.54	15.00	20323.94	7.50	10161.97	0.000000	0.00	4766	2025-09-17	PRAGATI INT.	INDIA	2025-12-10 21:49:03	2025-12-10 21:49:03
+173	3	1	5	5	3	0000034825010016	\N	2383	2025-11-13	2025-11-13	0.00	343911.08	1.00	0.000	216.000	216.00	0.00	0.00	216.00	397217.30	1838.97	5.00	17195.55	0.00	0.00	10.00	36110.66	15.00	59582.59	7.50	29791.30	0.001120	385.18	\N	\N	\N	\N	2025-12-10 21:50:28	2025-12-10 21:50:28
+174	3	1	5	5	3	0000034825010016	\N	2441	2025-11-19	2025-11-19	0.00	458548.11	1.00	0.000	288.000	288.00	0.00	0.00	288.00	529623.07	1838.97	5.00	22927.41	0.00	0.00	10.00	48147.55	15.00	79443.46	7.50	39721.73	0.001120	513.57	\N	\N	\N	\N	2025-12-10 21:51:47	2025-12-10 21:51:47
+175	7	1	5	2	2	898	\N	4713	2025-09-16	2025-09-16	513.39	191556.30	1.00	0.000	120.040	118.00	2.04	0.00	120.04	221247.53	1843.12	5.00	9577.82	0.00	0.00	10.00	20113.41	15.00	33187.13	7.50	16593.56	0.000000	0.00	4767	2025-09-17	JAFOR ENT	INDIA	2025-12-10 21:52:09	2025-12-10 21:52:09
+176	3	1	5	5	3	0000034825010016	\N	2483	2025-11-25	2025-11-25	0.00	152848.85	1.00	0.000	96.000	96.00	0.00	0.00	96.00	176540.42	1838.96	5.00	7642.44	0.00	0.00	10.00	16049.13	15.00	26481.06	7.50	13240.53	0.001120	171.19	\N	\N	\N	\N	2025-12-10 21:52:55	2025-12-10 21:52:55
+177	7	1	5	2	2	917	\N	4731	2025-09-18	2025-09-18	332.93	119371.11	1.00	0.000	74.800	72.17	2.63	0.00	74.80	137873.63	1843.23	5.00	5968.56	0.00	0.00	10.00	12533.97	15.00	20681.04	7.50	10340.52	0.000000	0.00	4800	2025-09-18	PRAGATI INT.	INDIA	2025-12-10 21:56:47	2025-12-10 21:56:47
+178	7	1	5	2	2	932	\N	4748	2025-09-18	2025-09-18	566.90	225917.24	1.00	0.000	141.560	140.02	1.54	0.00	141.56	260934.41	1843.28	5.00	11295.86	0.00	0.00	10.00	23721.31	15.00	39140.16	7.50	19570.08	0.000000	0.00	4805	2025-09-19	AHAD UDDIN	INDIA	2025-12-10 22:06:27	2025-12-10 22:06:27
+179	7	1	5	2	2	932	\N	4793	2025-09-23	2025-09-23	624.95	272355.88	1.00	0.000	170.660	167.98	2.68	0.00	170.66	314571.04	1843.26	5.00	13617.79	0.00	0.00	10.00	28597.37	15.00	47185.66	7.50	23592.83	0.000000	0.00	4845	2025-09-23	AHAD UDDIN	INDIA	2025-12-10 22:09:06	2025-12-10 22:09:06
+180	7	1	5	2	2	917	\N	4806	2025-09-23	2025-09-23	431.70	158882.71	1.00	0.000	99.560	95.87	3.69	0.00	99.56	183509.53	1843.21	5.00	7944.14	0.00	0.00	10.00	16682.68	15.00	27526.43	7.50	13763.21	0.000000	0.00	4849	2025-09-23	PRAGATI INT.	INDIA	2025-12-10 22:11:59	2025-12-10 22:11:59
+181	7	1	5	2	2	917	\N	4825	2025-09-24	2025-09-24	333.52	119605.79	1.00	0.000	74.950	72.36	2.59	0.00	74.95	138144.69	1843.16	5.00	5980.29	0.00	0.00	10.00	12558.61	15.00	20721.70	7.50	10360.85	0.000000	0.00	4885	2025-09-24	PRAGATI INT.	INDIA	2025-12-10 22:14:17	2025-12-10 22:14:17
+182	7	1	5	2	2	917	\N	4901	2025-09-25	2025-09-25	430.20	158280.03	1.00	0.000	99.170	96.38	2.79	0.00	99.17	182813.43	1843.43	5.00	7914.00	0.00	0.00	10.00	16619.40	15.00	27422.02	7.50	13711.01	0.000000	0.00	4964	2025-09-25	PRAGATI INT.	INDIA	2025-12-10 22:16:19	2025-12-10 22:16:19
+183	7	1	5	2	2	917	\N	4927	2025-09-26	2025-09-26	580.89	237110.28	1.00	0.000	148.580	137.22	11.36	0.00	148.58	273862.37	1843.20	5.00	11855.51	0.00	0.00	10.00	24896.58	15.00	41079.36	7.50	20539.68	0.000000	0.00	5005	2025-09-27	PRAGATI INT.	INDIA	2025-12-10 22:26:27	2025-12-10 22:26:27
+184	5	1	5	1	3	0000141225010173	\N	4671	2025-07-15	2025-10-01	0.00	38320.70	1.00	0.580	24.730	24.00	0.15	0.00	24.15	44260.41	1832.73	5.00	1916.04	0.00	0.00	10.00	4023.67	15.00	6639.06	7.50	3319.53	0.001120	42.92	\N	\N	\N	\N	2025-12-10 22:51:29	2025-12-10 22:51:29
+185	5	1	5	1	3	0000141225010173	\N	4777	2025-07-17	2025-10-01	0.00	19040.88	1.00	0.730	12.730	12.00	0.00	0.00	12.00	21992.22	1832.68	5.00	952.04	0.00	0.00	10.00	1999.29	15.00	3298.83	7.50	1649.42	0.001120	21.33	\N	\N	\N	\N	2025-12-10 22:55:34	2025-12-10 22:55:34
+186	5	1	5	1	3	0000141225010173	\N	4861	2025-07-21	2025-10-01	0.00	176557.56	1.00	0.730	112.000	108.00	3.27	0.00	111.27	203923.98	1832.70	5.00	8827.88	0.00	0.00	10.00	18538.54	15.00	30588.60	7.50	15294.30	0.001120	197.74	\N	\N	\N	\N	2025-12-10 22:57:40	2025-12-10 22:57:40
+187	5	1	5	1	3	0000141225010173	\N	4935	2025-07-22	2025-10-01	0.00	117252.76	1.00	0.000	73.900	72.00	1.90	0.00	73.90	135426.94	1832.57	5.00	5862.64	0.00	0.00	10.00	12311.54	15.00	20314.04	7.50	10157.02	0.001120	131.32	\N	\N	\N	\N	2025-12-10 23:00:38	2025-12-10 23:00:38
+188	5	1	5	1	3	0000141225010173	\N	4965	2025-07-23	2025-10-02	0.00	58202.36	1.00	0.900	37.580	36.00	0.68	0.00	36.68	67223.73	1832.71	5.00	2910.12	0.00	0.00	10.00	6111.25	15.00	10083.56	7.50	5041.78	0.001120	65.19	\N	\N	\N	\N	2025-12-10 23:15:30	2025-12-10 23:15:30
+189	5	1	5	1	3	0000141225010220	\N	4968	2025-07-23	2025-10-02	0.00	39667.74	1.00	0.580	25.580	24.00	1.00	0.00	25.00	45816.24	1832.65	5.00	1983.39	0.00	0.00	10.00	4165.11	15.00	6872.44	7.50	3436.22	0.001120	44.43	\N	\N	\N	\N	2025-12-10 23:17:08	2025-12-10 23:17:08
+190	5	1	5	1	3	0000141225010220	\N	5020	2025-07-24	2025-10-02	0.00	79335.49	1.00	0.580	50.580	48.00	2.00	0.00	50.00	91632.49	1832.65	5.00	3966.77	0.00	0.00	10.00	8330.23	15.00	13744.87	7.50	6872.44	0.001120	88.86	\N	\N	\N	\N	2025-12-10 23:18:43	2025-12-10 23:18:43
+191	5	1	5	1	3	0000141225010220	\N	5087	2025-07-26	2025-10-02	0.00	78302.05	1.00	0.580	49.930	48.00	1.35	0.00	49.35	90438.87	1832.60	5.00	3915.10	0.00	0.00	10.00	8221.72	15.00	13565.83	7.50	6782.92	0.001120	87.70	\N	\N	\N	\N	2025-12-10 23:20:51	2025-12-10 23:20:51
+192	5	1	5	1	3	0000141225010220	\N	5118	2025-07-28	2025-10-03	0.00	76760.86	1.00	0.930	49.310	48.00	0.38	0.00	48.38	88658.79	1832.55	5.00	3838.04	0.00	0.00	10.00	8059.89	15.00	13298.82	7.50	6649.41	0.001120	85.97	\N	\N	\N	\N	2025-12-10 23:22:34	2025-12-10 23:22:34
+193	5	1	5	1	3	0000141225010220	\N	5190	2025-07-29	2025-10-03	0.00	159317.75	1.00	0.310	100.720	96.00	4.41	0.00	100.41	184012.00	1832.61	5.00	7965.89	0.00	0.00	10.00	16728.36	15.00	27601.80	7.50	13800.90	0.001120	178.44	\N	\N	\N	\N	2025-12-10 23:28:14	2025-12-10 23:28:14
+194	5	1	5	1	3	0000141225010220	\N	5228	2025-07-30	2025-10-03	0.00	19311.18	1.00	0.720	12.890	12.00	0.17	0.00	12.17	22304.41	1832.74	5.00	965.56	0.00	0.00	10.00	2027.67	15.00	3345.66	7.50	1672.83	0.001120	21.63	\N	\N	\N	\N	2025-12-10 23:38:19	2025-12-10 23:38:19
+195	5	1	5	1	3	0000141225010220	\N	5270	2025-07-31	2025-10-03	0.00	59026.71	1.00	0.890	38.090	36.00	1.20	0.00	37.20	68175.85	1832.68	5.00	2951.34	0.00	0.00	10.00	6197.80	15.00	10226.38	7.50	5113.19	0.001120	66.11	\N	\N	\N	\N	2025-12-10 23:41:44	2025-12-10 23:41:44
+196	5	1	5	1	3	0000141225010220	\N	5323	2025-08-02	2025-10-03	0.00	19950.92	1.00	0.090	12.590	12.00	0.50	0.00	12.50	23043.31	1843.47	5.00	997.55	0.00	0.00	10.00	2094.85	15.00	3456.50	7.50	1728.25	0.001120	22.35	\N	\N	\N	\N	2025-12-10 23:43:36	2025-12-10 23:43:36
+197	5	1	5	1	3	0000141225010220	\N	5352	2025-08-04	2025-10-04	0.00	78211.35	1.00	0.590	49.590	48.00	1.00	0.00	49.00	90334.11	1843.55	5.00	3910.57	0.00	0.00	10.00	8212.19	15.00	13550.12	7.50	6775.06	0.001120	87.60	\N	\N	\N	\N	2025-12-10 23:45:25	2025-12-10 23:45:25
+198	5	1	5	1	3	0000141225010220	\N	5403	2025-08-06	2025-10-04	0.00	59695.03	1.00	0.590	37.990	36.00	1.40	0.00	37.40	68947.76	1843.52	5.00	2984.75	0.00	0.00	10.00	6267.98	15.00	10342.16	7.50	5171.08	0.001120	66.86	\N	\N	\N	\N	2025-12-10 23:49:07	2025-12-10 23:49:07
+199	5	1	5	1	3	0000141225010220	\N	5459	2025-08-07	2025-10-04	0.00	19950.92	1.00	0.990	13.490	12.00	0.50	0.00	12.50	23043.31	1843.47	5.00	997.55	0.00	0.00	10.00	2094.85	15.00	3456.50	7.50	1728.25	0.001120	22.35	\N	\N	\N	\N	2025-12-10 23:52:41	2025-12-10 23:52:41
+200	5	1	5	1	3	0000141225010220	\N	5544	2025-08-11	2025-10-04	0.00	78211.35	1.00	0.490	49.490	48.00	1.00	0.00	49.00	90334.11	1843.55	5.00	3910.57	0.00	0.00	10.00	8212.19	15.00	13550.12	7.50	6775.06	0.001120	87.60	\N	\N	\N	\N	2025-12-11 00:05:45	2025-12-11 00:05:45
+201	5	1	5	1	3	0000141225010220	\N	5590	2025-08-12	2025-10-04	0.00	39616.43	1.00	0.490	25.310	24.00	0.82	0.00	24.82	45756.98	1843.55	5.00	1980.82	0.00	0.00	10.00	4159.73	15.00	6863.55	7.50	3431.77	0.001120	44.37	\N	\N	\N	\N	2025-12-11 00:07:53	2025-12-11 00:07:53
+202	5	1	5	1	3	0000141225010220	\N	5666	2025-08-13	2025-10-05	0.00	79911.86	1.00	0.310	50.380	48.00	2.07	0.00	50.07	92298.20	1843.38	5.00	3995.59	0.00	0.00	10.00	8390.75	15.00	13844.73	7.50	6922.36	0.001120	89.50	\N	\N	\N	\N	2025-12-11 00:12:14	2025-12-11 00:12:14
+203	5	1	5	1	3	0000141225010220	\N	5721	2025-08-18	2025-10-05	0.00	19552.83	1.00	0.380	12.630	12.00	0.25	0.00	12.25	22583.52	1843.55	5.00	977.64	0.00	0.00	10.00	2053.05	15.00	3387.53	7.50	1693.76	0.001120	21.90	\N	\N	\N	\N	2025-12-11 00:14:19	2025-12-11 00:14:19
+204	5	1	5	1	3	0000141225010220	\N	5787	2025-08-19	2025-10-05	0.00	79004.52	1.00	0.630	50.130	48.00	1.50	0.00	49.50	91250.22	1843.44	5.00	3950.23	0.00	0.00	10.00	8295.47	15.00	13687.53	7.50	6843.77	0.001120	88.49	\N	\N	\N	\N	2025-12-11 00:15:58	2025-12-11 00:15:58
+205	5	1	5	1	3	0000141225010239	\N	5880	2025-08-21	2025-10-05	0.00	60172.74	1.00	0.130	37.830	36.00	1.70	0.00	37.70	69499.51	1843.49	5.00	3008.64	0.00	0.00	10.00	6318.14	15.00	10424.93	7.50	5212.46	0.001120	67.39	\N	\N	\N	\N	2025-12-11 00:17:23	2025-12-11 00:17:23
+206	5	1	5	1	3	0000141225010239	\N	5913	2025-08-23	2025-10-06	0.00	118508.38	1.00	0.830	75.080	72.00	2.25	0.00	74.25	136877.18	1843.46	5.00	5925.42	0.00	0.00	10.00	12443.38	15.00	20531.58	7.50	10265.79	0.001120	132.73	\N	\N	\N	\N	2025-12-11 00:18:49	2025-12-11 00:18:49
+207	5	1	5	1	3	0000141225010239	\N	5942	2025-08-25	2025-10-07	0.00	79551.32	1.00	0.080	49.920	48.00	1.84	0.00	49.84	91881.77	1843.53	5.00	3977.57	0.00	0.00	10.00	8352.89	15.00	13782.27	7.50	6891.13	0.001120	89.10	\N	\N	\N	\N	2025-12-11 00:20:31	2025-12-11 00:20:31
+208	5	1	5	1	3	0000141225010239	\N	5990	2025-08-26	2025-10-07	0.00	137092.29	1.00	0.920	86.810	84.00	1.89	0.00	85.89	158341.59	1843.54	5.00	6854.61	0.00	0.00	10.00	14394.69	15.00	23751.24	7.50	11875.62	0.001120	153.54	\N	\N	\N	\N	2025-12-11 00:41:51	2025-12-11 00:41:51
+209	5	1	5	1	3	0000141225010239	\N	6023	2025-08-27	2025-10-08	0.00	19473.21	1.00	0.810	13.010	12.00	0.20	0.00	12.20	22491.56	1843.57	5.00	973.66	0.00	0.00	10.00	2044.69	15.00	3373.73	7.50	1686.87	0.001120	21.81	\N	\N	\N	\N	2025-12-11 00:44:35	2025-12-11 00:44:35
+210	5	1	5	1	3	0000141225010239	\N	6060	2025-08-28	2025-10-09	0.00	180790.28	1.00	0.010	113.280	108.00	5.27	0.00	113.27	208812.77	1843.50	5.00	9039.51	0.00	0.00	10.00	18982.98	15.00	31321.92	7.50	15660.96	0.001120	202.49	\N	\N	\N	\N	2025-12-11 01:30:54	2025-12-11 01:30:54
+211	5	1	5	1	3	0000141225010239	\N	6106	2025-08-30	2025-10-10	0.00	157842.40	1.00	0.280	99.170	96.00	2.89	0.00	98.89	182307.97	1843.54	5.00	7892.12	0.00	0.00	10.00	16573.45	15.00	27346.20	7.50	13673.10	0.001120	176.78	\N	\N	\N	\N	2025-12-11 01:33:30	2025-12-11 01:33:30
+212	5	1	5	1	3	0000141225010239	\N	6158	2025-09-01	2025-10-10	0.00	119773.80	1.00	0.170	75.230	72.00	3.06	0.00	75.06	138338.74	1843.04	5.00	5988.69	0.00	0.00	10.00	12576.25	15.00	20750.81	7.50	10375.41	0.001120	134.15	\N	\N	\N	\N	2025-12-11 01:36:23	2025-12-11 01:36:23
+213	5	1	5	1	3	0000141225010239	\N	6230	2025-09-02	2025-10-10	0.00	19850.88	1.00	0.230	12.670	12.00	0.44	0.00	12.44	22927.77	1843.07	5.00	992.54	0.00	0.00	10.00	2084.34	15.00	3439.16	7.50	1719.58	0.001120	22.23	\N	\N	\N	\N	2025-12-11 01:38:04	2025-12-11 01:38:04
+214	5	1	5	1	3	0000141225010239	\N	6262	2025-09-03	2025-10-10	0.00	98422.59	1.00	0.670	62.350	60.00	1.68	0.00	61.68	113678.09	1843.03	5.00	4921.13	0.00	0.00	10.00	10334.37	15.00	17051.71	7.50	8525.86	0.001120	110.23	\N	\N	\N	\N	2025-12-11 02:14:43	2025-12-11 02:14:43
+215	5	1	5	1	3	0000141225010258	\N	6283	2025-09-03	2025-10-10	0.00	39476.53	1.00	0.350	25.090	24.00	0.74	0.00	24.74	45595.39	1842.98	5.00	1973.83	0.00	0.00	10.00	4145.04	15.00	6839.31	7.50	3419.65	0.001120	44.21	\N	\N	\N	\N	2025-12-11 02:16:41	2025-12-11 02:16:41
+216	5	1	5	1	3	0000141225010258	\N	6341	2025-09-08	2025-10-11	0.00	58115.45	1.00	0.090	36.510	36.00	0.42	0.00	36.42	67123.34	1843.04	5.00	2905.77	0.00	0.00	10.00	6102.12	15.00	10068.50	7.50	5034.25	0.001120	65.09	\N	\N	\N	\N	2025-12-11 02:17:57	2025-12-11 02:17:57
+217	5	1	5	1	3	0000141225010258	\N	6376	2025-09-09	2025-10-11	0.00	39668.76	1.00	0.510	25.370	24.00	0.86	0.00	24.86	45817.42	1843.02	5.00	1983.44	0.00	0.00	10.00	4165.22	15.00	6872.61	7.50	3436.31	0.001120	44.43	\N	\N	\N	\N	2025-12-11 02:23:13	2025-12-11 02:23:13
+218	5	1	5	1	3	0000141225010258	\N	6442	2025-09-10	2025-10-11	0.00	180200.58	1.00	0.370	113.300	108.00	4.93	0.00	112.93	208131.67	1843.01	5.00	9010.03	0.00	0.00	10.00	18921.06	15.00	31219.75	7.50	15609.88	0.001120	201.82	\N	\N	\N	\N	2025-12-11 02:24:25	2025-12-11 02:24:25
+219	5	1	5	1	3	0000141225010258	\N	6518	2025-09-11	2025-10-12	0.00	78364.34	1.00	0.300	49.410	48.00	1.11	0.00	49.11	90510.81	1843.02	5.00	3918.22	0.00	0.00	10.00	8228.26	15.00	13576.62	7.50	6788.31	0.001120	87.77	\N	\N	\N	\N	2025-12-11 02:25:52	2025-12-11 02:25:52
+220	5	1	5	1	3	0000141225010258	\N	6531	2025-09-13	2025-10-12	0.00	120620.83	1.00	0.410	76.000	72.00	3.59	0.00	75.59	139317.06	1843.06	5.00	6031.04	0.00	0.00	10.00	12665.19	15.00	20897.56	7.50	10448.78	0.001120	135.10	\N	\N	\N	\N	2025-12-11 02:30:42	2025-12-11 02:30:42
+221	5	1	5	1	3	0000141225010258	\N	6593	2025-09-15	2025-10-13	0.00	58624.56	1.00	0.000	36.740	36.00	0.74	0.00	36.74	67711.37	1842.99	5.00	2931.23	0.00	0.00	10.00	6155.58	15.00	10156.71	7.50	5078.35	0.001120	65.66	\N	\N	\N	\N	2025-12-11 02:32:28	2025-12-11 02:32:28
+222	5	1	5	1	3	0000141225010258	\N	6709	2025-09-17	2025-10-13	0.00	159253.32	1.00	0.740	100.540	96.00	3.80	0.00	99.80	183937.58	1843.06	5.00	7962.67	0.00	0.00	10.00	16721.60	15.00	27590.64	7.50	13795.32	0.001120	178.36	\N	\N	\N	\N	2025-12-11 02:34:14	2025-12-11 02:34:14
+223	5	1	5	1	3	0000141225010258	\N	6781	2025-09-20	2025-10-14	0.00	235276.43	1.00	0.540	147.990	144.00	3.45	0.00	147.45	271744.28	1842.96	5.00	11763.82	0.00	0.00	10.00	24704.03	15.00	40761.64	7.50	20380.82	0.001120	263.51	\N	\N	\N	\N	2025-12-11 02:38:09	2025-12-11 02:38:09
+224	5	1	5	1	3	0000141225010270	\N	6824	2025-09-22	2025-10-15	0.00	96462.70	1.00	0.990	61.440	60.00	0.45	0.00	60.45	111414.42	1843.08	5.00	4823.14	0.00	0.00	10.00	10128.58	15.00	16712.16	7.50	8356.08	0.001120	108.04	\N	\N	\N	\N	2025-12-11 02:40:52	2025-12-11 02:40:52
+225	5	1	5	1	3	0000141225010258	\N	6828	2025-09-22	2025-10-15	0.00	19945.50	1.00	0.440	12.940	12.00	0.50	0.00	12.50	23037.05	1842.96	5.00	997.28	0.00	0.00	10.00	2094.28	15.00	3455.56	7.50	1727.78	0.001120	22.34	\N	\N	\N	\N	2025-12-11 03:03:30	2025-12-11 03:03:30
+226	5	1	5	1	3	0000141225010270	\N	6865	2025-09-23	2025-10-16	0.00	158472.38	1.00	0.940	100.250	96.00	3.31	0.00	99.31	183035.60	1843.07	5.00	7923.62	0.00	0.00	10.00	16639.60	15.00	27455.34	7.50	13727.67	0.001120	177.49	\N	\N	\N	\N	2025-12-11 03:10:44	2025-12-11 03:10:44
+227	5	1	5	1	3	0000141225010270	\N	6915	2025-09-24	2025-10-17	0.00	139304.82	1.00	0.250	87.550	84.00	3.30	0.00	87.30	160897.07	1843.04	5.00	6965.24	0.00	0.00	10.00	14627.01	15.00	24134.56	7.50	12067.28	0.001120	156.02	\N	\N	\N	\N	2025-12-11 03:13:24	2025-12-11 03:13:24
+228	5	1	5	1	3	0000141225010270	\N	6961	2025-09-25	2025-10-18	0.00	119656.66	1.00	0.550	75.540	72.00	2.99	0.00	74.99	138203.44	1842.96	5.00	5982.83	0.00	0.00	10.00	12563.95	15.00	20730.52	7.50	10365.26	0.001120	134.02	\N	\N	\N	\N	2025-12-11 03:15:06	2025-12-11 03:15:06
+229	5	1	5	1	3	0000141225010270	\N	7036	2025-09-27	2025-10-18	0.00	78664.70	1.00	0.540	49.840	48.00	1.30	0.00	49.30	90857.73	1842.96	5.00	3933.24	0.00	0.00	10.00	8259.79	15.00	13628.66	7.50	6814.33	0.001120	88.10	\N	\N	\N	\N	2025-12-11 03:19:18	2025-12-11 03:19:18
+230	5	1	5	1	3	0000141225010270	\N	7079	2025-09-29	2025-10-18	0.00	97498.96	1.00	0.840	61.940	60.00	1.10	0.00	61.10	112611.30	1843.07	5.00	4874.95	0.00	0.00	10.00	10237.39	15.00	16891.69	7.50	8445.85	0.001120	109.20	\N	\N	\N	\N	2025-12-11 03:21:38	2025-12-11 03:21:38
+231	5	1	5	1	3	0000141225010270	\N	7140	2025-09-30	2025-10-19	0.00	139199.69	1.00	0.940	88.180	84.00	3.24	0.00	87.24	160775.64	1842.91	5.00	6959.98	0.00	0.00	10.00	14615.97	15.00	24116.35	7.50	12058.17	0.001120	155.90	\N	\N	\N	\N	2025-12-11 03:25:38	2025-12-11 03:25:38
+232	5	1	5	1	3	0000141225010270	\N	7153	2025-09-30	2025-10-19	0.00	19148.04	1.00	0.180	12.180	12.00	0.00	0.00	12.00	22115.99	1843.00	5.00	957.40	0.00	0.00	10.00	2010.54	15.00	3317.40	7.50	1658.70	0.001120	21.45	\N	\N	\N	\N	2025-12-11 04:16:39	2025-12-11 04:16:39
+233	5	1	5	1	3	0000141225010270	\N	7198	2025-10-06	2025-10-20	0.00	59938.32	1.00	0.180	37.770	36.00	1.59	0.00	37.59	69228.76	1841.68	5.00	2996.92	0.00	0.00	10.00	6293.52	15.00	10384.31	7.50	5192.16	0.001120	67.13	\N	\N	\N	\N	2025-12-11 04:47:19	2025-12-11 04:47:19
+234	5	1	5	1	3	0000141225010270	\N	7239	2025-10-07	2025-10-20	0.00	79347.47	1.00	0.770	50.530	48.00	1.76	0.00	49.76	91646.33	1841.77	5.00	3967.37	0.00	0.00	10.00	8331.48	15.00	13746.95	7.50	6873.47	0.001120	88.87	\N	\N	\N	\N	2025-12-11 04:50:03	2025-12-11 04:50:03
+235	5	1	5	1	3	0000141225010279	\N	7499	2025-10-13	2025-10-20	0.00	136937.22	1.00	0.530	86.410	84.00	1.88	0.00	85.88	158162.49	1841.67	5.00	6846.86	0.00	0.00	10.00	14378.41	15.00	23724.37	7.50	11862.19	0.001120	153.37	\N	\N	\N	\N	2025-12-11 04:51:25	2025-12-11 04:51:25
+236	5	1	5	1	3	0000141225010279	\N	7516	2025-10-14	2025-10-21	0.00	136979.25	1.00	0.410	86.320	84.00	1.91	0.00	85.91	158211.03	1841.59	5.00	6848.96	0.00	0.00	10.00	14382.82	15.00	23731.66	7.50	11865.83	0.001120	153.42	\N	\N	\N	\N	2025-12-11 04:53:47	2025-12-11 04:53:47
+237	5	1	5	1	3	0000141225010279	\N	7596	2025-10-15	2025-10-21	0.00	216805.58	1.00	0.320	136.290	132.00	3.97	0.00	135.97	250410.44	1841.66	5.00	10840.28	0.00	0.00	10.00	22764.59	15.00	37561.57	7.50	18780.78	0.001120	242.82	\N	\N	\N	\N	2025-12-11 06:21:53	2025-12-11 06:21:53
+238	5	1	5	1	3	0000141225010279	\N	7658	2025-10-16	2025-10-22	0.00	39862.83	1.00	0.290	25.290	24.00	1.00	0.00	25.00	46041.57	1841.66	5.00	1993.14	0.00	0.00	10.00	4185.60	15.00	6906.24	7.50	3453.12	0.001120	44.65	\N	\N	\N	\N	2025-12-11 06:23:34	2025-12-11 06:23:34
+239	5	1	5	1	3	0000141225010279	\N	7714	2025-10-18	2025-10-22	0.00	59348.53	1.00	0.290	37.510	36.00	1.22	0.00	37.22	68547.55	1841.69	5.00	2967.43	0.00	0.00	10.00	6231.60	15.00	10282.13	7.50	5141.07	0.001120	66.47	\N	\N	\N	\N	2025-12-11 06:25:25	2025-12-11 06:25:25
+240	5	1	5	1	3	0000141225010279	\N	7749	2025-10-20	2025-10-23	0.00	59731.22	1.00	0.510	37.970	36.00	1.46	0.00	37.46	68989.56	1841.69	5.00	2986.56	0.00	0.00	10.00	6271.78	15.00	10348.43	7.50	5174.22	0.001120	66.90	\N	\N	\N	\N	2025-12-11 06:26:59	2025-12-11 06:26:59
+241	5	1	5	1	3	0000141225010279	\N	7797	2025-10-21	2025-10-23	0.00	117311.95	1.00	0.970	74.540	72.00	1.57	0.00	73.57	135495.30	1841.72	5.00	5865.60	0.00	0.00	10.00	12317.75	15.00	20324.30	7.50	10162.15	0.001120	131.39	\N	\N	\N	\N	2025-12-11 06:28:50	2025-12-11 06:28:50
+242	5	1	5	1	3	0000141225010279	\N	7876	2025-10-22	2025-10-23	0.00	19740.83	1.00	0.540	12.920	12.00	0.38	0.00	12.38	22800.66	1841.73	5.00	987.04	0.00	0.00	10.00	2072.79	15.00	3420.10	7.50	1710.05	0.001120	22.11	\N	\N	\N	\N	2025-12-11 06:30:16	2025-12-11 06:30:16
+243	5	1	5	1	3	0000141225010279	\N	7927	2025-10-23	2025-10-24	0.00	95884.27	1.00	0.920	61.050	60.00	0.13	0.00	60.13	110746.33	1841.78	5.00	4794.21	0.00	0.00	10.00	10067.85	15.00	16611.95	7.50	8305.97	0.001120	107.39	\N	\N	\N	\N	2025-12-11 06:31:26	2025-12-11 06:31:26
+244	5	1	5	1	3	0000141225010279	\N	8031	2025-10-27	2025-10-28	0.00	96154.41	1.00	0.050	60.350	60.00	0.30	0.00	60.30	111058.34	1841.76	5.00	4807.72	0.00	0.00	10.00	10096.21	15.00	16658.75	7.50	8329.38	0.001120	107.69	\N	\N	\N	\N	2025-12-11 06:32:46	2025-12-11 06:32:46
+245	5	1	5	1	3	0000141225010295	\N	8107	2025-10-28	2025-10-29	0.00	58565.14	1.00	0.350	37.080	36.00	0.73	0.00	36.73	67642.74	1841.62	5.00	2928.26	0.00	0.00	10.00	6149.34	15.00	10146.41	7.50	5073.21	0.001120	65.59	\N	\N	\N	\N	2025-12-11 06:34:03	2025-12-11 06:34:03
+246	5	1	5	1	3	0000141225010295	\N	8137	2025-10-29	2025-10-30	0.00	118176.40	1.00	0.080	74.190	72.00	2.11	0.00	74.11	136493.74	1841.77	5.00	5908.82	0.00	0.00	10.00	12408.52	15.00	20474.06	7.50	10237.03	0.001120	132.36	\N	\N	\N	\N	2025-12-11 06:35:40	2025-12-11 06:35:40
+247	5	1	5	1	3	0000141225010310	\N	8190	2025-10-30	2025-10-30	0.00	78182.89	1.00	0.190	49.220	48.00	1.03	0.00	49.03	90301.24	1841.75	5.00	3909.14	0.00	0.00	10.00	8209.20	15.00	13545.19	7.50	6772.59	0.001120	87.56	\N	\N	\N	\N	2025-12-11 06:37:18	2025-12-11 06:37:18
+248	5	1	5	1	3	0000141225010295	\N	8191	2025-10-30	2025-10-30	0.00	39751.77	1.00	0.220	25.150	24.00	0.93	0.00	24.93	45913.29	1841.69	5.00	1987.59	0.00	0.00	10.00	4173.94	15.00	6886.99	7.50	3443.50	0.001120	44.52	\N	\N	\N	\N	2025-12-11 06:39:02	2025-12-11 06:39:02
+249	5	1	5	1	3	0000141225010295	\N	8262	2025-11-01	2025-11-02	0.00	78749.33	1.00	0.150	49.610	48.00	1.46	0.00	49.46	90955.48	1838.97	5.00	3937.47	0.00	0.00	10.00	8268.68	15.00	13643.32	7.50	6821.66	0.001120	88.20	\N	\N	\N	\N	2025-12-11 06:50:01	2025-12-11 06:50:01
+250	5	1	5	1	3	0000141225010295	\N	8323	2025-11-03	2025-11-04	0.00	79432.65	1.00	0.610	50.500	48.00	1.89	0.00	49.89	91744.71	1838.94	5.00	3971.63	0.00	0.00	10.00	8340.43	15.00	13761.71	7.50	6880.85	0.001120	88.96	\N	\N	\N	\N	2025-12-11 06:56:28	2025-12-11 06:56:28
+251	5	1	5	1	3	0000141225010295	\N	8361	2025-11-04	2025-11-05	0.00	119492.24	1.00	0.500	75.550	72.00	3.05	0.00	75.05	138013.54	1838.95	5.00	5974.61	0.00	0.00	10.00	12546.69	15.00	20702.03	7.50	10351.02	0.001120	133.83	\N	\N	\N	\N	2025-12-11 06:57:35	2025-12-11 06:57:35
+252	5	1	5	1	3	0000141225010310	\N	8364	2025-11-04	2025-11-05	0.00	39677.36	1.00	0.550	25.470	24.00	0.92	0.00	24.92	45827.35	1838.98	5.00	1983.87	0.00	0.00	10.00	4166.12	15.00	6874.10	7.50	3437.05	0.001120	44.44	\N	\N	\N	\N	2025-12-11 06:59:07	2025-12-11 06:59:07
+253	5	1	5	1	3	0000141225010295	\N	8426	2025-11-05	2025-11-06	0.00	79942.14	1.00	0.470	50.680	48.00	2.21	0.00	50.21	92333.17	1838.94	5.00	3997.11	0.00	0.00	10.00	8393.92	15.00	13849.98	7.50	6924.99	0.001120	89.54	\N	\N	\N	\N	2025-12-11 07:00:08	2025-12-11 07:00:08
+254	5	1	5	1	3	0000141225010310	\N	8427	2025-11-05	2025-11-06	0.00	19615.39	1.00	0.680	13.000	12.00	0.32	0.00	12.32	22655.78	1838.94	5.00	980.77	0.00	0.00	10.00	2059.62	15.00	3398.37	7.50	1699.18	0.001120	21.97	\N	\N	\N	\N	2025-12-11 07:01:42	2025-12-11 07:01:42
+255	5	1	5	1	3	0000141225010295	\N	8493	2025-11-06	2025-11-07	0.00	58813.68	1.00	0.000	36.940	36.00	0.94	0.00	36.94	67929.80	1838.92	5.00	2940.68	0.00	0.00	10.00	6175.44	15.00	10189.47	7.50	5094.74	0.001120	65.87	\N	\N	\N	\N	2025-12-11 07:02:45	2025-12-11 07:02:45
+256	5	1	5	1	3	0000141225010310	\N	8535	2025-11-08	2025-11-09	0.00	97358.29	1.00	0.940	62.090	60.00	1.15	0.00	61.15	112448.82	1838.90	5.00	4867.91	0.00	0.00	10.00	10222.62	15.00	16867.32	7.50	8433.66	0.001120	109.04	\N	\N	\N	\N	2025-12-11 07:03:46	2025-12-11 07:03:46
+257	5	1	5	1	3	0000141225010295	\N	8539	2025-11-08	2025-11-09	0.00	79383.64	1.00	0.090	49.950	48.00	1.86	0.00	49.86	91688.10	1838.91	5.00	3969.18	0.00	0.00	10.00	8335.28	15.00	13753.22	7.50	6876.61	0.001120	88.91	\N	\N	\N	\N	2025-12-11 07:04:56	2025-12-11 07:04:56
+258	5	1	5	1	3	0000141225010310	\N	8613	2025-11-10	2025-11-11	0.00	20107.32	1.00	0.950	13.580	12.00	0.63	0.00	12.63	23223.95	1838.79	5.00	1005.37	0.00	0.00	10.00	2111.27	15.00	3483.59	7.50	1741.80	0.001120	22.52	\N	\N	\N	\N	2025-12-11 07:06:07	2025-12-11 07:06:07
+259	5	1	5	1	3	0000141225010295	\N	8616	2025-11-10	2025-11-11	0.00	139930.76	1.00	0.580	88.470	84.00	3.89	0.00	87.89	161620.03	1838.89	5.00	6996.54	0.00	0.00	10.00	14692.73	15.00	24243.00	7.50	12121.50	0.001120	156.72	\N	\N	\N	\N	2025-12-11 07:07:21	2025-12-11 07:07:21
+260	5	1	5	1	3	0000141225010295	\N	8678	2025-11-11	2025-11-12	0.00	79018.01	1.00	0.470	50.100	48.00	1.63	0.00	49.63	91265.80	1838.92	5.00	3950.90	0.00	0.00	10.00	8296.89	15.00	13689.87	7.50	6844.94	0.001120	88.50	\N	\N	\N	\N	2025-12-11 07:08:37	2025-12-11 07:08:37
+261	5	1	5	1	3	0000141225010295	\N	8720	2025-11-12	2025-11-13	0.00	59703.78	1.00	0.100	37.600	36.00	1.50	0.00	37.50	68957.87	1838.88	5.00	2985.19	0.00	0.00	10.00	6268.90	15.00	10343.68	7.50	5171.84	0.001120	66.87	\N	\N	\N	\N	2025-12-11 07:09:44	2025-12-11 07:09:44
+262	5	1	5	1	3	0000141225010310	\N	8725	2025-11-12	2025-11-13	0.00	19104.88	1.00	0.600	12.600	12.00	0.00	0.00	12.00	22066.14	1838.84	5.00	955.24	0.00	0.00	10.00	2006.01	15.00	3309.92	7.50	1654.96	0.001120	21.40	\N	\N	\N	\N	2025-12-11 07:11:50	2025-12-11 07:11:50
+263	5	1	5	1	3	0000141225010310	\N	8769	2025-11-13	2025-11-14	0.00	278708.74	1.00	0.600	175.650	168.00	7.05	0.00	175.05	321908.59	1838.95	5.00	13935.44	0.00	0.00	10.00	29264.42	15.00	48286.29	7.50	24143.14	0.001120	312.15	\N	\N	\N	\N	2025-12-11 07:12:56	2025-12-11 07:12:56
+264	5	1	5	1	3	0000141225010310	\N	8830	2025-11-15	2025-11-16	0.00	177159.56	1.00	0.650	111.920	108.00	3.27	0.00	111.27	204619.29	1838.94	5.00	8857.98	0.00	0.00	10.00	18601.75	15.00	30692.89	7.50	15346.45	0.001120	198.42	\N	\N	\N	\N	2025-12-11 07:14:30	2025-12-11 07:14:30
+265	5	1	5	1	3	0000141225010328	\N	8929	2025-11-18	2025-11-19	0.00	99134.02	1.00	0.920	63.180	60.00	2.26	0.00	62.26	114499.79	1839.06	5.00	4956.70	0.00	0.00	10.00	10409.07	15.00	17174.97	7.50	8587.48	0.001120	111.03	\N	\N	\N	\N	2025-12-11 07:15:49	2025-12-11 07:15:49
+266	5	1	5	1	3	0000141225010310	\N	8931	2025-11-18	2025-11-19	0.00	76422.63	1.00	0.180	48.180	48.00	0.00	0.00	48.00	88268.14	1838.92	5.00	3821.13	0.00	0.00	10.00	8024.38	15.00	13240.22	7.50	6620.11	0.001120	85.59	\N	\N	\N	\N	2025-12-11 07:17:54	2025-12-11 07:17:54
+267	5	1	5	1	3	0000141225010328	\N	8993	2025-11-19	2025-11-20	0.00	99382.34	1.00	0.180	62.600	60.00	2.42	0.00	62.42	114786.60	1838.94	5.00	4969.12	0.00	0.00	10.00	10435.15	15.00	17217.99	7.50	8609.00	0.001120	111.31	\N	\N	\N	\N	2025-12-11 07:18:58	2025-12-11 07:18:58
+268	5	1	5	1	3	0000141225010328	\N	9080	2025-11-20	2025-11-21	0.00	137685.99	1.00	0.600	87.080	84.00	2.48	0.00	86.48	159027.32	1838.89	5.00	6884.30	0.00	0.00	10.00	14457.03	15.00	23854.10	7.50	11927.05	0.001120	154.21	\N	\N	\N	\N	2025-12-11 07:19:58	2025-12-11 07:19:58
+269	5	1	5	1	3	0000141225010310	\N	9119	2025-11-25	2025-11-26	0.00	38211.83	1.00	0.080	24.080	24.00	0.00	0.00	24.00	44134.66	1838.94	5.00	1910.59	0.00	0.00	10.00	4012.24	15.00	6620.20	7.50	3310.10	0.001120	42.80	\N	\N	\N	\N	2025-12-11 07:21:11	2025-12-11 07:21:11
+270	5	1	5	1	3	0000141225010328	\N	9122	2025-11-25	2025-11-26	0.00	171954.76	1.00	0.080	108.080	108.00	0.00	0.00	108.00	198607.75	1838.96	5.00	8597.74	0.00	0.00	10.00	18055.25	15.00	29791.16	7.50	14895.58	0.001120	192.59	\N	\N	\N	\N	2025-12-11 07:22:28	2025-12-11 07:22:28
+271	5	1	5	1	3	0000141225010310	\N	9148	2025-11-26	2025-11-27	0.00	19105.90	1.00	0.080	12.080	12.00	0.00	0.00	12.00	22067.31	1838.94	5.00	955.30	0.00	0.00	10.00	2006.12	15.00	3310.10	7.50	1655.05	0.001120	21.40	\N	\N	\N	\N	2025-12-11 07:23:56	2025-12-11 07:23:56
+272	5	1	5	1	3	0000141225010328	\N	9204	2025-11-27	2025-11-28	0.00	76819.26	1.00	0.080	48.330	48.00	0.25	0.00	48.25	88726.25	1838.89	5.00	3840.96	0.00	0.00	10.00	8066.02	15.00	13308.94	7.50	6654.47	0.001120	86.04	\N	\N	\N	\N	2025-12-11 07:25:04	2025-12-11 07:25:04
+273	5	1	5	1	3	0000141225010347	\N	9207	2025-11-27	2025-11-28	0.00	57587.46	1.00	0.330	36.500	36.00	0.17	0.00	36.17	66513.52	1838.91	5.00	2879.37	0.00	0.00	10.00	6046.68	15.00	9977.03	7.50	4988.51	0.001120	64.50	\N	\N	\N	\N	2025-12-11 07:26:10	2025-12-11 07:26:10
+274	5	1	5	1	3	0000141225010310	\N	9211	2025-11-27	2025-11-28	0.00	19105.90	1.00	0.500	12.500	12.00	0.00	0.00	12.00	22067.31	1838.94	5.00	955.30	0.00	0.00	10.00	2006.12	15.00	3310.10	7.50	1655.05	0.001120	21.40	\N	\N	\N	\N	2025-12-11 07:27:03	2025-12-11 07:27:03
+275	5	1	5	1	3	0000141225010347	\N	9298	2025-11-29	2025-11-30	0.00	135126.54	1.00	0.500	85.370	84.00	0.87	0.00	84.87	156071.15	1838.94	5.00	6756.33	0.00	0.00	10.00	14188.29	15.00	23410.67	7.50	11705.34	0.001120	151.34	\N	\N	\N	\N	2025-12-11 07:28:06	2025-12-11 07:28:06
+276	6	1	5	1	3	0000141225010199	\N	4332	2025-07-01	2025-10-01	0.00	117517.40	1.00	0.000	74.060	72.00	2.06	0.00	74.06	135732.60	1832.74	5.00	5875.87	0.00	0.00	10.00	12339.33	15.00	20359.89	7.50	10179.94	0.001120	131.62	\N	\N	\N	\N	2025-12-11 19:22:52	2025-12-11 19:22:52
+277	6	1	5	1	3	0000141225010199	\N	4391	2025-07-03	2025-10-01	0.00	119193.02	1.00	0.060	75.180	72.00	3.12	0.00	75.12	137667.94	1832.64	5.00	5959.65	0.00	0.00	10.00	12515.27	15.00	20650.19	7.50	10325.10	0.001120	133.50	\N	\N	\N	\N	2025-12-11 19:24:29	2025-12-11 19:24:29
+278	6	1	5	1	3	0000141225010199	\N	4437	2025-07-05	2025-10-01	0.00	118422.42	1.00	0.180	74.810	72.00	2.63	0.00	74.63	136777.90	1832.75	5.00	5921.12	0.00	0.00	10.00	12434.35	15.00	20516.68	7.50	10258.34	0.001120	132.63	\N	\N	\N	\N	2025-12-11 21:14:05	2025-12-11 21:14:05
+279	6	1	5	1	3	0000141225010199	\N	4457	2025-07-07	2025-10-01	0.00	116881.21	1.00	0.810	74.470	72.00	1.66	0.00	73.66	134997.80	1832.72	5.00	5844.06	0.00	0.00	10.00	12272.53	15.00	20249.67	7.50	10124.83	0.001120	130.91	\N	\N	\N	\N	2025-12-11 21:16:52	2025-12-11 21:16:52
+280	6	1	5	1	3	0000141225010199	\N	4551	2025-07-10	2025-10-02	0.00	115044.30	1.00	0.470	72.970	72.00	0.50	0.00	72.50	132876.17	1832.77	5.00	5752.22	0.00	0.00	10.00	12079.65	15.00	19931.42	7.50	9965.71	0.001120	128.85	\N	\N	\N	\N	2025-12-11 21:23:43	2025-12-11 21:23:43
+281	6	1	5	1	3	0000141225010199	\N	4589	2025-07-12	2025-10-02	0.00	58614.54	1.00	0.970	37.910	36.00	0.94	0.00	36.94	67699.79	1832.70	5.00	2930.73	0.00	0.00	10.00	6154.53	15.00	10154.97	7.50	5077.48	0.001120	65.65	\N	\N	\N	\N	2025-12-11 21:25:28	2025-12-11 21:25:28
+282	6	1	5	1	3	0000141225010199	\N	4718	2025-07-16	2025-10-02	0.00	331925.33	1.00	0.910	210.100	204.00	5.19	0.00	209.19	383373.76	1832.66	5.00	16596.27	0.00	0.00	10.00	34852.16	15.00	57506.06	7.50	28753.03	0.001120	371.76	\N	\N	\N	\N	2025-12-11 21:27:47	2025-12-11 21:27:47
+283	6	1	5	1	3	0000141225010214	\N	4852	2025-07-20	2025-10-03	0.00	155267.60	1.00	0.100	97.950	96.00	1.85	0.00	97.85	179334.08	1832.74	5.00	7763.38	0.00	0.00	10.00	16303.10	15.00	26900.11	7.50	13450.06	0.001120	173.90	\N	\N	\N	\N	2025-12-11 21:30:14	2025-12-11 21:30:14
+284	6	1	5	1	3	0000141225010214	\N	4860	2025-07-21	2025-10-03	0.00	59707.71	1.00	0.950	38.580	36.00	1.63	0.00	37.63	68962.41	1832.64	5.00	2985.39	0.00	0.00	10.00	6269.31	15.00	10344.36	7.50	5172.18	0.001120	66.87	\N	\N	\N	\N	2025-12-11 21:35:43	2025-12-11 21:35:43
+285	6	1	5	1	3	0000141225010214	\N	4925	2025-07-22	2025-10-04	0.00	196415.44	1.00	0.580	124.360	120.00	3.78	0.00	123.78	226859.83	1832.77	5.00	9820.77	0.00	0.00	10.00	20623.62	15.00	34028.97	7.50	17014.49	0.001120	219.99	\N	\N	\N	\N	2025-12-11 21:37:29	2025-12-11 21:37:29
+286	6	1	5	1	3	0000141225010214	\N	5015	2025-07-24	2025-10-05	0.00	157406.18	1.00	0.360	99.560	96.00	3.20	0.00	99.20	181804.14	1832.70	5.00	7870.31	0.00	0.00	10.00	16527.65	15.00	27270.62	7.50	13635.31	0.001120	176.29	\N	\N	\N	\N	2025-12-11 21:43:47	2025-12-11 21:43:47
+287	6	1	5	1	3	0000141225010214	\N	5090	2025-07-26	2025-10-05	0.00	38508.86	1.00	0.560	24.830	24.00	0.27	0.00	24.27	44477.73	1832.62	5.00	1925.44	0.00	0.00	10.00	4043.43	15.00	6671.66	7.50	3335.83	0.001120	43.13	\N	\N	\N	\N	2025-12-11 21:54:51	2025-12-11 21:54:51
+288	6	1	5	1	3	0000141225010214	\N	5408	2025-08-06	2025-10-06	0.00	19153.24	1.00	0.830	12.830	12.00	0.00	0.00	12.00	22121.99	1843.50	5.00	957.66	0.00	0.00	10.00	2011.09	15.00	3318.30	7.50	1659.15	0.001120	21.45	\N	\N	\N	\N	2025-12-11 21:56:05	2025-12-11 21:56:05
+289	6	1	5	1	3	0000141225010214	\N	5471	2025-08-07	2025-10-07	0.00	114921.04	1.00	0.830	72.830	72.00	0.00	0.00	72.00	132733.80	1843.53	5.00	5746.05	0.00	0.00	10.00	12066.71	15.00	19910.07	7.50	9955.04	0.001120	128.71	\N	\N	\N	\N	2025-12-11 21:57:31	2025-12-11 21:57:31
+290	6	1	5	1	3	0000141225010214	\N	5513	2025-08-09	2025-10-08	0.00	238603.15	1.00	0.830	150.320	144.00	5.49	0.00	149.49	275586.64	1843.51	5.00	11930.16	0.00	0.00	10.00	25053.33	15.00	41338.00	7.50	20669.00	0.001120	267.24	\N	\N	\N	\N	2025-12-11 21:59:27	2025-12-11 21:59:27
+291	6	1	5	1	3	0000141225010224	\N	5662	2025-08-13	2025-10-08	0.00	137891.48	1.00	0.320	86.710	84.00	2.39	0.00	86.39	159264.66	1843.55	5.00	6894.57	0.00	0.00	10.00	14478.61	15.00	23889.70	7.50	11944.85	0.001120	154.44	\N	\N	\N	\N	2025-12-11 22:01:28	2025-12-11 22:01:28
+292	6	1	5	1	3	0000141225010224	\N	5712	2025-08-18	2025-10-08	0.00	176734.26	1.00	0.710	111.440	108.00	2.73	0.00	110.73	204128.07	1843.48	5.00	8836.71	0.00	0.00	10.00	18557.10	15.00	30619.21	7.50	15309.61	0.001120	197.94	\N	\N	\N	\N	2025-12-11 22:06:16	2025-12-11 22:06:16
+293	6	1	5	1	3	0000141225010224	\N	5802	2025-08-20	2025-10-09	0.00	116480.36	1.00	0.440	73.420	72.00	0.98	0.00	72.98	134534.82	1843.45	5.00	5824.02	0.00	0.00	10.00	12230.44	15.00	20180.22	7.50	10090.11	0.001120	130.46	\N	\N	\N	\N	2025-12-11 22:07:55	2025-12-11 22:07:55
+294	6	1	5	1	3	0000141225010224	\N	5872	2025-08-21	2025-10-10	0.00	98734.72	1.00	0.420	62.280	60.00	1.86	0.00	61.86	114038.60	1843.50	5.00	4936.74	0.00	0.00	10.00	10367.15	15.00	17105.79	7.50	8552.90	0.001120	110.58	\N	\N	\N	\N	2025-12-11 22:09:32	2025-12-11 22:09:32
+295	6	1	5	1	3	0000141225010224	\N	5897	2025-08-23	2025-10-11	0.00	137250.03	1.00	0.280	86.270	84.00	1.99	0.00	85.99	158523.78	1843.51	5.00	6862.50	0.00	0.00	10.00	14411.25	15.00	23778.57	7.50	11889.28	0.001120	153.72	\N	\N	\N	\N	2025-12-12 02:51:04	2025-12-12 02:51:04
+296	6	1	5	1	3	0000141225010224	\N	6056	2025-08-28	2025-10-11	0.00	320325.32	1.00	0.270	200.960	192.00	8.69	0.00	200.69	369975.74	1843.52	5.00	16016.27	0.00	0.00	10.00	33634.16	15.00	55496.36	7.50	27748.18	0.001120	358.76	\N	\N	\N	\N	2025-12-12 02:52:58	2025-12-12 02:52:58
+297	6	1	5	1	3	0000141225010242	\N	6160	2025-09-01	2025-10-12	0.00	118259.96	1.00	0.960	75.070	72.00	2.11	0.00	74.11	136590.25	1843.07	5.00	5913.00	0.00	0.00	10.00	12417.30	15.00	20488.54	7.50	10244.27	0.001120	132.45	\N	\N	\N	\N	2025-12-12 02:55:09	2025-12-12 02:55:09
+298	6	1	5	1	3	0000141225010242	\N	6217	2025-09-02	2025-10-12	0.00	135856.63	1.00	0.070	85.210	84.00	1.14	0.00	85.14	156914.41	1843.02	5.00	6792.83	0.00	0.00	10.00	14264.95	15.00	23537.16	7.50	11768.58	0.001120	152.16	\N	\N	\N	\N	2025-12-12 02:56:33	2025-12-12 02:56:33
+299	6	1	5	1	3	0000141225010242	\N	6315	2025-09-08	2025-10-12	0.00	196049.20	1.00	0.210	123.070	120.00	2.86	0.00	122.86	226436.83	1843.05	5.00	9802.46	0.00	0.00	10.00	20585.17	15.00	33965.52	7.50	16982.76	0.001120	219.58	\N	\N	\N	\N	2025-12-12 02:57:46	2025-12-12 02:57:46
+300	6	1	5	1	3	0000141225010242	\N	6517	2025-09-11	2025-10-13	0.00	197280.70	1.00	0.070	123.700	120.00	3.63	0.00	123.63	227859.21	1843.07	5.00	9864.04	0.00	0.00	10.00	20714.47	15.00	34178.88	7.50	17089.44	0.001120	220.95	\N	\N	\N	\N	2025-12-12 02:59:01	2025-12-12 02:59:01
+301	6	1	5	1	3	0000141225010242	\N	6530	2025-09-13	2025-10-14	0.00	120350.50	1.00	0.700	76.120	72.00	3.42	0.00	75.42	139004.83	1843.08	5.00	6017.53	0.00	0.00	10.00	12636.80	15.00	20850.72	7.50	10425.36	0.001120	134.79	\N	\N	\N	\N	2025-12-12 03:01:57	2025-12-12 03:01:57
+302	6	1	5	1	3	0000141225010242	\N	6708	2025-09-17	2025-10-14	0.00	215785.95	1.00	0.120	135.350	132.00	3.23	0.00	135.23	249232.77	1843.03	5.00	10789.30	0.00	0.00	10.00	22657.52	15.00	37384.92	7.50	18692.46	0.001120	241.68	\N	\N	\N	\N	2025-12-12 03:21:46	2025-12-12 03:21:46
+303	6	1	5	1	3	0000141225010262	\N	6863	2025-09-23	2025-10-15	0.00	195793.89	1.00	0.350	123.050	120.00	2.70	0.00	122.70	226141.94	1843.05	5.00	9789.69	0.00	0.00	10.00	20558.36	15.00	33921.29	7.50	16960.65	0.001120	219.29	\N	\N	\N	\N	2025-12-12 03:24:08	2025-12-12 03:24:08
+304	6	1	5	1	3	0000141225010262	\N	7076	2025-09-29	2025-10-15	0.00	76592.21	1.00	0.050	48.050	48.00	0.00	0.00	48.00	88464.00	1843.00	5.00	3829.61	0.00	0.00	10.00	8042.18	15.00	13269.60	7.50	6634.80	0.001120	85.78	\N	\N	\N	\N	2025-12-12 03:29:32	2025-12-12 03:29:32
+305	6	1	5	1	3	0000141225010262	\N	7138	2025-09-30	2025-10-15	0.00	154267.27	1.00	0.050	96.730	96.00	0.68	0.00	96.68	178178.70	1842.97	5.00	7713.36	0.00	0.00	10.00	16198.06	15.00	26726.80	7.50	13363.40	0.001120	172.78	\N	\N	\N	\N	2025-12-12 03:30:42	2025-12-12 03:30:42
+306	6	1	5	1	3	0000141225010262	\N	7303	2025-10-08	2025-10-15	0.00	97812.76	1.00	0.730	62.070	60.00	1.34	0.00	61.34	112973.74	1841.76	5.00	4890.64	0.00	0.00	10.00	10270.34	15.00	16946.06	7.50	8473.03	0.001120	109.55	\N	\N	\N	\N	2025-12-12 03:32:33	2025-12-12 03:32:33
+307	6	1	5	1	3	0000141225010262	\N	7355	2025-10-09	2025-10-15	0.00	19931.42	1.00	0.070	12.570	12.00	0.50	0.00	12.50	23020.79	1841.66	5.00	996.57	0.00	0.00	10.00	2092.80	15.00	3453.12	7.50	1726.56	0.001120	22.32	\N	\N	\N	\N	2025-12-12 03:57:01	2025-12-12 03:57:01
+308	6	1	5	1	3	0000141225010262	\N	7430	2025-10-11	2025-10-15	0.00	297242.73	1.00	0.570	186.980	180.00	6.41	0.00	186.41	343315.35	1841.72	5.00	14862.14	0.00	0.00	10.00	31210.49	15.00	51497.30	7.50	25748.65	0.001120	332.91	\N	\N	\N	\N	2025-12-12 04:05:20	2025-12-12 04:05:20
+309	6	1	5	1	3	0000141225010287	\N	7509	2025-10-13	2025-10-16	0.00	233147.15	1.00	0.980	147.190	144.00	2.21	0.00	146.21	269284.96	1841.77	5.00	11657.36	0.00	0.00	10.00	24480.45	15.00	40392.74	7.50	20196.37	0.001120	261.12	\N	\N	\N	\N	2025-12-12 04:06:46	2025-12-12 04:06:46
+310	6	1	5	1	3	0000141225010262	\N	7525	2025-10-14	2025-10-16	0.00	134153.31	1.00	0.190	84.320	84.00	0.13	0.00	84.13	154947.07	1841.76	5.00	6707.67	0.00	0.00	10.00	14086.10	15.00	23242.06	7.50	11621.03	0.001120	150.25	\N	\N	\N	\N	2025-12-12 04:08:02	2025-12-12 04:08:02
+311	6	1	5	1	3	0000141225010287	\N	7931	2025-10-23	2025-10-24	0.00	97062.38	1.00	0.320	61.190	60.00	0.87	0.00	60.87	112107.05	1841.75	5.00	4853.12	0.00	0.00	10.00	10191.55	15.00	16816.06	7.50	8408.03	0.001120	108.71	\N	\N	\N	\N	2025-12-12 04:33:42	2025-12-12 04:33:42
+312	6	1	5	1	3	0000141225010287	\N	7973	2025-10-25	2025-10-26	0.00	158516.47	1.00	0.190	99.600	96.00	3.41	0.00	99.41	183086.52	1841.73	5.00	7925.82	0.00	0.00	10.00	16644.23	15.00	27462.98	7.50	13731.49	0.001120	177.54	\N	\N	\N	\N	2025-12-12 04:34:44	2025-12-12 04:34:44
+313	6	1	5	1	3	0000141225010287	\N	8097	2025-10-28	2025-10-29	0.00	235380.30	1.00	0.600	148.210	144.00	3.61	0.00	147.61	271864.25	1841.77	5.00	11769.02	0.00	0.00	10.00	24714.93	15.00	40779.64	7.50	20389.82	0.001120	263.63	\N	\N	\N	\N	2025-12-12 04:35:47	2025-12-12 04:35:47
+314	6	1	5	1	3	0000141225010287	\N	8318	2025-11-03	2025-11-04	0.00	96849.83	1.00	0.210	61.040	60.00	0.83	0.00	60.83	111861.55	1838.92	5.00	4842.49	0.00	0.00	10.00	10169.23	15.00	16779.23	7.50	8389.62	0.001120	108.47	\N	\N	\N	\N	2025-12-12 04:37:50	2025-12-12 04:37:50
+315	6	1	5	1	3	0000141225010287	\N	8698	2025-11-12	2025-11-13	0.00	160807.90	1.00	0.040	101.040	96.00	5.00	0.00	101.00	185733.12	1838.94	5.00	8040.40	0.00	0.00	10.00	16884.83	15.00	27859.97	7.50	13929.98	0.001120	180.10	\N	\N	\N	\N	2025-12-12 04:39:02	2025-12-12 04:39:02
+316	10	2	5	1	3	0000011925010157	\N	4321	2025-07-01	2025-10-01	0.00	394957.12	1.00	0.000	244.120	240.00	4.12	0.00	244.12	456175.47	1868.65	5.00	19747.86	0.00	0.00	10.00	41470.50	15.00	68426.32	7.50	34213.16	0.001120	442.35	\N	\N	\N	\N	2025-12-12 06:42:51	2025-12-12 06:42:51
+317	10	2	5	1	3	0000011925010150	\N	4324	2025-07-01	2025-10-01	0.00	54423.64	1.00	0.120	33.760	33.00	0.64	0.00	33.64	62859.30	1868.59	5.00	2721.18	0.00	0.00	10.00	5714.48	15.00	9428.90	7.50	4714.45	0.001120	60.95	\N	\N	\N	\N	2025-12-12 07:21:02	2025-12-12 07:21:02
+318	10	2	5	1	3	0000011925010157	\N	4362	2025-07-02	2025-10-01	0.00	178439.26	1.00	0.760	111.050	108.00	2.29	0.00	110.29	206097.35	1868.69	5.00	8921.96	0.00	0.00	10.00	18736.12	15.00	30914.60	7.50	15457.30	0.001120	199.85	\N	\N	\N	\N	2025-12-12 07:22:19	2025-12-12 07:22:19
+319	10	2	5	1	3	0000011925010161	\N	4388	2025-07-03	2025-10-01	0.00	464752.94	1.00	0.050	287.320	276.00	11.27	0.00	287.27	536789.65	1868.59	5.00	23237.65	0.00	0.00	10.00	48799.06	15.00	80518.45	7.50	40259.22	0.001120	520.52	\N	\N	\N	\N	2025-12-12 07:24:28	2025-12-12 07:24:28
+320	10	2	5	1	3	0000011925010157	\N	4401	2025-07-03	2025-10-02	0.00	19655.15	1.00	0.320	12.470	12.00	0.15	0.00	12.15	22701.70	1868.45	5.00	982.76	0.00	0.00	10.00	2063.79	15.00	3405.25	7.50	1702.63	0.001120	22.01	\N	\N	\N	\N	2025-12-12 07:26:22	2025-12-12 07:26:22
+321	10	2	5	1	3	0000011925010161	\N	4451	2025-07-05	2025-10-02	0.00	420947.12	1.00	0.470	260.660	250.00	10.19	0.00	260.19	486193.92	1868.61	5.00	21047.36	0.00	0.00	10.00	44199.45	15.00	72929.09	7.50	36464.54	0.001120	471.46	\N	\N	\N	\N	2025-12-12 07:27:24	2025-12-12 07:27:24
+322	10	2	5	1	3	0000011925010161	\N	4475	2025-07-07	2025-10-02	0.00	682135.12	1.00	0.660	422.290	405.00	16.63	0.00	421.63	787866.06	1868.62	5.00	34106.76	0.00	0.00	10.00	71624.19	15.00	118179.91	7.50	59089.95	0.001120	763.99	\N	\N	\N	\N	2025-12-12 07:29:07	2025-12-12 07:29:07
+323	10	2	5	1	3	0000011925010161	\N	4497	2025-07-09	2025-10-02	0.00	222349.09	1.00	0.290	137.710	131.00	6.42	0.00	137.42	256813.20	1868.82	5.00	11117.45	0.00	0.00	10.00	23346.65	15.00	38521.98	7.50	19260.99	0.001120	249.03	\N	\N	\N	\N	2025-12-12 07:31:08	2025-12-12 07:31:08
+324	10	2	5	1	3	0000011925010161	\N	4556	2025-07-10	2025-10-03	0.00	138584.93	1.00	0.710	86.370	84.00	1.66	0.00	85.66	160065.59	1868.62	5.00	6929.25	0.00	0.00	10.00	14551.42	15.00	24009.84	7.50	12004.92	0.001120	155.22	\N	\N	\N	\N	2025-12-12 07:32:25	2025-12-12 07:32:25
+325	10	2	5	1	3	0000011925010161	\N	4583	2025-07-12	2025-10-03	0.00	137531.18	1.00	0.370	85.370	84.00	1.00	0.00	85.00	158848.51	1868.81	5.00	6876.56	0.00	0.00	10.00	14440.77	15.00	23827.28	7.50	11913.64	0.001120	154.03	\N	\N	\N	\N	2025-12-12 07:33:37	2025-12-12 07:33:37
+326	10	2	5	1	3	0000011925010170	\N	4771	2025-07-17	2025-10-04	0.00	461592.85	1.00	0.370	285.680	276.00	9.31	0.00	285.31	533139.74	1868.63	5.00	23079.64	0.00	0.00	10.00	48467.25	15.00	79970.96	7.50	39985.48	0.001120	516.98	\N	\N	\N	\N	2025-12-12 07:34:41	2025-12-12 07:34:41
+327	10	2	5	1	3	0000011925010170	\N	4844	2025-07-19	2025-10-04	0.00	149058.21	1.00	0.680	92.810	88.00	4.13	0.00	92.13	172162.23	1868.69	5.00	7452.91	0.00	0.00	10.00	15651.11	15.00	25824.33	7.50	12912.17	0.001120	166.95	\N	\N	\N	\N	2025-12-12 07:36:04	2025-12-12 07:36:04
+328	10	2	5	1	3	0000011925010170	\N	4854	2025-07-21	2025-10-05	0.00	571107.81	1.00	0.810	353.810	339.00	14.00	0.00	353.00	659629.52	1868.64	5.00	28555.39	0.00	0.00	10.00	59966.32	15.00	98944.43	7.50	49472.21	0.001120	639.64	\N	\N	\N	\N	2025-12-12 07:37:00	2025-12-12 07:37:00
+329	10	2	5	1	3	0000011925010170	\N	4919	2025-07-22	2025-10-05	0.00	140736.49	1.00	0.810	87.800	83.00	3.99	0.00	86.99	162550.65	1868.61	5.00	7036.82	0.00	0.00	10.00	14777.33	15.00	24382.60	7.50	12191.30	0.001120	157.62	\N	\N	\N	\N	2025-12-12 07:38:43	2025-12-12 07:38:43
+330	10	2	5	1	3	0000011925010170	\N	4973	2025-07-23	2025-10-06	0.00	125933.18	1.00	0.800	78.640	75.00	2.84	0.00	77.84	145452.82	1868.61	5.00	6296.66	0.00	0.00	10.00	13222.98	15.00	21817.92	7.50	10908.96	0.001120	141.05	\N	\N	\N	\N	2025-12-12 07:40:00	2025-12-12 07:40:00
+331	10	2	5	1	3	0000011925010170	\N	5017	2025-07-24	2025-10-06	0.00	59471.24	1.00	0.640	37.400	36.00	0.76	0.00	36.76	68689.28	1868.59	5.00	2973.56	0.00	0.00	10.00	6244.48	15.00	10303.39	7.50	5151.70	0.001120	66.61	\N	\N	\N	\N	2025-12-12 07:40:59	2025-12-12 07:40:59
+332	10	2	5	1	3	0000011925010170	\N	5086	2025-07-26	2025-10-07	0.00	54361.97	1.00	0.400	34.000	33.00	0.60	0.00	33.60	62788.08	1868.69	5.00	2718.10	0.00	0.00	10.00	5708.01	15.00	9418.21	7.50	4709.11	0.001120	60.89	\N	\N	\N	\N	2025-12-12 07:41:51	2025-12-12 07:41:51
+333	10	2	5	1	3	0000011925010178	\N	5441	2025-08-06	2025-10-07	0.00	125767.53	1.00	0.000	77.280	75.00	2.28	0.00	77.28	145261.50	1879.68	5.00	6288.38	0.00	0.00	10.00	13205.59	15.00	21789.22	7.50	10894.61	0.001120	140.86	\N	\N	\N	\N	2025-12-12 07:42:41	2025-12-12 07:42:41
+334	10	2	5	1	3	0000011925010178	\N	5458	2025-08-07	2025-10-08	0.00	174752.38	1.00	0.280	107.660	103.00	4.38	0.00	107.38	201839.00	1879.67	5.00	8737.62	0.00	0.00	10.00	18349.00	15.00	30275.85	7.50	15137.92	0.001120	195.72	\N	\N	\N	\N	2025-12-12 07:43:43	2025-12-12 07:43:43
+335	10	2	5	1	3	0000011925010178	\N	5510	2025-08-09	2025-10-08	0.00	124334.74	1.00	0.660	77.060	73.00	3.40	0.00	76.40	143606.62	1879.67	5.00	6216.74	0.00	0.00	10.00	13055.15	15.00	21540.99	7.50	10770.50	0.001120	139.25	\N	\N	\N	\N	2025-12-12 07:44:52	2025-12-12 07:44:52
+336	10	2	5	1	3	0000011925010178	\N	5550	2025-08-11	2025-10-08	0.00	214555.92	1.00	0.060	131.900	127.00	4.84	0.00	131.84	247812.09	1879.64	5.00	10727.80	0.00	0.00	10.00	22528.37	15.00	37171.81	7.50	18585.91	0.001120	240.30	\N	\N	\N	\N	2025-12-12 07:46:11	2025-12-12 07:46:11
+337	10	2	5	1	3	0000011925010178	\N	5596	2025-08-12	2025-10-09	0.00	254736.33	1.00	0.900	157.430	152.00	4.53	0.00	156.53	294220.46	1879.64	5.00	12736.82	0.00	0.00	10.00	26747.31	15.00	44133.07	7.50	22066.53	0.001120	285.30	\N	\N	\N	\N	2025-12-12 07:47:43	2025-12-12 07:47:43
+338	10	2	5	1	3	0000011925010178	\N	5648	2025-08-13	2025-10-10	0.00	121957.83	1.00	0.430	75.370	66.00	8.94	0.00	74.94	140861.29	1879.65	5.00	6097.89	0.00	0.00	10.00	12805.57	15.00	21129.19	7.50	10564.60	0.001120	136.59	\N	\N	\N	\N	2025-12-12 07:49:35	2025-12-12 07:49:35
+339	10	2	5	1	3	0000011925010178	\N	5684	2025-08-14	2025-10-10	0.00	268844.68	1.00	0.370	165.550	156.00	9.18	0.00	165.18	310515.61	1879.86	5.00	13442.23	0.00	0.00	10.00	28228.69	15.00	46577.34	7.50	23288.67	0.001120	301.11	\N	\N	\N	\N	2025-12-12 08:30:52	2025-12-12 08:30:52
+340	10	2	5	1	3	0000011925010178	\N	5705	2025-08-18	2025-10-10	0.00	170584.37	1.00	0.550	105.370	100.00	4.82	0.00	104.82	197024.95	1879.65	5.00	8529.22	0.00	0.00	10.00	17911.36	15.00	29553.74	7.50	14776.87	0.001120	191.05	\N	\N	\N	\N	2025-12-12 08:32:31	2025-12-12 08:32:31
+341	10	2	5	1	3	0000011925010178	\N	5774	2025-08-19	2025-10-11	0.00	629021.20	1.00	0.370	386.850	372.00	14.48	0.00	386.48	726519.49	1879.84	5.00	31451.06	0.00	0.00	10.00	66047.23	15.00	108977.92	7.50	54488.96	0.001120	704.50	\N	\N	\N	\N	2025-12-12 08:33:43	2025-12-12 08:33:43
+342	10	2	5	1	3	0000011925010186	\N	5813	2025-08-20	2025-10-11	0.00	103941.02	1.00	0.850	64.720	62.00	1.87	0.00	63.87	120051.88	1879.63	5.00	5197.05	0.00	0.00	10.00	10913.81	15.00	18007.78	7.50	9003.89	0.001120	116.41	\N	\N	\N	\N	2025-12-12 08:37:21	2025-12-12 08:37:21
+343	10	2	5	1	3	0000011925010186	\N	5863	2025-08-21	2025-10-11	0.00	677015.17	1.00	0.720	416.720	401.00	15.00	0.00	416.00	781952.52	1879.69	5.00	33850.76	0.00	0.00	10.00	71086.59	15.00	117292.88	7.50	58646.44	0.001120	758.26	\N	\N	\N	\N	2025-12-12 08:38:30	2025-12-12 08:38:30
+344	10	2	5	1	3	0000011925010178	\N	5865	2025-08-21	2025-10-12	0.00	44346.56	1.00	0.720	27.970	26.00	1.25	0.00	27.25	51220.28	1879.64	5.00	2217.33	0.00	0.00	10.00	4656.39	15.00	7683.04	7.50	3841.52	0.001120	49.67	\N	\N	\N	\N	2025-12-12 08:55:10	2025-12-12 08:55:10
+345	10	2	5	1	3	0000011925010186	\N	5894	2025-08-23	2025-10-12	0.00	132382.98	1.00	0.970	82.310	77.00	4.34	0.00	81.34	152902.34	1879.79	5.00	6619.15	0.00	0.00	10.00	13900.21	15.00	22935.35	7.50	11467.68	0.001120	148.27	\N	\N	\N	\N	2025-12-12 08:56:15	2025-12-12 08:56:15
+346	10	2	5	1	3	0000011925010186	\N	5950	2025-08-25	2025-10-12	0.00	554962.72	1.00	0.310	341.360	330.00	11.05	0.00	341.05	640981.94	1879.44	5.00	27748.14	0.00	0.00	10.00	58271.09	15.00	96147.29	7.50	48073.65	0.001120	621.56	\N	\N	\N	\N	2025-12-12 10:05:49	2025-12-12 10:05:49
+347	10	2	5	1	3	0000011925010186	\N	5982	2025-08-26	2025-10-12	0.00	378450.41	1.00	0.360	232.900	224.00	8.54	0.00	232.54	437110.22	1879.72	5.00	18922.52	0.00	0.00	10.00	39737.29	15.00	65566.53	7.50	32783.27	0.001120	423.86	\N	\N	\N	\N	2025-12-12 10:08:08	2025-12-12 10:08:08
+348	10	2	5	1	3	0000011925010186	\N	6018	2025-08-27	2025-10-12	0.00	142168.87	1.00	0.900	88.260	85.00	2.36	0.00	87.36	164205.04	1879.64	5.00	7108.44	0.00	0.00	10.00	14927.73	15.00	24630.76	7.50	12315.38	0.001120	159.23	\N	\N	\N	\N	2025-12-12 10:09:56	2025-12-12 10:09:56
+349	10	2	5	1	3	0000011925010186	\N	6063	2025-08-28	2025-10-13	0.00	62314.11	1.00	0.260	38.540	35.00	3.28	0.00	38.28	71972.80	1880.17	5.00	3115.71	0.00	0.00	10.00	6542.98	15.00	10795.92	7.50	5397.96	0.001120	69.79	\N	\N	\N	\N	2025-12-12 10:11:15	2025-12-12 10:11:15
+350	10	2	5	1	3	0000011925010196	\N	6154	2025-09-01	2025-10-13	0.00	844965.30	1.00	0.540	519.890	501.00	18.35	0.00	519.35	975934.92	1879.15	5.00	42248.27	0.00	0.00	10.00	88721.36	15.00	146390.24	7.50	73195.12	0.001120	946.36	\N	\N	\N	\N	2025-12-12 10:12:33	2025-12-12 10:12:33
+351	10	2	5	1	3	0000011925010196	\N	6216	2025-09-02	2025-10-13	0.00	82992.65	1.00	0.890	51.900	49.00	2.01	0.00	51.01	95856.51	1879.17	5.00	4149.63	0.00	0.00	10.00	8714.23	15.00	14378.48	7.50	7189.24	0.001120	92.95	\N	\N	\N	\N	2025-12-12 10:15:07	2025-12-12 10:15:07
+352	10	2	5	1	3	0000011925010196	\N	6285	2025-09-03	2025-10-14	0.00	400979.41	1.00	0.900	247.360	236.00	10.46	0.00	246.46	463131.22	1879.13	5.00	20048.97	0.00	0.00	10.00	42102.84	15.00	69469.68	7.50	34734.84	0.001120	449.10	\N	\N	\N	\N	2025-12-12 10:16:26	2025-12-12 10:16:26
+353	10	2	5	1	3	0000011925010186	\N	6316	2025-09-08	2025-10-14	0.00	25185.30	1.00	0.360	15.840	15.00	0.48	0.00	15.48	29089.02	1879.14	5.00	1259.27	0.00	0.00	10.00	2644.46	15.00	4363.35	7.50	2181.68	0.001120	28.21	\N	\N	\N	\N	2025-12-12 10:18:16	2025-12-12 10:18:16
+354	10	2	5	1	3	0000011925010196	\N	6317	2025-08-09	2025-10-14	0.00	107445.23	1.00	0.840	66.880	63.00	3.04	0.00	66.04	124099.24	1879.15	5.00	5372.26	0.00	0.00	10.00	11281.75	15.00	18614.89	7.50	9307.44	0.001120	120.34	\N	\N	\N	\N	2025-12-12 10:20:08	2025-12-12 10:20:08
+355	10	2	5	1	3	0000011925010200	\N	6319	2025-09-08	2025-10-15	0.00	367259.18	1.00	0.880	226.620	215.00	10.74	0.00	225.74	424184.35	1879.08	5.00	18362.96	0.00	0.00	10.00	38562.21	15.00	63627.65	7.50	31813.83	0.001120	411.33	\N	\N	\N	\N	2025-12-12 10:21:37	2025-12-12 10:21:37
+356	10	2	5	1	3	0000011925010200	\N	6374	2025-09-09	2025-10-15	0.00	78466.45	1.00	0.620	48.850	45.00	3.23	0.00	48.23	90628.75	1879.09	5.00	3923.32	0.00	0.00	10.00	8238.98	15.00	13594.31	7.50	6797.16	0.001120	87.88	\N	\N	\N	\N	2025-12-12 10:23:36	2025-12-12 10:23:36
+357	10	2	5	1	3	0000011925010200	\N	6439	2025-09-10	2025-10-15	0.00	380231.18	1.00	0.850	234.550	223.00	10.70	0.00	233.70	439167.01	1879.19	5.00	19011.56	0.00	0.00	10.00	39924.27	15.00	65875.05	7.50	32937.53	0.001120	425.86	\N	\N	\N	\N	2025-12-12 10:25:01	2025-12-12 10:25:01
+358	10	2	5	1	3	0000011925010200	\N	6516	2025-09-11	2025-10-15	0.00	186739.33	1.00	0.550	115.320	111.00	3.77	0.00	114.77	215683.93	1879.27	5.00	9336.97	0.00	0.00	10.00	19607.63	15.00	32352.59	7.50	16176.29	0.001120	209.15	\N	\N	\N	\N	2025-12-12 10:28:21	2025-12-12 10:28:21
+359	10	2	5	1	3	0000011925010204	\N	6529	2025-09-13	2025-10-15	0.00	463344.56	1.00	0.320	285.090	272.00	12.77	0.00	284.77	535162.97	1879.28	5.00	23167.23	0.00	0.00	10.00	48651.18	15.00	80274.45	7.50	40137.22	0.001120	518.95	\N	\N	\N	\N	2025-12-12 10:30:10	2025-12-12 10:30:10
+360	10	2	5	1	3	0000011925010200	\N	6589	2025-09-15	2025-10-17	0.00	214436.26	1.00	0.090	131.880	126.00	5.79	0.00	131.79	247673.88	1879.31	5.00	10721.81	0.00	0.00	10.00	22515.81	15.00	37151.08	7.50	18575.54	0.001120	240.17	\N	\N	\N	\N	2025-12-12 10:32:05	2025-12-12 10:32:05
+361	10	2	5	1	3	0000011925010204	\N	6590	2025-09-15	2025-10-17	0.00	64134.31	1.00	0.880	40.300	37.00	2.42	0.00	39.42	74075.13	1879.13	5.00	3206.72	0.00	0.00	10.00	6734.10	15.00	11111.27	7.50	5555.63	0.001120	71.83	\N	\N	\N	\N	2025-12-12 10:33:30	2025-12-12 10:33:30
+362	10	2	5	1	3	0000011925010204	\N	6642	2025-09-16	2025-10-17	0.00	401030.74	1.00	0.300	246.790	241.00	5.49	0.00	246.49	463190.50	1879.15	5.00	20051.54	0.00	0.00	10.00	42108.23	15.00	69478.58	7.50	34739.29	0.001120	449.15	\N	\N	\N	\N	2025-12-12 10:34:45	2025-12-12 10:34:45
+363	10	2	5	1	3	0000011925010204	\N	6702	2025-09-17	2025-10-18	0.00	325555.04	1.00	0.790	200.890	191.00	9.10	0.00	200.10	376016.07	1879.14	5.00	16277.75	0.00	0.00	10.00	34183.28	15.00	56402.41	7.50	28201.21	0.001120	364.62	\N	\N	\N	\N	2025-12-12 10:37:22	2025-12-12 10:37:22
+364	10	2	5	1	3	0000011925010204	\N	6768	2025-09-20	2025-10-18	0.00	210840.88	1.00	0.890	130.470	126.00	3.58	0.00	129.58	243521.22	1879.31	5.00	10542.04	0.00	0.00	10.00	22138.29	15.00	36528.18	7.50	18264.09	0.001120	236.14	\N	\N	\N	\N	2025-12-12 10:39:13	2025-12-12 10:39:13
+365	10	2	5	1	3	0000011925010204	\N	6834	2025-09-22	2025-10-18	0.00	261134.03	1.00	0.470	160.970	156.00	4.50	0.00	160.50	301609.80	1879.19	5.00	13056.70	0.00	0.00	10.00	27419.07	15.00	45241.47	7.50	22620.74	0.001120	292.47	\N	\N	\N	\N	2025-12-12 10:41:01	2025-12-12 10:41:01
+366	10	2	5	1	3	0000011925010204	\N	6858	2025-09-23	2025-10-19	0.00	281709.21	1.00	0.970	174.120	168.00	5.15	0.00	173.15	325374.14	1879.15	5.00	14085.46	0.00	0.00	10.00	29579.47	15.00	48806.12	7.50	24403.06	0.001120	315.51	\N	\N	\N	\N	2025-12-12 10:43:06	2025-12-12 10:43:06
+367	10	2	5	1	3	0000011925010204	\N	6909	2025-09-24	2025-10-20	0.00	65923.88	1.00	0.120	40.640	39.00	1.52	0.00	40.52	76142.08	1879.12	5.00	3296.19	0.00	0.00	10.00	6922.01	15.00	11421.31	7.50	5710.66	0.001120	73.83	\N	\N	\N	\N	2025-12-12 10:45:09	2025-12-12 10:45:09
+368	10	2	5	1	3	0000011925010212	\N	6958	2025-09-25	2025-10-20	0.00	226071.99	1.00	0.640	139.590	130.00	8.95	0.00	138.95	261113.15	1879.19	5.00	11303.60	0.00	0.00	10.00	23737.56	15.00	39166.97	7.50	19583.49	0.001120	253.20	\N	\N	\N	\N	2025-12-12 10:46:19	2025-12-12 10:46:19
+369	10	2	5	1	3	0000011925010204	\N	6959	2025-09-25	2025-10-20	0.00	33433.57	1.00	0.590	21.140	20.00	0.55	0.00	20.55	38615.77	1879.11	5.00	1671.68	0.00	0.00	10.00	3510.52	15.00	5792.37	7.50	2896.18	0.001120	37.45	\N	\N	\N	\N	2025-12-12 10:47:36	2025-12-12 10:47:36
+370	10	2	5	1	3	0000011925010212	\N	6967	2025-09-25	2025-10-21	0.00	60033.05	1.00	0.140	37.040	36.00	0.90	0.00	36.90	69338.17	1879.08	5.00	3001.65	0.00	0.00	10.00	6303.47	15.00	10400.73	7.50	5200.36	0.001120	67.24	\N	\N	\N	\N	2025-12-12 10:48:43	2025-12-12 10:48:43
+371	10	2	5	1	3	0000011925010212	\N	7029	2025-09-27	2025-10-21	0.00	447282.32	1.00	0.040	274.950	265.00	9.91	0.00	274.91	516611.08	1879.20	5.00	22364.12	0.00	0.00	10.00	46964.64	15.00	77491.66	7.50	38745.83	0.001120	500.96	\N	\N	\N	\N	2025-12-12 10:49:56	2025-12-12 10:49:56
+372	10	2	5	1	3	0000011925010212	\N	7072	2025-09-29	2025-10-22	0.00	285863.87	1.00	0.950	176.650	168.00	7.70	0.00	175.70	330172.77	1879.18	5.00	14293.19	0.00	0.00	10.00	30015.71	15.00	49525.92	7.50	24762.96	0.001120	320.17	\N	\N	\N	\N	2025-12-12 10:52:04	2025-12-12 10:52:04
+373	10	2	5	1	3	0000011925010212	\N	7190	2025-10-06	2025-10-22	0.00	110933.58	1.00	0.650	68.880	65.00	3.23	0.00	68.23	128128.28	1877.89	5.00	5546.68	0.00	0.00	10.00	11648.03	15.00	19219.24	7.50	9609.62	0.001120	124.25	\N	\N	\N	\N	2025-12-12 10:54:57	2025-12-12 10:54:57
+374	10	2	5	1	3	0000011925010212	\N	7238	2025-10-07	2025-10-23	0.00	528129.83	1.00	0.880	325.700	311.00	13.82	0.00	324.82	609989.95	1877.93	5.00	26406.49	0.00	0.00	10.00	55453.63	15.00	91498.49	7.50	45749.25	0.001120	591.51	\N	\N	\N	\N	2025-12-12 10:56:23	2025-12-12 10:56:23
+375	10	2	5	1	3	0000011925010217	\N	7299	2025-10-08	2025-10-24	0.00	269618.53	1.00	0.700	166.530	161.00	4.83	0.00	165.83	311409.40	1877.88	5.00	13480.93	0.00	0.00	10.00	28309.95	15.00	46711.41	7.50	23355.71	0.001120	301.97	\N	\N	\N	\N	2025-12-12 10:58:17	2025-12-12 10:58:17
+376	10	2	5	1	3	0000011925010212	\N	7301	2025-10-08	2025-10-24	0.00	69616.30	1.00	0.530	43.350	41.00	1.82	0.00	42.82	80406.83	1877.79	5.00	3480.82	0.00	0.00	10.00	7309.71	15.00	12061.02	7.50	6030.51	0.001120	77.97	\N	\N	\N	\N	2025-12-12 11:00:00	2025-12-12 11:00:00
+377	10	2	5	1	3	0000011925010217	\N	7365	2025-10-09	2025-10-24	0.00	329133.83	1.00	0.350	202.790	194.00	8.44	0.00	202.44	380149.57	1877.84	5.00	16456.69	0.00	0.00	10.00	34559.05	15.00	57022.44	7.50	28511.22	0.001120	368.63	\N	\N	\N	\N	2025-12-12 11:01:18	2025-12-12 11:01:18
+378	10	2	5	1	3	0000011925010217	\N	7440	2025-10-11	2025-10-24	0.00	200855.13	1.00	0.790	124.330	119.00	4.54	0.00	123.54	231987.68	1877.83	5.00	10042.76	0.00	0.00	10.00	21089.79	15.00	34798.15	7.50	17399.08	0.001120	224.96	\N	\N	\N	\N	2025-12-12 11:03:17	2025-12-12 11:03:17
+379	10	2	5	1	3	0000011925010217	\N	7495	2025-10-13	2025-10-25	0.00	437700.30	1.00	0.330	269.550	259.00	10.22	0.00	269.22	505543.85	1877.81	5.00	21885.02	0.00	0.00	10.00	45958.53	15.00	75831.58	7.50	37915.79	0.001120	490.22	\N	\N	\N	\N	2025-12-12 11:04:59	2025-12-12 11:04:59
+380	10	2	5	1	3	0000011925010217	\N	7519	2025-10-14	2025-10-25	0.00	419964.16	1.00	0.550	258.820	246.00	12.27	0.00	258.27	485058.60	1878.11	5.00	20998.21	0.00	0.00	10.00	44096.24	15.00	72758.79	7.50	36379.40	0.001120	470.36	\N	\N	\N	\N	2025-12-12 11:06:59	2025-12-12 11:06:59
+381	10	2	5	1	3	0000011925010217	\N	7583	2025-10-15	2025-10-26	0.00	69977.28	1.00	0.820	43.860	41.00	2.04	0.00	43.04	80823.76	1877.88	5.00	3498.86	0.00	0.00	10.00	7347.61	15.00	12123.56	7.50	6061.78	0.001120	78.37	\N	\N	\N	\N	2025-12-12 11:08:51	2025-12-12 11:08:51
+382	10	2	5	1	3	0000011925010223	\N	7586	2025-10-15	2025-10-26	0.00	150213.90	1.00	0.860	93.250	88.00	4.39	0.00	92.39	173497.05	1877.88	5.00	7510.70	0.00	0.00	10.00	15772.46	15.00	26024.56	7.50	13012.28	0.001120	168.24	\N	\N	\N	\N	2025-12-12 11:10:12	2025-12-12 11:10:12
+383	10	2	5	1	3	0000011925010223	\N	7651	2025-10-16	2025-10-26	0.00	374180.87	1.00	0.250	230.370	221.00	9.12	0.00	230.12	432178.90	1878.06	5.00	18709.04	0.00	0.00	10.00	39288.99	15.00	64826.84	7.50	32413.42	0.001120	419.08	\N	\N	\N	\N	2025-12-12 11:11:37	2025-12-12 11:11:37
+384	10	2	5	1	3	0000011925010223	\N	7708	2025-10-18	2025-10-26	0.00	284696.83	1.00	0.370	175.470	167.00	8.10	0.00	175.10	328824.84	1877.93	5.00	14234.84	0.00	0.00	10.00	29893.17	15.00	49323.73	7.50	24661.86	0.001120	318.86	\N	\N	\N	\N	2025-12-12 11:13:23	2025-12-12 11:13:23
+385	10	2	5	1	3	0000011925010223	\N	7754	2025-10-20	2025-10-27	0.00	450271.91	1.00	0.470	277.420	264.00	12.95	0.00	276.95	520064.06	1877.83	5.00	22513.60	0.00	0.00	10.00	47278.55	15.00	78009.61	7.50	39004.80	0.001120	504.30	\N	\N	\N	\N	2025-12-12 11:15:11	2025-12-12 11:15:11
+386	10	2	5	1	3	0000011925010223	\N	7809	2025-10-21	2025-10-27	0.00	205780.12	1.00	0.420	126.990	121.00	5.57	0.00	126.57	237676.04	1877.82	5.00	10289.01	0.00	0.00	10.00	21606.91	15.00	35651.41	7.50	17825.70	0.001120	230.47	\N	\N	\N	\N	2025-12-12 11:17:03	2025-12-12 11:17:03
+387	10	2	5	1	3	0000011925010223	\N	7884	2025-10-22	2025-10-27	0.00	173560.24	1.00	0.990	107.740	102.00	4.75	0.00	106.75	200462.08	1877.86	5.00	8678.01	0.00	0.00	10.00	18223.83	15.00	30069.31	7.50	15034.66	0.001120	194.39	\N	\N	\N	\N	2025-12-12 11:18:51	2025-12-12 11:18:51
+388	10	2	5	1	3	0000011925010223	\N	7968	2025-10-25	2025-10-28	0.00	68286.67	1.00	0.740	42.740	40.00	2.00	0.00	42.00	78871.10	1877.88	5.00	3414.33	0.00	0.00	10.00	7170.10	15.00	11830.67	7.50	5915.33	0.001120	76.48	\N	\N	\N	\N	2025-12-12 11:20:58	2025-12-12 11:20:58
+389	10	2	5	1	3	0000011925010229	\N	8020	2025-10-27	2025-10-28	0.00	568255.43	1.00	0.740	350.260	333.00	16.52	0.00	349.52	656335.02	1877.82	5.00	28412.77	0.00	0.00	10.00	59666.82	15.00	98450.25	7.50	49225.13	0.001120	636.45	\N	\N	\N	\N	2025-12-12 11:22:19	2025-12-12 11:22:19
+390	10	2	5	1	3	0000011925010229	\N	8074	2025-10-28	2025-10-28	0.00	133498.93	1.00	0.260	82.360	79.00	3.10	0.00	82.10	154191.26	1878.09	5.00	6674.95	0.00	0.00	10.00	14017.39	15.00	23128.69	7.50	11564.34	0.001120	149.52	\N	\N	\N	\N	2025-12-12 11:24:12	2025-12-12 11:24:12
+391	10	2	5	1	3	0000011925010229	\N	8169	2025-10-29	2025-10-29	0.00	151522.39	1.00	0.360	93.550	82.00	11.19	0.00	93.19	175008.36	1877.97	5.00	7576.12	0.00	0.00	10.00	15909.85	15.00	26251.25	7.50	13125.63	0.001120	169.71	\N	\N	\N	\N	2025-12-12 11:25:45	2025-12-12 11:25:45
+392	10	2	5	1	3	0000011925010229	\N	8181	2025-10-30	2025-10-30	0.00	153690.55	1.00	0.550	95.080	90.00	4.53	0.00	94.53	177512.59	1877.84	5.00	7684.53	0.00	0.00	10.00	16137.51	15.00	26626.89	7.50	13313.44	0.001120	172.13	\N	\N	\N	\N	2025-12-12 11:27:27	2025-12-12 11:27:27
+393	10	1	5	1	3	0000011925010163	\N	4386	2025-07-03	2025-10-30	0.00	374805.43	1.00	0.000	236.210	228.00	8.21	0.00	236.21	432900.27	1832.69	5.00	18740.27	0.00	0.00	10.00	39354.57	15.00	64935.04	7.50	32467.52	0.001120	419.78	\N	\N	\N	\N	2025-12-12 12:27:19	2025-12-12 12:27:19
+394	10	1	5	1	3	0000011925010163	\N	4443	2025-07-05	2025-10-30	0.00	118350.73	1.00	0.210	74.800	72.00	2.59	0.00	74.59	136695.09	1832.62	5.00	5917.54	0.00	0.00	10.00	12426.83	15.00	20504.26	7.50	10252.13	0.001120	132.55	\N	\N	\N	\N	2025-12-12 12:29:24	2025-12-12 12:29:24
+395	10	1	5	1	3	0000011925010059	\N	4448	2025-07-05	2025-10-30	0.00	52966.51	1.00	0.800	34.180	33.00	0.38	0.00	33.38	61176.32	1832.72	5.00	2648.33	0.00	0.00	10.00	5561.48	15.00	9176.45	7.50	4588.22	0.001120	59.32	\N	\N	\N	\N	2025-12-12 12:30:52	2025-12-12 12:30:52
+396	10	1	5	1	3	0000011925010163	\N	4456	2025-07-07	2025-10-30	0.00	78941.23	1.00	0.180	49.930	48.00	1.75	0.00	49.75	91177.12	1832.71	5.00	3947.06	0.00	0.00	10.00	8288.83	15.00	13676.57	7.50	6838.28	0.001120	88.41	\N	\N	\N	\N	2025-12-12 12:32:09	2025-12-12 12:32:09
+397	10	1	5	1	3	0000011925010163	\N	4501	2025-07-09	2025-10-30	0.00	59631.54	1.00	0.930	38.510	36.00	1.58	0.00	37.58	68874.43	1832.74	5.00	2981.58	0.00	0.00	10.00	6261.31	15.00	10331.16	7.50	5165.58	0.001120	66.79	\N	\N	\N	\N	2025-12-12 12:33:19	2025-12-12 12:33:19
+398	10	1	5	1	3	0000011925010163	\N	4538	2025-07-10	2025-10-30	0.00	792689.51	1.00	0.510	500.070	492.00	7.56	0.00	499.56	915556.38	1832.73	5.00	39634.48	0.00	0.00	10.00	83232.40	15.00	137333.46	7.50	68666.73	0.001120	887.81	\N	\N	\N	\N	2025-12-12 12:34:42	2025-12-12 12:34:42
+399	10	1	5	1	3	0000011925010163	\N	4593	2025-07-12	2025-10-30	0.00	173372.11	1.00	0.070	109.330	108.00	1.26	0.00	109.26	200244.79	1832.74	5.00	8668.61	0.00	0.00	10.00	18204.07	15.00	30036.72	7.50	15018.36	0.001120	194.18	\N	\N	\N	\N	2025-12-12 12:37:51	2025-12-12 12:37:51
+400	10	1	5	1	3	0000011925010163	\N	4649	2025-07-14	2025-10-30	0.00	19850.30	1.00	0.330	12.840	12.00	0.51	0.00	12.51	22927.10	1832.70	5.00	992.52	0.00	0.00	10.00	2084.28	15.00	3439.06	7.50	1719.53	0.001120	22.23	\N	\N	\N	\N	2025-12-12 12:39:32	2025-12-12 12:39:32
+401	10	1	5	1	3	0000011925010219	\N	7312	2025-10-08	2025-10-31	0.00	100123.95	1.00	0.840	63.630	60.00	2.79	0.00	62.79	115643.16	1841.74	5.00	5006.20	0.00	0.00	10.00	10513.01	15.00	17346.47	7.50	8673.24	0.001120	112.14	\N	\N	\N	\N	2025-12-12 12:40:39	2025-12-12 12:40:39
+402	10	1	5	1	3	0000011925010219	\N	7497	2025-10-13	2025-10-31	0.00	59317.01	1.00	0.630	37.830	36.00	1.20	0.00	37.20	68511.15	1841.70	5.00	2965.85	0.00	0.00	10.00	6228.29	15.00	10276.67	7.50	5138.34	0.001120	66.44	\N	\N	\N	\N	2025-12-12 12:42:23	2025-12-12 12:42:23
+403	10	1	5	1	3	0000011925010219	\N	7523	2025-10-14	2025-10-31	0.00	58200.46	1.00	0.830	37.330	36.00	0.50	0.00	36.50	67221.53	1841.69	5.00	2910.02	0.00	0.00	10.00	6111.05	15.00	10083.23	7.50	5041.61	0.001120	65.18	\N	\N	\N	\N	2025-12-12 12:43:33	2025-12-12 12:43:33
+404	10	1	5	1	3	0000011925010219	\N	7592	2025-10-15	2025-10-31	0.00	216029.68	1.00	0.330	135.810	132.00	3.48	0.00	135.48	249514.28	1841.71	5.00	10801.48	0.00	0.00	10.00	22683.12	15.00	37427.14	7.50	18713.57	0.001120	241.95	\N	\N	\N	\N	2025-12-12 12:44:39	2025-12-12 12:44:39
+405	10	1	5	1	3	0000011925010219	\N	7755	2025-10-20	2025-10-31	0.00	158420.42	1.00	0.810	100.160	96.00	3.35	0.00	99.35	182975.59	1841.73	5.00	7921.02	0.00	0.00	10.00	16634.14	15.00	27446.34	7.50	13723.17	0.001120	177.43	\N	\N	\N	\N	2025-12-12 12:45:56	2025-12-12 12:45:56
+406	10	1	5	1	3	0000011925010219	\N	7814	2025-10-21	2025-10-31	0.00	78501.05	1.00	0.160	49.390	48.00	1.23	0.00	49.23	90668.71	1841.74	5.00	3925.05	0.00	0.00	10.00	8242.61	15.00	13600.31	7.50	6800.15	0.001120	87.92	\N	\N	\N	\N	2025-12-12 12:47:13	2025-12-12 12:47:13
+407	10	1	5	1	3	0000011925010219	\N	7877	2025-10-22	2025-10-31	0.00	59668.19	1.00	0.390	37.810	36.00	1.42	0.00	37.42	68916.76	1841.71	5.00	2983.41	0.00	0.00	10.00	6265.16	15.00	10337.51	7.50	5168.76	0.001120	66.83	\N	\N	\N	\N	2025-12-12 12:48:22	2025-12-12 12:48:22
+408	10	1	5	1	3	0000011925010219	\N	7924	2025-10-23	2025-10-31	0.00	59429.57	1.00	0.810	38.080	36.00	1.27	0.00	37.27	68641.15	1841.73	5.00	2971.48	0.00	0.00	10.00	6240.10	15.00	10296.17	7.50	5148.09	0.001120	66.56	\N	\N	\N	\N	2025-12-12 12:49:32	2025-12-12 12:49:32
+409	10	1	5	1	3	0000011925010219	\N	7975	2025-10-25	2025-10-31	0.00	217697.04	1.00	0.080	136.610	132.00	4.53	0.00	136.53	251440.08	1841.65	5.00	10884.85	0.00	0.00	10.00	22858.19	15.00	37716.01	7.50	18858.01	0.001120	243.82	\N	\N	\N	\N	2025-12-12 12:50:36	2025-12-12 12:50:36
+410	10	1	5	1	3	0000011925010219	\N	8024	2025-10-27	2025-10-31	0.00	39766.78	1.00	0.610	25.550	24.00	0.94	0.00	24.94	45930.63	1841.65	5.00	1988.34	0.00	0.00	10.00	4175.51	15.00	6889.59	7.50	3444.80	0.001120	44.54	\N	\N	\N	\N	2025-12-12 12:51:56	2025-12-12 12:51:56
+411	10	1	5	1	3	0000011925010219	\N	8095	2025-10-28	2025-10-31	0.00	138103.32	1.00	0.550	87.160	84.00	2.61	0.00	86.61	159509.33	1841.70	5.00	6905.17	0.00	0.00	10.00	14500.85	15.00	23926.40	7.50	11963.20	0.001120	154.68	\N	\N	\N	\N	2025-12-12 12:52:57	2025-12-12 12:52:57
+412	10	1	5	1	3	0000011925010219	\N	8185	2025-10-30	2025-10-31	0.00	39529.66	1.00	0.160	24.950	24.00	0.79	0.00	24.79	45656.76	1841.74	5.00	1976.48	0.00	0.00	10.00	4150.61	15.00	6848.51	7.50	3424.26	0.001120	44.27	\N	\N	\N	\N	2025-12-12 12:54:11	2025-12-12 12:54:11
+414	10	2	5	1	3	0000011925010212	\N	7136	2025-09-30	2025-11-01	0.00	398401.61	1.00	0.080	244.930	234.00	10.85	0.00	244.85	460153.86	1879.33	5.00	19920.08	0.00	0.00	10.00	41832.17	15.00	69023.08	7.50	34511.54	0.001120	446.21	\N	\N	\N	\N	2025-12-12 13:03:57	2025-12-12 13:03:57
+415	10	2	5	1	3	0000011925010223	\N	7919	2025-10-23	2025-11-01	0.00	421522.90	1.00	0.930	260.180	247.00	12.25	0.00	259.25	486858.95	1877.95	5.00	21076.15	0.00	0.00	10.00	44259.90	15.00	73028.84	7.50	36514.42	0.001120	472.11	\N	\N	\N	\N	2025-12-13 07:12:10	2025-12-13 07:12:10
+416	10	2	5	1	3	0000011925010229	\N	8266	2025-11-01	2025-11-02	0.00	440668.32	1.00	0.180	271.640	259.00	12.46	0.00	271.46	508971.91	1874.94	5.00	22033.42	0.00	0.00	10.00	46270.17	15.00	76345.79	7.50	38172.89	0.001120	493.55	\N	\N	\N	\N	2025-12-13 07:40:12	2025-12-13 07:40:12
+417	10	2	5	1	3	0000011925010229	\N	8319	2025-11-03	2025-11-04	0.00	207913.88	1.00	0.640	128.710	122.00	6.07	0.00	128.07	240140.53	1875.07	5.00	10395.69	0.00	0.00	10.00	21830.96	15.00	36021.08	7.50	18010.54	0.001120	232.86	\N	\N	\N	\N	2025-12-13 07:42:44	2025-12-13 07:42:44
+418	10	2	5	1	3	0000011925010229	\N	8359	2025-11-04	2025-11-05	0.00	153559.66	1.00	0.710	95.300	90.00	4.59	0.00	94.59	177361.41	1875.05	5.00	7677.98	0.00	0.00	10.00	16123.76	15.00	26604.21	7.50	13302.11	0.001120	171.99	\N	\N	\N	\N	2025-12-13 07:45:30	2025-12-13 07:45:30
+419	10	2	5	1	3	0000011925010229	\N	8432	2025-11-05	2025-11-06	0.00	281608.81	1.00	0.300	173.770	165.00	8.47	0.00	173.47	325258.18	1875.01	5.00	14080.44	0.00	0.00	10.00	29568.93	15.00	48788.73	7.50	24394.36	0.001120	315.40	\N	\N	\N	\N	2025-12-13 07:47:03	2025-12-13 07:47:03
+420	10	2	5	1	3	0000011925010239	\N	8439	2025-11-05	2025-11-06	0.00	137807.92	1.00	0.770	85.660	84.00	0.89	0.00	84.89	159168.15	1874.99	5.00	6890.40	0.00	0.00	10.00	14469.83	15.00	23875.22	7.50	11937.61	0.001120	154.34	\N	\N	\N	\N	2025-12-13 07:48:54	2025-12-13 07:48:54
+421	10	2	5	1	3	0000011925010229	\N	8473	2025-11-06	2025-11-07	0.00	16231.15	1.00	0.660	10.660	10.00	0.00	0.00	10.00	18746.98	1874.70	5.00	811.56	0.00	0.00	10.00	1704.27	15.00	2812.05	7.50	1406.02	0.001120	18.18	\N	\N	\N	\N	2025-12-13 07:50:32	2025-12-13 07:50:32
+422	10	2	5	1	3	0000011925010239	\N	8476	2025-11-06	2025-11-07	0.00	97401.40	1.00	0.660	60.660	60.00	0.00	0.00	60.00	112498.62	1874.98	5.00	4870.07	0.00	0.00	10.00	10227.15	15.00	16874.79	7.50	8437.40	0.001120	109.09	\N	\N	\N	\N	2025-12-13 07:52:12	2025-12-13 07:52:12
+423	10	2	5	1	3	0000011925010239	\N	8530	2025-11-08	2025-11-09	0.00	156508.17	1.00	0.660	97.070	95.00	1.41	0.00	96.41	180766.94	1874.98	5.00	7825.41	0.00	0.00	10.00	16433.36	15.00	27115.04	7.50	13557.52	0.001120	175.29	\N	\N	\N	\N	2025-12-13 07:53:48	2025-12-13 07:53:48
+424	10	2	5	1	3	0000011925010239	\N	8597	2025-11-10	2025-11-11	0.00	398107.89	1.00	0.070	245.300	234.00	11.23	0.00	245.23	459814.61	1875.03	5.00	19905.39	0.00	0.00	10.00	41801.33	15.00	68972.19	7.50	34486.10	0.001120	445.88	\N	\N	\N	\N	2025-12-13 07:55:30	2025-12-13 07:55:30
+425	10	2	5	1	3	0000011925010239	\N	8661	2025-11-11	2025-11-12	0.00	159622.82	1.00	0.300	98.630	96.00	2.33	0.00	98.33	184364.36	1874.96	5.00	7981.14	0.00	0.00	10.00	16760.40	15.00	27654.65	7.50	13827.33	0.001120	178.78	\N	\N	\N	\N	2025-12-13 07:57:16	2025-12-13 07:57:16
+426	10	2	5	1	3	0000011925010239	\N	8694	2025-11-12	2025-11-13	0.00	215229.60	1.00	0.630	133.210	127.00	5.58	0.00	132.58	248590.19	1875.02	5.00	10761.48	0.00	0.00	10.00	22599.11	15.00	37288.53	7.50	18644.26	0.001120	241.06	\N	\N	\N	\N	2025-12-13 08:05:11	2025-12-13 08:05:11
+427	10	2	5	1	3	0000011925010239	\N	8781	2025-11-13	2025-11-14	0.00	93570.84	1.00	0.210	57.850	55.00	2.64	0.00	57.64	108074.32	1874.99	5.00	4678.54	0.00	0.00	10.00	9824.94	15.00	16211.15	7.50	8105.57	0.001120	104.80	\N	\N	\N	\N	2025-12-13 09:39:42	2025-12-13 09:39:42
+428	10	2	5	1	3	0000011925010239	\N	8826	2025-11-15	2025-11-16	0.00	280534.05	1.00	0.850	173.660	168.00	4.81	0.00	172.81	324016.83	1874.99	5.00	14026.70	0.00	0.00	10.00	29456.08	15.00	48602.52	7.50	24301.26	0.001120	314.20	\N	\N	\N	\N	2025-12-13 09:41:43	2025-12-13 09:41:43
+429	10	2	5	1	3	0000011925010239	\N	8900	2025-11-17	2025-11-18	0.00	89285.15	1.00	0.660	55.660	55.00	0.00	0.00	55.00	103124.35	1874.99	5.00	4464.26	0.00	0.00	10.00	9374.94	15.00	15468.65	7.50	7734.33	0.001120	100.00	\N	\N	\N	\N	2025-12-13 09:44:26	2025-12-13 09:44:26
+430	10	2	5	1	3	0000011925010239	\N	8938	2025-11-18	2025-11-19	0.00	41655.22	1.00	0.660	26.320	25.00	0.66	0.00	25.66	48111.78	1874.97	5.00	2082.76	0.00	0.00	10.00	4373.80	15.00	7216.77	7.50	3608.38	0.001120	46.65	\N	\N	\N	\N	2025-12-13 09:46:36	2025-12-13 09:46:36
+431	10	2	5	1	3	0000011925010265	\N	9010	2025-11-19	2025-11-20	0.00	102269.83	1.00	0.320	63.320	60.00	3.00	0.00	63.00	118121.65	1874.95	5.00	5113.49	0.00	0.00	10.00	10738.33	15.00	17718.25	7.50	8859.12	0.001120	114.54	\N	\N	\N	\N	2025-12-13 09:47:44	2025-12-13 09:47:44
+432	10	2	5	1	3	0000011925010265	\N	9063	2025-11-20	2025-11-21	0.00	198280.22	1.00	0.320	122.450	118.00	4.13	0.00	122.13	229013.65	1875.16	5.00	9914.01	0.00	0.00	10.00	20819.42	15.00	34352.05	7.50	17176.02	0.001120	222.07	\N	\N	\N	\N	2025-12-13 09:50:02	2025-12-13 09:50:02
+433	10	2	5	1	3	0000011925010265	\N	9131	2025-11-25	2025-11-26	0.00	117972.80	1.00	0.450	73.120	70.00	2.67	0.00	72.67	136258.58	1875.03	5.00	5898.64	0.00	0.00	10.00	12387.14	15.00	20438.79	7.50	10219.39	0.001120	132.13	\N	\N	\N	\N	2025-12-13 09:51:43	2025-12-13 09:51:43
+434	10	2	5	1	3	0000011925010265	\N	9153	2025-11-26	2025-11-27	0.00	110735.26	1.00	0.120	68.330	65.00	3.21	0.00	68.21	127899.23	1875.08	5.00	5536.76	0.00	0.00	10.00	11627.20	15.00	19184.88	7.50	9592.44	0.001120	124.02	\N	\N	\N	\N	2025-12-13 09:52:59	2025-12-13 09:52:59
+435	10	2	5	1	3	0000011925010265	\N	9201	2025-11-27	2025-11-27	0.00	215675.02	1.00	0.330	133.180	127.00	5.85	0.00	132.85	249104.65	1875.08	5.00	10783.75	0.00	0.00	10.00	22645.88	15.00	37365.70	7.50	18682.85	0.001120	241.56	\N	\N	\N	\N	2025-12-13 09:54:20	2025-12-13 09:54:20
+436	10	2	5	1	3	0000011925010265	\N	9202	2025-11-27	2025-11-28	0.00	9041.74	1.00	0.180	5.750	5.00	0.57	0.00	5.57	10443.21	1874.90	5.00	452.09	0.00	0.00	10.00	949.38	15.00	1566.48	7.50	783.24	0.001120	10.13	\N	\N	\N	\N	2025-12-13 09:56:05	2025-12-13 09:56:05
+437	10	2	5	1	3	0000011925010265	\N	9284	2025-11-29	2025-11-30	0.00	196088.78	1.00	0.750	121.540	120.00	0.79	0.00	120.79	226482.54	1875.01	5.00	9804.44	0.00	0.00	10.00	20589.32	15.00	33972.38	7.50	16986.19	0.001120	219.62	\N	\N	\N	\N	2025-12-13 09:57:12	2025-12-13 09:57:12
+438	10	2	5	1	3	0000011925010265	\N	9286	2025-11-29	2025-11-30	0.00	9283.49	1.00	0.540	6.260	5.00	0.72	0.00	5.72	10722.43	1874.55	5.00	464.17	0.00	0.00	10.00	974.77	15.00	1608.36	7.50	804.18	0.001120	10.40	\N	\N	\N	\N	2025-12-13 09:58:47	2025-12-13 09:58:47
+439	10	1	5	1	3	0000011925010219	\N	8258	2025-11-01	2025-11-30	0.00	77682.40	1.00	0.950	49.740	48.00	0.79	0.00	48.79	89723.17	1838.97	5.00	3884.12	0.00	0.00	10.00	8156.65	15.00	13458.48	7.50	6729.24	0.001120	87.00	\N	\N	\N	\N	2025-12-13 10:03:14	2025-12-13 10:03:14
+440	10	1	5	1	3	0000011925010219	\N	8316	2025-11-03	2025-11-30	0.00	59767.78	1.00	0.740	38.280	36.00	1.54	0.00	37.54	69031.79	1838.89	5.00	2988.39	0.00	0.00	10.00	6275.62	15.00	10354.77	7.50	5177.38	0.001120	66.94	\N	\N	\N	\N	2025-12-13 10:04:26	2025-12-13 10:04:26
+441	10	1	5	1	3	0000011925010219	\N	8366	2025-11-04	2025-11-30	0.00	58940.61	1.00	0.280	37.300	36.00	1.02	0.00	37.02	68076.40	1838.91	5.00	2947.03	0.00	0.00	10.00	6188.76	15.00	10211.46	7.50	5105.73	0.001120	66.01	\N	\N	\N	\N	2025-12-13 10:05:35	2025-12-13 10:05:35
+442	10	1	5	1	3	0000011925010219	\N	8441	2025-11-05	2025-11-30	0.00	59628.42	1.00	0.300	37.750	36.00	1.45	0.00	37.45	68870.83	1839.01	5.00	2981.42	0.00	0.00	10.00	6260.98	15.00	10330.62	7.50	5165.31	0.001120	66.78	\N	\N	\N	\N	2025-12-13 10:06:49	2025-12-13 10:06:49
+443	10	1	5	1	3	0000011925010219	\N	8531	2025-11-08	2025-11-30	0.00	119032.63	1.00	0.750	75.510	72.00	2.76	0.00	74.76	137482.69	1838.99	5.00	5951.63	0.00	0.00	10.00	12498.43	15.00	20622.40	7.50	10311.20	0.001120	133.32	\N	\N	\N	\N	2025-12-13 10:22:08	2025-12-13 10:22:08
+444	10	1	5	1	3	0000011925010219	\N	8600	2025-11-10	2025-11-30	0.00	39643.34	1.00	0.510	25.410	24.00	0.90	0.00	24.90	45788.06	1838.88	5.00	1982.17	0.00	0.00	10.00	4162.55	15.00	6868.21	7.50	3434.10	0.001120	44.40	\N	\N	\N	\N	2025-12-13 10:23:39	2025-12-13 10:23:39
+445	10	1	5	1	3	0000011925010245	\N	8750	2025-11-13	2025-11-30	0.00	38784.25	1.00	0.410	24.770	24.00	0.36	0.00	24.36	44795.81	1838.91	5.00	1939.21	0.00	0.00	10.00	4072.35	15.00	6719.37	7.50	3359.69	0.001120	43.44	\N	\N	\N	\N	2025-12-13 10:25:03	2025-12-13 10:25:03
+446	10	1	5	1	3	0000011925010245	\N	8754	2025-11-13	2025-11-30	0.00	140540.22	1.00	0.770	89.040	84.00	4.27	0.00	88.27	162323.95	1838.95	5.00	7027.01	0.00	0.00	10.00	14756.72	15.00	24348.59	7.50	12174.30	0.001120	157.41	\N	\N	\N	\N	2025-12-13 10:26:19	2025-12-13 10:26:19
+447	10	1	5	1	3	0000011925010245	\N	8767	2025-11-13	2025-11-30	0.00	79419.60	1.00	0.040	49.920	48.00	1.88	0.00	49.88	91729.64	1839.01	5.00	3970.98	0.00	0.00	10.00	8339.06	15.00	13759.45	7.50	6879.72	0.001120	88.95	\N	\N	\N	\N	2025-12-13 10:27:48	2025-12-13 10:27:48
+448	10	1	5	1	3	0000011925010245	\N	8934	2025-11-18	2025-11-30	0.00	179654.57	1.00	0.920	113.750	108.00	4.83	0.00	112.83	207501.03	1839.06	5.00	8982.73	0.00	0.00	10.00	18863.73	15.00	31125.15	7.50	15562.58	0.001120	201.21	\N	\N	\N	\N	2025-12-13 10:28:59	2025-12-13 10:28:59
+449	10	1	5	1	3	0000011925010245	\N	8990	2025-11-19	2025-11-30	0.00	40519.52	1.00	0.750	26.200	24.00	1.45	0.00	25.45	46800.05	1838.90	5.00	2025.98	0.00	0.00	10.00	4254.55	15.00	7020.01	7.50	3510.00	0.001120	45.38	\N	\N	\N	\N	2025-12-13 19:59:23	2025-12-13 19:59:23
+450	10	1	5	1	3	0000011925010245	\N	9075	2025-11-20	2025-11-30	0.00	251710.14	1.00	0.200	158.290	156.00	2.09	0.00	158.09	290725.21	1838.99	5.00	12585.51	0.00	0.00	10.00	26429.56	15.00	43608.78	7.50	21804.39	0.001120	281.92	\N	\N	\N	\N	2025-12-13 20:00:46	2025-12-13 20:00:46
+451	10	1	5	1	3	0000011925010245	\N	9149	2025-11-26	2025-11-30	0.00	76423.65	1.00	0.290	48.290	48.00	0.00	0.00	48.00	88269.32	1838.94	5.00	3821.18	0.00	0.00	10.00	8024.48	15.00	13240.40	7.50	6620.20	0.001120	85.59	\N	\N	\N	\N	2025-12-13 20:06:57	2025-12-13 20:06:57
+452	10	1	5	1	3	0000011925010245	\N	9290	2025-11-29	2025-11-30	0.00	171953.74	1.00	0.290	108.290	108.00	0.00	0.00	108.00	198606.57	1838.95	5.00	8597.69	0.00	0.00	10.00	18055.14	15.00	29790.99	7.50	14895.49	0.001120	192.59	\N	\N	\N	\N	2025-12-13 20:19:33	2025-12-13 20:19:33
+453	9	1	5	1	3	0000002125010067	\N	4364	2025-08-13	2025-10-01	0.00	76480.10	1.00	0.000	48.200	48.00	0.20	0.00	48.20	88334.52	1832.67	5.00	3824.01	0.00	0.00	10.00	8030.41	15.00	13250.18	7.50	6625.09	0.001120	85.66	\N	\N	\N	\N	2025-12-14 00:04:54	2025-12-14 00:04:54
+454	9	1	5	1	3	0000002125010085	\N	4446	2025-07-05	2025-10-01	0.00	96430.54	1.00	0.200	60.970	60.00	0.77	0.00	60.77	111377.27	1832.77	5.00	4821.53	0.00	0.00	10.00	10125.21	15.00	16706.59	7.50	8353.30	0.001120	108.00	\N	\N	\N	\N	2025-12-14 00:07:27	2025-12-14 00:07:27
+455	9	1	5	1	3	0000002125010085	\N	4559	2025-07-10	2025-10-01	0.00	135671.18	1.00	0.970	86.470	84.00	1.50	0.00	85.50	156700.21	1832.75	5.00	6783.56	0.00	0.00	10.00	14245.47	15.00	23505.03	7.50	11752.52	0.001120	151.95	\N	\N	\N	\N	2025-12-14 00:11:19	2025-12-14 00:11:19
+456	9	1	5	1	3	0000002125010085	\N	4651	2025-07-14	2025-10-01	0.00	95205.93	1.00	0.470	60.470	60.00	0.00	0.00	60.00	109962.85	1832.71	5.00	4760.30	0.00	0.00	10.00	9996.62	15.00	16494.43	7.50	8247.21	0.001120	106.63	\N	\N	\N	\N	2025-12-14 00:13:11	2025-12-14 00:13:11
+457	9	1	5	1	3	0000002125010085	\N	4710	2025-07-16	2025-10-01	0.00	39826.04	1.00	0.470	25.570	24.00	1.10	0.00	25.10	45999.08	1832.63	5.00	1991.30	0.00	0.00	10.00	4181.73	15.00	6899.86	7.50	3449.93	0.001120	44.61	\N	\N	\N	\N	2025-12-14 00:16:35	2025-12-14 00:16:35
+458	9	1	5	1	3	0000002125010085	\N	4779	2025-07-17	2025-10-02	0.00	78576.84	1.00	0.570	50.090	48.00	1.52	0.00	49.52	90756.25	1832.72	5.00	3928.84	0.00	0.00	10.00	8250.57	15.00	13613.44	7.50	6806.72	0.001120	88.01	\N	\N	\N	\N	2025-12-14 00:17:46	2025-12-14 00:17:46
+459	9	1	5	1	3	0000002125010085	\N	4816	2025-07-19	2025-10-02	0.00	38081.75	1.00	0.090	24.090	24.00	0.00	0.00	24.00	43984.42	1832.68	5.00	1904.09	0.00	0.00	10.00	3998.58	15.00	6597.66	7.50	3298.83	0.001120	42.65	\N	\N	\N	\N	2025-12-14 00:18:58	2025-12-14 00:18:58
+460	9	1	5	1	3	0000002125010085	\N	4947	2025-07-22	2025-10-02	0.00	38081.75	1.00	0.090	24.090	24.00	0.00	0.00	24.00	43984.42	1832.68	5.00	1904.09	0.00	0.00	10.00	3998.58	15.00	6597.66	7.50	3298.83	0.001120	42.65	\N	\N	\N	\N	2025-12-14 00:20:17	2025-12-14 00:20:17
+461	9	1	5	1	3	0000002125010085	\N	4964	2025-07-23	2025-10-03	0.00	96206.53	1.00	0.090	60.720	60.00	0.63	0.00	60.63	111118.54	1832.73	5.00	4810.33	0.00	0.00	10.00	10101.69	15.00	16667.78	7.50	8333.89	0.001120	107.75	\N	\N	\N	\N	2025-12-14 00:21:23	2025-12-14 00:21:23
+462	9	1	5	1	3	0000002125010085	\N	5093	2025-07-26	2025-10-03	0.00	76163.50	1.00	0.720	48.720	48.00	0.00	0.00	48.00	87968.84	1832.68	5.00	3808.18	0.00	0.00	10.00	7997.17	15.00	13195.33	7.50	6597.66	0.001120	85.30	\N	\N	\N	\N	2025-12-14 00:22:31	2025-12-14 00:22:31
+463	9	1	5	1	3	0000002125010085	\N	5203	2025-07-29	2025-10-03	0.00	57422.80	1.00	0.720	36.910	36.00	0.19	0.00	36.19	66323.33	1832.64	5.00	2871.14	0.00	0.00	10.00	6029.39	15.00	9948.50	7.50	4974.25	0.001120	64.31	\N	\N	\N	\N	2025-12-14 00:23:32	2025-12-14 00:23:32
+464	9	1	5	1	3	0000002125010085	\N	5221	2025-07-30	2025-10-04	0.00	59646.61	1.00	0.910	38.500	36.00	1.59	0.00	37.59	68891.83	1832.72	5.00	2982.33	0.00	0.00	10.00	6262.89	15.00	10333.78	7.50	5166.89	0.001120	66.80	\N	\N	\N	\N	2025-12-14 00:24:46	2025-12-14 00:24:46
+465	9	1	5	1	3	0000002125010085	\N	5355	2025-08-04	2025-10-04	0.00	59311.97	1.00	0.500	37.660	36.00	1.16	0.00	37.16	68505.33	1843.52	5.00	2965.60	0.00	0.00	10.00	6227.76	15.00	10275.80	7.50	5137.90	0.001120	66.43	\N	\N	\N	\N	2025-12-14 00:25:43	2025-12-14 00:25:43
+466	9	1	5	1	3	0000002125010085	\N	5476	2025-08-07	2025-10-04	0.00	39550.33	1.00	0.660	25.440	24.00	0.78	0.00	24.78	45680.63	1843.45	5.00	1977.52	0.00	0.00	10.00	4152.78	15.00	6852.09	7.50	3426.05	0.001120	44.30	\N	\N	\N	\N	2025-12-14 00:26:55	2025-12-14 00:26:55
+467	9	1	5	1	3	0000002125010085	\N	5517	2025-08-09	2025-10-05	0.00	59055.09	1.00	0.440	37.440	36.00	1.00	0.00	37.00	68208.63	1843.48	5.00	2952.75	0.00	0.00	10.00	6200.78	15.00	10231.29	7.50	5115.65	0.001120	66.14	\N	\N	\N	\N	2025-12-14 00:27:56	2025-12-14 00:27:56
+468	9	1	5	1	3	0000002125010108	\N	6392	2025-09-09	2025-10-05	0.00	58241.60	1.00	0.440	36.940	36.00	0.50	0.00	36.50	67269.05	1842.99	5.00	2912.08	0.00	0.00	10.00	6115.37	15.00	10090.36	7.50	5045.18	0.001120	65.23	\N	\N	\N	\N	2025-12-14 00:29:10	2025-12-14 00:29:10
+469	9	1	5	1	3	0000002125010108	\N	6449	2025-09-10	2025-10-06	0.00	39891.02	1.00	0.940	25.940	24.00	1.00	0.00	25.00	46074.13	1842.97	5.00	1994.55	0.00	0.00	10.00	4188.56	15.00	6911.12	7.50	3455.56	0.001120	44.68	\N	\N	\N	\N	2025-12-14 00:30:09	2025-12-14 00:30:09
+470	9	1	5	1	3	0000002125010108	\N	6596	2025-09-15	2025-10-06	0.00	39206.20	1.00	0.940	25.510	24.00	0.57	0.00	24.57	45283.16	1843.03	5.00	1960.31	0.00	0.00	10.00	4116.65	15.00	6792.47	7.50	3396.24	0.001120	43.91	\N	\N	\N	\N	2025-12-14 00:31:11	2025-12-14 00:31:11
+471	9	1	5	1	3	0000002125010108	\N	6713	2025-09-17	2025-10-06	0.00	58831.81	1.00	0.510	42.440	36.00	5.93	0.00	41.93	67950.74	1620.58	5.00	2941.59	0.00	0.00	10.00	6177.34	15.00	10192.61	7.50	5096.31	0.001120	65.89	\N	\N	\N	\N	2025-12-14 00:32:21	2025-12-14 00:32:21
+472	9	1	5	1	3	0000002125010108	\N	6835	2025-09-22	2025-10-06	0.00	58611.05	1.00	0.440	37.170	36.00	0.73	0.00	36.73	67695.76	1843.06	5.00	2930.55	0.00	0.00	10.00	6154.16	15.00	10154.36	7.50	5077.18	0.001120	65.64	\N	\N	\N	\N	2025-12-14 00:51:13	2025-12-14 00:51:13
+473	9	1	5	1	3	0000002125010108	\N	6888	2025-09-23	2025-10-07	0.00	19627.12	1.00	0.170	12.470	12.00	0.30	0.00	12.30	22669.32	1843.03	5.00	981.36	0.00	0.00	10.00	2060.85	15.00	3400.40	7.50	1700.20	0.001120	21.98	\N	\N	\N	\N	2025-12-14 00:52:25	2025-12-14 00:52:25
+474	9	1	5	1	3	0000002125010108	\N	6936	2025-09-24	2025-10-07	0.00	20089.67	1.00	0.470	13.060	12.00	0.59	0.00	12.59	23203.57	1843.02	5.00	1004.48	0.00	0.00	10.00	2109.42	15.00	3480.54	7.50	1740.27	0.001120	22.50	\N	\N	\N	\N	2025-12-14 00:53:38	2025-12-14 00:53:38
+475	9	1	5	1	3	0000002125010108	\N	6973	2025-09-25	2025-10-07	0.00	58403.80	1.00	0.060	36.660	36.00	0.60	0.00	36.60	67456.39	1843.07	5.00	2920.19	0.00	0.00	10.00	6132.40	15.00	10118.46	7.50	5059.23	0.001120	65.41	\N	\N	\N	\N	2025-12-14 00:54:59	2025-12-14 00:54:59
+476	9	1	5	1	3	0000002125010108	\N	7034	2025-09-27	2025-10-07	0.00	77565.38	1.00	0.660	49.270	48.00	0.61	0.00	48.61	89588.01	1843.00	5.00	3878.27	0.00	0.00	10.00	8144.36	15.00	13438.20	7.50	6719.10	0.001120	86.87	\N	\N	\N	\N	2025-12-14 00:56:10	2025-12-14 00:56:10
+477	9	1	5	1	3	0000002125010108	\N	7309	2025-10-08	2025-10-09	0.00	39496.65	1.00	0.270	25.040	24.00	0.77	0.00	24.77	45618.63	1841.69	5.00	1974.83	0.00	0.00	10.00	4147.15	15.00	6842.79	7.50	3421.40	0.001120	44.24	\N	\N	\N	\N	2025-12-14 00:57:21	2025-12-14 00:57:21
+478	9	1	5	1	3	0000002125010108	\N	7360	2025-10-09	2025-10-10	0.00	78453.02	1.00	0.040	49.240	48.00	1.20	0.00	49.20	90613.24	1841.73	5.00	3922.65	0.00	0.00	10.00	8237.57	15.00	13591.99	7.50	6795.99	0.001120	87.87	\N	\N	\N	\N	2025-12-14 00:59:12	2025-12-14 00:59:12
+479	9	1	5	1	3	0000002125010108	\N	7506	2025-10-13	2025-10-14	0.00	39736.77	1.00	0.240	25.160	24.00	0.92	0.00	24.92	45895.97	1841.73	5.00	1986.84	0.00	0.00	10.00	4172.36	15.00	6884.40	7.50	3442.20	0.001120	44.51	\N	\N	\N	\N	2025-12-14 01:00:17	2025-12-14 01:00:17
+480	9	1	5	1	3	0000002125010108	\N	7653	2025-10-16	2025-10-17	0.00	19772.34	1.00	0.160	12.560	12.00	0.40	0.00	12.40	22837.05	1841.70	5.00	988.62	0.00	0.00	10.00	2076.10	15.00	3425.56	7.50	1712.78	0.001120	22.15	\N	\N	\N	\N	2025-12-14 01:01:34	2025-12-14 01:01:34
+481	9	1	5	1	3	0000002125010108	\N	7805	2025-10-21	2025-10-22	0.00	118329.47	1.00	0.560	74.770	72.00	2.21	0.00	74.21	136670.54	1841.67	5.00	5916.47	0.00	0.00	10.00	12424.59	15.00	20500.58	7.50	10250.29	0.001120	132.53	\N	\N	\N	\N	2025-12-14 01:02:38	2025-12-14 01:02:38
+482	9	1	5	1	3	0000002125010108	\N	7943	2025-10-23	2025-10-24	0.00	19326.62	1.00	0.770	12.890	12.00	0.12	0.00	12.12	22322.25	1841.77	5.00	966.33	0.00	0.00	10.00	2029.30	15.00	3348.34	7.50	1674.17	0.001120	21.65	\N	\N	\N	\N	2025-12-14 01:03:40	2025-12-14 01:03:40
+483	9	1	5	1	3	0000002125010108	\N	7964	2025-10-25	2025-10-26	0.00	19134.52	1.00	0.890	12.890	12.00	0.00	0.00	12.00	22100.37	1841.70	5.00	956.73	0.00	0.00	10.00	2009.12	15.00	3315.06	7.50	1657.53	0.001120	21.43	\N	\N	\N	\N	2025-12-14 01:04:34	2025-12-14 01:04:34
+484	9	1	5	1	3	0000002125010108	\N	8046	2025-10-27	2025-10-28	0.00	20075.49	1.00	0.890	13.480	12.00	0.59	0.00	12.59	23187.19	1841.71	5.00	1003.77	0.00	0.00	10.00	2107.93	15.00	3478.08	7.50	1739.04	0.001120	22.48	\N	\N	\N	\N	2025-12-14 01:05:29	2025-12-14 01:05:29
+485	9	1	5	1	3	0000002125010108	\N	8134	2025-10-29	2025-10-30	0.00	116861.72	1.00	0.480	73.770	72.00	1.29	0.00	73.29	134975.29	1841.66	5.00	5843.09	0.00	0.00	10.00	12270.48	15.00	20246.29	7.50	10123.15	0.001120	130.89	\N	\N	\N	\N	2025-12-14 01:06:28	2025-12-14 01:06:28
+486	9	1	5	1	3	0000002125010108	\N	8208	2025-10-30	2025-10-30	0.00	39130.46	1.00	0.770	25.310	24.00	0.54	0.00	24.54	45195.68	1841.71	5.00	1956.52	0.00	0.00	10.00	4108.70	15.00	6779.35	7.50	3389.68	0.001120	43.83	\N	\N	\N	\N	2025-12-14 01:07:36	2025-12-14 01:07:36
+487	9	1	5	1	3	0000002125010138	\N	8491	2025-11-06	2025-11-07	0.00	80756.25	1.00	0.310	51.030	48.00	2.72	0.00	50.72	93273.47	1838.99	5.00	4037.81	0.00	0.00	10.00	8479.41	15.00	13991.02	7.50	6995.51	0.001120	90.45	\N	\N	\N	\N	2025-12-14 01:10:24	2025-12-14 01:10:24
+488	9	1	5	1	3	0000002125010108	\N	8497	2025-11-06	2025-11-07	0.00	40137.83	1.00	0.030	25.240	24.00	1.21	0.00	25.21	46359.19	1838.92	5.00	2006.89	0.00	0.00	10.00	4214.47	15.00	6953.88	7.50	3476.94	0.001120	44.95	\N	\N	\N	\N	2025-12-14 01:11:19	2025-12-14 01:11:19
+489	9	1	5	1	3	0000002125010138	\N	8628	2025-11-11	2025-11-12	0.00	59991.49	1.00	0.240	37.920	36.00	1.68	0.00	37.68	69290.17	1838.91	5.00	2999.57	0.00	0.00	10.00	6299.11	15.00	10393.53	7.50	5196.76	0.001120	67.19	\N	\N	\N	\N	2025-12-14 01:12:13	2025-12-14 01:12:13
+490	9	1	5	1	3	0000002125010138	\N	8824	2025-11-15	2025-11-16	0.00	79605.41	1.00	0.920	50.920	48.00	2.00	0.00	50.00	91944.25	1838.88	5.00	3980.27	0.00	0.00	10.00	8358.57	15.00	13791.64	7.50	6895.82	0.001120	89.16	\N	\N	\N	\N	2025-12-14 01:13:07	2025-12-14 01:13:07
+491	9	1	5	1	3	0000002125010138	\N	8930	2025-11-18	2025-11-19	0.00	60423.05	1.00	0.920	38.870	36.00	1.95	0.00	37.95	69788.62	1838.96	5.00	3021.15	0.00	0.00	10.00	6344.42	15.00	10468.29	7.50	5234.15	0.001120	67.67	\N	\N	\N	\N	2025-12-14 01:14:02	2025-12-14 01:14:02
+492	9	1	5	1	3	0000002125010138	\N	8986	2025-11-19	2025-11-20	0.00	19105.90	1.00	0.870	12.870	12.00	0.00	0.00	12.00	22067.31	1838.94	5.00	955.30	0.00	0.00	10.00	2006.12	15.00	3310.10	7.50	1655.05	0.001120	21.40	\N	\N	\N	\N	2025-12-14 01:14:54	2025-12-14 01:14:54
+493	9	1	5	1	3	0000002125010138	\N	9084	2025-11-20	2025-11-21	0.00	59227.26	1.00	0.870	38.070	36.00	1.20	0.00	37.20	68407.49	1838.91	5.00	2961.36	0.00	0.00	10.00	6218.86	15.00	10261.12	7.50	5130.56	0.001120	66.33	\N	\N	\N	\N	2025-12-14 01:15:52	2025-12-14 01:15:52
+494	9	1	5	1	3	0000002125010138	\N	9205	2025-11-27	2025-11-28	0.00	38418.62	1.00	0.070	24.200	24.00	0.13	0.00	24.13	44373.51	1838.94	5.00	1920.93	0.00	0.00	10.00	4033.96	15.00	6656.03	7.50	3328.01	0.001120	43.03	\N	\N	\N	\N	2025-12-14 01:16:47	2025-12-14 01:16:47
+495	9	1	5	1	3	0000002125010138	\N	9293	2025-11-29	2025-11-30	0.00	77219.83	1.00	0.200	48.700	48.00	0.50	0.00	48.50	89188.90	1838.95	5.00	3860.99	0.00	0.00	10.00	8108.08	15.00	13378.34	7.50	6689.17	0.001120	86.49	\N	\N	\N	\N	2025-12-14 01:17:48	2025-12-14 01:17:48
+496	8	1	5	1	3	0000141225010218	\N	4980	2025-07-23	2025-10-01	0.00	316271.55	1.00	0.000	199.320	192.00	7.32	0.00	199.32	365293.64	1832.70	5.00	15813.58	0.00	0.00	10.00	33208.51	15.00	54794.05	7.50	27397.02	0.001120	354.22	\N	\N	\N	\N	2025-12-14 01:30:41	2025-12-14 01:30:41
+497	8	1	5	1	3	0000141225010218	\N	5026	2025-07-24	2025-10-01	0.00	99969.96	1.00	0.320	63.320	60.00	3.00	0.00	63.00	115465.30	1832.78	5.00	4998.50	0.00	0.00	10.00	10496.85	15.00	17319.80	7.50	8659.90	0.001120	111.97	\N	\N	\N	\N	2025-12-14 02:34:21	2025-12-14 02:34:21
+498	8	1	5	1	3	0000141225010218	\N	5091	2025-07-26	2025-10-01	0.00	177404.33	1.00	0.320	112.130	108.00	3.81	0.00	111.81	204902.00	1832.59	5.00	8870.22	0.00	0.00	10.00	18627.45	15.00	30735.30	7.50	15367.65	0.001120	198.69	\N	\N	\N	\N	2025-12-14 02:36:05	2025-12-14 02:36:05
+499	8	1	5	1	3	0000141225010218	\N	5139	2025-07-28	2025-10-02	0.00	98648.28	1.00	0.130	62.300	60.00	2.17	0.00	62.17	113938.76	1832.70	5.00	4932.41	0.00	0.00	10.00	10358.07	15.00	17090.81	7.50	8545.41	0.001120	110.49	\N	\N	\N	\N	2025-12-14 02:37:35	2025-12-14 02:37:35
+500	8	1	5	1	3	0000141225010218	\N	5205	2025-07-29	2025-10-02	0.00	276255.71	1.00	0.300	174.400	168.00	6.10	0.00	174.10	319075.35	1832.71	5.00	13812.79	0.00	0.00	10.00	29006.85	15.00	47861.30	7.50	23930.65	0.001120	309.41	\N	\N	\N	\N	2025-12-14 02:39:01	2025-12-14 02:39:01
+501	8	1	5	1	3	0000141225010218	\N	5220	2025-07-30	2025-10-02	0.00	218980.79	1.00	0.400	138.400	132.00	6.00	0.00	138.00	252922.81	1832.77	5.00	10949.04	0.00	0.00	10.00	22992.98	15.00	37938.42	7.50	18969.21	0.001120	245.26	\N	\N	\N	\N	2025-12-14 02:41:31	2025-12-14 02:41:31
+502	8	1	5	1	3	0000141225010218	\N	5266	2025-07-31	2025-10-02	0.00	295832.84	1.00	0.400	186.840	180.00	6.44	0.00	186.44	341686.93	1832.69	5.00	14791.64	0.00	0.00	10.00	31062.45	15.00	51253.04	7.50	25626.52	0.001120	331.33	\N	\N	\N	\N	2025-12-14 02:42:54	2025-12-14 02:42:54
+503	8	1	5	1	3	0000141225010218	\N	5321	2025-08-02	2025-10-02	0.00	119022.15	1.00	0.840	75.410	72.00	2.57	0.00	74.57	137470.58	1843.51	5.00	5951.11	0.00	0.00	10.00	12497.33	15.00	20620.59	7.50	10310.29	0.001120	133.30	\N	\N	\N	\N	2025-12-14 02:44:15	2025-12-14 02:44:15
+504	8	1	5	1	3	0000141225010218	\N	5354	2025-08-04	2025-10-03	0.00	38739.13	1.00	0.410	24.680	24.00	0.27	0.00	24.27	44743.70	1843.58	5.00	1936.96	0.00	0.00	10.00	4067.61	15.00	6711.55	7.50	3355.78	0.001120	43.39	\N	\N	\N	\N	2025-12-14 02:45:45	2025-12-14 02:45:45
+505	8	1	5	1	3	0000141225010234	\N	5804	2025-08-20	2025-10-03	0.00	458099.37	1.00	0.680	287.680	276.00	11.00	0.00	287.00	529104.77	1843.57	5.00	22904.97	0.00	0.00	10.00	48100.43	15.00	79365.72	7.50	39682.86	0.001120	513.07	\N	\N	\N	\N	2025-12-14 02:46:49	2025-12-14 02:46:49
+506	8	1	5	1	3	0000141225010234	\N	5877	2025-08-21	2025-10-03	0.00	80092.12	1.00	0.680	50.860	48.00	2.18	0.00	50.18	92506.40	1843.49	5.00	4004.61	0.00	0.00	10.00	8409.67	15.00	13875.96	7.50	6937.98	0.001120	89.70	\N	\N	\N	\N	2025-12-14 02:52:05	2025-12-14 02:52:05
+507	8	1	5	1	3	0000141225010234	\N	5900	2025-08-23	2025-10-04	0.00	278306.70	1.00	0.860	175.230	168.00	6.37	0.00	174.37	321444.24	1843.46	5.00	13915.34	0.00	0.00	10.00	29222.20	15.00	48216.64	7.50	24108.32	0.001120	311.70	\N	\N	\N	\N	2025-12-14 02:53:06	2025-12-14 02:53:06
+508	8	1	5	1	3	0000141225010234	\N	5938	2025-08-25	2025-10-04	0.00	258291.18	1.00	0.230	162.060	156.00	5.83	0.00	161.83	298326.31	1843.45	5.00	12914.56	0.00	0.00	10.00	27120.57	15.00	44748.95	7.50	22374.47	0.001120	289.29	\N	\N	\N	\N	2025-12-14 02:54:30	2025-12-14 02:54:30
+509	8	1	5	1	3	0000141225010234	\N	5985	2025-08-26	2025-10-05	0.00	79184.78	1.00	0.060	49.670	48.00	1.61	0.00	49.61	91458.42	1843.55	5.00	3959.24	0.00	0.00	10.00	8314.40	15.00	13718.76	7.50	6859.38	0.001120	88.69	\N	\N	\N	\N	2025-12-14 02:55:47	2025-12-14 02:55:47
+510	8	1	5	1	3	0000141225010234	\N	6025	2025-08-27	2025-10-05	0.00	19232.86	1.00	0.670	12.720	12.00	0.05	0.00	12.05	22213.95	1843.48	5.00	961.64	0.00	0.00	10.00	2019.45	15.00	3332.09	7.50	1666.05	0.001120	21.54	\N	\N	\N	\N	2025-12-14 02:56:44	2025-12-14 02:56:44
+511	8	1	5	1	3	0000141225010234	\N	6053	2025-08-28	2025-10-05	0.00	482470.13	1.00	0.720	303.000	288.00	14.28	0.00	302.28	557253.00	1843.50	5.00	24123.51	0.00	0.00	10.00	50659.36	15.00	83587.95	7.50	41793.98	0.001120	540.37	\N	\N	\N	\N	2025-12-14 03:50:21	2025-12-14 03:50:21
+512	8	1	5	1	3	0000141225010266	\N	6706	2025-09-17	2025-10-05	0.00	315841.04	1.00	0.000	197.930	192.00	5.93	0.00	197.93	364796.40	1843.06	5.00	15792.05	0.00	0.00	10.00	33163.31	15.00	54719.46	7.50	27359.73	0.001120	353.74	\N	\N	\N	\N	2025-12-14 03:52:54	2025-12-14 03:52:54
+513	8	1	5	1	3	0000141225010266	\N	6779	2025-09-20	2025-10-05	0.00	217024.96	1.00	0.930	136.950	132.00	4.02	0.00	136.02	250663.83	1842.85	5.00	10851.25	0.00	0.00	10.00	22787.62	15.00	37599.57	7.50	18799.79	0.001120	243.07	\N	\N	\N	\N	2025-12-14 03:57:34	2025-12-14 03:57:34
+514	8	1	5	1	3	0000141225010266	\N	6832	2025-09-22	2025-10-06	0.00	336882.90	1.00	0.950	212.070	204.00	7.12	0.00	211.12	389099.75	1843.03	5.00	16844.15	0.00	0.00	10.00	35372.70	15.00	58364.96	7.50	29182.48	0.001120	377.31	\N	\N	\N	\N	2025-12-14 03:59:56	2025-12-14 03:59:56
+515	8	1	5	1	3	0000141225010266	\N	6894	2025-09-23	2025-10-07	0.00	59899.60	1.00	0.070	37.610	36.00	1.54	0.00	37.54	69184.04	1842.94	5.00	2994.98	0.00	0.00	10.00	6289.46	15.00	10377.61	7.50	5188.80	0.001120	67.09	\N	\N	\N	\N	2025-12-14 04:46:09	2025-12-14 04:46:09
+516	8	1	5	1	3	0000141225010266	\N	6933	2025-09-24	2025-10-07	0.00	39572.64	1.00	0.610	25.410	24.00	0.80	0.00	24.80	45706.40	1843.00	5.00	1978.63	0.00	0.00	10.00	4155.13	15.00	6855.96	7.50	3427.98	0.001120	44.32	\N	\N	\N	\N	2025-12-14 04:55:40	2025-12-14 04:55:40
+517	8	1	5	1	3	0000141225010266	\N	6995	2025-09-25	2025-10-08	0.00	417663.77	1.00	0.410	262.170	252.00	9.76	0.00	261.76	482401.65	1842.92	5.00	20883.19	0.00	0.00	10.00	43854.70	15.00	72360.25	7.50	36180.12	0.001120	467.78	\N	\N	\N	\N	2025-12-14 04:57:36	2025-12-14 04:57:36
+518	8	1	5	1	3	0000141225010266	\N	7031	2025-09-27	2025-10-08	0.00	261364.41	1.00	0.170	163.960	156.00	7.79	0.00	163.79	301875.89	1843.07	5.00	13068.22	0.00	0.00	10.00	27443.26	15.00	45281.38	7.50	22640.69	0.001120	292.73	\N	\N	\N	\N	2025-12-14 04:59:24	2025-12-14 04:59:24
+519	8	1	5	1	3	0000141225010303	\N	8111	2025-10-28	2025-10-29	0.00	60465.08	1.00	0.960	38.880	36.00	1.92	0.00	37.92	69837.17	1841.70	5.00	3023.25	0.00	0.00	10.00	6348.83	15.00	10475.58	7.50	5237.79	0.001120	67.72	\N	\N	\N	\N	2025-12-14 05:01:03	2025-12-14 05:01:03
+520	8	1	5	1	3	0000141225010303	\N	8167	2025-10-29	2025-10-30	0.00	191348.32	1.00	0.880	120.880	120.00	0.00	0.00	120.00	221007.31	1841.73	5.00	9567.42	0.00	0.00	10.00	20091.57	15.00	33151.10	7.50	16575.55	0.001120	214.31	\N	\N	\N	\N	2025-12-14 05:02:12	2025-12-14 05:02:12
+521	8	1	5	1	3	0000141225010303	\N	8193	2025-10-30	2025-10-31	0.00	121120.90	1.00	0.880	76.840	72.00	3.96	0.00	75.96	139894.64	1841.69	5.00	6056.05	0.00	0.00	10.00	12717.69	15.00	20984.20	7.50	10492.10	0.001120	135.66	\N	\N	\N	\N	2025-12-14 05:03:48	2025-12-14 05:03:48
+522	8	1	5	1	3	0000141225010303	\N	8260	2025-11-01	2025-11-02	0.00	155126.60	1.00	0.840	98.270	96.00	1.43	0.00	97.43	179171.22	1838.97	5.00	7756.33	0.00	0.00	10.00	16288.29	15.00	26875.68	7.50	13437.84	0.001120	173.74	\N	\N	\N	\N	2025-12-14 05:08:50	2025-12-14 05:08:50
+523	8	1	5	1	3	0000141225010303	\N	8317	2025-11-03	2025-11-04	0.00	198929.50	1.00	0.270	125.210	120.00	4.94	0.00	124.94	229763.57	1838.99	5.00	9946.48	0.00	0.00	10.00	20887.60	15.00	34464.54	7.50	17232.27	0.001120	222.80	\N	\N	\N	\N	2025-12-14 05:11:52	2025-12-14 05:11:52
+524	8	1	5	1	3	0000141225010303	\N	8369	2025-11-04	2025-11-05	0.00	39836.20	1.00	0.210	25.230	24.00	1.02	0.00	25.02	46010.81	1838.96	5.00	1991.81	0.00	0.00	10.00	4182.80	15.00	6901.62	7.50	3450.81	0.001120	44.62	\N	\N	\N	\N	2025-12-14 06:03:21	2025-12-14 06:03:21
+525	8	1	5	1	3	0000141225010303	\N	8422	2025-11-05	2025-11-06	0.00	139522.73	1.00	0.230	87.860	84.00	3.63	0.00	87.63	161148.75	1838.97	5.00	6976.14	0.00	0.00	10.00	14649.89	15.00	24172.31	7.50	12086.16	0.001120	156.27	\N	\N	\N	\N	2025-12-14 06:04:43	2025-12-14 06:04:43
+526	8	1	5	1	3	0000141225010303	\N	8502	2025-11-06	2025-11-07	0.00	261177.76	1.00	0.860	164.900	156.00	8.04	0.00	164.04	301660.31	1838.94	5.00	13058.89	0.00	0.00	10.00	27423.66	15.00	45249.05	7.50	22624.52	0.001120	292.52	\N	\N	\N	\N	2025-12-14 06:06:14	2025-12-14 06:06:14
+527	8	1	5	1	3	0000141225010303	\N	8532	2025-11-08	2025-11-09	0.00	158242.46	1.00	0.900	100.290	96.00	3.39	0.00	99.39	182770.04	1838.92	5.00	7912.12	0.00	0.00	10.00	16615.46	15.00	27415.51	7.50	13707.75	0.001120	177.23	\N	\N	\N	\N	2025-12-14 06:09:36	2025-12-14 06:09:36
+528	8	1	5	1	3	0000141225010303	\N	8618	2025-11-10	2025-11-11	0.00	120120.55	1.00	0.290	75.740	72.00	3.45	0.00	75.45	138739.24	1838.82	5.00	6006.03	0.00	0.00	10.00	12612.66	15.00	20810.89	7.50	10405.44	0.001120	134.54	\N	\N	\N	\N	2025-12-14 06:12:03	2025-12-14 06:12:03
+529	8	1	5	1	3	0000141225010303	\N	8627	2025-11-11	2025-11-12	0.00	198493.87	1.00	0.740	125.410	120.00	4.67	0.00	124.67	229260.42	1838.94	5.00	9924.69	0.00	0.00	10.00	20841.86	15.00	34389.06	7.50	17194.53	0.001120	222.31	\N	\N	\N	\N	2025-12-14 06:14:02	2025-12-14 06:14:02
+530	8	1	5	1	3	0000141225010322	\N	8747	2025-11-13	2025-11-14	0.00	119968.77	1.00	0.410	75.760	72.00	3.35	0.00	75.35	138563.93	1838.94	5.00	5998.44	0.00	0.00	10.00	12596.72	15.00	20784.59	7.50	10392.29	0.001120	134.37	\N	\N	\N	\N	2025-12-14 06:16:01	2025-12-14 06:16:01
+531	8	1	5	1	3	0000141225010322	\N	8752	2025-11-13	2025-11-14	0.00	59178.87	1.00	0.760	37.930	36.00	1.17	0.00	37.17	68351.59	1838.89	5.00	2958.94	0.00	0.00	10.00	6213.78	15.00	10252.74	7.50	5126.37	0.001120	66.28	\N	\N	\N	\N	2025-12-14 06:17:30	2025-12-14 06:17:30
+532	8	1	5	1	3	0000141225010322	\N	8795	2025-11-13	2025-11-14	0.00	20060.87	1.00	0.930	13.530	12.00	0.60	0.00	12.60	23170.30	1838.91	5.00	1003.04	0.00	0.00	10.00	2106.39	15.00	3475.55	7.50	1737.77	0.001120	22.47	\N	\N	\N	\N	2025-12-14 06:18:58	2025-12-14 06:18:58
+533	8	1	5	1	3	0000141225010322	\N	8823	2025-11-15	2025-11-16	0.00	292931.08	1.00	0.530	184.510	180.00	3.98	0.00	183.98	338335.40	1838.98	5.00	14646.55	0.00	0.00	10.00	30757.76	15.00	50750.31	7.50	25375.15	0.001120	328.08	\N	\N	\N	\N	2025-12-14 06:20:52	2025-12-14 06:20:52
+534	11	1	5	2	2	1055	\N	5390	2025-10-17	2025-10-17	666.31	305449.41	1.00	0.000	191.540	189.52	2.02	0.00	191.54	352794.07	1841.88	5.00	15272.47	0.00	0.00	10.00	32072.19	15.00	52919.11	7.50	26459.56	0.000000	0.00	5470	2025-10-18	M/s Shohid Ahmed	Karimganj, India	2025-12-22 17:38:37	2025-12-22 17:38:37
+535	11	1	5	2	2	1055	\N	5433	2025-10-19	2025-10-19	512.12	191046.30	1.00	0.000	119.800	118.62	1.18	0.00	119.80	220658.48	1841.89	5.00	9552.32	0.00	0.00	10.00	20059.86	15.00	33098.77	7.50	16549.39	0.000000	0.00	5484	2025-10-19	M/s Shohid Ahmed	Karimganj, India	2025-12-22 17:42:46	2025-12-22 17:42:46
+536	11	1	5	2	2	1055	\N	5506	2025-10-23	2025-10-23	321.93	114970.72	1.00	0.000	72.100	71.18	0.92	0.00	72.10	132791.18	1841.76	5.00	5748.54	0.00	0.00	10.00	12071.93	15.00	19918.68	7.50	9959.34	0.000000	0.00	5568	2025-10-23	M/S Shohid Ahmed	Karimganj, India	2025-12-22 17:53:23	2025-12-22 17:53:23
+537	11	1	5	2	2	1055	\N	5507	2025-10-23	2025-10-23	224.31	35519.33	1.00	0.000	47.610	46.90	0.71	0.00	47.61	41024.83	861.69	5.00	1775.97	0.00	0.00	10.00	3729.53	15.00	6153.72	7.50	3076.86	0.000000	0.00	5562	2025-10-23	M/S Shohid Ahmed	Karimganj, India	2025-12-22 17:55:04	2025-12-22 17:55:04
+538	11	1	5	2	2	1055	\N	5550	2025-10-24	2025-10-24	617.38	266307.00	1.00	0.000	167.000	164.85	2.15	0.00	167.00	307584.59	1841.82	5.00	13315.35	0.00	0.00	10.00	27962.24	15.00	46137.69	7.50	23068.84	0.000000	0.00	5618	2025-10-25	M/S SHOHID AHMED	KARIMGANJ, INDIA	2025-12-22 18:03:36	2025-12-22 18:03:36
+539	11	1	5	2	2	1055	\N	5698	2025-10-28	2025-10-28	148.36	38863.41	1.00	0.000	24.370	23.89	0.48	0.00	24.37	44887.24	1841.91	5.00	1943.17	0.00	0.00	10.00	4080.66	15.00	6733.09	7.50	3366.54	0.000000	0.00	5757	2025-10-28	M/S SHOHID AHMED	KARIMGANJ, INDIA	2025-12-22 18:17:36	2025-12-22 18:17:36
+540	11	1	5	2	2	1055	\N	5725	2025-10-28	2025-10-28	147.34	37843.74	1.00	0.000	23.730	23.45	0.28	0.00	23.73	43709.52	1841.95	5.00	1892.19	0.00	0.00	10.00	3973.59	15.00	6556.43	7.50	3278.21	0.000000	0.00	5779	2025-10-28	M/S SHOHID AHMED	KARIMGANJ, INDIA	2025-12-22 18:18:59	2025-12-22 18:18:59
+541	11	1	5	2	2	1055	\N	5807	2025-10-29	2025-10-29	224.46	75984.81	1.00	0.000	47.650	46.40	1.25	0.00	47.65	87762.46	1841.81	5.00	3799.24	0.00	0.00	10.00	7978.41	15.00	13164.37	7.50	6582.18	0.000000	0.00	5864	2025-10-30	M/S SHOHID AHMED	KARIMGANJ, INDIA	2025-12-22 18:20:14	2025-12-22 18:20:14
+542	11	1	5	2	2	1055	\N	5816	2025-10-29	2025-10-29	147.66	38163.02	1.00	0.000	23.930	23.59	0.34	0.00	23.93	44078.29	1841.97	5.00	1908.15	0.00	0.00	10.00	4007.12	15.00	6611.74	7.50	3305.87	0.000000	0.00	5887	2025-10-30	M/S SHOHID AHMED	KARIMGANJ, INDIA	2025-12-22 18:21:40	2025-12-22 18:21:40
+543	11	1	5	2	2	1055	\N	5828	2025-10-29	2025-10-29	147.71	38210.67	1.00	0.000	23.960	23.27	0.69	0.00	23.96	44133.32	1841.96	5.00	1910.53	0.00	0.00	10.00	4012.12	15.00	6620.00	7.50	3310.00	0.000000	0.00	5874	2025-10-30	M/S SHOHID AHMED	INDIA	2025-12-22 18:22:51	2025-12-22 18:22:51
+544	11	1	5	2	2	1055	\N	5867	2025-10-30	2025-10-30	220.38	74350.30	1.00	0.000	46.620	45.97	0.65	0.00	46.62	85874.60	1842.01	5.00	3717.52	0.00	0.00	10.00	7806.78	15.00	12881.19	7.50	6440.59	0.000000	0.00	5939	2025-10-30	M/S SHOHID AHMED	INDIA	2025-12-22 18:23:59	2025-12-22 18:23:59
+545	11	1	5	2	2	1055	\N	5913	2025-10-31	2025-10-31	145.15	35652.33	1.00	0.000	22.360	22.36	0.00	0.00	22.36	41178.44	1841.61	5.00	1782.62	0.00	0.00	10.00	3743.49	15.00	6176.77	7.50	3088.38	0.000000	0.00	5979	2025-10-31	M/S SHOHID AHMED	INDIA	2025-12-22 18:25:25	2025-12-22 18:25:25
+546	11	1	5	2	3	1216	\N	6534	2025-11-13	2025-11-13	324.53	116010.61	1.00	0.000	72.860	71.82	1.04	0.00	72.86	133992.25	1839.04	5.00	5800.53	0.00	0.00	10.00	12181.11	15.00	20098.84	7.50	10049.42	0.000000	0.00	6639	2025-11-13	M/S SHOHID AHMED	INDIA	2025-12-22 18:39:56	2025-12-22 18:39:56
+547	11	1	5	2	3	1216	\N	6611	2025-11-14	2025-11-14	517.22	193088.16	1.00	0.000	121.260	119.39	1.87	0.00	121.26	223016.82	1839.16	5.00	9654.41	0.00	0.00	10.00	20274.26	15.00	33452.52	7.50	16726.26	0.000000	0.00	6677	2025-11-15	M/S SHOHID AHMED	INDIA	2025-12-22 18:42:35	2025-12-22 18:42:35
+548	11	1	5	2	3	1216	\N	6640	2025-11-15	2025-11-15	425.03	156210.66	1.00	0.000	98.110	96.82	1.29	0.00	98.11	180423.31	1838.99	5.00	7810.53	0.00	0.00	10.00	16402.12	15.00	27063.50	7.50	13531.75	0.000000	0.00	6720	2025-11-16	M/S SHOHID AHMED	INDIA	2025-12-22 20:54:09	2025-12-22 20:54:09
+549	11	1	5	2	3	1216	\N	6674	2025-11-17	2025-11-17	422.13	155052.58	1.00	0.000	97.380	95.76	1.62	0.00	97.38	179085.73	1839.04	5.00	7752.63	0.00	0.00	10.00	16280.52	15.00	26862.86	7.50	13431.43	0.000000	0.00	6749	2025-11-17	M/S SHOHID AHMED	INDIA	2025-12-22 20:56:22	2025-12-22 20:56:22
+550	11	1	5	2	3	1216	\N	6738	2025-11-18	2025-11-18	426.72	156886.50	1.00	0.000	98.530	95.72	2.81	0.00	98.53	181203.91	1839.07	5.00	7844.33	0.00	0.00	10.00	16473.08	15.00	27180.59	7.50	13590.29	0.000000	0.00	6819	2025-11-18	M/S SHOHID AHMED	INDIA	2025-12-22 20:58:05	2025-12-22 20:58:05
+551	11	1	5	2	3	1216	\N	6772	2025-11-18	2025-11-18	521.43	194773.00	1.00	0.000	122.320	120.32	2.00	0.00	122.32	224962.82	1839.13	5.00	9738.65	0.00	0.00	10.00	20451.17	15.00	33744.42	7.50	16872.21	0.000000	0.00	6841	2025-11-18	M/S SHOHID AHMED	INDIA	2025-12-22 21:00:13	2025-12-22 21:00:13
+552	11	1	5	2	3	1216	\N	6822	2025-11-19	2025-11-19	229.95	78180.16	1.00	0.000	49.100	48.34	0.76	0.00	49.10	90298.08	1839.06	5.00	3909.01	0.00	0.00	10.00	8208.92	15.00	13544.71	7.50	6772.36	0.000000	0.00	6875	2025-11-19	M/S SHOHID AHMED	INDIA	2025-12-22 21:06:25	2025-12-22 21:06:25
+553	11	1	5	2	3	1216	\N	6902	2025-11-20	2025-11-20	149.12	39616.35	1.00	0.000	24.880	24.42	0.46	0.00	24.88	45756.88	1839.10	5.00	1980.82	0.00	0.00	10.00	4159.72	15.00	6863.53	7.50	3431.77	0.000000	0.00	6969	2025-11-20	M/S SHOHID AHMED	INDIA	2025-12-22 21:07:59	2025-12-22 21:07:59
+554	11	1	5	2	3	1216	\N	7005	2025-11-25	2025-11-25	334.08	119834.98	1.00	0.000	75.260	74.32	0.94	0.00	75.26	138409.40	1839.08	5.00	5991.75	0.00	0.00	10.00	12582.67	15.00	20761.41	7.50	10380.71	0.000000	0.00	7074	2025-11-25	M/S SHOHID AHMED	INDIA	2025-12-22 21:10:26	2025-12-22 21:10:26
+555	11	1	5	2	3	1216	\N	7012	2025-11-25	2025-11-25	232.17	79069.45	1.00	0.000	49.660	49.42	0.24	0.00	49.66	91325.21	1839.01	5.00	3953.47	0.00	0.00	10.00	8302.29	15.00	13698.78	7.50	6849.39	0.000000	0.00	7114	2025-11-25	M/S SHOHID AHMED	INDIA	2025-12-22 21:11:51	2025-12-22 21:11:51
+556	11	1	5	2	3	1283	\N	7053	2025-11-25	2025-11-25	444.77	164106.69	1.00	0.000	103.060	101.47	1.59	0.00	103.06	189543.23	1839.15	5.00	8205.33	0.00	0.00	10.00	17231.20	15.00	28431.48	7.50	14215.74	0.000000	0.00	7106	2025-11-25	M/S SHOHID AHMED	INDIA	2025-12-22 21:13:23	2025-12-22 21:13:23
+557	11	1	5	2	3	1283	\N	7178	2025-11-27	2025-11-27	148.70	39200.43	1.00	0.000	24.620	24.04	0.58	0.00	24.62	45276.50	1839.01	5.00	1960.02	0.00	0.00	10.00	4116.05	15.00	6791.47	7.50	3395.74	0.000000	0.00	7263	2025-11-28	M/S SHOHID AHMED	INDIA	2025-12-22 21:18:15	2025-12-22 21:18:15
+558	11	1	5	2	3	1283	\N	7157	2025-11-27	2025-11-27	588.70	243362.34	1.00	0.000	152.840	150.93	1.91	0.00	152.84	281083.50	1839.07	5.00	12168.12	0.00	0.00	10.00	25553.05	15.00	42162.53	7.50	21081.26	0.000000	0.00	7250	2025-11-27	M/.S SHOHID AHMED	india	2025-12-22 21:20:14	2025-12-22 21:20:14
+559	11	1	5	2	3	1283	\N	7139	2025-11-27	2025-11-27	238.99	81796.45	1.00	0.000	51.370	50.93	0.44	0.00	51.37	94474.90	1839.11	5.00	4089.82	0.00	0.00	10.00	8588.63	15.00	14171.23	7.50	7085.62	0.000000	0.00	7301	2025-11-29	M/S SHOHID AHMED	INDIA	2025-12-22 21:25:27	2025-12-22 21:25:27
+560	11	1	5	2	3	1283	\N	7205	2025-11-28	2025-11-28	576.38	233501.89	1.00	0.000	146.640	144.77	1.87	0.00	146.64	269694.68	1839.16	5.00	11675.09	0.00	0.00	10.00	24517.70	15.00	40454.20	7.50	20227.10	0.000000	0.00	7302	2025-11-29	M/S SHOHID AHMED	INDIA	2025-12-22 21:29:42	2025-12-22 21:29:42
+561	11	1	5	2	3	1283	\N	7254	2025-11-29	2025-11-29	720.67	348930.59	1.00	0.000	219.130	216.67	2.46	0.00	219.13	403014.83	1839.16	5.00	17446.53	0.00	0.00	10.00	36637.71	15.00	60452.22	7.50	30226.11	0.000000	0.00	7344	2025-11-30	M/S SHOHID AHMED	INDIA	2025-12-22 21:31:46	2025-12-22 21:31:46
+562	7	1	5	2	2	984	\N	4990	2025-10-07	2025-10-07	319.98	114191.95	1.00	0.000	71.610	71.30	0.31	0.00	71.61	131891.70	1841.81	5.00	5709.60	0.00	0.00	10.00	11990.15	15.00	19783.76	7.50	9891.88	0.000000	0.00	5060	2025-10-07	M/s Jafor Ent	India	2025-12-23 18:17:30	2025-12-23 18:17:30
+563	7	1	5	2	2	984	\N	5012	2025-10-08	2025-10-08	224.42	75969.00	1.00	0.000	47.640	47.10	0.54	0.00	47.64	87744.20	1841.82	5.00	3798.45	0.00	0.00	10.00	7976.75	15.00	13161.63	7.50	6580.81	0.000000	0.00	5065	2025-10-08	M/S JAFOR ENT	INDIA	2025-12-23 18:19:45	2025-12-23 18:19:45
+564	7	1	5	2	2	976	\N	5014	2025-10-08	2025-10-08	523.55	195616.98	1.00	0.000	122.670	119.39	3.28	0.00	122.67	225937.61	1841.83	5.00	9780.85	0.00	0.00	10.00	20539.78	15.00	33890.64	7.50	16945.32	0.000000	0.00	5066	2025-10-08	M/S PRAGATI INT.	INDIA	2025-12-23 18:22:14	2025-12-23 18:22:14
+565	7	1	5	2	2	976	\N	5057	2025-10-09	2025-10-09	148.42	38924.03	1.00	0.000	24.410	23.55	0.86	0.00	24.41	44957.25	1841.76	5.00	1946.20	0.00	0.00	10.00	4087.02	15.00	6743.59	7.50	3371.79	0.000000	0.00	5112	2025-10-09	M/S PRAGATI INT.	INDIA	2025-12-23 18:24:50	2025-12-23 18:24:50
+566	7	1	5	2	2	976	\N	5058	2025-10-09	2025-10-09	417.57	153225.05	1.00	0.000	96.090	93.97	2.12	0.00	96.09	176974.93	1841.76	5.00	7661.25	0.00	0.00	10.00	16088.63	15.00	26546.24	7.50	13273.12	0.000000	0.00	5141	2025-10-11	M/S PAGATI INT.	INDIA	2025-12-23 18:26:31	2025-12-23 18:26:31
+567	7	1	5	2	2	984	\N	5059	2025-10-09	2025-10-09	574.47	231975.45	1.00	0.000	145.470	144.10	1.37	0.00	145.47	267931.64	1841.83	5.00	11598.77	0.00	0.00	10.00	24357.42	15.00	40189.75	7.50	20094.87	0.000000	0.00	5110	2025-10-09	M/S JAFOR ENT	INDIA	2025-12-23 18:28:38	2025-12-23 18:28:38
+568	7	1	5	2	2	976	\N	5082	2025-10-10	2025-10-10	575.17	232537.25	1.00	0.000	145.810	141.02	4.79	0.00	145.81	268580.52	1841.99	5.00	11626.86	0.00	0.00	10.00	24416.41	15.00	40287.08	7.50	20143.54	0.000000	0.00	5139	2025-10-11	M/S PRAGATI INT.	INDIA	2025-12-23 18:30:53	2025-12-23 18:30:53
+569	7	1	5	2	2	984	\N	5084	2025-10-10	2025-10-10	623.81	271449.86	1.00	0.000	170.230	167.80	2.43	0.00	170.23	313524.59	1841.77	5.00	13572.49	0.00	0.00	10.00	28502.24	15.00	47028.69	7.50	23514.34	0.000000	0.00	5137	2025-10-11	M/S JAFOR ENT	INDIA	2025-12-23 18:32:59	2025-12-23 18:32:59
+570	7	1	5	2	2	976	\N	5099	2025-10-11	2025-10-11	435.23	160292.85	1.00	0.000	100.520	96.63	3.89	0.00	100.52	185138.24	1841.81	5.00	8014.64	0.00	0.00	10.00	16830.75	15.00	27770.74	7.50	13885.37	0.000000	0.00	5168	2025-10-11	M/S PRAGATI INT.	INDIA	2025-12-23 18:41:07	2025-12-23 18:41:07
+571	7	1	5	2	2	976	\N	5123	2025-10-13	2025-10-13	330.83	118530.38	1.00	0.000	74.330	71.91	2.42	0.00	74.33	136902.59	1841.82	5.00	5926.52	0.00	0.00	10.00	12445.69	15.00	20535.39	7.50	10267.69	0.000000	0.00	5181	2025-10-13	M/S PRAGATI INT.	INDIA	2025-12-23 18:42:52	2025-12-23 18:42:52
+572	7	1	5	2	2	984	\N	5138	2025-10-13	2025-10-13	420.15	154259.33	1.00	0.000	96.740	95.10	1.64	0.00	96.74	178169.53	1841.74	5.00	7712.97	0.00	0.00	10.00	16197.23	15.00	26725.43	7.50	13362.71	0.000000	0.00	5185	2025-10-13	M/S JAFOR ENT	INDIA	2025-12-23 19:03:52	2025-12-23 19:03:52
+573	7	1	5	2	2	976	\N	5181	2025-10-14	2025-10-14	427.93	157370.83	1.00	0.000	98.680	94.66	4.02	0.00	98.68	181763.31	1841.95	5.00	7868.54	0.00	0.00	10.00	16523.94	15.00	27264.50	7.50	13632.25	0.000000	0.00	5279	2025-10-14	M/S PRAGATI INT.	INDIA	2025-12-23 21:47:51	2025-12-23 21:47:51
+574	7	1	5	2	2	976	\N	5215	2025-10-14	2025-10-14	231.64	78855.98	1.00	0.000	49.450	47.84	1.61	0.00	49.45	91078.66	1841.83	5.00	3942.80	0.00	0.00	10.00	8279.88	15.00	13661.80	7.50	6830.90	0.000000	0.00	5274	2025-10-14	M/S PRAGATI INT.	INDIA	2025-12-23 21:56:38	2025-12-23 21:56:38
+575	7	1	5	2	2	984	\N	5219	2025-10-14	2025-10-14	414.89	152156.18	1.00	0.000	95.420	93.40	2.02	0.00	95.42	175740.39	1841.76	5.00	7607.81	0.00	0.00	10.00	15976.40	15.00	26361.06	7.50	13180.53	0.000000	0.00	5291	2025-10-15	M/S JAFOR ENT	INDIA	2025-12-23 21:59:00	2025-12-23 21:59:00
+576	7	1	5	2	2	984	\N	5270	2025-10-15	2025-10-15	403.71	147683.65	1.00	0.000	92.540	90.80	1.74	0.00	92.54	170574.62	1843.25	5.00	7384.18	0.00	0.00	10.00	15506.78	15.00	25586.19	7.50	12793.10	0.000000	0.00	5324	2025-10-15	M/S JAFOR ENT	INDIA	2025-12-23 22:01:02	2025-12-23 22:01:02
+577	7	1	5	2	2	976	\N	5279	2025-10-15	2025-10-15	435.12	160247.70	1.00	0.000	100.490	96.53	3.96	0.00	100.49	185086.09	1841.84	5.00	8012.39	0.00	0.00	10.00	16826.01	15.00	27762.91	7.50	13881.46	0.000000	0.00	5329	2025-10-15	M/S PRAGATI INT.	INDIA	2025-12-23 22:03:06	2025-12-23 22:03:06
+578	7	1	5	2	2	984	\N	5330	2025-10-16	2025-10-16	313.95	111778.93	1.00	0.000	70.100	68.40	1.70	0.00	70.10	129104.66	1841.72	5.00	5588.95	0.00	0.00	10.00	11736.79	15.00	19365.70	7.50	9682.85	0.000000	0.00	5369	2025-10-16	M/S JAFOR ENT	INDIA	2025-12-23 22:08:15	2025-12-23 22:08:15
+579	7	1	5	2	2	1045	\N	5335	2025-10-16	2025-10-16	235.60	80438.14	1.00	0.000	50.440	48.63	1.81	0.00	50.44	92906.05	1841.91	5.00	4021.91	0.00	0.00	10.00	8446.00	15.00	13935.91	7.50	6967.95	0.000000	0.00	5371	2025-10-16	M/S PRAGATI INT	INDIA	2025-12-23 22:10:16	2025-12-23 22:10:16
+580	7	1	5	2	2	1045	\N	5339	2025-10-16	2025-10-16	148.69	39194.33	1.00	0.000	24.580	23.80	0.78	0.00	24.58	45269.45	1841.72	5.00	1959.72	0.00	0.00	10.00	4115.40	15.00	6790.42	7.50	3395.21	0.000000	0.00	5368	2025-10-16	M/S PRAGATI INT	INDIA	2025-12-23 22:13:04	2025-12-23 22:13:04
+581	7	1	5	2	2	1045	\N	5378	2025-10-17	2025-10-17	776.15	393322.14	1.00	0.000	246.650	240.46	6.19	0.00	246.65	454287.07	1841.83	5.00	19666.11	0.00	0.00	10.00	41298.82	15.00	68143.06	7.50	34071.53	0.000000	0.00	5457	2025-10-17	M/S PRAGATI INT	INDIA	2025-12-23 22:14:42	2025-12-23 22:14:42
+582	7	1	5	2	2	1045	\N	5427	2025-10-19	2025-10-19	435.68	160471.88	1.00	0.000	100.630	97.08	3.55	0.00	100.63	185345.02	1841.85	5.00	8023.59	0.00	0.00	10.00	16849.55	15.00	27801.75	7.50	13900.88	0.000000	0.00	5512	2025-10-19	M/S PRAGATI INT	INDIA	2025-12-23 22:28:30	2025-12-23 22:28:30
+583	7	1	5	2	2	1045	\N	5458	2025-10-22	2025-10-22	431.18	158674.95	1.00	0.000	99.510	96.69	2.82	0.00	99.51	183269.57	1841.72	5.00	7933.75	0.00	0.00	10.00	16660.87	15.00	27490.44	7.50	13745.22	0.000000	0.00	5541	2025-10-22	M/S PRAGATI INT	INDIA	2025-12-23 22:32:12	2025-12-23 22:32:12
+584	7	1	5	2	2	1088	\N	5461	2025-10-22	2025-10-22	427.23	157093.96	1.00	0.000	98.510	96.90	1.61	0.00	98.51	181443.52	1841.88	5.00	7854.70	0.00	0.00	10.00	16494.87	15.00	27216.53	7.50	13608.26	0.000000	0.00	5544	2025-10-22	M/S F A ENT	INDIA	2025-12-23 23:04:36	2025-12-23 23:04:36
+585	7	1	5	2	2	1088	\N	5513	2025-10-23	2025-10-23	230.18	78271.26	1.00	0.000	49.080	48.09	0.99	0.00	49.08	90403.31	1841.96	5.00	3913.56	0.00	0.00	10.00	8218.48	15.00	13560.50	7.50	6780.25	0.000000	0.00	5584	2025-10-23	M/S FA ENT	INDIA	2025-12-23 23:06:48	2025-12-23 23:06:48
+586	7	1	5	2	2	1045	\N	5515	2025-10-23	2025-10-23	330.50	118400.23	1.00	0.000	73.340	70.25	3.09	0.00	73.34	136752.27	1864.63	5.00	5920.01	0.00	0.00	10.00	12432.02	15.00	20512.84	7.50	10256.42	0.000000	0.00	5583	2025-10-23	M/S PRAGATI INT	INDIA	2025-12-23 23:12:38	2025-12-23 23:12:38
+587	7	1	5	2	2	1088	\N	5555	2025-10-24	2025-10-24	772.00	390004.85	1.00	0.000	244.580	241.18	3.40	0.00	244.58	450455.60	1841.75	5.00	19500.24	0.00	0.00	10.00	40950.51	15.00	67568.34	7.50	33784.17	0.000000	0.00	5634	2025-10-25	M/S F A ENT	INDIA	2025-12-24 00:07:31	2025-12-24 00:07:31
+588	7	1	5	2	2	1045	\N	5578	2025-10-25	2025-10-25	428.10	157441.75	1.00	0.000	98.730	95.93	2.80	0.00	98.73	181845.22	1841.84	5.00	7872.09	0.00	0.00	10.00	16531.38	15.00	27276.78	7.50	13638.39	0.000000	0.00	5666	2025-10-25	M/S PRAGATI INT.	INDIA	2025-12-24 16:23:51	2025-12-24 16:23:51
+589	7	1	5	2	2	1088	\N	5625	2025-10-27	2025-10-27	576.03	233225.49	1.00	0.000	146.250	145.59	0.66	0.00	146.25	269375.44	1841.88	5.00	11661.27	0.00	0.00	10.00	24488.68	15.00	40406.32	7.50	20203.16	0.000000	0.00	5683	2025-10-27	M/S F A ENT	INDIA	2025-12-24 16:36:50	2025-12-24 16:36:50
+590	7	1	5	2	2	1045	\N	5634	2025-10-27	2025-10-27	514.46	191984.34	1.00	0.000	120.400	112.66	7.74	0.00	120.40	221741.91	1841.71	5.00	9599.22	0.00	0.00	10.00	20158.36	15.00	33261.29	7.50	16630.64	0.000000	0.00	5678	2025-10-27	M/S PRAGATI INT.	INDIA	2025-12-24 16:39:16	2025-12-24 16:39:16
+591	7	1	5	2	2	1121	\N	5702	2025-10-28	2025-10-28	148.76	39256.96	1.00	0.000	24.620	24.62	0.00	0.00	24.62	45341.79	1841.66	5.00	1962.85	0.00	0.00	10.00	4121.98	15.00	6801.27	7.50	3400.63	0.000000	0.00	6429	2025-11-10	M/S AHAD UDDIN	INDIA	2025-12-24 16:41:57	2025-12-24 16:41:57
+592	7	1	5	2	2	1124	\N	5773	2025-10-29	2025-10-29	147.56	38063.39	1.00	0.000	23.870	23.70	0.17	0.00	23.87	43963.22	1841.78	5.00	1903.17	0.00	0.00	10.00	3996.66	15.00	6594.48	7.50	3297.24	0.000000	0.00	5845	2025-10-29	M/S JAFOR ENT	INDIA	2025-12-24 16:43:40	2025-12-24 16:43:40
+593	7	1	5	2	2	1121	\N	5775	2025-10-29	2025-10-29	345.94	124575.97	1.00	0.000	74.690	72.82	1.87	0.00	74.69	143885.25	1926.43	5.00	6228.80	0.00	0.00	10.00	13080.48	15.00	21582.79	7.50	10791.39	0.000000	0.00	5903	2025-10-30	M/S AHAD UDDIN	INDIA	2025-12-24 16:45:32	2025-12-24 16:45:32
+594	7	1	5	2	2	1121	\N	5785	2025-10-29	2025-10-29	149.40	39897.85	1.00	0.000	25.020	24.74	0.28	0.00	25.02	46082.02	1841.81	5.00	1994.89	0.00	0.00	10.00	4189.27	15.00	6912.30	7.50	3456.15	0.000000	0.00	5898	2025-10-30	M/S AHAD UDDIN	INDIA	2025-12-24 16:47:31	2025-12-24 16:47:31
+595	7	1	5	2	2	1124	\N	5811	2025-10-29	2025-10-29	228.40	77560.34	1.00	0.000	48.640	47.90	0.74	0.00	48.64	89582.19	1841.74	5.00	3878.02	0.00	0.00	10.00	8143.84	15.00	13437.33	7.50	6718.66	0.000000	0.00	5900	2025-10-30	M/S JAFOR ENT	INDIA	2025-12-24 16:49:02	2025-12-24 16:49:02
+596	7	1	5	2	2	1124	\N	5815	2025-10-29	2025-10-29	147.32	37823.31	1.00	0.000	23.720	23.70	0.02	0.00	23.72	43685.92	1841.73	5.00	1891.17	0.00	0.00	10.00	3971.45	15.00	6552.89	7.50	3276.44	0.000000	0.00	5899	2025-10-30	M/S JAFOR ENT	INDIA	2025-12-24 16:50:34	2025-12-24 16:50:34
+597	7	1	5	2	2	1088	\N	5827	2025-10-29	2025-10-29	523.80	195722.15	1.00	0.000	122.740	120.42	2.32	0.00	122.74	226059.08	1841.77	5.00	9786.11	0.00	0.00	10.00	20550.83	15.00	33908.86	7.50	16954.43	0.000000	0.00	5843	2025-10-29	M/S F A ENT	INDIA	2025-12-24 16:52:49	2025-12-24 16:52:49
+598	7	1	5	2	2	1124	\N	5874	2025-10-30	2025-10-30	230.20	78283.12	1.00	0.000	49.090	47.60	1.49	0.00	49.09	90417.00	1841.86	5.00	3914.16	0.00	0.00	10.00	8219.73	15.00	13562.55	7.50	6781.28	0.000000	0.00	5958	2025-10-30	M/S JAFOR ENT	INDIA	2025-12-24 16:56:15	2025-12-24 16:56:15
+599	7	1	5	2	2	1121	\N	5876	2025-10-30	2025-10-30	226.58	76834.73	1.00	0.000	48.180	47.71	0.47	0.00	48.18	88744.11	1841.93	5.00	3841.74	0.00	0.00	10.00	8067.65	15.00	13311.62	7.50	6655.81	0.000000	0.00	5959	2025-10-30	M/S AHAD UDDIN	INDIA	2025-12-24 16:57:50	2025-12-24 16:57:50
+600	7	1	5	2	2	1124	\N	5897	2025-10-31	2025-10-31	321.10	114637.83	1.00	0.000	71.890	71.40	0.49	0.00	71.89	132406.69	1841.80	5.00	5731.89	0.00	0.00	10.00	12036.97	15.00	19861.00	7.50	9930.50	0.000000	0.00	6011	2025-11-01	M/S JAFOR ENT	INDIA	2025-12-24 16:59:51	2025-12-24 16:59:51
+601	7	1	5	2	2	1124	\N	5903	2025-10-31	2025-10-31	330.18	118272.13	1.00	0.000	74.170	72.70	1.47	0.00	74.17	136604.31	1841.77	5.00	5913.61	0.00	0.00	10.00	12418.57	15.00	20490.65	7.50	10245.32	0.000000	0.00	6008	2025-11-01	M/S JAFOR ENT	INDIA	2025-12-24 17:02:04	2025-12-24 17:02:04
+602	7	1	5	2	2	1088	\N	5929	2025-10-31	2025-10-31	533.83	199731.77	1.00	0.000	125.240	123.82	1.42	0.00	125.24	230690.19	1841.98	5.00	9986.59	0.00	0.00	10.00	20971.84	15.00	34603.53	7.50	17301.76	0.000000	0.00	6012	2025-11-01	M/S F A ENT	INDIA	2025-12-24 17:03:58	2025-12-24 17:03:58
+603	7	1	5	2	3	1124	\N	5970	2025-11-01	2025-11-01	572.90	230714.16	1.00	0.000	144.900	143.90	1.00	0.00	144.90	266474.85	1839.03	5.00	11535.71	0.00	0.00	10.00	24224.99	15.00	39971.23	7.50	19985.61	0.000000	0.00	6018	2025-11-02	m/s jafor ent	India	2025-12-24 17:57:04	2025-12-24 17:57:04
+604	7	1	5	2	3	1124	\N	5979	2025-11-01	2025-11-01	574.30	231845.15	1.00	0.000	145.610	143.20	2.41	0.00	145.61	267781.15	1839.03	5.00	11592.26	0.00	0.00	10.00	24343.74	15.00	40167.17	7.50	20083.59	0.000000	0.00	6020	2025-11-02	M/S JAFOR ENT	INDIA	2025-12-24 18:00:02	2025-12-24 18:00:02
+605	7	1	5	2	3	1121	\N	6015	2025-11-03	2025-11-03	518.13	193453.59	1.00	0.000	121.490	120.22	1.27	0.00	121.49	223438.90	1839.15	5.00	9672.68	0.00	0.00	10.00	20312.63	15.00	33515.83	7.50	16757.92	0.000000	0.00	6120	2025-11-04	M/S AHAD UDDIN	INDIA	2025-12-24 18:02:20	2025-12-24 18:02:20
+606	7	1	5	2	3	1124	\N	6024	2025-11-03	2025-11-03	328.43	117571.25	1.00	0.000	73.840	73.20	0.64	0.00	73.84	135794.79	1839.04	5.00	5878.56	0.00	0.00	10.00	12344.98	15.00	20369.22	7.50	10184.61	0.000000	0.00	6070	2025-11-04	M/S JAFOR ENT	INDIA	2025-12-24 18:42:31	2025-12-24 18:42:31
+607	7	1	5	2	3	1124	\N	6026	2025-11-03	2025-11-03	327.52	117209.47	1.00	0.000	73.610	72.20	1.41	0.00	73.61	135376.94	1839.11	5.00	5860.47	0.00	0.00	10.00	12306.99	15.00	20306.54	7.50	10153.27	0.000000	0.00	6138	2025-11-04	M/S JAFOR ENT	INDIA	2025-12-24 18:44:07	2025-12-24 18:44:07
+608	7	1	5	2	3	1124	\N	6041	2025-11-03	2025-11-03	147.76	38261.69	1.00	0.000	24.030	23.10	0.93	0.00	24.03	44192.25	1839.05	5.00	1913.08	0.00	0.00	10.00	4017.48	15.00	6628.84	7.50	3314.42	0.000000	0.00	6116	2025-11-04	M/S JAFOR ENT	INDIA	2025-12-24 18:45:55	2025-12-24 18:45:55
+609	7	1	5	2	3	1124	\N	6082	2025-11-04	2025-11-04	149.61	40106.68	1.00	0.000	25.190	25.00	0.19	0.00	25.19	46323.22	1838.95	5.00	2005.33	0.00	0.00	10.00	4211.20	15.00	6948.48	7.50	3474.24	0.000000	0.00	6193	2025-11-04	M/S JAFOR ENT	INDIA	2025-12-24 18:47:59	2025-12-24 18:47:59
+610	7	1	5	2	3	1165	\N	6091	2025-11-04	2025-11-04	719.60	348086.63	1.00	0.000	218.590	216.60	1.99	0.00	218.59	402040.06	1839.24	5.00	17404.33	0.00	0.00	10.00	36549.10	15.00	60306.01	7.50	30153.00	0.000000	0.00	6428	2025-11-10	M/S JAFOR ENT	INDIA	2025-12-24 18:50:26	2025-12-24 18:50:26
+611	7	1	5	2	3	1121	\N	6128	2025-11-04	2025-11-04	228.33	77533.64	1.00	0.000	48.690	48.03	0.66	0.00	48.69	89551.35	1839.21	5.00	3876.68	0.00	0.00	10.00	8141.03	15.00	13432.70	7.50	6716.35	0.000000	0.00	6183	2025-11-04	M/S AHAD UDDIN	INDIA	2025-12-24 18:54:24	2025-12-24 18:54:24
+612	7	1	5	2	3	1165	\N	6147	2025-11-05	2025-11-05	669.78	308227.85	1.00	0.000	193.560	191.10	2.46	0.00	193.56	356003.17	1839.24	5.00	15411.39	0.00	0.00	10.00	32363.92	15.00	53400.48	7.50	26700.24	0.000000	0.00	6221	2025-11-05	M/S JAFOR ENT	INDIA	2025-12-24 18:56:00	2025-12-24 18:56:00
+613	7	1	5	2	3	1165	\N	6174	2025-11-05	2025-11-05	224.72	76087.18	1.00	0.000	47.790	47.20	0.59	0.00	47.79	87880.69	1838.89	5.00	3804.36	0.00	0.00	10.00	7989.15	15.00	13182.10	7.50	6591.05	0.000000	0.00	6220	2025-11-05	M/S JAFOR ENT	INDIA	2025-12-24 19:00:32	2025-12-24 19:00:32
+614	7	1	5	2	3	1121	\N	6214	2025-11-06	2025-11-06	329.93	118172.71	1.00	0.000	74.210	73.54	0.67	0.00	74.21	136489.48	1839.23	5.00	5908.64	0.00	0.00	10.00	12408.13	15.00	20473.42	7.50	10236.71	0.000000	0.00	6295	2025-11-07	M/S AHAD UDDIN	INDIA	2025-12-24 19:02:37	2025-12-24 19:02:37
+615	7	1	5	2	3	1165	\N	6216	2025-11-06	2025-11-06	524.30	195919.02	1.00	0.000	123.050	121.30	1.75	0.00	123.05	226286.47	1838.98	5.00	9795.95	0.00	0.00	10.00	20571.50	15.00	33942.97	7.50	16971.49	0.000000	0.00	6297	2025-11-07	M/S JAFOR ENT	INDIA	2025-12-24 19:05:46	2025-12-24 19:05:46
+616	7	1	5	2	3	1165	\N	6217	2025-11-06	2025-11-06	147.87	38373.66	1.00	0.000	24.100	24.00	0.10	0.00	24.10	44321.58	1839.07	5.00	1918.68	0.00	0.00	10.00	4029.23	15.00	6648.24	7.50	3324.12	0.000000	0.00	6300	2025-11-07	M/S JAFOR ENT	INDIA	2025-12-24 19:07:48	2025-12-24 19:07:48
+617	7	1	5	2	3	1165	\N	6221	2025-11-06	2025-11-06	147.89	38386.88	1.00	0.000	24.110	23.90	0.21	0.00	24.11	44336.85	1838.94	5.00	1919.34	0.00	0.00	10.00	4030.62	15.00	6650.53	7.50	3325.26	0.000000	0.00	6299	2025-11-07	M/S JAFOR ENT	INDIA	2025-12-24 19:09:14	2025-12-24 19:09:14
+618	7	1	5	2	3	1165	\N	6243	2025-11-07	2025-11-07	606.60	257683.91	1.00	0.000	161.840	161.40	0.44	0.00	161.84	297624.92	1839.01	5.00	12884.20	0.00	0.00	10.00	27056.81	15.00	44643.74	7.50	22321.87	0.000000	0.00	6307	2025-11-07	M/S JAFOR ENT	INDIA	2025-12-24 19:10:42	2025-12-24 19:10:42
+619	7	1	5	2	3	1121	\N	6287	2025-11-07	2025-11-07	419.38	153953.35	1.00	0.000	96.690	96.22	0.47	0.00	96.69	177816.12	1839.03	5.00	7697.67	0.00	0.00	10.00	16165.10	15.00	26672.42	7.50	13336.21	0.000000	0.00	6309	2025-11-07	M/S AHAD UDDIN	INDIA	2025-12-24 19:13:05	2025-12-24 19:13:05
+620	7	1	5	2	3	1121	\N	6289	2025-11-07	2025-11-07	149.36	39856.06	1.00	0.000	25.030	24.82	0.21	0.00	25.03	46033.75	1839.14	5.00	1992.80	0.00	0.00	10.00	4184.89	15.00	6905.06	7.50	3452.53	0.000000	0.00	6302	2025-11-07	M/S AHAD UDDIN	INDIA	2025-12-24 19:14:48	2025-12-24 19:14:48
+621	7	1	5	2	3	1121	\N	6311	2025-11-08	2025-11-08	679.73	316186.57	1.00	0.000	198.570	196.08	2.49	0.00	198.57	365195.49	1839.13	5.00	15809.33	0.00	0.00	10.00	33199.59	15.00	54779.32	7.50	27389.66	0.000000	0.00	6389	2025-11-08	M/S AHAD UDDIN	INDIA	2025-12-24 19:16:48	2025-12-24 19:16:48
+622	7	1	5	2	3	1121	\N	6335	2025-11-10	2025-11-10	235.78	80510.82	1.00	0.000	50.560	50.24	0.32	0.00	50.56	92990.00	1839.20	5.00	4025.54	0.00	0.00	10.00	8453.64	15.00	13948.50	7.50	6974.25	0.000000	0.00	6445	2025-11-10	M/S AHAD UDDIN	INDIA	2025-12-24 19:19:12	2025-12-24 19:19:12
+623	7	1	5	2	3	1226	\N	6612	2025-11-14	2025-11-14	669.96	308368.64	1.00	0.000	193.660	190.70	2.96	0.00	193.66	356165.78	1839.13	5.00	15418.43	0.00	0.00	10.00	32378.71	15.00	53424.87	7.50	26712.43	0.000000	0.00	6737	2025-11-16	M/S JAFOR ENT	INDIA	2025-12-24 19:21:01	2025-12-24 19:21:01
+624	7	1	5	2	3	1226	\N	6686	2025-11-17	2025-11-17	322.27	115107.64	1.00	0.000	72.290	71.80	0.49	0.00	72.29	132949.32	1839.11	5.00	5755.38	0.00	0.00	10.00	12086.30	15.00	19942.40	7.50	9971.20	0.000000	0.00	6764	2025-11-17	M/S JAFOR ENT	INDIA	2025-12-24 19:25:05	2025-12-24 19:25:05
+625	7	1	5	2	3	1226	\N	6725	2025-11-17	2025-11-17	224.68	76074.40	1.00	0.000	47.780	46.60	1.18	0.00	47.78	87865.93	1838.97	5.00	3803.72	0.00	0.00	10.00	7987.81	15.00	13179.89	7.50	6589.94	0.000000	0.00	6760	2025-11-17	M/S JAFOR ENT	INDIA	2025-12-24 19:30:01	2025-12-24 19:30:01
+626	7	1	5	2	3	1269	\N	6885	2025-11-20	2025-11-20	420.38	154351.97	1.00	0.000	96.930	96.22	0.71	0.00	96.93	178276.53	1839.23	5.00	7717.60	0.00	0.00	10.00	16206.96	15.00	26741.48	7.50	13370.74	0.000000	0.00	6986	2025-11-20	M/S AHAD UDDIN	INDIA	2025-12-24 19:34:02	2025-12-24 19:34:02
+627	7	1	5	2	3	1269	\N	6891	2025-11-20	2025-11-20	325.38	116354.41	1.00	0.000	73.070	71.28	1.79	0.00	73.07	134389.34	1839.19	5.00	5817.72	0.00	0.00	10.00	12217.21	15.00	20158.40	7.50	10079.20	0.000000	0.00	6984	2025-11-20	M/S AHAD UDDIN	INDIA	2025-12-24 19:36:32	2025-12-24 19:36:32
+628	7	1	5	2	3	1269	\N	6918	2025-11-21	2025-11-21	417.38	153151.03	1.00	0.000	96.190	95.39	0.80	0.00	96.19	176889.44	1838.96	5.00	7657.55	0.00	0.00	10.00	16080.86	15.00	26533.42	7.50	13266.71	0.000000	0.00	6994	2025-11-21	M/S AHAD UDDIN	INDIA	2025-12-24 19:38:27	2025-12-24 19:38:27
+629	7	1	5	2	3	1226	\N	6996	2025-11-25	2025-11-25	575.38	232708.67	1.00	0.000	146.150	144.00	2.15	0.00	146.15	268778.51	1839.06	5.00	11635.43	0.00	0.00	10.00	24434.41	15.00	40316.78	7.50	20158.39	0.000000	0.00	7083	2025-11-25	M/S JAFOR ENT	INDIA	2025-12-24 19:40:57	2025-12-24 19:40:57
+630	7	1	5	2	3	1269	\N	7025	2025-11-25	2025-11-25	148.08	38579.67	1.00	0.000	24.230	23.62	0.61	0.00	24.23	44559.52	1839.02	5.00	1928.98	0.00	0.00	10.00	4050.87	15.00	6683.93	7.50	3341.96	0.000000	0.00	7139	2025-11-26	M/S AHAD UDDIN	INDIA	2025-12-24 19:46:07	2025-12-24 19:46:07
+631	7	1	5	2	3	1269	\N	7040	2025-11-25	2025-11-25	226.28	76713.72	1.00	0.000	48.180	47.89	0.29	0.00	48.18	88604.35	1839.03	5.00	3835.69	0.00	0.00	10.00	8054.94	15.00	13290.65	7.50	6645.33	0.000000	0.00	7137	2025-11-26	M/S AHAD UDDIN	INDIA	2025-12-24 19:49:46	2025-12-24 19:49:46
+632	7	1	5	2	3	1226	\N	7100	2025-11-26	2025-11-26	420.27	154309.52	1.00	0.000	96.900	95.20	1.70	0.00	96.90	178227.50	1839.29	5.00	7715.48	0.00	0.00	10.00	16202.50	15.00	26734.12	7.50	13367.06	0.000000	0.00	7209	2025-11-27	M/S JAFOR ENT	INDIA	2025-12-24 19:52:20	2025-12-24 19:52:20
+633	7	1	5	2	3	1269	\N	7105	2025-11-26	2025-11-26	320.42	114366.88	1.00	0.000	71.830	70.87	0.96	0.00	71.83	132093.75	1838.98	5.00	5718.34	0.00	0.00	10.00	12008.52	15.00	19814.06	7.50	9907.03	0.000000	0.00	7201	2025-11-26	M/S AHAD UDDIN	INDIA	2025-12-24 19:58:42	2025-12-24 19:58:42
+634	7	1	5	2	3	1269	\N	7154	2025-11-27	2025-11-27	571.07	229254.20	1.00	0.000	143.970	142.69	1.28	0.00	143.97	264788.60	1839.19	5.00	11462.71	0.00	0.00	10.00	24071.69	15.00	39718.29	7.50	19859.15	0.000000	0.00	7231	2025-11-27	M/S AHAD UDDIN	INDIA	2025-12-24 20:03:24	2025-12-24 20:03:24
+635	7	1	5	2	3	1226	\N	7214	2025-11-28	2025-11-28	724.85	352283.75	1.00	0.000	221.240	214.30	6.94	0.00	221.24	406887.73	1839.12	5.00	17614.19	0.00	0.00	10.00	36989.79	15.00	61033.16	7.50	30516.58	0.000000	0.00	7318	2025-11-29	M/S JAFOR ENT	INDIA	2025-12-24 20:07:23	2025-12-24 20:07:23
+636	7	1	5	2	3	1269	\N	7239	2025-11-29	2025-11-29	222.55	75221.89	1.00	0.000	46.790	46.74	0.05	0.00	46.79	86881.28	1856.83	5.00	3761.09	0.00	0.00	10.00	7898.30	15.00	13032.19	7.50	6516.10	0.000000	0.00	7322	2025-11-30	M/S AHAD UDDIN	INDIA	2025-12-24 20:12:41	2025-12-24 20:12:41
+657	12	1	5	2	2	472	\N	4403	2025-09-02	2025-09-02	895.48	488784.88	1.00	0.000	306.280	301.84	4.44	0.00	306.28	564546.54	1843.24	5.00	24439.24	0.00	0.00	10.00	51322.41	15.00	84681.98	7.50	42340.99	0.000000	0.00	4459	2025-09-03	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:16:59	2025-12-30 16:16:59
+658	12	1	5	2	2	472	\N	4495	2025-09-08	2025-09-08	855.42	456737.46	1.00	0.000	286.200	283.54	2.66	0.00	286.20	527531.77	1843.23	5.00	22836.87	0.00	0.00	10.00	47957.43	15.00	79129.76	7.50	39564.88	0.000000	0.00	4586	2025-09-10	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:22:46	2025-12-30 16:22:46
+659	12	1	5	2	2	912	\N	4571	2025-09-10	2025-09-10	614.80	264234.04	1.00	0.000	165.580	164.06	1.52	0.00	165.58	305190.32	1843.16	5.00	13211.70	0.00	0.00	10.00	27744.57	15.00	45778.55	7.50	22889.27	0.000000	0.00	4648	2025-09-11	M/S RUHEL AHMED	INDIA	2025-12-30 16:32:06	2025-12-30 16:32:06
+660	12	1	5	2	2	912	\N	4606	2025-09-11	2025-09-11	660.93	301140.16	1.00	0.000	188.720	187.28	1.44	0.00	188.72	347816.88	1843.03	5.00	15057.01	0.00	0.00	10.00	31619.72	15.00	52172.53	7.50	26086.27	0.000000	0.00	4668	2025-09-14	M/S RUHEL AHMED	INDIA	2025-12-30 16:34:24	2025-12-30 16:34:24
+661	12	1	5	2	2	912	\N	4610	2025-09-11	2025-09-11	568.43	227148.65	1.00	0.000	142.350	140.74	1.61	0.00	142.35	262356.69	1843.04	5.00	11357.43	0.00	0.00	10.00	23850.61	15.00	39353.50	7.50	19676.75	0.000000	0.00	4669	2025-09-14	M/S RUHEL AHMED	INDIA	2025-12-30 16:36:23	2025-12-30 16:36:23
+662	12	1	5	2	2	912	\N	4647	2025-09-12	2025-09-12	700.82	333052.08	1.00	23.690	208.710	207.92	0.79	0.00	208.71	384675.15	1843.11	5.00	16652.60	0.00	0.00	10.00	34970.47	15.00	57701.27	7.50	28850.64	0.000000	0.00	4670	2025-09-14	M/S RUHEL AHMED	INDIA	2025-12-30 16:38:18	2025-12-30 16:38:18
+663	12	1	5	2	2	937	\N	4788	2025-09-22	2025-09-22	572.75	230600.54	1.00	29.080	144.490	142.05	2.44	0.00	144.49	266343.62	1843.34	5.00	11530.03	0.00	0.00	10.00	24213.06	15.00	39951.54	7.50	19975.77	0.000000	0.00	4846	2025-09-23	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:41:25	2025-12-30 16:41:25
+664	12	1	5	2	2	937	\N	4812	2025-09-23	2025-09-23	804.60	416081.11	1.00	144.490	260.730	258.28	2.45	0.00	260.73	480573.68	1843.19	5.00	20804.06	0.00	0.00	10.00	43688.52	15.00	72086.05	7.50	36043.03	0.000000	0.00	4848	2025-09-23	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:43:29	2025-12-30 16:43:29
+665	12	1	5	2	2	937	\N	4836	2025-09-24	2025-09-24	609.81	260247.26	1.00	25.260	163.070	162.19	0.88	0.00	163.07	300585.59	1843.29	5.00	13012.36	0.00	0.00	10.00	27325.96	15.00	45087.84	7.50	22543.92	0.000000	0.00	4954	2025-09-25	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:46:02	2025-12-30 16:46:02
+666	12	1	5	2	2	937	\N	4899	2025-09-25	2025-09-25	561.28	221424.97	1.00	0.000	138.760	137.48	1.28	0.00	138.76	255745.84	1843.08	5.00	11071.25	0.00	0.00	10.00	23249.62	15.00	38361.88	7.50	19180.94	0.000000	0.00	4950	2025-09-25	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:49:13	2025-12-30 16:49:13
+667	12	1	5	2	2	962	\N	4960	2025-09-27	2025-09-27	989.75	606989.87	1.00	138.760	380.360	378.02	2.34	0.00	380.36	701073.30	1843.18	5.00	30349.49	0.00	0.00	10.00	63733.94	15.00	105160.99	7.50	52580.50	0.000000	0.00	5036	2025-09-27	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:52:13	2025-12-30 16:52:13
+668	12	1	5	2	2	962	\N	4978	2025-09-27	2025-09-27	414.99	152196.05	1.00	25.040	95.370	94.94	0.43	0.00	95.37	175786.44	1843.20	5.00	7609.80	0.00	0.00	10.00	15980.59	15.00	26367.97	7.50	13183.98	0.000000	0.00	5037	2025-09-27	M/S NABU CONSTRUCTION	INDIA	2025-12-30 16:54:52	2025-12-30 16:54:52
+\.
+
+
+--
+-- TOC entry 3925 (class 0 OID 17323)
+-- Dependencies: 265
+-- Data for Name: rates; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.rates (id, client_id, item_id, date, unit_price, sd, vat, last, created_at, updated_at) FROM stdin;
+1	2	1	2025-10-01	2560.00	0.00	7.50	1	2025-12-08 08:33:43	2025-12-08 08:33:43
+2	3	1	2025-10-01	2650.00	0.00	7.50	1	2025-12-08 23:51:34	2025-12-08 23:51:34
+3	1	1	2025-07-01	2566.00	0.00	15.00	0	2025-12-09 00:26:49	2025-12-09 18:41:06
+4	4	1	2025-06-30	2650.00	0.00	7.50	1	2025-12-09 04:40:12	2025-12-09 04:40:12
+5	7	1	2025-07-01	2566.20	0.00	15.00	0	2025-12-09 18:41:06	2025-12-19 20:13:24
+6	5	1	2025-11-01	2650.00	0.00	7.50	1	2025-12-10 03:43:23	2025-12-11 06:45:41
+9	6	1	2025-07-01	2646.51	0.00	7.50	1	2025-12-11 19:19:15	2025-12-12 01:00:27
+10	10	2	2025-07-01	2680.00	0.00	7.50	1	2025-12-12 06:14:40	2025-12-12 06:14:40
+11	10	1	2025-11-01	2650.00	0.00	7.50	1	2025-12-12 12:23:27	2025-12-13 10:01:38
+12	9	1	2025-07-02	2673.45	0.00	7.50	1	2025-12-13 23:55:38	2025-12-13 23:55:38
+13	8	1	2025-07-23	2687.35	0.00	7.50	1	2025-12-14 01:29:05	2025-12-14 01:29:05
+14	7	1	2025-12-19	2565.58	0.00	7.50	0	2025-12-19 20:13:24	2025-12-23 16:42:49
+15	11	1	2025-10-01	2565.92	0.00	15.00	0	2025-12-22 17:36:31	2025-12-22 18:38:03
+16	11	1	2025-11-01	2680.00	0.00	7.50	1	2025-12-22 18:38:03	2025-12-22 18:38:03
+17	7	1	2025-10-01	2566.20	0.00	15.00	0	2025-12-23 16:42:49	2025-12-24 17:55:43
+18	7	1	2025-11-01	2680.00	0.00	7.50	1	2025-12-24 17:55:43	2025-12-24 17:55:43
+19	12	1	2025-08-01	2474.40	0.00	15.00	0	2025-12-24 21:45:32	2025-12-30 11:59:49
+20	12	1	2025-09-01	2475.00	0.00	15.00	1	2025-12-30 11:59:49	2025-12-30 16:18:05
+\.
+
+
+--
+-- TOC entry 3927 (class 0 OID 17328)
+-- Dependencies: 267
+-- Data for Name: reports; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.reports (id, name, path, size, created_at, updated_at) FROM stdin;
+2	Mushak 6.2.1.xlsx	uploads/KQlA5TQokjXTh9n27xuwlantPq0tGeXmTLpwvukJ.xlsx	844350	2025-12-27 01:42:34	2025-12-27 01:42:34
+\.
+
+
+--
+-- TOC entry 3929 (class 0 OID 17334)
+-- Dependencies: 269
+-- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.roles (id, name, created_at, updated_at) FROM stdin;
+1	superadmin	2025-12-03 06:17:27	\N
+2	admin	2025-12-03 06:17:27	\N
+3	manager	2025-12-03 06:17:27	\N
+4	guest	2025-12-03 06:17:27	\N
+\.
+
+
+--
+-- TOC entry 3931 (class 0 OID 17338)
+-- Dependencies: 271
+-- Data for Name: sales; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.sales (id, client_id, item_id, unit_id, invoice_no, bank_id, date, transaction_no, transaction_date, opening_stock, stock, quantity, last_purchase_unit_price, unit_price, item_price, total_price, sd, sd_value, vat, vat_value, customer_mobile, customer_name, bin_or_nid, address, created_at, updated_at) FROM stdin;
+1	2	1	5	INV-25/00001	\N	2025-10-01	\N	\N	77.00	65.00	12.00	1832.65	2560.00	30720.00	33024.00	0.00	0.00	7.50	2304.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 08:39:05	2025-12-08 08:39:05
+2	2	1	5	INV-25/00002	\N	2025-10-01	\N	\N	65.00	41.00	24.00	1832.65	2560.00	61440.00	66048.00	0.00	0.00	7.50	4608.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 08:39:29	2025-12-08 08:39:29
+3	2	1	5	INV-25/00003	\N	2025-10-01	\N	\N	41.00	17.00	24.00	1832.65	2560.00	61440.00	66048.00	0.00	0.00	7.50	4608.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 08:39:54	2025-12-08 08:39:54
+4	2	1	5	INV-25/00004	\N	2025-10-01	\N	\N	17.00	0.00	17.00	1832.65	2560.00	43520.00	46784.00	0.00	0.00	7.50	3264.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 08:40:20	2025-12-08 08:40:20
+5	2	1	5	INV-25/00005	\N	2025-10-01	\N	\N	180.00	144.00	36.00	1832.71	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 16:47:42	2025-12-08 16:47:42
+6	2	1	5	INV-25/00006	\N	2025-10-01	\N	\N	144.00	108.00	36.00	1832.71	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 16:47:55	2025-12-08 16:47:55
+7	2	1	5	INV-25/00007	\N	2025-10-01	\N	\N	108.00	84.00	24.00	1832.71	2560.00	61440.00	66048.00	0.00	0.00	7.50	4608.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 16:48:15	2025-12-08 16:48:15
+8	2	1	5	INV-25/00008	\N	2025-10-01	\N	\N	84.00	48.00	36.00	1832.71	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 16:48:33	2025-12-08 16:48:33
+9	2	1	5	INV-25/00009	\N	2025-10-01	\N	\N	48.00	24.00	24.00	1832.71	2560.00	61440.00	66048.00	0.00	0.00	7.50	4608.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 16:48:48	2025-12-08 16:48:48
+10	2	1	5	INV-25/00010	\N	2025-10-01	\N	\N	24.00	0.00	24.00	1832.71	2560.00	61440.00	66048.00	0.00	0.00	7.50	4608.00	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-08 16:49:02	2025-12-08 16:49:02
+11	2	1	5	INV-25/00011	\N	2025-10-01	\N	\N	132.00	96.00	36.00	1832.71	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	01829121825	Abrarul	\N	Tahirpur, Sunamganj	2025-12-08 16:54:15	2025-12-08 16:54:15
+12	2	1	5	INV-25/00012	\N	2025-10-01	\N	\N	96.00	60.00	36.00	1832.71	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-08 16:54:41	2025-12-08 16:54:41
+13	2	1	5	INV-25/00013	\N	2025-10-01	\N	\N	60.00	24.00	36.00	1832.71	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 16:55:01	2025-12-08 16:55:01
+15	2	1	5	INV-25/00014	\N	2025-10-01	\N	\N	24.00	0.00	24.00	1832.71	2560.00	61440.00	66048.00	0.00	0.00	7.50	4608.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-08 16:56:17	2025-12-08 16:56:17
+16	2	1	5	INV-25/00015	\N	2025-10-23	\N	\N	144.00	108.00	36.00	1841.72	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 16:58:14	2025-12-08 16:58:14
+17	2	1	5	INV-25/00016	\N	2025-10-23	\N	\N	108.00	72.00	36.00	1841.72	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 16:58:25	2025-12-08 16:58:25
+18	2	1	5	INV-25/00017	\N	2025-10-23	\N	\N	72.00	36.00	36.00	1841.72	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 16:58:50	2025-12-08 16:58:50
+19	2	1	5	INV-25/00018	\N	2025-10-23	\N	\N	36.00	0.00	36.00	1841.72	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 16:59:02	2025-12-08 16:59:02
+20	2	1	5	INV-25/00019	\N	2025-10-27	\N	\N	168.00	120.00	48.00	1841.72	2560.00	122880.00	132096.00	0.00	0.00	7.50	9216.00	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-08 17:03:33	2025-12-08 17:03:33
+21	2	1	5	INV-25/00020	\N	2025-10-27	\N	\N	120.00	72.00	48.00	1841.72	2560.00	122880.00	132096.00	0.00	0.00	7.50	9216.00	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-08 17:04:00	2025-12-08 17:04:00
+22	2	1	5	INV-25/00021	\N	2025-10-27	\N	\N	72.00	0.00	72.00	1841.72	2560.00	184320.00	198144.00	0.00	0.00	7.50	13824.00	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-08 17:05:10	2025-12-08 17:05:10
+23	2	1	5	INV-25/00022	\N	2025-10-28	\N	\N	228.00	180.00	48.00	1841.72	2560.00	122880.00	132096.00	0.00	0.00	7.50	9216.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 17:11:38	2025-12-08 17:11:38
+24	2	1	5	INV-25/00023	\N	2025-10-28	\N	\N	180.00	132.00	48.00	1841.72	2560.00	122880.00	132096.00	0.00	0.00	7.50	9216.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 17:11:50	2025-12-08 17:11:50
+25	2	1	5	INV-25/00024	\N	2025-10-28	\N	\N	132.00	96.00	36.00	1841.72	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 17:12:28	2025-12-08 17:12:28
+26	2	1	5	INV-25/00025	\N	2025-10-28	\N	\N	96.00	60.00	36.00	1841.72	2560.00	92160.00	99072.00	0.00	0.00	7.50	6912.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 17:12:43	2025-12-08 17:12:43
+27	2	1	5	INV-25/00026	\N	2025-10-28	\N	\N	60.00	0.00	60.00	1841.72	2560.00	153600.00	165120.00	0.00	0.00	7.50	11520.00	0174839332	Akib Hossain	\N	Dakshin Surma, Sylhet	2025-12-08 17:12:55	2025-12-08 17:12:55
+40	1	1	5	INV-25/00001	\N	2025-09-20	\N	\N	24.50	0.00	24.50	1842.91	2566.00	62867.00	72297.05	0.00	0.00	15.00	9430.05	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:32:05	2025-12-09 00:32:05
+41	1	1	5	INV-25/00002	\N	2025-09-24	\N	\N	61.88	31.38	30.50	1842.96	2566.00	78263.00	90002.45	0.00	0.00	15.00	11739.45	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:37:54	2025-12-09 00:37:54
+42	1	1	5	INV-25/00003	\N	2025-09-24	\N	\N	31.38	0.00	31.38	1842.96	2566.00	80521.08	92599.24	0.00	0.00	15.00	12078.16	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:38:06	2025-12-09 00:38:06
+43	1	1	5	INV-25/00004	\N	2025-09-25	\N	\N	36.70	20.34	16.36	1842.87	2566.00	41979.76	48276.72	0.00	0.00	15.00	6296.96	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:41:40	2025-12-09 00:41:40
+44	1	1	5	INV-25/00005	\N	2025-09-25	\N	\N	20.34	0.00	20.34	1842.87	2566.00	52192.44	60021.31	0.00	0.00	15.00	7828.87	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:41:52	2025-12-09 00:41:52
+45	1	1	5	INV-25/00006	\N	2025-09-30	\N	\N	37.61	18.96	18.65	1842.97	2566.00	47855.90	55034.29	0.00	0.00	15.00	7178.39	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:44:17	2025-12-09 00:44:17
+46	1	1	5	INV-25/00007	\N	2025-09-30	\N	\N	18.96	0.00	18.96	1842.97	2566.00	48651.36	55949.06	0.00	0.00	15.00	7297.70	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:44:28	2025-12-09 00:44:28
+47	1	1	5	INV-25/00008	\N	2025-10-06	\N	\N	37.22	18.59	18.63	1841.69	2566.00	47804.58	54975.27	0.00	0.00	15.00	7170.69	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:49:32	2025-12-09 00:49:32
+48	1	1	5	INV-25/00009	\N	2025-10-06	\N	\N	18.59	0.00	18.59	1841.69	2566.00	47701.94	54857.23	0.00	0.00	15.00	7155.29	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:49:50	2025-12-09 00:49:50
+49	1	1	5	INV-25/00010	\N	2025-10-07	\N	\N	37.49	18.97	18.52	1841.60	2566.00	47522.32	54650.67	0.00	0.00	15.00	7128.35	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:51:10	2025-12-09 00:51:10
+50	1	1	5	INV-25/00011	\N	2025-10-07	\N	\N	18.97	0.00	18.97	1841.60	2566.00	48677.02	55978.57	0.00	0.00	15.00	7301.55	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:51:17	2025-12-09 00:51:17
+51	1	1	5	INV-25/00012	\N	2025-10-09	\N	\N	24.70	0.00	24.70	1841.57	2566.00	63380.20	72887.23	0.00	0.00	15.00	9507.03	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:52:20	2025-12-09 00:52:20
+52	1	1	5	INV-25/00013	\N	2025-10-13	\N	\N	12.35	0.00	12.35	1841.58	2566.00	31690.10	36443.62	0.00	0.00	15.00	4753.52	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:53:35	2025-12-09 00:53:35
+53	1	1	5	INV-25/00014	\N	2025-10-15	\N	\N	36.52	18.29	18.23	1841.67	2566.00	46778.18	53794.91	0.00	0.00	15.00	7016.73	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:55:15	2025-12-09 00:55:15
+54	1	1	5	INV-25/00015	\N	2025-10-15	\N	\N	18.29	0.00	18.29	1841.67	2566.00	46932.14	53971.96	0.00	0.00	15.00	7039.82	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:55:23	2025-12-09 00:55:23
+55	1	1	5	INV-25/00016	\N	2025-10-16	\N	\N	48.85	24.49	24.36	1841.59	2566.00	62507.76	71883.92	0.00	0.00	15.00	9376.16	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:56:40	2025-12-09 00:56:40
+56	1	1	5	INV-25/00017	\N	2025-10-16	\N	\N	24.49	0.00	24.49	1841.59	2566.00	62841.34	72267.54	0.00	0.00	15.00	9426.20	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:56:49	2025-12-09 00:56:49
+57	1	1	5	INV-25/00018	\N	2025-10-22	\N	\N	12.00	0.00	12.00	1841.70	2566.00	30792.00	35410.80	0.00	0.00	15.00	4618.80	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 00:58:38	2025-12-09 00:58:38
+58	1	1	5	INV-25/00019	\N	2025-10-24	\N	\N	74.03	49.17	24.86	1841.70	2566.00	63790.76	73359.37	0.00	0.00	15.00	9568.61	\N	NAJIM	\N	SHEWLA	2025-12-09 01:02:12	2025-12-09 01:02:12
+59	1	1	5	INV-25/00020	\N	2025-10-24	\N	\N	49.17	24.54	24.63	1841.70	2566.00	63200.58	72680.67	0.00	0.00	15.00	9480.09	\N	NAJIM	\N	SHEWLA	2025-12-09 01:02:33	2025-12-09 01:02:33
+60	1	1	5	INV-25/00021	\N	2025-10-24	\N	\N	24.54	0.00	24.54	1841.70	2566.00	62969.64	72415.09	0.00	0.00	15.00	9445.45	\N	NAJIM	\N	SHEWLA	2025-12-09 01:02:52	2025-12-09 01:02:52
+61	1	1	5	INV-25/00022	\N	2025-10-27	\N	\N	74.04	49.68	24.36	1841.80	2566.00	62507.76	71883.92	0.00	0.00	15.00	9376.16	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:06:15	2025-12-09 01:06:15
+62	1	1	5	INV-25/00023	\N	2025-10-27	\N	\N	49.68	25.17	24.51	1841.80	2566.00	62892.66	72326.56	0.00	0.00	15.00	9433.90	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:06:24	2025-12-09 01:06:24
+63	1	1	5	INV-25/00024	\N	2025-10-27	\N	\N	25.17	0.00	25.17	1841.80	2566.00	64586.22	74274.15	0.00	0.00	15.00	9687.93	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:06:32	2025-12-09 01:06:32
+64	1	1	5	INV-25/00025	\N	2025-10-27	\N	\N	86.14	65.12	21.02	1841.74	2566.00	53937.32	62027.92	0.00	0.00	15.00	8090.60	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 01:07:56	2025-12-09 01:07:56
+65	1	1	5	INV-25/00026	\N	2025-10-27	\N	\N	65.12	43.56	21.56	1841.74	2566.00	55322.96	63621.40	0.00	0.00	15.00	8298.44	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 01:08:06	2025-12-09 01:08:06
+66	1	1	5	INV-25/00027	\N	2025-10-27	\N	\N	43.56	20.44	23.12	1841.74	2566.00	59325.92	68224.81	0.00	0.00	15.00	8898.89	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:08:13	2025-12-09 01:08:13
+67	1	1	5	INV-25/00028	\N	2025-10-27	\N	\N	20.44	0.00	20.44	1841.74	2566.00	52449.04	60316.40	0.00	0.00	15.00	7867.36	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 01:08:21	2025-12-09 01:08:21
+68	1	1	5	INV-25/00029	\N	2025-10-29	\N	\N	48.78	24.66	24.12	1841.75	2566.00	61891.92	71175.71	0.00	0.00	15.00	9283.79	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:10:20	2025-12-09 01:10:20
+69	1	1	5	INV-25/00030	\N	2025-10-29	\N	\N	24.66	0.00	24.66	1841.75	2566.00	63277.56	72769.19	0.00	0.00	15.00	9491.63	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:10:28	2025-12-09 01:10:28
+70	1	1	5	INV-25/00031	\N	2025-10-30	\N	\N	60.50	40.40	20.10	1841.69	2566.00	51576.60	59313.09	0.00	0.00	15.00	7736.49	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 01:11:48	2025-12-09 01:11:48
+71	1	1	5	INV-25/00032	\N	2025-10-30	\N	\N	40.40	19.99	20.41	1841.69	2566.00	52372.06	60227.87	0.00	0.00	15.00	7855.81	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 01:11:58	2025-12-09 01:11:58
+72	1	1	5	INV-25/00033	\N	2025-10-30	\N	\N	19.99	0.00	19.99	1841.69	2566.00	51294.34	58988.49	0.00	0.00	15.00	7694.15	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 01:12:05	2025-12-09 01:12:05
+73	1	1	5	INV-25/00034	\N	2025-10-31	\N	\N	49.79	24.69	25.10	1841.87	2566.00	64406.60	74067.59	0.00	0.00	15.00	9660.99	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:13:32	2025-12-09 01:13:32
+74	1	1	5	INV-25/00035	\N	2025-10-31	\N	\N	24.69	0.00	24.69	1841.87	2566.00	63354.54	72857.72	0.00	0.00	15.00	9503.18	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 01:13:40	2025-12-09 01:13:40
+85	3	1	5	INV-25/00001	\N	2025-10-29	\N	\N	48.00	36.00	12.00	1841.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:42:09	2025-12-09 06:42:09
+86	3	1	5	INV-25/00002	\N	2025-10-29	\N	\N	36.00	24.00	12.00	1841.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:42:23	2025-12-09 06:42:23
+87	3	1	5	INV-25/00003	\N	2025-10-29	\N	\N	24.00	12.00	12.00	1841.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:42:32	2025-12-09 06:42:32
+88	3	1	5	INV-25/00004	\N	2025-10-29	\N	\N	12.00	0.00	12.00	1841.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:42:44	2025-12-09 06:42:44
+89	3	1	5	INV-25/00005	\N	2025-10-30	\N	\N	300.00	288.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:45:28	2025-12-09 06:47:24
+92	3	1	5	INV-25/00006	\N	2025-10-30	\N	\N	288.00	264.00	24.00	1841.73	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 06:47:36	2025-12-09 06:47:36
+93	3	1	5	INV-25/00007	\N	2025-10-30	\N	\N	264.00	252.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:47:49	2025-12-09 06:47:49
+94	3	1	5	INV-25/00008	\N	2025-10-30	\N	\N	252.00	240.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:48:00	2025-12-09 06:48:00
+95	3	1	5	INV-25/00009	\N	2025-10-30	\N	\N	240.00	216.00	24.00	1841.73	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 06:48:12	2025-12-09 06:48:12
+96	3	1	5	INV-25/00010	\N	2025-10-30	\N	\N	216.00	204.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:48:25	2025-12-09 06:48:25
+97	3	1	5	INV-25/00011	\N	2025-10-30	\N	\N	204.00	180.00	24.00	1841.73	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 06:48:38	2025-12-09 06:48:38
+98	3	1	5	INV-25/00012	\N	2025-10-30	\N	\N	180.00	144.00	36.00	1841.73	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-09 06:48:51	2025-12-09 06:48:51
+99	3	1	5	INV-25/00013	\N	2025-10-30	\N	\N	144.00	120.00	24.00	1841.73	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 06:49:04	2025-12-09 06:49:04
+100	3	1	5	INV-25/00014	\N	2025-10-30	\N	\N	120.00	108.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:49:14	2025-12-09 06:49:14
+101	3	1	5	INV-25/00015	\N	2025-10-30	\N	\N	108.00	96.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:49:25	2025-12-09 06:49:25
+102	3	1	5	INV-25/00016	\N	2025-10-30	\N	\N	96.00	84.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:49:37	2025-12-09 06:49:37
+103	3	1	5	INV-25/00017	\N	2025-10-30	\N	\N	84.00	72.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:49:48	2025-12-09 06:49:48
+104	3	1	5	INV-25/00018	\N	2025-10-30	\N	\N	72.00	48.00	24.00	1841.73	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 06:49:59	2025-12-09 06:49:59
+105	3	1	5	INV-25/00019	\N	2025-10-30	\N	\N	48.00	36.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:50:10	2025-12-09 06:50:10
+106	3	1	5	INV-25/00020	\N	2025-10-30	\N	\N	36.00	24.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:50:21	2025-12-09 06:50:21
+107	3	1	5	INV-25/00021	\N	2025-10-30	\N	\N	24.00	12.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:50:31	2025-12-09 06:50:31
+108	3	1	5	INV-25/00022	\N	2025-10-30	\N	\N	12.00	0.00	12.00	1841.73	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 06:50:43	2025-12-09 06:50:43
+109	4	1	5	INV-25/00001	\N	2025-10-01	\N	\N	44.11	32.11	12.00	1833.02	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:15:29	2025-12-09 17:15:29
+110	4	1	5	INV-25/00002	\N	2025-10-01	\N	\N	32.11	0.11	32.00	1833.02	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 17:15:38	2025-12-09 17:15:38
+113	4	1	5	INV-25/00003	\N	2025-10-01	\N	\N	44.37	32.37	12.00	1832.77	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:23:33	2025-12-09 17:23:33
+114	4	1	5	INV-25/00004	\N	2025-10-01	\N	\N	32.37	0.37	32.00	1832.77	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 17:23:39	2025-12-09 17:23:39
+115	4	1	5	INV-25/00005	\N	2025-10-01	\N	\N	44.99	12.99	32.00	1832.72	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 17:26:10	2025-12-09 17:26:10
+116	4	1	5	INV-25/00006	\N	2025-10-01	\N	\N	12.99	0.99	12.00	1832.72	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:26:20	2025-12-09 17:26:20
+117	4	1	5	INV-25/00007	\N	2025-10-02	\N	\N	205.29	193.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:31:52	2025-12-09 17:31:52
+118	4	1	5	INV-25/00008	\N	2025-10-02	\N	\N	193.29	169.29	24.00	1815.00	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	NAJIM	\N	\N	2025-12-09 17:32:45	2025-12-09 17:32:45
+119	4	1	5	INV-25/00009	\N	2025-10-02	\N	\N	169.29	157.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:32:56	2025-12-09 17:32:56
+120	4	1	5	INV-25/00010	\N	2025-10-02	\N	\N	157.29	133.29	24.00	1815.00	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:33:31	2025-12-09 17:33:31
+121	4	1	5	INV-25/00011	\N	2025-10-02	\N	\N	133.29	97.29	36.00	1815.00	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-09 17:33:41	2025-12-09 17:33:41
+122	4	1	5	INV-25/00012	\N	2025-10-02	\N	\N	97.29	85.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:33:53	2025-12-09 17:33:53
+123	4	1	5	INV-25/00013	\N	2025-10-02	\N	\N	85.29	61.29	24.00	1815.00	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:34:00	2025-12-09 17:34:00
+124	4	1	5	INV-25/00014	\N	2025-10-02	\N	\N	61.29	49.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:34:12	2025-12-09 17:34:12
+125	4	1	5	INV-25/00015	\N	2025-10-02	\N	\N	49.29	37.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:34:21	2025-12-09 17:34:21
+126	4	1	5	INV-25/00016	\N	2025-10-02	\N	\N	37.29	25.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:34:28	2025-12-09 17:34:28
+127	4	1	5	INV-25/00017	\N	2025-10-02	\N	\N	25.29	13.29	12.00	1815.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:34:36	2025-12-09 17:34:36
+128	4	1	5	INV-25/00018	\N	2025-10-02	\N	\N	13.29	0.29	13.00	1815.00	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-09 17:35:18	2025-12-09 17:35:18
+129	4	1	5	INV-25/00019	\N	2025-10-02	\N	\N	160.24	148.24	12.00	1815.04	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:37:28	2025-12-09 17:37:28
+130	4	1	5	INV-25/00020	\N	2025-10-02	\N	\N	148.24	124.24	24.00	1815.04	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:37:36	2025-12-09 17:37:36
+131	4	1	5	INV-25/00021	\N	2025-10-02	\N	\N	124.24	92.24	32.00	1815.04	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 17:37:46	2025-12-09 17:37:46
+132	4	1	5	INV-25/00022	\N	2025-10-02	\N	\N	92.24	80.24	12.00	1815.04	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:38:27	2025-12-09 17:38:27
+133	4	1	5	INV-25/00023	\N	2025-10-02	\N	\N	80.24	56.24	24.00	1815.04	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:38:39	2025-12-09 17:38:39
+134	4	1	5	INV-25/00024	\N	2025-10-02	\N	\N	56.24	32.24	24.00	1815.04	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:38:53	2025-12-09 17:38:53
+135	4	1	5	INV-25/00025	\N	2025-10-02	\N	\N	32.24	0.24	32.00	1815.04	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 17:39:05	2025-12-09 17:39:05
+136	4	1	5	INV-25/00026	\N	2025-10-02	\N	\N	71.24	47.24	24.00	1843.80	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:41:51	2025-12-09 17:41:51
+137	4	1	5	INV-25/00027	\N	2025-10-02	\N	\N	47.24	35.24	12.00	1843.80	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:42:02	2025-12-09 17:42:02
+138	4	1	5	INV-25/00028	\N	2025-10-02	\N	\N	35.24	23.24	12.00	1843.80	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:42:09	2025-12-09 17:42:09
+139	4	1	5	INV-25/00029	\N	2025-10-02	\N	\N	23.24	11.24	12.00	1843.80	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:42:18	2025-12-09 17:42:18
+140	4	1	5	INV-25/00030	\N	2025-10-02	\N	\N	11.24	0.24	11.00	1843.80	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-09 17:43:00	2025-12-09 17:43:00
+141	4	1	5	INV-25/00031	\N	2025-10-02	\N	\N	71.08	59.08	12.00	1825.67	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:44:50	2025-12-09 17:44:50
+142	4	1	5	INV-25/00032	\N	2025-10-02	\N	\N	59.08	47.08	12.00	1825.67	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:44:59	2025-12-09 17:44:59
+143	4	1	5	INV-25/00033	\N	2025-10-02	\N	\N	47.08	35.08	12.00	1825.67	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:45:07	2025-12-09 17:45:07
+144	4	1	5	INV-25/00034	\N	2025-10-02	\N	\N	35.08	23.08	12.00	1825.67	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:45:17	2025-12-09 17:45:17
+145	4	1	5	INV-25/00035	\N	2025-10-02	\N	\N	23.08	0.08	23.00	1825.67	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-09 17:45:26	2025-12-09 17:45:26
+146	4	1	5	INV-25/00036	\N	2025-10-03	\N	\N	71.80	59.80	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:46:58	2025-12-09 17:46:58
+147	4	1	5	INV-25/00037	\N	2025-10-03	\N	\N	59.80	47.80	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:47:05	2025-12-09 17:47:05
+148	4	1	5	INV-25/00038	\N	2025-10-03	\N	\N	47.80	23.80	24.00	1843.74	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:47:13	2025-12-09 17:47:13
+149	4	1	5	INV-25/00039	\N	2025-10-03	\N	\N	23.80	0.80	23.00	1843.74	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-09 17:47:20	2025-12-09 17:47:20
+150	4	1	5	INV-25/00040	\N	2025-10-03	\N	\N	71.88	59.88	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:48:39	2025-12-09 17:48:39
+151	4	1	5	INV-25/00041	\N	2025-10-03	\N	\N	59.88	47.88	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:48:46	2025-12-09 17:48:46
+152	4	1	5	INV-25/00042	\N	2025-10-03	\N	\N	47.88	35.88	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:48:52	2025-12-09 17:48:52
+153	4	1	5	INV-25/00043	\N	2025-10-03	\N	\N	35.88	23.88	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:48:59	2025-12-09 17:48:59
+154	4	1	5	INV-25/00044	\N	2025-10-03	\N	\N	23.88	11.88	12.00	1843.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:49:06	2025-12-09 17:49:06
+155	4	1	5	INV-25/00045	\N	2025-10-03	\N	\N	11.88	0.88	11.00	1843.74	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-09 17:49:13	2025-12-09 17:49:13
+156	4	1	5	INV-25/00046	\N	2025-10-03	\N	\N	71.66	59.66	12.00	1843.81	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:51:09	2025-12-09 17:51:09
+157	4	1	5	INV-25/00047	\N	2025-10-03	\N	\N	59.66	47.66	12.00	1843.81	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:51:17	2025-12-09 17:51:17
+158	4	1	5	INV-25/00048	\N	2025-10-03	\N	\N	47.66	35.66	12.00	1843.81	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:51:23	2025-12-09 17:51:23
+159	4	1	5	INV-25/00049	\N	2025-10-03	\N	\N	35.66	23.66	12.00	1843.81	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:51:29	2025-12-09 17:51:29
+160	4	1	5	INV-25/00050	\N	2025-10-03	\N	\N	23.66	11.66	12.00	1843.81	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:51:35	2025-12-09 17:51:35
+161	4	1	5	INV-25/00051	\N	2025-10-03	\N	\N	11.66	0.66	11.00	1843.81	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-09 17:51:44	2025-12-09 17:51:44
+162	4	1	5	INV-25/00052	\N	2025-10-03	\N	\N	70.42	46.42	24.00	1843.69	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:52:59	2025-12-09 17:52:59
+163	4	1	5	INV-25/00053	\N	2025-10-03	\N	\N	46.42	22.42	24.00	1843.69	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:53:06	2025-12-09 17:53:06
+164	4	1	5	INV-25/00054	\N	2025-10-03	\N	\N	22.42	0.42	22.00	1843.69	2650.00	58300.00	62672.50	0.00	0.00	7.50	4372.50	\N	\N	\N	\N	2025-12-09 17:53:11	2025-12-09 17:53:11
+165	4	1	5	INV-25/00055	\N	2025-10-04	\N	\N	69.89	45.89	24.00	1843.51	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:54:30	2025-12-09 17:54:30
+166	4	1	5	INV-25/00056	\N	2025-10-04	\N	\N	45.89	33.89	12.00	1843.51	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:54:40	2025-12-09 17:54:40
+167	4	1	5	INV-25/00057	\N	2025-10-04	\N	\N	33.89	0.89	33.00	1843.51	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-09 17:54:46	2025-12-09 17:54:46
+168	4	1	5	INV-25/00058	\N	2025-10-04	\N	\N	68.70	56.70	12.00	1843.65	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:56:34	2025-12-09 17:56:34
+169	4	1	5	INV-25/00059	\N	2025-10-04	\N	\N	56.70	32.70	24.00	1843.65	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 17:56:41	2025-12-09 17:56:41
+170	4	1	5	INV-25/00060	\N	2025-10-04	\N	\N	32.70	0.70	32.00	1843.65	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 17:56:47	2025-12-09 17:56:47
+171	4	1	5	INV-25/00061	\N	2025-10-04	\N	\N	46.00	34.00	12.00	1843.90	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:58:19	2025-12-09 17:58:19
+172	4	1	5	INV-25/00062	\N	2025-10-04	\N	\N	34.00	22.00	12.00	1843.90	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 17:58:29	2025-12-09 17:58:29
+173	4	1	5	INV-25/00063	\N	2025-10-04	\N	\N	22.00	0.00	22.00	1843.90	2650.00	58300.00	62672.50	0.00	0.00	7.50	4372.50	\N	\N	\N	\N	2025-12-09 17:58:42	2025-12-09 17:58:42
+174	4	1	5	INV-25/00064	\N	2025-10-04	\N	\N	68.36	56.36	12.00	1845.45	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:02:27	2025-12-09 18:02:27
+175	4	1	5	INV-25/00065	\N	2025-10-04	\N	\N	56.36	44.36	12.00	1845.45	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:02:34	2025-12-09 18:02:34
+176	4	1	5	INV-25/00066	\N	2025-10-04	\N	\N	44.36	32.36	12.00	1845.45	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:02:45	2025-12-09 18:02:45
+177	4	1	5	INV-25/00067	\N	2025-10-04	\N	\N	32.36	0.36	32.00	1845.45	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 18:02:51	2025-12-09 18:02:51
+178	4	1	5	INV-25/00068	\N	2025-10-05	\N	\N	68.76	56.76	12.00	1843.51	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:04:09	2025-12-09 18:04:09
+179	4	1	5	INV-25/00069	\N	2025-10-05	\N	\N	56.76	32.76	24.00	1843.51	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 18:04:16	2025-12-09 18:04:16
+180	4	1	5	INV-25/00070	\N	2025-10-05	\N	\N	32.76	0.76	32.00	1843.51	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 18:04:22	2025-12-09 18:04:22
+181	4	1	5	INV-25/00071	\N	2025-10-05	\N	\N	68.77	44.77	24.00	1843.54	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 18:05:54	2025-12-09 18:05:54
+182	4	1	5	INV-25/00072	\N	2025-10-05	\N	\N	44.77	32.77	12.00	1843.54	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:06:04	2025-12-09 18:06:04
+183	4	1	5	INV-25/00073	\N	2025-10-05	\N	\N	32.77	0.77	32.00	1843.54	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-09 18:06:13	2025-12-09 18:06:13
+184	4	1	5	INV-25/00074	\N	2025-10-05	\N	\N	69.26	45.26	24.00	1843.53	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 18:09:15	2025-12-09 18:09:15
+185	4	1	5	INV-25/00075	\N	2025-10-05	\N	\N	45.26	21.26	24.00	1843.53	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 18:09:28	2025-12-09 18:09:28
+186	4	1	5	INV-25/00076	\N	2025-10-05	\N	\N	21.26	0.26	21.00	1843.53	2650.00	55650.00	59823.75	0.00	0.00	7.50	4173.75	\N	\N	\N	\N	2025-12-09 18:09:36	2025-12-09 18:09:36
+187	4	1	5	INV-25/00077	\N	2025-10-05	\N	\N	47.18	35.18	12.00	1843.63	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:10:51	2025-12-09 18:10:51
+188	4	1	5	INV-25/00078	\N	2025-10-05	\N	\N	35.18	23.18	12.00	1843.63	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:10:57	2025-12-09 18:10:57
+189	4	1	5	INV-25/00079	\N	2025-10-05	\N	\N	23.18	0.18	23.00	1843.63	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-09 18:11:05	2025-12-09 18:11:05
+190	4	1	5	INV-25/00080	\N	2025-10-05	\N	\N	71.12	59.12	12.00	1843.42	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:12:38	2025-12-09 18:12:38
+191	4	1	5	INV-25/00081	\N	2025-10-05	\N	\N	59.12	35.12	24.00	1843.42	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 18:12:45	2025-12-09 18:12:45
+192	4	1	5	INV-25/00082	\N	2025-10-05	\N	\N	35.12	0.12	35.00	1843.42	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-09 18:12:52	2025-12-09 18:12:52
+193	4	1	5	INV-25/00083	\N	2025-10-05	\N	\N	47.58	35.58	12.00	1843.58	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:14:41	2025-12-09 18:14:41
+194	4	1	5	INV-25/00084	\N	2025-10-05	\N	\N	35.58	0.58	35.00	1843.58	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-09 18:14:49	2025-12-09 18:14:49
+195	4	1	5	INV-25/00085	\N	2025-10-05	\N	\N	71.50	59.50	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:16:20	2025-12-09 18:16:20
+196	4	1	5	INV-25/00086	\N	2025-10-05	\N	\N	59.50	47.50	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:16:25	2025-12-09 18:16:25
+197	4	1	5	INV-25/00087	\N	2025-10-05	\N	\N	47.50	35.50	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:16:30	2025-12-09 18:16:30
+198	4	1	5	INV-25/00088	\N	2025-10-05	\N	\N	35.50	23.50	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:16:35	2025-12-09 18:16:35
+199	4	1	5	INV-25/00089	\N	2025-10-05	\N	\N	23.50	11.50	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:16:41	2025-12-09 18:16:41
+200	4	1	5	INV-25/00090	\N	2025-10-05	\N	\N	11.50	0.50	11.00	1843.11	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-09 18:16:47	2025-12-09 18:16:47
+201	4	1	5	INV-25/00091	\N	2025-10-06	\N	\N	71.46	59.46	12.00	1843.61	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:19:15	2025-12-09 18:19:15
+202	4	1	5	INV-25/00092	\N	2025-10-06	\N	\N	59.46	47.46	12.00	1843.61	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:19:22	2025-12-09 18:19:22
+203	4	1	5	INV-25/00093	\N	2025-10-06	\N	\N	47.46	35.46	12.00	1843.61	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:19:27	2025-12-09 18:19:27
+204	4	1	5	INV-25/00094	\N	2025-10-06	\N	\N	35.46	23.46	12.00	1843.61	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:19:34	2025-12-09 18:19:34
+205	4	1	5	INV-25/00095	\N	2025-10-06	\N	\N	23.46	11.46	12.00	1843.61	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:19:41	2025-12-09 18:19:41
+206	4	1	5	INV-25/00096	\N	2025-10-06	\N	\N	11.46	0.46	11.00	1843.61	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-09 18:19:50	2025-12-09 18:19:50
+207	4	1	5	INV-25/00097	\N	2025-10-06	\N	\N	70.19	58.19	12.00	1843.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:27:15	2025-12-09 18:27:15
+208	4	1	5	INV-25/00098	\N	2025-10-06	\N	\N	58.19	46.19	12.00	1843.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 18:27:23	2025-12-09 18:27:23
+209	4	1	5	INV-25/00099	\N	2025-10-06	\N	\N	46.19	34.19	12.00	1843.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	01825693256	Jamal	\N	Rashidpur	2025-12-09 18:27:31	2025-12-09 23:38:34
+210	4	1	5	INV-25/00100	\N	2025-10-06	\N	\N	34.19	0.19	34.00	1843.70	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-09 18:27:41	2025-12-09 18:27:41
+214	1	1	5	INV-25/00036	\N	2025-11-03	\N	\N	77.47	51.78	25.69	1839.03	2680.00	68849.20	74012.89	0.00	0.00	7.50	5163.69	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 18:53:36	2025-12-09 18:53:36
+215	1	1	5	INV-25/00037	\N	2025-11-03	\N	\N	51.78	25.66	26.12	1839.03	2680.00	70001.60	75251.72	0.00	0.00	7.50	5250.12	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 18:53:55	2025-12-09 18:53:55
+216	1	1	5	INV-25/00038	\N	2025-11-03	\N	\N	25.66	0.00	25.66	1839.03	2680.00	68768.80	73926.46	0.00	0.00	7.50	5157.66	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 18:54:03	2025-12-09 18:54:03
+217	1	1	5	INV-25/00039	\N	2025-11-03	\N	\N	12.71	0.00	12.71	1838.89	2680.00	34062.80	36617.51	0.00	0.00	7.50	2554.71	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 18:57:56	2025-12-09 18:57:56
+218	1	1	5	INV-25/00040	\N	2025-11-04	\N	\N	37.38	19.40	17.98	1838.98	2680.00	48186.40	51800.38	0.00	0.00	7.50	3613.98	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 18:59:15	2025-12-09 18:59:15
+219	1	1	5	INV-25/00041	\N	2025-11-04	\N	\N	19.40	0.00	19.40	1838.98	2680.00	51992.00	55891.40	0.00	0.00	7.50	3899.40	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 18:59:23	2025-12-09 18:59:23
+220	1	1	5	INV-25/00042	\N	2025-11-04	\N	\N	24.42	0.00	24.42	1839.09	2680.00	65445.60	70354.02	0.00	0.00	7.50	4908.42	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:03:29	2025-12-09 19:03:29
+221	1	1	5	INV-25/00043	\N	2025-11-04	\N	\N	73.91	49.35	24.56	1839.04	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:04:51	2025-12-09 19:04:51
+222	1	1	5	INV-25/00044	\N	2025-11-04	\N	\N	49.35	24.99	24.36	1839.04	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:04:59	2025-12-09 19:04:59
+223	1	1	5	INV-25/00045	\N	2025-11-04	\N	\N	24.99	0.00	24.99	1839.04	2680.00	66973.20	71996.19	0.00	0.00	7.50	5022.99	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:05:07	2025-12-09 19:05:07
+224	1	1	5	INV-25/00046	\N	2025-11-05	\N	\N	111.91	89.59	22.32	1838.88	2680.00	59817.60	64303.92	0.00	0.00	7.50	4486.32	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:06:51	2025-12-09 19:06:51
+225	1	1	5	INV-25/00047	\N	2025-11-05	\N	\N	89.59	67.23	22.36	1838.88	2680.00	59924.80	64419.16	0.00	0.00	7.50	4494.36	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:07:01	2025-12-09 19:07:01
+226	1	1	5	INV-25/00048	\N	2025-11-05	\N	\N	67.23	44.67	22.56	1838.88	2680.00	60460.80	64995.36	0.00	0.00	7.50	4534.56	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:07:09	2025-12-09 19:07:09
+227	1	1	5	INV-25/00049	\N	2025-11-05	\N	\N	44.67	22.52	22.15	1838.88	2680.00	59362.00	63814.15	0.00	0.00	7.50	4452.15	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:07:16	2025-12-09 19:07:16
+228	1	1	5	INV-25/00050	\N	2025-11-05	\N	\N	22.52	0.00	22.52	1838.88	2680.00	60353.60	64880.12	0.00	0.00	7.50	4526.52	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:07:24	2025-12-09 19:07:24
+229	1	1	5	INV-25/00051	\N	2025-11-06	\N	\N	73.34	49.71	23.63	1839.10	2680.00	63328.40	68078.03	0.00	0.00	7.50	4749.63	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:08:57	2025-12-09 19:08:57
+230	1	1	5	INV-25/00052	\N	2025-11-06	\N	\N	49.71	25.59	24.12	1839.10	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:09:04	2025-12-09 19:09:04
+231	1	1	5	INV-25/00053	\N	2025-11-06	\N	\N	25.59	0.00	25.59	1839.10	2680.00	68581.20	73724.79	0.00	0.00	7.50	5143.59	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:09:12	2025-12-09 19:09:12
+232	1	1	5	INV-25/00054	\N	2025-11-08	\N	\N	72.53	48.41	24.12	1839.25	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:10:55	2025-12-09 19:10:55
+233	1	1	5	INV-25/00055	\N	2025-11-08	\N	\N	48.41	24.78	23.63	1839.25	2680.00	63328.40	68078.03	0.00	0.00	7.50	4749.63	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:11:02	2025-12-09 19:11:02
+234	1	1	5	INV-25/00056	\N	2025-11-08	\N	\N	24.78	0.00	24.78	1839.25	2680.00	66410.40	71391.18	0.00	0.00	7.50	4980.78	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:11:09	2025-12-09 19:11:09
+235	1	1	5	INV-25/00057	\N	2025-11-13	\N	\N	75.85	50.96	24.89	1839.03	2680.00	66705.20	71708.09	0.00	0.00	7.50	5002.89	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:12:38	2025-12-09 19:12:38
+236	1	1	5	INV-25/00058	\N	2025-11-13	\N	\N	50.96	25.33	25.63	1839.03	2680.00	68688.40	73840.03	0.00	0.00	7.50	5151.63	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:12:45	2025-12-09 19:12:45
+237	1	1	5	INV-25/00059	\N	2025-11-13	\N	\N	25.33	0.00	25.33	1839.03	2680.00	67884.40	72975.73	0.00	0.00	7.50	5091.33	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:12:52	2025-12-09 19:12:52
+238	1	1	5	INV-25/00060	\N	2025-11-13	\N	\N	99.51	75.28	24.23	1838.94	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:14:11	2025-12-09 19:14:11
+239	1	1	5	INV-25/00061	\N	2025-11-13	\N	\N	75.28	49.65	25.63	1838.94	2680.00	68688.40	73840.03	0.00	0.00	7.50	5151.63	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:14:17	2025-12-09 19:14:17
+240	1	1	5	INV-25/00062	\N	2025-11-13	\N	\N	49.65	24.64	25.01	1838.94	2680.00	67026.80	72053.81	0.00	0.00	7.50	5027.01	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:14:23	2025-12-09 19:14:23
+241	1	1	5	INV-25/00063	\N	2025-11-13	\N	\N	24.64	0.00	24.64	1838.94	2680.00	66035.20	70987.84	0.00	0.00	7.50	4952.64	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:14:32	2025-12-09 19:14:32
+242	1	1	5	INV-25/00064	\N	2025-11-14	\N	\N	49.26	24.41	24.85	1839.01	2680.00	66598.00	71592.85	0.00	0.00	7.50	4994.85	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:16:16	2025-12-09 19:16:16
+243	1	1	5	INV-25/00065	\N	2025-11-14	\N	\N	24.41	0.00	24.41	1839.01	2680.00	65418.80	70325.21	0.00	0.00	7.50	4906.41	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:16:23	2025-12-09 19:16:23
+244	1	1	5	INV-25/00066	\N	2025-11-15	\N	\N	50.33	25.23	25.10	1838.96	2680.00	67268.00	72313.10	0.00	0.00	7.50	5045.10	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:17:44	2025-12-09 19:17:44
+245	1	1	5	INV-25/00067	\N	2025-11-15	\N	\N	25.23	0.00	25.23	1838.96	2680.00	67616.40	72687.63	0.00	0.00	7.50	5071.23	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:18:07	2025-12-09 19:18:07
+246	1	1	5	INV-25/00068	\N	2025-11-18	\N	\N	61.00	40.70	20.30	1839.04	2680.00	54404.00	58484.30	0.00	0.00	7.50	4080.30	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:20:43	2025-12-09 19:20:43
+247	1	1	5	INV-25/00069	\N	2025-11-18	\N	\N	40.70	20.67	20.03	1839.04	2680.00	53680.40	57706.43	0.00	0.00	7.50	4026.03	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:20:53	2025-12-09 19:20:53
+248	1	1	5	INV-25/00070	\N	2025-11-18	\N	\N	20.67	0.00	20.67	1839.04	2680.00	55395.60	59550.27	0.00	0.00	7.50	4154.67	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:21:03	2025-12-09 19:21:03
+249	1	1	5	INV-25/00071	\N	2025-11-19	\N	\N	25.22	0.00	25.22	1838.93	2680.00	67589.60	72658.82	0.00	0.00	7.50	5069.22	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 19:23:30	2025-12-09 19:23:30
+250	1	1	5	INV-25/00072	\N	2025-11-20	\N	\N	75.08	49.98	25.10	1839.01	2680.00	67268.00	72313.10	0.00	0.00	7.50	5045.10	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:54:11	2025-12-09 19:54:11
+251	1	1	5	INV-25/00073	\N	2025-11-20	\N	\N	49.98	25.42	24.56	1839.01	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:54:18	2025-12-09 19:54:18
+252	1	1	5	INV-25/00074	\N	2025-11-20	\N	\N	25.42	0.00	25.42	1839.01	2680.00	68125.60	73235.02	0.00	0.00	7.50	5109.42	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 19:54:25	2025-12-09 19:54:25
+253	1	1	5	INV-25/00075	\N	2025-11-21	\N	\N	100.28	75.59	24.69	1839.31	2680.00	66169.20	71131.89	0.00	0.00	7.50	4962.69	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:23:36	2025-12-09 20:23:36
+254	1	1	5	INV-25/00076	\N	2025-11-21	\N	\N	75.59	51.33	24.26	1839.31	2680.00	65016.80	69893.06	0.00	0.00	7.50	4876.26	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:23:45	2025-12-09 20:23:45
+255	1	1	5	INV-25/00077	\N	2025-11-21	\N	\N	51.33	26.10	25.23	1839.31	2680.00	67616.40	72687.63	0.00	0.00	7.50	5071.23	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:23:54	2025-12-09 20:23:54
+256	1	1	5	INV-25/00078	\N	2025-11-21	\N	\N	26.10	0.00	26.10	1839.31	2680.00	69948.00	75194.10	0.00	0.00	7.50	5246.10	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:24:02	2025-12-09 20:24:02
+257	1	1	5	INV-25/00079	\N	2025-11-25	\N	\N	25.29	0.00	25.29	1839.03	2680.00	67777.20	72860.49	0.00	0.00	7.50	5083.29	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:25:51	2025-12-09 20:25:51
+258	1	1	5	INV-25/00080	\N	2025-11-25	\N	\N	12.00	0.00	12.00	1838.94	2680.00	32160.00	34572.00	0.00	0.00	7.50	2412.00	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 20:27:14	2025-12-09 20:27:14
+259	1	1	5	INV-25/00081	\N	2025-11-25	\N	\N	74.95	50.39	24.56	1839.02	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:29:35	2025-12-09 20:29:35
+260	1	1	5	INV-25/00082	\N	2025-11-25	\N	\N	50.39	25.09	25.30	1839.02	2680.00	67804.00	72889.30	0.00	0.00	7.50	5085.30	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:29:42	2025-12-09 20:29:42
+261	1	1	5	INV-25/00083	\N	2025-11-25	\N	\N	25.09	0.00	25.09	1839.02	2680.00	67241.20	72284.29	0.00	0.00	7.50	5043.09	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:29:50	2025-12-09 20:29:50
+262	1	1	5	INV-25/00084	\N	2025-11-26	\N	\N	125.33	100.64	24.69	1838.96	2680.00	66169.20	71131.89	0.00	0.00	7.50	4962.69	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:31:26	2025-12-09 20:31:26
+263	1	1	5	INV-25/00085	\N	2025-11-26	\N	\N	100.64	75.75	24.89	1838.96	2680.00	66705.20	71708.09	0.00	0.00	7.50	5002.89	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:31:33	2025-12-09 20:31:33
+264	1	1	5	INV-25/00086	\N	2025-11-26	\N	\N	75.75	50.90	24.85	1838.96	2680.00	66598.00	71592.85	0.00	0.00	7.50	4994.85	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:31:40	2025-12-09 20:31:40
+265	1	1	5	INV-25/00087	\N	2025-11-26	\N	\N	50.90	25.80	25.10	1838.96	2680.00	67268.00	72313.10	0.00	0.00	7.50	5045.10	\N	\N	\N	\N	2025-12-09 20:31:46	2025-12-09 20:31:46
+266	1	1	5	INV-25/00088	\N	2025-11-26	\N	\N	25.80	0.00	25.80	1838.96	2680.00	69144.00	74329.80	0.00	0.00	7.50	5185.80	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:31:54	2025-12-09 20:31:54
+267	1	1	5	INV-25/00089	\N	2025-11-26	\N	\N	36.00	18.64	17.36	1838.94	2680.00	46524.80	50014.16	0.00	0.00	7.50	3489.36	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 20:33:10	2025-12-09 20:33:10
+268	1	1	5	INV-25/00090	\N	2025-11-26	\N	\N	18.64	0.00	18.64	1838.94	2680.00	49955.20	53701.84	0.00	0.00	7.50	3746.64	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 20:33:19	2025-12-09 20:33:19
+269	1	1	5	INV-25/00091	\N	2025-11-27	\N	\N	24.00	0.00	24.00	1838.94	2680.00	64320.00	69144.00	0.00	0.00	7.50	4824.00	01712280679	sarwar jahan	\N	Tamabil	2025-12-09 20:34:27	2025-12-09 20:34:27
+270	1	1	5	INV-25/00092	\N	2025-11-28	\N	\N	77.40	51.77	25.63	1839.10	2680.00	68688.40	73840.03	0.00	0.00	7.50	5151.63	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:36:07	2025-12-09 20:36:07
+271	1	1	5	INV-25/00093	\N	2025-11-28	\N	\N	51.77	25.88	25.89	1839.10	2680.00	69385.20	74589.09	0.00	0.00	7.50	5203.89	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:36:16	2025-12-09 20:36:16
+272	1	1	5	INV-25/00094	\N	2025-11-28	\N	\N	25.88	0.00	25.88	1839.10	2680.00	69358.40	74560.28	0.00	0.00	7.50	5201.88	01720236532	NAJIM	\N	SHEWLA, BEANIBAZAR	2025-12-09 20:36:24	2025-12-09 20:36:24
+273	4	1	5	INV-25/00101	\N	2025-10-06	\N	\N	66.90	42.90	24.00	1843.64	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 23:30:57	2025-12-09 23:30:57
+274	4	1	5	INV-25/00102	\N	2025-10-06	\N	\N	42.90	30.90	12.00	1843.64	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:31:08	2025-12-09 23:31:08
+275	4	1	5	INV-25/00103	\N	2025-10-06	\N	\N	30.90	0.90	30.00	1843.64	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-09 23:31:40	2025-12-09 23:31:40
+276	4	1	5	INV-25/00104	\N	2025-10-06	\N	\N	24.04	0.04	24.00	1843.64	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 23:34:36	2025-12-09 23:34:36
+277	4	1	5	INV-25/00105	\N	2025-10-06	\N	\N	69.87	45.87	24.00	1825.74	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 23:43:39	2025-12-09 23:43:39
+278	4	1	5	INV-25/00106	\N	2025-10-06	\N	\N	45.87	33.87	12.00	1825.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:43:54	2025-12-09 23:43:54
+279	4	1	5	INV-25/00107	\N	2025-10-06	\N	\N	33.87	0.87	33.00	1825.74	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-09 23:44:03	2025-12-09 23:44:03
+280	4	1	5	INV-25/00108	\N	2025-10-06	\N	\N	70.09	58.09	12.00	1825.86	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:45:51	2025-12-09 23:45:51
+281	4	1	5	INV-25/00109	\N	2025-10-06	\N	\N	58.09	46.09	12.00	1825.86	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:45:56	2025-12-09 23:45:56
+282	4	1	5	INV-25/00110	\N	2025-10-06	\N	\N	46.09	34.09	12.00	1825.86	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:46:03	2025-12-09 23:46:03
+283	4	1	5	INV-25/00111	\N	2025-10-06	\N	\N	34.09	0.09	34.00	1825.86	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-09 23:46:12	2025-12-09 23:46:12
+284	4	1	5	INV-25/00112	\N	2025-10-07	\N	\N	67.62	55.62	12.00	1825.83	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:47:54	2025-12-09 23:47:54
+285	4	1	5	INV-25/00113	\N	2025-10-07	\N	\N	55.62	43.62	12.00	1825.83	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:48:13	2025-12-09 23:48:13
+286	4	1	5	INV-25/00114	\N	2025-10-07	\N	\N	43.62	31.62	12.00	1825.83	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:50:02	2025-12-09 23:50:02
+287	4	1	5	INV-25/00115	\N	2025-10-07	\N	\N	31.62	0.62	31.00	1825.83	2650.00	82150.00	88311.25	0.00	0.00	7.50	6161.25	\N	\N	\N	\N	2025-12-09 23:50:11	2025-12-09 23:50:11
+288	4	1	5	INV-25/00116	\N	2025-10-07	\N	\N	70.96	46.96	24.00	1825.12	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 23:52:08	2025-12-09 23:52:08
+289	4	1	5	INV-25/00117	\N	2025-10-07	\N	\N	46.96	34.96	12.00	1825.12	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:52:15	2025-12-09 23:52:15
+290	4	1	5	INV-25/00118	\N	2025-10-07	\N	\N	34.96	0.96	34.00	1825.12	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-09 23:52:22	2025-12-09 23:52:22
+291	4	1	5	INV-25/00119	\N	2025-10-08	\N	\N	25.56	13.56	12.00	1843.00	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:53:41	2025-12-09 23:53:41
+292	4	1	5	INV-25/00120	\N	2025-10-08	\N	\N	13.56	0.56	13.00	1843.00	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-09 23:53:48	2025-12-09 23:53:48
+293	4	1	5	INV-25/00121	\N	2025-10-08	\N	\N	70.43	58.43	12.00	1843.05	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:55:07	2025-12-09 23:55:07
+294	4	1	5	INV-25/00122	\N	2025-10-08	\N	\N	58.43	34.43	24.00	1843.05	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 23:55:13	2025-12-09 23:55:13
+295	4	1	5	INV-25/00123	\N	2025-10-08	\N	\N	34.43	0.43	34.00	1843.05	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-09 23:55:21	2025-12-09 23:55:21
+296	4	1	5	INV-25/00124	\N	2025-10-09	\N	\N	70.24	46.24	24.00	1859.37	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-09 23:57:21	2025-12-09 23:57:21
+297	4	1	5	INV-25/00125	\N	2025-10-09	\N	\N	46.24	34.24	12.00	1859.37	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:57:27	2025-12-09 23:57:27
+298	4	1	5	INV-25/00126	\N	2025-10-09	\N	\N	34.24	0.24	34.00	1859.37	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-09 23:57:35	2025-12-09 23:57:35
+299	4	1	5	INV-25/00127	\N	2025-10-09	\N	\N	69.75	57.75	12.00	1843.05	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:59:52	2025-12-09 23:59:52
+300	4	1	5	INV-25/00128	\N	2025-10-09	\N	\N	57.75	45.75	12.00	1843.05	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-09 23:59:59	2025-12-09 23:59:59
+301	4	1	5	INV-25/00129	\N	2025-10-09	\N	\N	45.75	33.75	12.00	1843.05	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:00:10	2025-12-10 00:00:10
+302	4	1	5	INV-25/00130	\N	2025-10-09	\N	\N	33.75	0.75	33.00	1843.05	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-10 00:00:57	2025-12-10 00:00:57
+303	4	1	5	INV-25/00131	\N	2025-10-09	\N	\N	69.80	57.80	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:15:05	2025-12-10 00:15:05
+304	4	1	5	INV-25/00132	\N	2025-10-09	\N	\N	57.80	45.80	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:15:12	2025-12-10 00:15:12
+305	4	1	5	INV-25/00133	\N	2025-10-09	\N	\N	45.80	33.80	12.00	1843.11	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:15:20	2025-12-10 00:15:20
+306	4	1	5	INV-25/00134	\N	2025-10-09	\N	\N	33.80	0.80	33.00	1843.11	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-10 00:15:28	2025-12-10 00:15:28
+307	4	1	5	INV-25/00135	\N	2025-10-10	\N	\N	70.36	58.36	12.00	1843.07	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:16:56	2025-12-10 00:16:56
+308	4	1	5	INV-25/00136	\N	2025-10-10	\N	\N	58.36	34.36	24.00	1843.07	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:17:02	2025-12-10 00:17:02
+309	4	1	5	INV-25/00137	\N	2025-10-10	\N	\N	34.36	0.36	34.00	1843.07	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-10 00:17:08	2025-12-10 00:17:08
+310	4	1	5	INV-25/00138	\N	2025-10-10	\N	\N	69.93	57.93	12.00	1843.31	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:18:39	2025-12-10 00:18:39
+311	4	1	5	INV-25/00139	\N	2025-10-10	\N	\N	57.93	45.93	12.00	1843.31	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:18:45	2025-12-10 00:18:45
+312	4	1	5	INV-25/00140	\N	2025-10-10	\N	\N	45.93	33.93	12.00	1843.31	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:18:52	2025-12-10 00:18:52
+313	4	1	5	INV-25/00141	\N	2025-10-10	\N	\N	33.93	0.93	33.00	1843.31	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-10 00:18:58	2025-12-10 00:18:58
+314	4	1	5	INV-25/00142	\N	2025-10-10	\N	\N	70.79	46.79	24.00	1843.97	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:20:23	2025-12-10 00:20:23
+315	4	1	5	INV-25/00143	\N	2025-10-10	\N	\N	46.79	34.79	12.00	1843.97	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:20:29	2025-12-10 00:20:29
+316	4	1	5	INV-25/00144	\N	2025-10-10	\N	\N	34.79	0.79	34.00	1843.97	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-10 00:20:36	2025-12-10 00:20:36
+317	4	1	5	INV-25/00145	\N	2025-10-10	\N	\N	70.78	46.78	24.00	1842.95	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:22:03	2025-12-10 00:22:03
+318	4	1	5	INV-25/00146	\N	2025-10-10	\N	\N	46.78	34.78	12.00	1842.95	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:22:10	2025-12-10 00:22:10
+319	4	1	5	INV-25/00147	\N	2025-10-10	\N	\N	34.78	0.78	34.00	1842.95	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-10 00:22:16	2025-12-10 00:22:16
+320	4	1	5	INV-25/00148	\N	2025-10-10	\N	\N	71.92	59.92	12.00	1843.19	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:23:35	2025-12-10 00:23:35
+321	4	1	5	INV-25/00149	\N	2025-10-10	\N	\N	59.92	47.92	12.00	1843.19	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:23:42	2025-12-10 00:23:42
+322	4	1	5	INV-25/00150	\N	2025-10-10	\N	\N	47.92	35.92	12.00	1843.19	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:23:49	2025-12-10 00:23:49
+323	4	1	5	INV-25/00151	\N	2025-10-10	\N	\N	35.92	0.92	35.00	1843.19	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-10 00:23:57	2025-12-10 00:23:57
+324	4	1	5	INV-25/00152	\N	2025-10-10	\N	\N	69.03	57.03	12.00	1843.18	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:25:14	2025-12-10 00:25:14
+325	4	1	5	INV-25/00153	\N	2025-10-10	\N	\N	57.03	45.03	12.00	1843.18	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:25:20	2025-12-10 00:25:20
+326	4	1	5	INV-25/00154	\N	2025-10-10	\N	\N	45.03	33.03	12.00	1843.18	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:25:26	2025-12-10 00:25:26
+327	4	1	5	INV-25/00155	\N	2025-10-10	\N	\N	33.03	0.03	33.00	1843.18	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-10 00:25:34	2025-12-10 00:25:34
+328	4	1	5	INV-25/00156	\N	2025-10-10	\N	\N	71.47	47.47	24.00	1843.21	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:26:37	2025-12-10 00:26:37
+329	4	1	5	INV-25/00157	\N	2025-10-10	\N	\N	47.47	23.47	24.00	1843.21	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:26:43	2025-12-10 00:26:43
+330	4	1	5	INV-25/00158	\N	2025-10-10	\N	\N	23.47	0.47	23.00	1843.21	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-10 00:26:50	2025-12-10 00:26:50
+331	4	1	5	INV-25/00159	\N	2025-10-11	\N	\N	71.42	59.42	12.00	1843.28	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:27:59	2025-12-10 00:27:59
+332	4	1	5	INV-25/00160	\N	2025-10-11	\N	\N	59.42	47.42	12.00	1843.28	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:28:05	2025-12-10 00:28:05
+333	4	1	5	INV-25/00161	\N	2025-10-11	\N	\N	47.42	35.42	12.00	1843.28	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:28:11	2025-12-10 00:28:11
+334	4	1	5	INV-25/00162	\N	2025-10-11	\N	\N	35.42	23.42	12.00	1843.28	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:28:16	2025-12-10 00:28:16
+335	4	1	5	INV-25/00163	\N	2025-10-11	\N	\N	23.42	11.42	12.00	1843.28	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:28:23	2025-12-10 00:28:23
+336	4	1	5	INV-25/00164	\N	2025-10-11	\N	\N	11.42	0.42	11.00	1843.28	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-10 00:28:28	2025-12-10 00:28:28
+337	4	1	5	INV-25/00165	\N	2025-10-11	\N	\N	45.75	33.75	12.00	1843.20	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:29:28	2025-12-10 00:29:28
+338	4	1	5	INV-25/00166	\N	2025-10-11	\N	\N	33.75	0.75	33.00	1843.20	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-10 00:29:35	2025-12-10 00:29:35
+339	4	1	5	INV-25/00167	\N	2025-10-11	\N	\N	68.48	44.48	24.00	1843.05	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:31:02	2025-12-10 00:31:02
+340	4	1	5	INV-25/00168	\N	2025-10-11	\N	\N	44.48	32.48	12.00	1843.05	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:31:08	2025-12-10 00:31:08
+341	4	1	5	INV-25/00169	\N	2025-10-11	\N	\N	32.48	0.48	32.00	1843.05	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-10 00:31:28	2025-12-10 00:31:28
+342	4	1	5	INV-25/00170	\N	2025-10-12	\N	\N	92.49	68.49	24.00	1843.09	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:33:31	2025-12-10 00:33:31
+343	4	1	5	INV-25/00171	\N	2025-10-12	\N	\N	68.49	44.49	24.00	1843.09	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:33:38	2025-12-10 00:33:38
+344	4	1	5	INV-25/00172	\N	2025-10-12	\N	\N	44.49	32.49	12.00	1843.09	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:33:45	2025-12-10 00:33:45
+345	4	1	5	INV-25/00173	\N	2025-10-12	\N	\N	32.49	0.49	32.00	1843.09	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-10 00:33:54	2025-12-10 00:33:54
+346	4	1	5	INV-25/00174	\N	2025-10-15	\N	\N	71.20	59.20	12.00	1841.87	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:35:13	2025-12-10 00:35:13
+347	4	1	5	INV-25/00175	\N	2025-10-15	\N	\N	59.20	47.20	12.00	1841.87	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:35:18	2025-12-10 00:35:18
+348	4	1	5	INV-25/00176	\N	2025-10-15	\N	\N	47.20	35.20	12.00	1841.87	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:35:23	2025-12-10 00:35:23
+349	4	1	5	INV-25/00177	\N	2025-10-15	\N	\N	35.20	23.20	12.00	1841.87	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:35:29	2025-12-10 00:35:29
+350	4	1	5	INV-25/00178	\N	2025-10-15	\N	\N	23.20	11.20	12.00	1841.87	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:35:36	2025-12-10 00:35:36
+351	4	1	5	INV-25/00179	\N	2025-10-15	\N	\N	11.20	0.20	11.00	1841.87	2650.00	29150.00	31336.25	0.00	0.00	7.50	2186.25	\N	\N	\N	\N	2025-12-10 00:35:45	2025-12-10 00:35:45
+352	4	1	5	INV-25/00180	\N	2025-10-15	\N	\N	47.56	35.56	12.00	1841.83	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:36:55	2025-12-10 00:36:55
+353	4	1	5	INV-25/00181	\N	2025-10-15	\N	\N	35.56	0.56	35.00	1841.83	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-10 00:37:03	2025-12-10 00:37:03
+354	4	1	5	INV-25/00182	\N	2025-10-16	\N	\N	71.17	47.17	24.00	1841.98	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:38:11	2025-12-10 00:38:11
+355	4	1	5	INV-25/00183	\N	2025-10-16	\N	\N	47.17	35.17	12.00	1841.98	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:38:17	2025-12-10 00:38:17
+356	4	1	5	INV-25/00184	\N	2025-10-16	\N	\N	35.17	0.17	35.00	1841.98	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-10 00:38:22	2025-12-10 00:38:22
+357	4	1	5	INV-25/00185	\N	2025-10-17	\N	\N	69.96	57.96	12.00	1841.72	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:39:24	2025-12-10 00:39:24
+358	4	1	5	INV-25/00186	\N	2025-10-17	\N	\N	57.96	45.96	12.00	1841.72	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:39:30	2025-12-10 00:39:30
+359	4	1	5	INV-25/00187	\N	2025-10-17	\N	\N	45.96	33.96	12.00	1841.72	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:39:36	2025-12-10 00:39:36
+360	4	1	5	INV-25/00188	\N	2025-10-17	\N	\N	33.96	0.96	33.00	1841.72	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-10 00:39:43	2025-12-10 00:39:43
+361	4	1	5	INV-25/00189	\N	2025-10-18	\N	\N	71.78	59.78	12.00	1841.92	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:40:57	2025-12-10 00:40:57
+362	4	1	5	INV-25/00190	\N	2025-10-18	\N	\N	59.78	47.78	12.00	1841.92	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:41:03	2025-12-10 00:41:03
+363	4	1	5	INV-25/00191	\N	2025-10-18	\N	\N	47.78	35.78	12.00	1841.92	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:41:08	2025-12-10 00:41:08
+364	4	1	5	INV-25/00192	\N	2025-10-18	\N	\N	35.78	23.78	12.00	1841.92	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:41:14	2025-12-10 00:41:14
+365	4	1	5	INV-25/00193	\N	2025-10-18	\N	\N	23.78	0.78	23.00	1841.92	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-10 00:41:20	2025-12-10 00:41:20
+366	4	1	5	INV-25/00194	\N	2025-10-24	\N	\N	21.62	0.62	21.00	1841.85	2650.00	55650.00	59823.75	0.00	0.00	7.50	4173.75	\N	\N	\N	\N	2025-12-10 00:42:30	2025-12-10 00:42:30
+367	4	1	5	INV-25/00195	\N	2025-10-24	\N	\N	48.83	36.83	12.00	1841.90	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:43:39	2025-12-10 00:43:39
+368	4	1	5	INV-25/00196	\N	2025-10-24	\N	\N	36.83	0.83	36.00	1841.90	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 00:43:46	2025-12-10 00:43:46
+369	4	1	5	INV-25/00197	\N	2025-10-25	\N	\N	73.82	61.82	12.00	1841.84	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:46:29	2025-12-10 00:46:29
+370	4	1	5	INV-25/00198	\N	2025-10-25	\N	\N	61.82	49.82	12.00	1841.84	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:46:36	2025-12-10 00:46:36
+371	4	1	5	INV-25/00199	\N	2025-10-25	\N	\N	49.82	25.82	24.00	1841.84	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:46:42	2025-12-10 00:46:42
+372	4	1	5	INV-25/00200	\N	2025-10-25	\N	\N	25.82	13.82	12.00	1841.84	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:46:48	2025-12-10 00:46:48
+373	4	1	5	INV-25/00201	\N	2025-10-25	\N	\N	13.82	0.82	13.00	1841.84	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-10 00:46:54	2025-12-10 00:46:54
+374	4	1	5	INV-25/00202	\N	2025-10-26	\N	\N	149.21	125.21	24.00	1841.78	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:47:59	2025-12-10 00:47:59
+375	4	1	5	INV-25/00203	\N	2025-10-26	\N	\N	125.21	89.21	36.00	1841.78	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 00:48:04	2025-12-10 00:48:04
+376	4	1	5	INV-25/00204	\N	2025-10-26	\N	\N	89.21	65.21	24.00	1841.78	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:48:12	2025-12-10 00:48:12
+377	4	1	5	INV-25/00205	\N	2025-10-26	\N	\N	65.21	53.21	12.00	1841.78	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:48:19	2025-12-10 00:48:19
+378	4	1	5	INV-25/00206	\N	2025-10-26	\N	\N	53.21	29.21	24.00	1841.78	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:48:28	2025-12-10 00:48:28
+379	4	1	5	INV-25/00207	\N	2025-10-26	\N	\N	29.21	0.21	29.00	1841.78	2650.00	76850.00	82613.75	0.00	0.00	7.50	5763.75	\N	\N	\N	\N	2025-12-10 00:48:38	2025-12-10 00:48:38
+380	4	1	5	INV-25/00208	\N	2025-10-28	\N	\N	96.01	60.01	36.00	1841.85	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 00:50:56	2025-12-10 00:50:56
+381	4	1	5	INV-25/00209	\N	2025-10-28	\N	\N	60.01	48.01	12.00	1841.85	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:51:06	2025-12-10 00:51:06
+382	4	1	5	INV-25/00210	\N	2025-10-28	\N	\N	48.01	24.01	24.00	1841.85	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:51:12	2025-12-10 00:51:12
+383	4	1	5	INV-25/00211	\N	2025-10-28	\N	\N	24.01	12.01	12.00	1841.85	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:51:19	2025-12-10 00:51:19
+384	4	1	5	INV-25/00212	\N	2025-10-28	\N	\N	12.01	0.01	12.00	1841.85	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:51:25	2025-12-10 00:51:25
+385	4	1	5	INV-25/00213	\N	2025-10-30	\N	\N	23.69	0.69	23.00	1841.69	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-10 00:52:44	2025-12-10 00:52:44
+386	4	1	5	INV-25/00214	\N	2025-10-30	\N	\N	25.65	13.65	12.00	1841.68	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:53:46	2025-12-10 00:53:46
+387	4	1	5	INV-25/00215	\N	2025-10-30	\N	\N	13.65	0.65	13.00	1841.68	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-10 00:53:52	2025-12-10 00:53:52
+388	4	1	5	INV-25/00216	\N	2025-10-30	\N	\N	25.25	0.25	25.00	1841.80	2650.00	66250.00	71218.75	0.00	0.00	7.50	4968.75	\N	\N	\N	\N	2025-12-10 00:55:41	2025-12-10 00:55:41
+389	4	1	5	INV-25/00217	\N	2025-10-30	\N	\N	72.42	48.42	24.00	1841.74	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 00:56:51	2025-12-10 00:56:51
+390	4	1	5	INV-25/00218	\N	2025-10-30	\N	\N	48.42	36.42	12.00	1841.74	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 00:56:58	2025-12-10 00:56:58
+391	4	1	5	INV-25/00219	\N	2025-10-30	\N	\N	36.42	0.42	36.00	1841.74	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 00:57:06	2025-12-10 00:57:06
+392	4	1	5	INV-25/00220	\N	2025-11-01	\N	\N	48.69	36.69	12.00	1841.99	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:10:08	2025-12-10 02:10:08
+393	4	1	5	INV-25/00221	\N	2025-11-01	\N	\N	36.69	24.69	12.00	1841.99	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:10:16	2025-12-10 02:10:16
+394	4	1	5	INV-25/00222	\N	2025-11-01	\N	\N	24.69	12.69	12.00	1841.99	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:10:22	2025-12-10 02:10:22
+395	4	1	5	INV-25/00223	\N	2025-11-01	\N	\N	12.69	0.69	12.00	1841.99	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:10:29	2025-12-10 02:10:29
+396	4	1	5	INV-25/00224	\N	2025-11-04	\N	\N	73.74	61.74	12.00	1838.98	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:23:40	2025-12-10 02:23:40
+397	4	1	5	INV-25/00225	\N	2025-11-04	\N	\N	61.74	49.74	12.00	1838.98	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:24:02	2025-12-10 02:24:02
+398	4	1	5	INV-25/00226	\N	2025-11-04	\N	\N	49.74	25.74	24.00	1838.98	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 02:24:10	2025-12-10 02:24:10
+399	4	1	5	INV-25/00227	\N	2025-11-04	\N	\N	25.74	13.74	12.00	1838.98	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:24:19	2025-12-10 02:24:19
+400	4	1	5	INV-25/00228	\N	2025-11-04	\N	\N	13.74	0.74	13.00	1838.98	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-10 02:24:27	2025-12-10 02:24:27
+403	4	1	5	INV-25/00229	\N	2025-11-04	\N	\N	25.20	13.20	12.00	1839.16	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:31:59	2025-12-10 02:31:59
+404	4	1	5	INV-25/00230	\N	2025-11-04	\N	\N	13.20	0.20	13.00	1839.16	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-10 02:32:07	2025-12-10 02:32:07
+405	4	1	5	INV-25/00231	\N	2025-11-05	\N	\N	74.19	50.19	24.00	1839.23	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 02:33:23	2025-12-10 02:33:23
+406	4	1	5	INV-25/00232	\N	2025-11-05	\N	\N	50.19	26.19	24.00	1839.23	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 02:33:33	2025-12-10 02:33:33
+407	4	1	5	INV-25/00233	\N	2025-11-05	\N	\N	26.19	14.19	12.00	1839.23	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:33:44	2025-12-10 02:33:44
+408	4	1	5	INV-25/00234	\N	2025-11-05	\N	\N	14.19	0.19	14.00	1839.23	2650.00	37100.00	39882.50	0.00	0.00	7.50	2782.50	\N	\N	\N	\N	2025-12-10 02:33:52	2025-12-10 02:33:52
+409	4	1	5	INV-25/00235	\N	2025-11-06	\N	\N	71.71	59.71	12.00	1839.15	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:35:09	2025-12-10 02:35:09
+410	4	1	5	INV-25/00236	\N	2025-11-06	\N	\N	59.71	47.71	12.00	1839.15	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:35:16	2025-12-10 02:35:16
+411	4	1	5	INV-25/00237	\N	2025-11-06	\N	\N	47.71	35.71	12.00	1839.15	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:35:22	2025-12-10 02:35:22
+412	4	1	5	INV-25/00238	\N	2025-11-06	\N	\N	35.71	23.71	12.00	1839.15	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-10 02:35:28	2025-12-10 02:35:28
+413	4	1	5	INV-25/00239	\N	2025-11-06	\N	\N	23.71	0.71	23.00	1839.15	2650.00	60950.00	65521.25	0.00	0.00	7.50	4571.25	\N	\N	\N	\N	2025-12-10 02:37:22	2025-12-10 02:37:22
+414	4	1	5	INV-25/00240	\N	2025-11-06	\N	\N	25.39	0.39	25.00	1838.96	2650.00	66250.00	71218.75	0.00	0.00	7.50	4968.75	\N	\N	\N	\N	2025-12-10 02:38:42	2025-12-10 02:38:42
+415	4	1	5	INV-25/00241	\N	2025-11-08	\N	\N	49.50	25.50	24.00	1839.11	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-10 02:41:06	2025-12-10 02:41:06
+416	4	1	5	INV-25/00242	\N	2025-11-08	\N	\N	25.50	0.50	25.00	1839.11	2650.00	66250.00	71218.75	0.00	0.00	7.50	4968.75	\N	\N	\N	\N	2025-12-10 02:41:14	2025-12-10 02:41:14
+417	4	1	5	INV-25/00243	\N	2025-11-09	\N	\N	120.14	72.14	48.00	1839.16	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-10 02:42:35	2025-12-10 02:42:35
+418	4	1	5	INV-25/00244	\N	2025-11-09	\N	\N	72.14	36.14	36.00	1839.16	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:42:42	2025-12-10 02:42:42
+419	4	1	5	INV-25/00245	\N	2025-11-09	\N	\N	36.14	0.14	36.00	1839.16	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:42:51	2025-12-10 02:42:51
+420	4	1	5	INV-25/00246	\N	2025-11-11	\N	\N	99.68	49.68	50.00	1839.23	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-10 02:44:19	2025-12-10 02:44:19
+421	4	1	5	INV-25/00247	\N	2025-11-11	\N	\N	49.68	0.68	49.00	1839.23	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-10 02:44:27	2025-12-10 02:44:27
+422	4	1	5	INV-25/00248	\N	2025-11-14	\N	\N	50.36	0.36	50.00	1839.12	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-10 02:46:06	2025-12-10 02:46:06
+423	4	1	5	INV-25/00249	\N	2025-11-14	\N	\N	98.90	50.90	48.00	1839.26	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-10 02:49:37	2025-12-10 02:49:37
+424	4	1	5	INV-25/00250	\N	2025-11-14	\N	\N	50.90	0.90	50.00	1839.26	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-10 02:49:50	2025-12-10 02:49:50
+425	4	1	5	INV-25/00251	\N	2025-11-16	\N	\N	220.79	184.79	36.00	1839.05	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:53:17	2025-12-10 02:53:17
+426	4	1	5	INV-25/00252	\N	2025-11-16	\N	\N	184.79	136.79	48.00	1839.05	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-10 02:53:32	2025-12-10 02:53:32
+427	4	1	5	INV-25/00253	\N	2025-11-16	\N	\N	136.79	100.79	36.00	1839.05	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:53:44	2025-12-10 02:53:44
+428	4	1	5	INV-25/00254	\N	2025-11-16	\N	\N	100.79	50.79	50.00	1839.05	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-10 02:53:59	2025-12-10 02:53:59
+429	4	1	5	INV-25/00255	\N	2025-11-16	\N	\N	50.79	0.79	50.00	1839.05	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-10 02:54:06	2025-12-10 02:54:06
+430	4	1	5	INV-25/00256	\N	2025-11-19	\N	\N	123.11	87.11	36.00	1839.22	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:56:01	2025-12-10 02:56:01
+431	4	1	5	INV-25/00257	\N	2025-11-19	\N	\N	87.11	37.11	50.00	1839.22	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-10 02:56:10	2025-12-10 02:56:10
+432	4	1	5	INV-25/00258	\N	2025-11-19	\N	\N	37.11	0.11	37.00	1839.22	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-10 02:56:22	2025-12-10 02:56:22
+433	4	1	5	INV-25/00259	\N	2025-11-23	\N	\N	199.35	163.35	36.00	1839.18	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:57:56	2025-12-10 02:57:56
+434	4	1	5	INV-25/00260	\N	2025-11-23	\N	\N	163.35	115.35	48.00	1839.18	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-10 02:58:07	2025-12-10 02:58:07
+435	4	1	5	INV-25/00261	\N	2025-11-23	\N	\N	115.35	79.35	36.00	1839.18	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:58:15	2025-12-10 02:58:15
+436	4	1	5	INV-25/00262	\N	2025-11-23	\N	\N	79.35	43.35	36.00	1839.18	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 02:58:28	2025-12-10 02:58:28
+437	4	1	5	INV-25/00263	\N	2025-11-23	\N	\N	43.35	0.35	43.00	1839.18	2650.00	113950.00	122496.25	0.00	0.00	7.50	8546.25	\N	\N	\N	\N	2025-12-10 02:58:41	2025-12-10 02:58:41
+438	4	1	5	INV-25/00264	\N	2025-11-25	\N	\N	46.63	0.63	46.00	1839.26	2650.00	121900.00	131042.50	0.00	0.00	7.50	9142.50	\N	\N	\N	\N	2025-12-10 03:00:52	2025-12-10 03:00:52
+439	4	1	5	INV-25/00265	\N	2025-11-26	\N	\N	47.88	0.88	47.00	1839.04	2650.00	124550.00	133891.25	0.00	0.00	7.50	9341.25	\N	\N	\N	\N	2025-12-10 03:02:52	2025-12-10 03:02:52
+440	4	1	5	INV-25/00266	\N	2025-11-26	\N	\N	117.28	81.28	36.00	1839.10	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-10 03:04:24	2025-12-10 03:04:24
+441	4	1	5	INV-25/00267	\N	2025-11-26	\N	\N	81.28	41.28	40.00	1839.10	2650.00	106000.00	113950.00	0.00	0.00	7.50	7950.00	\N	\N	\N	\N	2025-12-10 03:04:35	2025-12-10 03:04:35
+442	4	1	5	INV-25/00268	\N	2025-11-26	\N	\N	41.28	0.28	41.00	1839.10	2650.00	108650.00	116798.75	0.00	0.00	7.50	8148.75	\N	\N	\N	\N	2025-12-10 03:04:43	2025-12-10 03:04:43
+443	4	1	5	INV-25/00269	\N	2025-11-27	\N	\N	171.18	123.18	48.00	1839.02	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-10 03:06:53	2025-12-10 03:06:53
+444	4	1	5	INV-25/00270	\N	2025-11-27	\N	\N	123.18	75.18	48.00	1839.02	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-10 03:07:08	2025-12-10 03:07:08
+445	4	1	5	INV-25/00271	\N	2025-11-27	\N	\N	75.18	35.18	40.00	1839.02	2650.00	106000.00	113950.00	0.00	0.00	7.50	7950.00	\N	\N	\N	\N	2025-12-10 03:07:20	2025-12-10 03:07:20
+446	4	1	5	INV-25/00272	\N	2025-11-27	\N	\N	35.18	0.18	35.00	1839.02	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-10 03:07:28	2025-12-10 03:07:28
+447	4	1	5	INV-25/00273	\N	2025-11-28	\N	\N	26.07	0.07	26.00	1838.88	2650.00	68900.00	74067.50	0.00	0.00	7.50	5167.50	\N	\N	\N	\N	2025-12-10 03:08:52	2025-12-10 03:08:52
+451	5	1	5	INV-25/00001	\N	2025-10-01	\N	\N	12.00	0.00	12.00	1832.68	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-10 04:50:23	2025-12-10 04:50:23
+452	7	1	5	INV-25/00001	\N	2025-08-20	\N	\N	47.38	23.73	23.65	1843.51	2566.00	60685.90	69788.79	0.00	0.00	15.00	9102.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:47:27	2025-12-10 17:47:27
+453	7	1	5	INV-25/00002	\N	2025-08-20	\N	\N	23.73	0.00	23.73	1843.51	2566.00	60891.18	70024.86	0.00	0.00	15.00	9133.68	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:47:36	2025-12-10 17:47:36
+454	7	1	5	INV-25/00003	\N	2025-08-20	\N	\N	70.60	47.48	23.12	1843.59	2566.00	59325.92	68224.81	0.00	0.00	15.00	8898.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:50:41	2025-12-10 17:50:41
+455	7	1	5	INV-25/00004	\N	2025-08-20	\N	\N	47.48	24.34	23.14	1843.59	2566.00	59377.24	68283.83	0.00	0.00	15.00	8906.59	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:50:49	2025-12-10 17:50:49
+456	7	1	5	INV-25/00005	\N	2025-08-20	\N	\N	24.34	0.00	24.34	1843.59	2566.00	62456.44	71824.91	0.00	0.00	15.00	9368.47	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:50:57	2025-12-10 17:50:57
+457	7	1	5	INV-25/00006	\N	2025-08-20	\N	\N	118.26	95.01	23.25	1843.62	2566.00	59659.50	68608.43	0.00	0.00	15.00	8948.93	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:52:46	2025-12-10 17:52:46
+458	7	1	5	INV-25/00007	\N	2025-08-20	\N	\N	95.01	71.87	23.14	1843.62	2566.00	59377.24	68283.83	0.00	0.00	15.00	8906.59	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:53:00	2025-12-10 17:53:00
+459	7	1	5	INV-25/00008	\N	2025-08-20	\N	\N	71.87	48.62	23.25	1843.62	2566.00	59659.50	68608.43	0.00	0.00	15.00	8948.93	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:53:08	2025-12-10 17:53:08
+460	7	1	5	INV-25/00009	\N	2025-08-20	\N	\N	48.62	24.50	24.12	1843.62	2566.00	61891.92	71175.71	0.00	0.00	15.00	9283.79	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:53:15	2025-12-10 17:53:15
+461	7	1	5	INV-25/00010	\N	2025-08-20	\N	\N	24.50	0.00	24.50	1843.62	2566.00	62867.00	72297.05	0.00	0.00	15.00	9430.05	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:53:23	2025-12-10 17:53:23
+462	7	1	5	INV-25/00011	\N	2025-08-20	\N	\N	93.86	70.74	23.12	1843.66	2566.00	59325.92	68224.81	0.00	0.00	15.00	8898.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:54:47	2025-12-10 17:54:47
+463	7	1	5	INV-25/00012	\N	2025-08-20	\N	\N	70.74	48.42	22.32	1843.66	2566.00	57273.12	65864.09	0.00	0.00	15.00	8590.97	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:55:01	2025-12-10 17:55:01
+464	7	1	5	INV-25/00013	\N	2025-08-20	\N	\N	48.42	24.29	24.13	1843.66	2566.00	61917.58	71205.22	0.00	0.00	15.00	9287.64	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:55:11	2025-12-10 17:55:11
+465	7	1	5	INV-25/00014	\N	2025-08-20	\N	\N	24.29	0.00	24.29	1843.66	2566.00	62328.14	71677.36	0.00	0.00	15.00	9349.22	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:55:21	2025-12-10 17:55:21
+466	7	1	5	INV-25/00015	\N	2025-08-21	\N	\N	118.15	95.03	23.12	1843.58	2566.00	59325.92	68224.81	0.00	0.00	15.00	8898.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:57:32	2025-12-10 17:57:32
+467	7	1	5	INV-25/00016	\N	2025-08-21	\N	\N	95.03	70.51	24.52	1843.58	2566.00	62918.32	72356.07	0.00	0.00	15.00	9437.75	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:57:39	2025-12-10 17:57:39
+468	7	1	5	INV-25/00017	\N	2025-08-21	\N	\N	70.51	46.82	23.69	1843.58	2566.00	60788.54	69906.82	0.00	0.00	15.00	9118.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:57:48	2025-12-10 17:57:48
+469	7	1	5	INV-25/00018	\N	2025-08-21	\N	\N	46.82	24.46	22.36	1843.58	2566.00	57375.76	65982.12	0.00	0.00	15.00	8606.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:57:56	2025-12-10 17:57:56
+470	7	1	5	INV-25/00019	\N	2025-08-21	\N	\N	24.46	0.00	24.46	1843.58	2566.00	62764.36	72179.01	0.00	0.00	15.00	9414.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:58:04	2025-12-10 17:58:04
+471	7	1	5	INV-25/00020	\N	2025-08-21	\N	\N	120.69	96.46	24.23	1843.78	2566.00	62174.18	71500.31	0.00	0.00	15.00	9326.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:59:46	2025-12-10 17:59:46
+472	7	1	5	INV-25/00021	\N	2025-08-21	\N	\N	96.46	73.10	23.36	1843.78	2566.00	59941.76	68933.02	0.00	0.00	15.00	8991.26	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 17:59:55	2025-12-10 17:59:55
+473	7	1	5	INV-25/00022	\N	2025-08-21	\N	\N	73.10	48.87	24.23	1843.78	2566.00	62174.18	71500.31	0.00	0.00	15.00	9326.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:00:03	2025-12-10 18:00:03
+474	7	1	5	INV-25/00023	\N	2025-08-21	\N	\N	48.87	24.35	24.52	1843.78	2566.00	62918.32	72356.07	0.00	0.00	15.00	9437.75	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:00:10	2025-12-10 18:00:10
+475	7	1	5	INV-25/00024	\N	2025-08-21	\N	\N	24.35	0.00	24.35	1843.78	2566.00	62482.10	71854.42	0.00	0.00	15.00	9372.32	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:00:17	2025-12-10 18:00:17
+476	7	1	5	INV-25/00025	\N	2025-08-23	\N	\N	120.40	95.84	24.56	1843.76	2566.00	63020.96	72474.10	0.00	0.00	15.00	9453.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:01:39	2025-12-10 18:01:39
+477	7	1	5	INV-25/00026	\N	2025-08-23	\N	\N	95.84	71.28	24.56	1843.76	2566.00	63020.96	72474.10	0.00	0.00	15.00	9453.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:01:49	2025-12-10 18:01:49
+478	7	1	5	INV-25/00027	\N	2025-08-23	\N	\N	71.28	47.39	23.89	1843.76	2566.00	61301.74	70497.00	0.00	0.00	15.00	9195.26	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:01:56	2025-12-10 18:01:56
+479	7	1	5	INV-25/00028	\N	2025-08-23	\N	\N	47.39	23.70	23.69	1843.76	2566.00	60788.54	69906.82	0.00	0.00	15.00	9118.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:02:04	2025-12-10 18:02:04
+480	7	1	5	INV-25/00029	\N	2025-08-23	\N	\N	23.70	0.00	23.70	1843.76	2566.00	60814.20	69936.33	0.00	0.00	15.00	9122.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:02:12	2025-12-10 18:02:12
+481	7	1	5	INV-25/00030	\N	2025-08-24	\N	\N	117.40	93.17	24.23	1843.73	2566.00	62174.18	71500.31	0.00	0.00	15.00	9326.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:03:27	2025-12-10 18:03:27
+482	7	1	5	INV-25/00031	\N	2025-08-24	\N	\N	93.17	68.61	24.56	1843.73	2566.00	63020.96	72474.10	0.00	0.00	15.00	9453.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:03:35	2025-12-10 18:03:35
+483	7	1	5	INV-25/00032	\N	2025-08-24	\N	\N	68.61	45.46	23.15	1843.73	2566.00	59402.90	68313.34	0.00	0.00	15.00	8910.44	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:03:46	2025-12-10 18:03:46
+484	7	1	5	INV-25/00033	\N	2025-08-24	\N	\N	45.46	22.99	22.47	1843.73	2566.00	57658.02	66306.72	0.00	0.00	15.00	8648.70	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:03:53	2025-12-10 18:03:53
+485	7	1	5	INV-25/00034	\N	2025-08-24	\N	\N	22.99	0.00	22.99	1843.73	2566.00	58992.34	67841.19	0.00	0.00	15.00	8848.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:04:00	2025-12-10 18:04:00
+486	7	1	5	INV-25/00035	\N	2025-08-26	\N	\N	120.35	96.23	24.12	1843.63	2566.00	61891.92	71175.71	0.00	0.00	15.00	9283.79	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:05:32	2025-12-10 18:05:32
+487	7	1	5	INV-25/00036	\N	2025-08-26	\N	\N	96.23	71.67	24.56	1843.63	2566.00	63020.96	72474.10	0.00	0.00	15.00	9453.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:05:40	2025-12-10 18:05:40
+488	7	1	5	INV-25/00037	\N	2025-08-26	\N	\N	71.67	48.42	23.25	1843.63	2566.00	59659.50	68608.43	0.00	0.00	15.00	8948.93	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:05:47	2025-12-10 18:05:47
+489	7	1	5	INV-25/00038	\N	2025-08-26	\N	\N	48.42	24.39	24.03	1843.63	2566.00	61660.98	70910.13	0.00	0.00	15.00	9249.15	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:05:55	2025-12-10 18:05:55
+490	7	1	5	INV-25/00039	\N	2025-08-26	\N	\N	24.39	0.00	24.39	1843.63	2566.00	62584.74	71972.45	0.00	0.00	15.00	9387.71	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:06:02	2025-12-10 18:06:02
+491	7	1	5	INV-25/00040	\N	2025-08-27	\N	\N	120.29	96.29	24.00	1843.76	2566.00	61584.00	70821.60	0.00	0.00	15.00	9237.60	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:07:24	2025-12-10 18:07:24
+492	7	1	5	INV-25/00041	\N	2025-08-27	\N	\N	96.29	71.93	24.36	1843.76	2566.00	62507.76	71883.92	0.00	0.00	15.00	9376.16	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:07:32	2025-12-10 18:07:32
+493	7	1	5	INV-25/00042	\N	2025-08-27	\N	\N	71.93	48.57	23.36	1843.76	2566.00	59941.76	68933.02	0.00	0.00	15.00	8991.26	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:07:39	2025-12-10 18:07:39
+494	7	1	5	INV-25/00043	\N	2025-08-27	\N	\N	48.57	24.21	24.36	1843.76	2566.00	62507.76	71883.92	0.00	0.00	15.00	9376.16	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:07:47	2025-12-10 18:07:47
+495	7	1	5	INV-25/00044	\N	2025-08-27	\N	\N	24.21	0.00	24.21	1843.76	2566.00	62122.86	71441.29	0.00	0.00	15.00	9318.43	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:07:54	2025-12-10 18:07:54
+496	7	1	5	INV-25/00045	\N	2025-08-28	\N	\N	120.51	95.95	24.56	1843.79	2566.00	63020.96	72474.10	0.00	0.00	15.00	9453.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:11:59	2025-12-10 18:11:59
+497	7	1	5	INV-25/00046	\N	2025-08-28	\N	\N	95.95	70.95	25.00	1843.79	2566.00	64150.00	73772.50	0.00	0.00	15.00	9622.50	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:12:07	2025-12-10 18:12:07
+498	7	1	5	INV-25/00047	\N	2025-08-28	\N	\N	70.95	47.65	23.30	1843.79	2566.00	59787.80	68755.97	0.00	0.00	15.00	8968.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:15:49	2025-12-10 18:15:49
+499	7	1	5	INV-25/00048	\N	2025-08-28	\N	\N	47.65	23.96	23.69	1843.79	2566.00	60788.54	69906.82	0.00	0.00	15.00	9118.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:15:58	2025-12-10 18:15:58
+500	7	1	5	INV-25/00049	\N	2025-08-28	\N	\N	23.96	0.00	23.96	1843.79	2566.00	61481.36	70703.56	0.00	0.00	15.00	9222.20	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:16:06	2025-12-10 18:16:06
+501	7	1	5	INV-25/00050	\N	2025-08-31	\N	\N	120.21	95.09	25.12	1843.64	2566.00	64457.92	74126.61	0.00	0.00	15.00	9668.69	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:19:17	2025-12-10 18:19:17
+502	7	1	5	INV-25/00051	\N	2025-08-31	\N	\N	95.09	71.40	23.69	1843.64	2566.00	60788.54	69906.82	0.00	0.00	15.00	9118.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:19:24	2025-12-10 18:19:24
+503	7	1	5	INV-25/00052	\N	2025-08-31	\N	\N	71.40	47.72	23.68	1843.64	2566.00	60762.88	69877.31	0.00	0.00	15.00	9114.43	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:19:35	2025-12-10 18:19:35
+504	7	1	5	INV-25/00053	\N	2025-08-31	\N	\N	47.72	24.13	23.59	1843.64	2566.00	60531.94	69611.73	0.00	0.00	15.00	9079.79	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:19:44	2025-12-10 18:19:44
+505	7	1	5	INV-25/00054	\N	2025-08-31	\N	\N	24.13	0.00	24.13	1843.64	2566.00	61917.58	71205.22	0.00	0.00	15.00	9287.64	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:19:52	2025-12-10 18:19:52
+506	7	1	5	INV-25/00055	\N	2025-08-31	\N	\N	120.07	95.95	24.12	1843.57	2566.00	61891.92	71175.71	0.00	0.00	15.00	9283.79	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:22:09	2025-12-10 18:22:09
+507	7	1	5	INV-25/00056	\N	2025-08-31	\N	\N	95.95	72.26	23.69	1843.57	2566.00	60788.54	69906.82	0.00	0.00	15.00	9118.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:22:19	2025-12-10 18:22:19
+508	7	1	5	INV-25/00057	\N	2025-08-31	\N	\N	72.26	47.57	24.69	1843.57	2566.00	63354.54	72857.72	0.00	0.00	15.00	9503.18	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:22:28	2025-12-10 18:22:28
+509	7	1	5	INV-25/00058	\N	2025-08-31	\N	\N	47.57	24.10	23.47	1843.57	2566.00	60224.02	69257.62	0.00	0.00	15.00	9033.60	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:22:37	2025-12-10 18:22:37
+510	7	1	5	INV-25/00059	\N	2025-08-31	\N	\N	24.10	0.00	24.10	1843.57	2566.00	61840.60	71116.69	0.00	0.00	15.00	9276.09	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 18:22:44	2025-12-10 18:22:44
+511	7	1	5	INV-25/00060	\N	2025-09-01	\N	\N	96.39	72.37	24.02	1843.12	2566.20	61640.12	70886.14	0.00	0.00	15.00	9246.02	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:20:24	2025-12-10 19:20:24
+512	7	1	5	INV-25/00061	\N	2025-09-01	\N	\N	72.37	48.48	23.89	1843.12	2566.20	61306.52	70502.50	0.00	0.00	15.00	9195.98	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:20:32	2025-12-10 19:20:32
+513	7	1	5	INV-25/00062	\N	2025-09-01	\N	\N	48.48	24.13	24.35	1843.12	2566.20	62486.97	71860.02	0.00	0.00	15.00	9373.05	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:20:39	2025-12-10 19:20:39
+514	7	1	5	INV-25/00063	\N	2025-09-01	\N	\N	24.13	0.00	24.13	1843.12	2566.20	61922.41	71210.77	0.00	0.00	15.00	9288.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:20:51	2025-12-10 19:20:51
+515	7	1	5	INV-25/00064	\N	2025-09-01	\N	\N	109.12	87.00	22.12	1843.28	2566.20	56764.34	65279.00	0.00	0.00	15.00	8514.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:23:07	2025-12-10 19:23:07
+516	7	1	5	INV-25/00065	\N	2025-09-01	\N	\N	87.00	65.40	21.60	1843.28	2566.20	55429.92	63744.41	0.00	0.00	15.00	8314.49	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:23:23	2025-12-10 19:23:23
+517	7	1	5	INV-25/00066	\N	2025-09-01	\N	\N	65.40	43.77	21.63	1843.28	2566.20	55506.91	63832.94	0.00	0.00	15.00	8326.04	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:23:34	2025-12-10 19:23:34
+518	7	1	5	INV-25/00067	\N	2025-09-01	\N	\N	43.77	21.75	22.02	1843.28	2566.20	56507.72	64983.88	0.00	0.00	15.00	8476.16	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:23:42	2025-12-10 19:23:42
+519	7	1	5	INV-25/00068	\N	2025-09-01	\N	\N	21.75	0.00	21.75	1843.28	2566.20	55814.85	64187.08	0.00	0.00	15.00	8372.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:23:49	2025-12-10 19:23:49
+520	7	1	5	INV-25/00069	\N	2025-09-05	\N	\N	120.47	96.46	24.01	1843.22	2566.20	61614.46	70856.63	0.00	0.00	15.00	9242.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:25:51	2025-12-10 19:25:51
+521	7	1	5	INV-25/00070	\N	2025-09-05	\N	\N	96.46	72.10	24.36	1843.22	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:26:00	2025-12-10 19:26:00
+522	7	1	5	INV-25/00071	\N	2025-09-05	\N	\N	72.10	48.04	24.06	1843.22	2566.20	61742.77	71004.19	0.00	0.00	15.00	9261.42	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:26:08	2025-12-10 19:26:08
+523	7	1	5	INV-25/00072	\N	2025-09-05	\N	\N	48.04	23.48	24.56	1843.22	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:26:16	2025-12-10 19:26:16
+524	7	1	5	INV-25/00073	\N	2025-09-05	\N	\N	23.48	0.00	23.48	1843.22	2566.20	60254.38	69292.53	0.00	0.00	15.00	9038.16	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:26:23	2025-12-10 19:26:23
+525	7	1	5	INV-25/00074	\N	2025-09-06	\N	\N	120.13	95.83	24.30	1843.15	2566.20	62358.66	71712.46	0.00	0.00	15.00	9353.80	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:28:18	2025-12-10 19:28:18
+526	7	1	5	INV-25/00075	\N	2025-09-06	\N	\N	95.83	71.87	23.96	1843.15	2566.20	61486.15	70709.07	0.00	0.00	15.00	9222.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:28:25	2025-12-10 19:28:25
+527	7	1	5	INV-25/00076	\N	2025-09-06	\N	\N	71.87	48.73	23.14	1843.15	2566.20	59381.87	68289.15	0.00	0.00	15.00	8907.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:28:31	2025-12-10 19:28:31
+528	7	1	5	INV-25/00077	\N	2025-09-06	\N	\N	48.73	24.47	24.26	1843.15	2566.20	62256.01	71594.41	0.00	0.00	15.00	9338.40	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:28:40	2025-12-10 19:28:40
+529	7	1	5	INV-25/00078	\N	2025-09-06	\N	\N	24.47	0.00	24.47	1843.15	2566.20	62794.91	72214.15	0.00	0.00	15.00	9419.24	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:28:48	2025-12-10 19:28:48
+530	7	1	5	INV-25/00079	\N	2025-09-08	\N	\N	120.20	95.90	24.30	1843.18	2566.20	62358.66	71712.46	0.00	0.00	15.00	9353.80	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:32:08	2025-12-10 19:32:08
+531	7	1	5	INV-25/00080	\N	2025-09-08	\N	\N	95.90	71.65	24.25	1843.18	2566.20	62230.35	71564.90	0.00	0.00	15.00	9334.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:32:18	2025-12-10 19:32:18
+532	7	1	5	INV-25/00081	\N	2025-09-08	\N	\N	71.65	48.29	23.36	1843.18	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:32:30	2025-12-10 19:32:30
+533	7	1	5	INV-25/00082	\N	2025-09-08	\N	\N	48.29	24.27	24.02	1843.18	2566.20	61640.12	70886.14	0.00	0.00	15.00	9246.02	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:32:41	2025-12-10 19:32:41
+534	7	1	5	INV-25/00083	\N	2025-09-08	\N	\N	24.27	0.00	24.27	1843.18	2566.20	62281.67	71623.93	0.00	0.00	15.00	9342.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:32:50	2025-12-10 19:32:50
+535	7	1	5	INV-25/00084	\N	2025-09-09	\N	\N	121.34	97.09	24.25	1855.70	2566.20	62230.35	71564.90	0.00	0.00	15.00	9334.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:35:43	2025-12-10 19:35:43
+536	7	1	5	INV-25/00085	\N	2025-09-09	\N	\N	97.09	72.57	24.52	1855.70	2566.20	62923.22	72361.71	0.00	0.00	15.00	9438.48	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:35:52	2025-12-10 19:35:52
+537	7	1	5	INV-25/00086	\N	2025-09-09	\N	\N	72.57	48.31	24.26	1855.70	2566.20	62256.01	71594.41	0.00	0.00	15.00	9338.40	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:36:01	2025-12-10 19:36:01
+538	7	1	5	INV-25/00087	\N	2025-09-09	\N	\N	48.31	24.15	24.16	1855.70	2566.20	61999.39	71299.30	0.00	0.00	15.00	9299.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:36:08	2025-12-10 19:36:08
+539	7	1	5	INV-25/00088	\N	2025-09-09	\N	\N	24.15	0.00	24.15	1855.70	2566.20	61973.73	71269.79	0.00	0.00	15.00	9296.06	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:36:16	2025-12-10 19:36:16
+540	7	1	5	INV-25/00089	\N	2025-09-09	\N	\N	72.49	49.13	23.36	1843.20	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:38:00	2025-12-10 19:38:00
+541	7	1	5	INV-25/00090	\N	2025-09-09	\N	\N	49.13	24.93	24.20	1843.20	2566.20	62102.04	71417.35	0.00	0.00	15.00	9315.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:38:11	2025-12-10 19:38:11
+542	7	1	5	INV-25/00091	\N	2025-09-09	\N	\N	24.93	0.00	24.93	1843.20	2566.20	63975.37	73571.67	0.00	0.00	15.00	9596.30	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:38:19	2025-12-10 19:38:19
+543	7	1	5	INV-25/00092	\N	2025-09-10	\N	\N	96.76	72.64	24.12	1837.59	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:39:50	2025-12-10 19:39:50
+544	7	1	5	INV-25/00093	\N	2025-09-10	\N	\N	72.64	48.77	23.87	1837.59	2566.20	61255.19	70443.47	0.00	0.00	15.00	9188.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:39:57	2025-12-10 19:39:57
+545	7	1	5	INV-25/00094	\N	2025-09-10	\N	\N	48.77	24.65	24.12	1837.59	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:40:05	2025-12-10 19:40:05
+546	7	1	5	INV-25/00095	\N	2025-09-10	\N	\N	24.65	0.00	24.65	1837.59	2566.20	63256.83	72745.35	0.00	0.00	15.00	9488.52	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:40:15	2025-12-10 19:40:15
+547	7	1	5	INV-25/00096	\N	2025-09-10	\N	\N	71.11	47.48	23.63	1843.09	2566.20	60639.31	69735.20	0.00	0.00	15.00	9095.90	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:42:26	2025-12-10 19:42:26
+548	7	1	5	INV-25/00097	\N	2025-09-10	\N	\N	47.48	24.12	23.36	1843.09	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:42:35	2025-12-10 19:42:35
+549	7	1	5	INV-25/00098	\N	2025-09-10	\N	\N	24.12	0.00	24.12	1843.09	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:42:47	2025-12-10 19:42:47
+550	7	1	5	INV-25/00099	\N	2025-09-11	\N	\N	140.80	115.80	25.00	1843.21	2566.20	64155.00	73778.25	0.00	0.00	15.00	9623.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:46:24	2025-12-10 19:46:24
+551	7	1	5	INV-25/00100	\N	2025-09-11	\N	\N	115.80	91.80	24.00	1843.21	2566.20	61588.80	70827.12	0.00	0.00	15.00	9238.32	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:46:37	2025-12-10 19:46:37
+552	7	1	5	INV-25/00101	\N	2025-09-11	\N	\N	91.80	67.70	24.10	1843.21	2566.20	61845.42	71122.23	0.00	0.00	15.00	9276.81	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:46:48	2025-12-10 19:46:48
+553	7	1	5	INV-25/00102	\N	2025-09-11	\N	\N	67.70	45.40	22.30	1843.21	2566.20	57226.26	65810.20	0.00	0.00	15.00	8583.94	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:47:03	2025-12-10 19:47:03
+554	7	1	5	INV-25/00103	\N	2025-09-11	\N	\N	45.40	23.17	22.23	1843.21	2566.20	57046.63	65603.62	0.00	0.00	15.00	8556.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:47:12	2025-12-10 19:47:12
+555	7	1	5	INV-25/00104	\N	2025-09-11	\N	\N	23.17	0.00	23.17	1843.21	2566.20	59458.85	68377.68	0.00	0.00	15.00	8918.83	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:47:22	2025-12-10 19:47:22
+556	7	1	5	INV-25/00105	\N	2025-09-11	\N	\N	71.35	47.99	23.36	1843.05	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:49:22	2025-12-10 19:49:22
+557	7	1	5	INV-25/00106	\N	2025-09-11	\N	\N	47.99	24.12	23.87	1843.05	2566.20	61255.19	70443.47	0.00	0.00	15.00	9188.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:49:31	2025-12-10 19:49:31
+558	7	1	5	INV-25/00107	\N	2025-09-11	\N	\N	24.12	0.00	24.12	1843.05	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:49:39	2025-12-10 19:49:39
+559	7	1	5	INV-25/00108	\N	2025-09-12	\N	\N	95.80	71.49	24.31	1843.18	2566.20	62384.32	71741.97	0.00	0.00	15.00	9357.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:52:37	2025-12-10 19:52:37
+560	7	1	5	INV-25/00109	\N	2025-09-12	\N	\N	71.49	47.93	23.56	1843.18	2566.20	60459.67	69528.62	0.00	0.00	15.00	9068.95	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:52:45	2025-12-10 19:52:45
+561	7	1	5	INV-25/00110	\N	2025-09-12	\N	\N	47.93	24.37	23.56	1843.18	2566.20	60459.67	69528.62	0.00	0.00	15.00	9068.95	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:52:52	2025-12-10 19:52:52
+562	7	1	5	INV-25/00111	\N	2025-09-12	\N	\N	24.37	0.00	24.37	1843.18	2566.20	62538.29	71919.04	0.00	0.00	15.00	9380.74	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:52:59	2025-12-10 19:52:59
+563	7	1	5	INV-25/00112	\N	2025-09-13	\N	\N	119.06	94.86	24.20	1843.08	2566.20	62102.04	71417.35	0.00	0.00	15.00	9315.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:57:51	2025-12-10 19:57:51
+564	7	1	5	INV-25/00113	\N	2025-09-13	\N	\N	94.86	71.17	23.69	1843.08	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:58:00	2025-12-10 19:58:00
+565	7	1	5	INV-25/00114	\N	2025-09-13	\N	\N	71.17	47.48	23.69	1843.08	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:58:08	2025-12-10 19:58:08
+566	7	1	5	INV-25/00115	\N	2025-09-13	\N	\N	47.48	23.87	23.61	1843.08	2566.20	60587.98	69676.18	0.00	0.00	15.00	9088.20	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:58:18	2025-12-10 19:58:18
+567	7	1	5	INV-25/00116	\N	2025-09-13	\N	\N	23.87	0.00	23.87	1843.08	2566.20	61255.19	70443.47	0.00	0.00	15.00	9188.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 19:58:27	2025-12-10 19:58:27
+568	7	1	5	INV-25/00117	\N	2025-09-13	\N	\N	97.56	73.20	24.36	1843.16	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 20:20:28	2025-12-10 20:20:28
+569	7	1	5	INV-25/00118	\N	2025-09-13	\N	\N	73.20	49.22	23.98	1843.16	2566.20	61537.48	70768.10	0.00	0.00	15.00	9230.62	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 20:20:36	2025-12-10 20:20:36
+570	7	1	5	INV-25/00119	\N	2025-09-13	\N	\N	49.22	24.66	24.56	1843.16	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 20:20:43	2025-12-10 20:20:43
+571	7	1	5	INV-25/00120	\N	2025-09-13	\N	\N	24.66	0.00	24.66	1843.16	2566.20	63282.49	72774.87	0.00	0.00	15.00	9492.37	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 20:20:50	2025-12-10 20:20:50
+572	5	1	5	INV-25/00002	\N	2025-10-01	\N	\N	24.58	0.58	24.00	1832.67	2688.00	64512.00	69350.40	0.00	0.00	7.50	4838.40	\N	\N	\N	\N	2025-12-10 20:39:30	2025-12-10 20:39:30
+573	2	1	5	INV-25/00027	\N	2025-11-04	\N	\N	60.00	0.00	60.00	1838.97	2560.00	153600.00	165120.00	0.00	0.00	7.50	11520.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-10 21:37:52	2025-12-10 21:37:52
+574	7	1	5	INV-25/00121	\N	2025-09-15	\N	\N	119.00	94.64	24.36	1828.20	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:46:23	2025-12-10 21:46:23
+575	7	1	5	INV-25/00122	\N	2025-09-15	\N	\N	94.64	70.68	23.96	1828.20	2566.20	61486.15	70709.07	0.00	0.00	15.00	9222.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:46:30	2025-12-10 21:46:30
+576	7	1	5	INV-25/00123	\N	2025-09-15	\N	\N	70.68	47.54	23.14	1828.20	2566.20	59381.87	68289.15	0.00	0.00	15.00	8907.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:46:41	2025-12-10 21:46:41
+577	7	1	5	INV-25/00124	\N	2025-09-15	\N	\N	47.54	24.48	23.06	1828.20	2566.20	59176.57	68053.06	0.00	0.00	15.00	8876.49	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:46:49	2025-12-10 21:46:49
+578	7	1	5	INV-25/00125	\N	2025-09-15	\N	\N	24.48	0.00	24.48	1828.20	2566.20	62820.58	72243.66	0.00	0.00	15.00	9423.09	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:46:56	2025-12-10 21:46:56
+579	3	1	5	INV-25/00023	\N	2025-11-04	\N	\N	252.00	204.00	48.00	1838.97	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-10 21:48:07	2025-12-10 21:48:07
+580	3	1	5	INV-25/00024	\N	2025-11-04	\N	\N	204.00	156.00	48.00	1838.97	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	0172596325	Suja Miah	\N	Fenchuganj, Sylhet	2025-12-10 21:48:22	2025-12-10 21:48:22
+581	3	1	5	INV-25/00025	\N	2025-11-04	\N	\N	156.00	108.00	48.00	1838.97	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	0171912213	Jahidul	\N	Tahirpur,Sunanganj	2025-12-10 21:49:01	2025-12-10 21:49:01
+582	7	1	5	INV-25/00126	\N	2025-09-16	\N	\N	73.51	50.39	23.12	1843.19	2566.20	59330.54	68230.13	0.00	0.00	15.00	8899.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:49:14	2025-12-10 21:49:14
+583	3	1	5	INV-25/00026	\N	2025-11-05	\N	\N	108.00	72.00	36.00	1838.97	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	0171912213	Jahidul	\N	Tahirpur,Sunanganj	2025-12-10 21:49:22	2025-12-10 21:49:22
+584	7	1	5	INV-25/00127	\N	2025-09-16	\N	\N	50.39	25.27	25.12	1843.19	2566.20	64462.94	74132.39	0.00	0.00	15.00	9669.44	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:49:22	2025-12-10 21:49:22
+585	7	1	5	INV-25/00128	\N	2025-09-16	\N	\N	25.27	0.00	25.27	1843.19	2566.20	64847.87	74575.06	0.00	0.00	15.00	9727.18	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:49:30	2025-12-10 21:49:30
+586	3	1	5	INV-25/00027	\N	2025-11-05	\N	\N	72.00	0.00	72.00	1838.97	2650.00	190800.00	205110.00	0.00	0.00	7.50	14310.00	0175219326	Ajir Uddin	\N	Dharmapasha,Sunamganj	2025-12-10 21:49:37	2025-12-10 21:49:37
+587	3	1	5	INV-25/00028	\N	2025-11-13	\N	\N	216.00	0.00	216.00	1838.97	2650.00	572400.00	615330.00	0.00	0.00	7.50	42930.00	01829121825	Diponkor Das	\N	Tahirpur, Sunamganj	2025-12-10 21:51:05	2025-12-10 21:51:05
+588	3	1	5	INV-25/00029	\N	2025-11-19	\N	\N	288.00	0.00	288.00	1838.97	2650.00	763200.00	820440.00	0.00	0.00	7.50	57240.00	0171912213	Jahidul	\N	Tahirpur,Sunanganj	2025-12-10 21:52:15	2025-12-10 21:52:15
+589	7	1	5	INV-25/00129	\N	2025-09-16	\N	\N	120.04	96.02	24.02	1843.12	2566.20	61640.12	70886.14	0.00	0.00	15.00	9246.02	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:52:25	2025-12-10 21:52:25
+590	7	1	5	INV-25/00130	\N	2025-09-16	\N	\N	96.02	71.86	24.16	1843.12	2566.20	61999.39	71299.30	0.00	0.00	15.00	9299.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:52:33	2025-12-10 21:52:33
+591	3	1	5	INV-25/00030	\N	2025-11-25	\N	\N	96.00	0.00	96.00	1838.96	2650.00	254400.00	273480.00	0.00	0.00	7.50	19080.00	0171912213	Jahidul	\N	Tahirpur,Sunanganj	2025-12-10 21:53:24	2025-12-10 21:53:24
+592	7	1	5	INV-25/00131	\N	2025-09-16	\N	\N	71.86	48.50	23.36	1843.12	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:54:42	2025-12-10 21:54:42
+593	7	1	5	INV-25/00132	\N	2025-09-16	\N	\N	48.50	24.25	24.25	1843.12	2566.20	62230.35	71564.90	0.00	0.00	15.00	9334.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:54:49	2025-12-10 21:54:49
+594	7	1	5	INV-25/00133	\N	2025-09-16	\N	\N	24.25	0.00	24.25	1843.12	2566.20	62230.35	71564.90	0.00	0.00	15.00	9334.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:54:57	2025-12-10 21:54:57
+595	7	1	5	INV-25/00134	\N	2025-09-18	\N	\N	74.80	50.17	24.63	1843.23	2566.20	63205.51	72686.33	0.00	0.00	15.00	9480.83	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:56:59	2025-12-10 21:56:59
+596	7	1	5	INV-25/00135	\N	2025-09-18	\N	\N	50.17	25.04	25.13	1843.23	2566.20	64488.61	74161.90	0.00	0.00	15.00	9673.29	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:57:06	2025-12-10 21:57:06
+597	7	1	5	INV-25/00136	\N	2025-09-18	\N	\N	25.04	0.00	25.04	1843.23	2566.20	64257.65	73896.30	0.00	0.00	15.00	9638.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 21:57:13	2025-12-10 21:57:13
+598	7	1	5	INV-25/00137	\N	2025-09-18	\N	\N	141.56	118.31	23.25	1843.28	2566.20	59664.15	68613.77	0.00	0.00	15.00	8949.62	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:06:57	2025-12-10 22:06:57
+599	7	1	5	INV-25/00138	\N	2025-09-18	\N	\N	118.31	95.10	23.21	1843.28	2566.20	59561.50	68495.73	0.00	0.00	15.00	8934.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:07:07	2025-12-10 22:07:07
+600	7	1	5	INV-25/00139	\N	2025-09-18	\N	\N	95.10	72.00	23.10	1843.28	2566.20	59279.22	68171.10	0.00	0.00	15.00	8891.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:07:17	2025-12-10 22:07:17
+601	7	1	5	INV-25/00140	\N	2025-09-18	\N	\N	72.00	48.42	23.58	1843.28	2566.20	60511.00	69587.65	0.00	0.00	15.00	9076.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:07:27	2025-12-10 22:07:27
+602	7	1	5	INV-25/00141	\N	2025-09-18	\N	\N	48.42	24.21	24.21	1843.28	2566.20	62127.70	71446.86	0.00	0.00	15.00	9319.16	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:07:35	2025-12-10 22:07:35
+603	7	1	5	INV-25/00142	\N	2025-09-18	\N	\N	24.21	0.00	24.21	1843.28	2566.20	62127.70	71446.86	0.00	0.00	15.00	9319.16	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:07:43	2025-12-10 22:07:43
+604	7	1	5	INV-25/00143	\N	2025-09-23	\N	\N	170.66	146.30	24.36	1843.26	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:09:27	2025-12-10 22:09:27
+605	7	1	5	INV-25/00144	\N	2025-09-23	\N	\N	146.30	121.94	24.36	1843.26	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:09:35	2025-12-10 22:09:35
+606	7	1	5	INV-25/00145	\N	2025-09-23	\N	\N	121.94	96.64	25.30	1843.26	2566.20	64924.86	74663.59	0.00	0.00	15.00	9738.73	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:09:54	2025-12-10 22:09:54
+607	7	1	5	INV-25/00146	\N	2025-09-23	\N	\N	96.64	71.66	24.98	1843.26	2566.20	64103.68	73719.23	0.00	0.00	15.00	9615.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:10:04	2025-12-10 22:10:04
+608	7	1	5	INV-25/00147	\N	2025-09-23	\N	\N	71.66	47.97	23.69	1843.26	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:10:16	2025-12-10 22:10:16
+609	7	1	5	INV-25/00148	\N	2025-09-23	\N	\N	47.97	23.97	24.00	1843.26	2566.20	61588.80	70827.12	0.00	0.00	15.00	9238.32	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:10:24	2025-12-10 22:10:24
+610	7	1	5	INV-25/00149	\N	2025-09-23	\N	\N	23.97	0.00	23.97	1843.26	2566.20	61511.81	70738.59	0.00	0.00	15.00	9226.77	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:10:32	2025-12-10 22:10:32
+611	7	1	5	INV-25/00150	\N	2025-09-23	\N	\N	99.56	75.24	24.32	1843.21	2566.20	62409.98	71771.48	0.00	0.00	15.00	9361.50	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:12:14	2025-12-10 22:12:14
+612	7	1	5	INV-25/00151	\N	2025-09-23	\N	\N	75.24	50.88	24.36	1843.21	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:12:23	2025-12-10 22:12:23
+613	7	1	5	INV-25/00152	\N	2025-09-23	\N	\N	50.88	25.52	25.36	1843.21	2566.20	65078.83	74840.66	0.00	0.00	15.00	9761.82	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:12:31	2025-12-10 22:12:31
+614	7	1	5	INV-25/00153	\N	2025-09-23	\N	\N	25.52	0.00	25.52	1843.21	2566.20	65489.42	75312.84	0.00	0.00	15.00	9823.41	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:12:38	2025-12-10 22:12:38
+615	7	1	5	INV-25/00154	\N	2025-09-24	\N	\N	74.95	50.32	24.63	1843.16	2566.20	63205.51	72686.33	0.00	0.00	15.00	9480.83	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:14:38	2025-12-10 22:14:38
+616	7	1	5	INV-25/00155	\N	2025-09-24	\N	\N	50.32	24.96	25.36	1843.16	2566.20	65078.83	74840.66	0.00	0.00	15.00	9761.82	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:14:46	2025-12-10 22:14:46
+617	7	1	5	INV-25/00156	\N	2025-09-24	\N	\N	24.96	0.00	24.96	1843.16	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:14:54	2025-12-10 22:14:54
+618	7	1	5	INV-25/00157	\N	2025-09-25	\N	\N	99.17	74.48	24.69	1843.43	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:18:25	2025-12-10 22:18:25
+619	7	1	5	INV-25/00158	\N	2025-09-25	\N	\N	74.48	49.48	25.00	1843.43	2566.20	64155.00	73778.25	0.00	0.00	15.00	9623.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:18:34	2025-12-10 22:18:34
+620	7	1	5	INV-25/00159	\N	2025-09-25	\N	\N	49.48	24.50	24.98	1843.43	2566.20	64103.68	73719.23	0.00	0.00	15.00	9615.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:18:42	2025-12-10 22:18:42
+621	7	1	5	INV-25/00160	\N	2025-09-25	\N	\N	24.50	0.00	24.50	1843.43	2566.20	62871.90	72302.69	0.00	0.00	15.00	9430.79	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:18:51	2025-12-10 22:18:51
+622	7	1	5	INV-25/00161	\N	2025-09-26	\N	\N	148.58	123.58	25.00	1843.20	2566.20	64155.00	73778.25	0.00	0.00	15.00	9623.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:26:39	2025-12-10 22:26:39
+623	7	1	5	INV-25/00162	\N	2025-09-26	\N	\N	123.58	98.46	25.12	1843.20	2566.20	64462.94	74132.39	0.00	0.00	15.00	9669.44	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:26:47	2025-12-10 22:26:47
+624	7	1	5	INV-25/00163	\N	2025-09-26	\N	\N	98.46	73.59	24.87	1843.20	2566.20	63821.39	73394.60	0.00	0.00	15.00	9573.21	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:26:55	2025-12-10 22:26:55
+625	7	1	5	INV-25/00164	\N	2025-09-26	\N	\N	73.59	49.23	24.36	1843.20	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:27:02	2025-12-10 22:27:02
+626	7	1	5	INV-25/00165	\N	2025-09-26	\N	\N	49.23	24.64	24.59	1843.20	2566.20	63102.86	72568.29	0.00	0.00	15.00	9465.43	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:27:10	2025-12-10 22:27:10
+627	7	1	5	INV-25/00166	\N	2025-09-26	\N	\N	24.64	0.00	24.64	1843.20	2566.20	63231.17	72715.84	0.00	0.00	15.00	9484.68	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-10 22:27:18	2025-12-10 22:27:18
+628	5	1	5	INV-25/00003	\N	2025-10-01	\N	\N	24.73	0.73	24.00	1832.73	2688.00	64512.00	69350.40	0.00	0.00	7.50	4838.40	\N	\N	\N	\N	2025-12-10 22:51:49	2025-12-10 22:51:49
+629	5	1	5	INV-25/00004	\N	2025-10-01	\N	\N	12.73	0.73	12.00	1832.68	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-10 22:55:47	2025-12-10 22:55:47
+630	5	1	5	INV-25/00005	\N	2025-10-01	\N	\N	112.00	76.00	36.00	1832.70	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-10 22:58:42	2025-12-10 22:58:42
+631	5	1	5	INV-25/00006	\N	2025-10-01	\N	\N	76.00	40.00	36.00	1832.70	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-10 22:58:55	2025-12-10 22:58:55
+632	5	1	5	INV-25/00007	\N	2025-10-01	\N	\N	40.00	0.00	40.00	1832.70	2688.00	107520.00	115584.00	0.00	0.00	7.50	8064.00	\N	\N	\N	\N	2025-12-10 22:59:10	2025-12-10 22:59:10
+633	5	1	5	INV-25/00008	\N	2025-10-01	\N	\N	73.90	37.90	36.00	1832.57	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-10 23:00:59	2025-12-10 23:00:59
+634	5	1	5	INV-25/00009	\N	2025-10-01	\N	\N	37.90	0.90	37.00	1832.57	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-10 23:01:07	2025-12-10 23:01:07
+635	5	1	5	INV-25/00010	\N	2025-10-02	\N	\N	37.58	0.58	37.00	1832.71	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-10 23:15:40	2025-12-10 23:15:40
+636	5	1	5	INV-25/00011	\N	2025-10-02	\N	\N	25.58	0.58	25.00	1832.65	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-10 23:17:23	2025-12-10 23:17:23
+637	5	1	5	INV-25/00012	\N	2025-10-02	\N	\N	50.58	0.58	50.00	1832.65	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-10 23:19:05	2025-12-10 23:19:05
+638	5	1	5	INV-25/00013	\N	2025-10-02	\N	\N	49.93	24.93	25.00	1832.60	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-10 23:21:03	2025-12-10 23:21:03
+639	5	1	5	INV-25/00014	\N	2025-10-02	\N	\N	24.93	0.93	24.00	1832.60	2688.00	64512.00	69350.40	0.00	0.00	7.50	4838.40	\N	\N	\N	\N	2025-12-10 23:21:11	2025-12-10 23:21:11
+640	5	1	5	INV-25/00015	\N	2025-10-03	\N	\N	49.31	0.31	49.00	1832.55	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-10 23:22:47	2025-12-10 23:22:47
+641	5	1	5	INV-25/00016	\N	2025-10-03	\N	\N	100.72	50.72	50.00	1832.61	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-10 23:36:21	2025-12-10 23:36:21
+642	5	1	5	INV-25/00017	\N	2025-10-03	\N	\N	50.72	0.72	50.00	1832.61	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-10 23:36:33	2025-12-10 23:36:33
+643	5	1	5	INV-25/00018	\N	2025-10-03	\N	\N	12.89	0.89	12.00	1832.74	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-10 23:38:36	2025-12-10 23:38:36
+644	5	1	5	INV-25/00019	\N	2025-10-03	\N	\N	38.09	0.09	38.00	1832.68	2688.00	102144.00	109804.80	0.00	0.00	7.50	7660.80	\N	\N	\N	\N	2025-12-10 23:41:53	2025-12-10 23:41:53
+645	5	1	5	INV-25/00020	\N	2025-10-03	\N	\N	12.59	0.59	12.00	1843.47	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-10 23:43:48	2025-12-10 23:43:48
+646	5	1	5	INV-25/00021	\N	2025-10-04	\N	\N	49.59	0.59	49.00	1843.55	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-10 23:45:37	2025-12-10 23:45:37
+647	5	1	5	INV-25/00022	\N	2025-10-04	\N	\N	37.99	0.99	37.00	1843.52	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-10 23:49:19	2025-12-10 23:49:19
+648	5	1	5	INV-25/00023	\N	2025-10-04	\N	\N	13.49	0.49	13.00	1843.47	2688.00	34944.00	37564.80	0.00	0.00	7.50	2620.80	\N	\N	\N	\N	2025-12-10 23:52:51	2025-12-10 23:52:51
+649	5	1	5	INV-25/00024	\N	2025-10-04	\N	\N	49.49	0.49	49.00	1843.55	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-11 00:05:55	2025-12-11 00:05:55
+650	5	1	5	INV-25/00025	\N	2025-10-04	\N	\N	25.31	0.31	25.00	1843.55	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-11 00:10:07	2025-12-11 00:10:07
+651	5	1	5	INV-25/00026	\N	2025-10-05	\N	\N	50.38	26.38	24.00	1843.38	2688.00	64512.00	69350.40	0.00	0.00	7.50	4838.40	\N	\N	\N	\N	2025-12-11 00:12:36	2025-12-11 00:12:36
+652	5	1	5	INV-25/00027	\N	2025-10-05	\N	\N	26.38	0.38	26.00	1843.38	2688.00	69888.00	75129.60	0.00	0.00	7.50	5241.60	\N	\N	\N	\N	2025-12-11 00:12:45	2025-12-11 00:12:45
+653	5	1	5	INV-25/00028	\N	2025-10-05	\N	\N	12.63	0.63	12.00	1843.55	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-11 00:14:28	2025-12-11 00:14:28
+654	5	1	5	INV-25/00029	\N	2025-10-05	\N	\N	50.13	0.13	50.00	1843.44	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 00:16:10	2025-12-11 00:16:10
+655	5	1	5	INV-25/00030	\N	2025-10-05	\N	\N	37.83	0.83	37.00	1843.49	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 00:17:32	2025-12-11 00:17:32
+656	5	1	5	INV-25/00031	\N	2025-10-06	\N	\N	75.08	39.08	36.00	1843.46	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 00:18:59	2025-12-11 00:18:59
+657	5	1	5	INV-25/00032	\N	2025-10-06	\N	\N	39.08	0.08	39.00	1843.46	2688.00	104832.00	112694.40	0.00	0.00	7.50	7862.40	\N	\N	\N	\N	2025-12-11 00:19:07	2025-12-11 00:19:07
+658	5	1	5	INV-25/00033	\N	2025-10-07	\N	\N	49.92	0.92	49.00	1843.53	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-11 00:20:41	2025-12-11 00:20:41
+659	5	1	5	INV-25/00034	\N	2025-10-07	\N	\N	86.81	62.81	24.00	1843.54	2688.00	64512.00	69350.40	0.00	0.00	7.50	4838.40	\N	\N	\N	\N	2025-12-11 00:42:09	2025-12-11 00:42:09
+660	5	1	5	INV-25/00035	\N	2025-10-07	\N	\N	62.81	30.81	32.00	1843.54	2688.00	86016.00	92467.20	0.00	0.00	7.50	6451.20	\N	\N	\N	\N	2025-12-11 00:42:21	2025-12-11 00:42:21
+661	5	1	5	INV-25/00036	\N	2025-10-07	\N	\N	30.81	0.81	30.00	1843.54	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 00:42:29	2025-12-11 00:42:29
+662	5	1	5	INV-25/00037	\N	2025-10-08	\N	\N	13.01	0.01	13.00	1843.57	2688.00	34944.00	37564.80	0.00	0.00	7.50	2620.80	\N	\N	\N	\N	2025-12-11 01:22:05	2025-12-11 01:22:05
+663	5	1	5	INV-25/00038	\N	2025-10-09	\N	\N	113.28	77.28	36.00	1843.50	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 01:31:49	2025-12-11 01:31:49
+664	5	1	5	INV-25/00039	\N	2025-10-09	\N	\N	77.28	37.28	40.00	1843.50	2688.00	107520.00	115584.00	0.00	0.00	7.50	8064.00	\N	\N	\N	\N	2025-12-11 01:32:00	2025-12-11 01:32:00
+665	5	1	5	INV-25/00040	\N	2025-10-09	\N	\N	37.28	0.28	37.00	1843.50	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 01:32:09	2025-12-11 01:32:09
+666	5	1	5	INV-25/00041	\N	2025-10-10	\N	\N	99.17	49.17	50.00	1843.54	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 01:33:51	2025-12-11 01:33:51
+667	5	1	5	INV-25/00042	\N	2025-10-10	\N	\N	49.17	0.17	49.00	1843.54	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-11 01:33:58	2025-12-11 01:33:58
+668	5	1	5	INV-25/00043	\N	2025-10-10	\N	\N	75.23	41.23	34.00	1843.04	2688.00	91392.00	98246.40	0.00	0.00	7.50	6854.40	\N	\N	\N	\N	2025-12-11 01:36:38	2025-12-11 01:36:38
+669	5	1	5	INV-25/00044	\N	2025-10-10	\N	\N	41.23	0.23	41.00	1843.04	2688.00	110208.00	118473.60	0.00	0.00	7.50	8265.60	\N	\N	\N	\N	2025-12-11 01:36:46	2025-12-11 01:36:46
+670	5	1	5	INV-25/00045	\N	2025-10-10	\N	\N	12.67	0.67	12.00	1843.07	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-11 01:38:12	2025-12-11 01:38:12
+671	5	1	5	INV-25/00046	\N	2025-10-10	\N	\N	62.35	32.35	30.00	1843.03	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 02:15:02	2025-12-11 02:15:02
+672	5	1	5	INV-25/00047	\N	2025-10-10	\N	\N	32.35	0.35	32.00	1843.03	2688.00	86016.00	92467.20	0.00	0.00	7.50	6451.20	\N	\N	\N	\N	2025-12-11 02:15:09	2025-12-11 02:15:09
+673	5	1	5	INV-25/00048	\N	2025-10-10	\N	\N	25.09	0.09	25.00	1842.98	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-11 02:16:52	2025-12-11 02:16:52
+674	5	1	5	INV-25/00049	\N	2025-10-11	\N	\N	36.51	0.51	36.00	1843.04	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:18:06	2025-12-11 02:18:06
+675	5	1	5	INV-25/00050	\N	2025-10-11	\N	\N	25.37	0.37	25.00	1843.02	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-11 02:23:20	2025-12-11 02:23:20
+676	5	1	5	INV-25/00051	\N	2025-10-11	\N	\N	113.30	77.30	36.00	1843.01	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:24:33	2025-12-11 02:24:33
+677	5	1	5	INV-25/00052	\N	2025-10-11	\N	\N	77.30	41.30	36.00	1843.01	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:24:42	2025-12-11 02:24:42
+678	5	1	5	INV-25/00053	\N	2025-10-11	\N	\N	41.30	0.30	41.00	1843.01	2688.00	110208.00	118473.60	0.00	0.00	7.50	8265.60	\N	\N	\N	\N	2025-12-11 02:24:48	2025-12-11 02:24:48
+679	5	1	5	INV-25/00054	\N	2025-10-12	\N	\N	49.41	0.41	49.00	1843.02	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-11 02:26:00	2025-12-11 02:26:00
+680	5	1	5	INV-25/00055	\N	2025-10-12	\N	\N	76.00	40.00	36.00	1843.06	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:30:56	2025-12-11 02:30:56
+681	5	1	5	INV-25/00056	\N	2025-10-12	\N	\N	40.00	0.00	40.00	1843.06	2688.00	107520.00	115584.00	0.00	0.00	7.50	8064.00	\N	\N	\N	\N	2025-12-11 02:31:04	2025-12-11 02:31:04
+682	5	1	5	INV-25/00057	\N	2025-10-13	\N	\N	36.74	0.74	36.00	1842.99	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:32:39	2025-12-11 02:32:39
+683	5	1	5	INV-25/00058	\N	2025-10-13	\N	\N	100.54	64.54	36.00	1843.06	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:34:26	2025-12-11 02:34:26
+684	5	1	5	INV-25/00059	\N	2025-10-13	\N	\N	64.54	28.54	36.00	1843.06	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 02:34:35	2025-12-11 02:34:35
+685	5	1	5	INV-25/00060	\N	2025-10-13	\N	\N	28.54	0.54	28.00	1843.06	2688.00	75264.00	80908.80	0.00	0.00	7.50	5644.80	\N	\N	\N	\N	2025-12-11 02:34:42	2025-12-11 02:34:42
+686	5	1	5	INV-25/00061	\N	2025-10-14	\N	\N	147.99	97.99	50.00	1842.96	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 02:38:21	2025-12-11 02:38:21
+687	5	1	5	INV-25/00062	\N	2025-10-14	\N	\N	97.99	47.99	50.00	1842.96	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 02:38:34	2025-12-11 02:38:34
+688	5	1	5	INV-25/00063	\N	2025-10-14	\N	\N	47.99	0.99	47.00	1842.96	2688.00	126336.00	135811.20	0.00	0.00	7.50	9475.20	\N	\N	\N	\N	2025-12-11 02:38:43	2025-12-11 02:38:43
+689	5	1	5	INV-25/00064	\N	2025-10-15	\N	\N	61.44	31.44	30.00	1843.08	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 03:00:57	2025-12-11 03:00:57
+690	5	1	5	INV-25/00065	\N	2025-10-15	\N	\N	31.44	0.44	31.00	1843.08	2688.00	83328.00	89577.60	0.00	0.00	7.50	6249.60	\N	\N	\N	\N	2025-12-11 03:01:04	2025-12-11 03:01:04
+691	5	1	5	INV-25/00066	\N	2025-10-15	\N	\N	12.94	0.94	12.00	1842.96	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-11 03:03:40	2025-12-11 03:03:40
+692	5	1	5	INV-25/00067	\N	2025-10-16	\N	\N	100.25	50.25	50.00	1843.07	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 03:10:58	2025-12-11 03:10:58
+693	5	1	5	INV-25/00068	\N	2025-10-16	\N	\N	50.25	0.25	50.00	1843.07	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 03:11:04	2025-12-11 03:11:04
+694	5	1	5	INV-25/00069	\N	2025-10-17	\N	\N	87.55	37.55	50.00	1843.04	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 03:13:37	2025-12-11 03:13:37
+695	5	1	5	INV-25/00070	\N	2025-10-17	\N	\N	37.55	0.55	37.00	1843.04	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 03:13:46	2025-12-11 03:13:46
+696	5	1	5	INV-25/00071	\N	2025-10-18	\N	\N	75.54	39.54	36.00	1842.96	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 03:15:20	2025-12-11 03:15:20
+697	5	1	5	INV-25/00072	\N	2025-10-18	\N	\N	39.54	0.54	39.00	1842.96	2688.00	104832.00	112694.40	0.00	0.00	7.50	7862.40	\N	\N	\N	\N	2025-12-11 03:15:34	2025-12-11 03:15:34
+698	5	1	5	INV-25/00073	\N	2025-10-18	\N	\N	49.84	0.84	49.00	1842.96	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-11 03:19:32	2025-12-11 03:19:32
+699	5	1	5	INV-25/00074	\N	2025-10-18	\N	\N	61.94	30.94	31.00	1843.07	2688.00	83328.00	89577.60	0.00	0.00	7.50	6249.60	\N	\N	\N	\N	2025-12-11 03:22:05	2025-12-11 03:22:05
+700	5	1	5	INV-25/00075	\N	2025-10-18	\N	\N	30.94	0.94	30.00	1843.07	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 03:22:16	2025-12-11 03:22:16
+701	5	1	5	INV-25/00076	\N	2025-10-19	\N	\N	88.18	52.18	36.00	1842.91	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 03:25:51	2025-12-11 03:25:51
+702	5	1	5	INV-25/00077	\N	2025-10-19	\N	\N	52.18	28.18	24.00	1842.91	2688.00	64512.00	69350.40	0.00	0.00	7.50	4838.40	\N	\N	\N	\N	2025-12-11 03:26:10	2025-12-11 03:26:10
+703	5	1	5	INV-25/00078	\N	2025-10-19	\N	\N	28.18	0.18	28.00	1842.91	2688.00	75264.00	80908.80	0.00	0.00	7.50	5644.80	\N	\N	\N	\N	2025-12-11 03:26:23	2025-12-11 03:26:23
+704	5	1	5	INV-25/00079	\N	2025-10-19	\N	\N	12.18	0.18	12.00	1843.00	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-11 04:37:58	2025-12-11 04:37:58
+705	5	1	5	INV-25/00080	\N	2025-10-20	\N	\N	37.77	0.77	37.00	1841.68	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 04:47:31	2025-12-11 04:47:31
+706	5	1	5	INV-25/00081	\N	2025-10-20	\N	\N	50.53	0.53	50.00	1841.77	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 04:50:12	2025-12-11 04:50:12
+707	5	1	5	INV-25/00082	\N	2025-10-20	\N	\N	86.41	38.41	48.00	1841.67	2688.00	129024.00	138700.80	0.00	0.00	7.50	9676.80	\N	\N	\N	\N	2025-12-11 04:51:40	2025-12-11 04:51:40
+708	5	1	5	INV-25/00083	\N	2025-10-20	\N	\N	38.41	0.41	38.00	1841.67	2688.00	102144.00	109804.80	0.00	0.00	7.50	7660.80	\N	\N	\N	\N	2025-12-11 04:51:48	2025-12-11 04:51:48
+709	5	1	5	INV-25/00084	\N	2025-10-21	\N	\N	86.32	50.32	36.00	1841.59	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 04:53:57	2025-12-11 04:53:57
+710	5	1	5	INV-25/00085	\N	2025-10-21	\N	\N	50.32	0.32	50.00	1841.59	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 04:54:05	2025-12-11 04:54:05
+711	5	1	5	INV-25/00086	\N	2025-10-21	\N	\N	136.29	100.29	36.00	1841.66	2688.00	96768.00	104025.60	0.00	0.00	7.50	7257.60	\N	\N	\N	\N	2025-12-11 06:22:03	2025-12-11 06:22:03
+712	5	1	5	INV-25/00087	\N	2025-10-21	\N	\N	100.29	50.29	50.00	1841.66	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 06:22:16	2025-12-11 06:22:16
+713	5	1	5	INV-25/00088	\N	2025-10-21	\N	\N	50.29	0.29	50.00	1841.66	2688.00	134400.00	144480.00	0.00	0.00	7.50	10080.00	\N	\N	\N	\N	2025-12-11 06:22:23	2025-12-11 06:22:23
+714	5	1	5	INV-25/00089	\N	2025-10-22	\N	\N	25.29	0.29	25.00	1841.66	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-11 06:23:47	2025-12-11 06:23:47
+715	5	1	5	INV-25/00090	\N	2025-10-22	\N	\N	37.51	0.51	37.00	1841.69	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 06:25:46	2025-12-11 06:25:46
+716	5	1	5	INV-25/00091	\N	2025-10-23	\N	\N	37.97	0.97	37.00	1841.69	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 06:27:09	2025-12-11 06:27:09
+717	5	1	5	INV-25/00092	\N	2025-10-23	\N	\N	74.54	34.54	40.00	1841.72	2688.00	107520.00	115584.00	0.00	0.00	7.50	8064.00	\N	\N	\N	\N	2025-12-11 06:29:02	2025-12-11 06:29:02
+718	5	1	5	INV-25/00093	\N	2025-10-23	\N	\N	34.54	0.54	34.00	1841.72	2688.00	91392.00	98246.40	0.00	0.00	7.50	6854.40	\N	\N	\N	\N	2025-12-11 06:29:10	2025-12-11 06:29:10
+719	5	1	5	INV-25/00094	\N	2025-10-23	\N	\N	12.92	0.92	12.00	1841.73	2688.00	32256.00	34675.20	0.00	0.00	7.50	2419.20	\N	\N	\N	\N	2025-12-11 06:30:25	2025-12-11 06:30:25
+720	5	1	5	INV-25/00095	\N	2025-10-24	\N	\N	61.05	30.05	31.00	1841.78	2688.00	83328.00	89577.60	0.00	0.00	7.50	6249.60	\N	\N	\N	\N	2025-12-11 06:31:36	2025-12-11 06:31:36
+721	5	1	5	INV-25/00096	\N	2025-10-24	\N	\N	30.05	0.05	30.00	1841.78	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 06:31:43	2025-12-11 06:31:43
+722	5	1	5	INV-25/00097	\N	2025-10-28	\N	\N	60.35	30.35	30.00	1841.76	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 06:32:55	2025-12-11 06:32:55
+723	5	1	5	INV-25/00098	\N	2025-10-28	\N	\N	30.35	0.35	30.00	1841.76	2688.00	80640.00	86688.00	0.00	0.00	7.50	6048.00	\N	\N	\N	\N	2025-12-11 06:33:03	2025-12-11 06:33:03
+724	5	1	5	INV-25/00099	\N	2025-10-29	\N	\N	37.08	0.08	37.00	1841.62	2688.00	99456.00	106915.20	0.00	0.00	7.50	7459.20	\N	\N	\N	\N	2025-12-11 06:34:15	2025-12-11 06:34:15
+725	5	1	5	INV-25/00100	\N	2025-10-30	\N	\N	74.19	39.19	35.00	1841.77	2688.00	94080.00	101136.00	0.00	0.00	7.50	7056.00	\N	\N	\N	\N	2025-12-11 06:35:52	2025-12-11 06:35:52
+726	5	1	5	INV-25/00101	\N	2025-10-30	\N	\N	39.19	0.19	39.00	1841.77	2688.00	104832.00	112694.40	0.00	0.00	7.50	7862.40	\N	\N	\N	\N	2025-12-11 06:35:59	2025-12-11 06:35:59
+727	5	1	5	INV-25/00102	\N	2025-10-30	\N	\N	49.22	0.22	49.00	1841.75	2688.00	131712.00	141590.40	0.00	0.00	7.50	9878.40	\N	\N	\N	\N	2025-12-11 06:37:31	2025-12-11 06:37:31
+728	5	1	5	INV-25/00103	\N	2025-10-30	\N	\N	25.15	0.15	25.00	1841.69	2688.00	67200.00	72240.00	0.00	0.00	7.50	5040.00	\N	\N	\N	\N	2025-12-11 06:39:28	2025-12-11 06:39:28
+729	5	1	5	INV-25/00104	\N	2025-11-02	\N	\N	49.61	0.61	49.00	1838.97	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-11 06:50:12	2025-12-11 06:50:12
+730	5	1	5	INV-25/00105	\N	2025-11-04	\N	\N	50.50	0.50	50.00	1838.94	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 06:56:39	2025-12-11 06:56:39
+731	5	1	5	INV-25/00106	\N	2025-11-05	\N	\N	75.55	40.55	35.00	1838.95	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-11 06:57:42	2025-12-11 06:57:42
+732	5	1	5	INV-25/00107	\N	2025-11-05	\N	\N	40.55	0.55	40.00	1838.95	2650.00	106000.00	113950.00	0.00	0.00	7.50	7950.00	\N	\N	\N	\N	2025-12-11 06:57:48	2025-12-11 06:57:48
+733	5	1	5	INV-25/00108	\N	2025-11-05	\N	\N	25.47	0.47	25.00	1838.98	2650.00	66250.00	71218.75	0.00	0.00	7.50	4968.75	\N	\N	\N	\N	2025-12-11 06:59:15	2025-12-11 06:59:15
+734	5	1	5	INV-25/00109	\N	2025-11-06	\N	\N	50.68	0.68	50.00	1838.94	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 07:00:18	2025-12-11 07:00:18
+735	5	1	5	INV-25/00110	\N	2025-11-06	\N	\N	13.00	0.00	13.00	1838.94	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-11 07:01:50	2025-12-11 07:01:50
+736	5	1	5	INV-25/00111	\N	2025-11-07	\N	\N	36.94	0.94	36.00	1838.92	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:02:52	2025-12-11 07:02:52
+737	5	1	5	INV-25/00112	\N	2025-11-09	\N	\N	62.09	32.09	30.00	1838.90	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-11 07:03:56	2025-12-11 07:03:56
+738	5	1	5	INV-25/00113	\N	2025-11-09	\N	\N	32.09	0.09	32.00	1838.90	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-11 07:04:02	2025-12-11 07:04:02
+739	5	1	5	INV-25/00114	\N	2025-11-09	\N	\N	49.95	0.95	49.00	1838.91	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-11 07:05:08	2025-12-11 07:05:08
+740	5	1	5	INV-25/00115	\N	2025-11-11	\N	\N	13.58	0.58	13.00	1838.79	2650.00	34450.00	37033.75	0.00	0.00	7.50	2583.75	\N	\N	\N	\N	2025-12-11 07:06:16	2025-12-11 07:06:16
+741	5	1	5	INV-25/00116	\N	2025-11-11	\N	\N	88.47	48.47	40.00	1838.89	2650.00	106000.00	113950.00	0.00	0.00	7.50	7950.00	\N	\N	\N	\N	2025-12-11 07:07:34	2025-12-11 07:07:34
+742	5	1	5	INV-25/00117	\N	2025-11-11	\N	\N	48.47	0.47	48.00	1838.89	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-11 07:07:40	2025-12-11 07:07:40
+743	5	1	5	INV-25/00118	\N	2025-11-12	\N	\N	50.10	0.10	50.00	1838.92	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 07:08:54	2025-12-11 07:08:54
+744	5	1	5	INV-25/00119	\N	2025-11-13	\N	\N	37.60	0.60	37.00	1838.88	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-11 07:09:56	2025-12-11 07:09:56
+745	5	1	5	INV-25/00120	\N	2025-11-13	\N	\N	12.60	0.60	12.00	1838.84	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-11 07:11:57	2025-12-11 07:11:57
+746	5	1	5	INV-25/00121	\N	2025-11-14	\N	\N	175.65	139.65	36.00	1838.95	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:13:06	2025-12-11 07:13:06
+747	5	1	5	INV-25/00122	\N	2025-11-14	\N	\N	139.65	100.65	39.00	1838.95	2650.00	103350.00	111101.25	0.00	0.00	7.50	7751.25	\N	\N	\N	\N	2025-12-11 07:13:14	2025-12-11 07:13:14
+748	5	1	5	INV-25/00123	\N	2025-11-14	\N	\N	100.65	50.65	50.00	1838.95	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 07:13:20	2025-12-11 07:13:20
+749	5	1	5	INV-25/00124	\N	2025-11-14	\N	\N	50.65	0.65	50.00	1838.95	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 07:13:28	2025-12-11 07:13:28
+750	5	1	5	INV-25/00125	\N	2025-11-16	\N	\N	111.92	75.92	36.00	1838.94	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:14:37	2025-12-11 07:14:37
+751	5	1	5	INV-25/00126	\N	2025-11-16	\N	\N	75.92	35.92	40.00	1838.94	2650.00	106000.00	113950.00	0.00	0.00	7.50	7950.00	\N	\N	\N	\N	2025-12-11 07:14:45	2025-12-11 07:14:45
+752	5	1	5	INV-25/00127	\N	2025-11-16	\N	\N	35.92	0.92	35.00	1838.94	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-11 07:14:53	2025-12-11 07:14:53
+753	5	1	5	INV-25/00128	\N	2025-11-19	\N	\N	63.18	30.18	33.00	1839.06	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-11 07:15:59	2025-12-11 07:15:59
+754	5	1	5	INV-25/00129	\N	2025-11-19	\N	\N	30.18	0.18	30.00	1839.06	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-11 07:16:05	2025-12-11 07:16:05
+755	5	1	5	INV-25/00130	\N	2025-11-19	\N	\N	48.18	0.18	48.00	1838.92	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-11 07:18:02	2025-12-11 07:18:02
+756	5	1	5	INV-25/00131	\N	2025-11-20	\N	\N	62.60	30.60	32.00	1838.94	2650.00	84800.00	91160.00	0.00	0.00	7.50	6360.00	\N	\N	\N	\N	2025-12-11 07:19:04	2025-12-11 07:19:04
+757	5	1	5	INV-25/00132	\N	2025-11-20	\N	\N	30.60	0.60	30.00	1838.94	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-11 07:19:10	2025-12-11 07:19:10
+758	5	1	5	INV-25/00133	\N	2025-11-21	\N	\N	87.08	37.08	50.00	1838.89	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 07:20:09	2025-12-11 07:20:09
+759	5	1	5	INV-25/00134	\N	2025-11-21	\N	\N	37.08	0.08	37.00	1838.89	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-11 07:20:16	2025-12-11 07:20:16
+760	5	1	5	INV-25/00135	\N	2025-11-26	\N	\N	24.08	0.08	24.00	1838.94	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-11 07:21:19	2025-12-11 07:21:19
+761	5	1	5	INV-25/00136	\N	2025-11-26	\N	\N	108.08	72.08	36.00	1838.96	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:22:39	2025-12-11 07:22:39
+762	5	1	5	INV-25/00137	\N	2025-11-26	\N	\N	72.08	36.08	36.00	1838.96	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:22:49	2025-12-11 07:22:49
+763	5	1	5	INV-25/00138	\N	2025-11-26	\N	\N	36.08	0.08	36.00	1838.96	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:22:54	2025-12-11 07:22:54
+764	5	1	5	INV-25/00139	\N	2025-11-27	\N	\N	12.08	0.08	12.00	1838.94	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-11 07:24:03	2025-12-11 07:24:03
+765	5	1	5	INV-25/00140	\N	2025-11-28	\N	\N	48.33	0.33	48.00	1838.89	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-11 07:25:12	2025-12-11 07:25:12
+766	5	1	5	INV-25/00141	\N	2025-11-28	\N	\N	36.50	0.50	36.00	1838.91	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-11 07:26:21	2025-12-11 07:26:21
+767	5	1	5	INV-25/00142	\N	2025-11-28	\N	\N	12.50	0.50	12.00	1838.94	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-11 07:27:10	2025-12-11 07:27:10
+768	5	1	5	INV-25/00143	\N	2025-11-30	\N	\N	85.37	35.37	50.00	1838.94	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-11 07:28:13	2025-12-11 07:28:13
+769	5	1	5	INV-25/00144	\N	2025-11-30	\N	\N	35.37	0.37	35.00	1838.94	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-11 07:28:20	2025-12-11 07:28:20
+770	6	1	5	INV-25/00001	\N	2025-10-01	\N	\N	74.06	40.06	34.00	1832.74	2651.16	90139.44	96899.90	0.00	0.00	7.50	6760.46	\N	\N	\N	\N	2025-12-11 19:23:12	2025-12-11 19:23:12
+771	6	1	5	INV-25/00002	\N	2025-10-01	\N	\N	40.06	0.06	40.00	1832.74	2651.16	106046.40	113999.88	0.00	0.00	7.50	7953.48	\N	\N	\N	\N	2025-12-11 19:23:18	2025-12-11 19:23:18
+772	6	1	5	INV-25/00003	\N	2025-10-01	\N	\N	75.18	35.18	40.00	1832.64	2651.16	106046.40	113999.88	0.00	0.00	7.50	7953.48	\N	\N	\N	\N	2025-12-11 19:24:37	2025-12-11 19:24:37
+773	6	1	5	INV-25/00004	\N	2025-10-01	\N	\N	35.18	0.18	35.00	1832.64	2651.16	92790.60	99749.90	0.00	0.00	7.50	6959.30	\N	\N	\N	\N	2025-12-11 19:24:43	2025-12-11 19:24:43
+774	6	1	5	INV-25/00005	\N	2025-10-01	\N	\N	74.81	40.81	34.00	1832.75	2651.16	90139.44	96899.90	0.00	0.00	7.50	6760.46	\N	\N	\N	\N	2025-12-11 21:14:39	2025-12-11 21:14:39
+775	6	1	5	INV-25/00006	\N	2025-10-01	\N	\N	40.81	0.81	40.00	1832.75	2651.16	106046.40	113999.88	0.00	0.00	7.50	7953.48	\N	\N	\N	\N	2025-12-11 21:14:51	2025-12-11 21:14:51
+776	6	1	5	INV-25/00007	\N	2025-10-01	\N	\N	74.47	34.47	40.00	1832.72	2651.16	106046.40	113999.88	0.00	0.00	7.50	7953.48	\N	\N	\N	\N	2025-12-11 21:17:05	2025-12-11 21:17:05
+777	6	1	5	INV-25/00008	\N	2025-10-01	\N	\N	34.47	0.47	34.00	1832.72	2651.16	90139.44	96899.90	0.00	0.00	7.50	6760.46	\N	\N	\N	\N	2025-12-11 21:17:16	2025-12-11 21:17:16
+778	6	1	5	INV-25/00009	\N	2025-10-02	\N	\N	72.97	36.97	36.00	1832.77	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 21:23:53	2025-12-11 21:23:53
+779	6	1	5	INV-25/00010	\N	2025-10-02	\N	\N	36.97	0.97	36.00	1832.77	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 21:24:00	2025-12-11 21:24:00
+780	6	1	5	INV-25/00011	\N	2025-10-02	\N	\N	37.91	0.91	37.00	1832.70	2651.16	98092.92	105449.89	0.00	0.00	7.50	7356.97	\N	\N	\N	\N	2025-12-11 21:25:39	2025-12-11 21:25:39
+781	6	1	5	INV-25/00012	\N	2025-10-02	\N	\N	210.10	180.10	30.00	1832.66	2651.16	79534.80	85499.91	0.00	0.00	7.50	5965.11	\N	\N	\N	\N	2025-12-11 21:28:00	2025-12-11 21:28:00
+782	6	1	5	INV-25/00013	\N	2025-10-02	\N	\N	180.10	150.10	30.00	1832.66	2651.16	79534.80	85499.91	0.00	0.00	7.50	5965.11	\N	\N	\N	\N	2025-12-11 21:28:08	2025-12-11 21:28:08
+783	6	1	5	INV-25/00014	\N	2025-10-02	\N	\N	150.10	120.10	30.00	1832.66	2651.16	79534.80	85499.91	0.00	0.00	7.50	5965.11	\N	\N	\N	\N	2025-12-11 21:28:18	2025-12-11 21:28:18
+784	6	1	5	INV-25/00015	\N	2025-10-02	\N	\N	120.10	84.10	36.00	1832.66	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 21:28:27	2025-12-11 21:28:27
+785	6	1	5	INV-25/00016	\N	2025-10-02	\N	\N	84.10	50.10	34.00	1832.66	2651.16	90139.44	96899.90	0.00	0.00	7.50	6760.46	\N	\N	\N	\N	2025-12-11 21:28:37	2025-12-11 21:28:37
+786	6	1	5	INV-25/00017	\N	2025-10-02	\N	\N	50.10	0.10	50.00	1832.66	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 21:28:44	2025-12-11 21:28:44
+787	6	1	5	INV-25/00018	\N	2025-10-03	\N	\N	97.95	47.95	50.00	1832.74	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 21:33:37	2025-12-11 21:33:37
+788	6	1	5	INV-25/00019	\N	2025-10-03	\N	\N	47.95	0.95	47.00	1832.74	2651.16	124604.52	133949.86	0.00	0.00	7.50	9345.34	\N	\N	\N	\N	2025-12-11 21:33:45	2025-12-11 21:33:45
+789	6	1	5	INV-25/00020	\N	2025-10-03	\N	\N	38.58	0.58	38.00	1832.64	2651.16	100744.08	108299.89	0.00	0.00	7.50	7555.81	\N	\N	\N	\N	2025-12-11 21:35:55	2025-12-11 21:35:55
+790	6	1	5	INV-25/00021	\N	2025-10-04	\N	\N	124.36	88.36	36.00	1832.77	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 21:37:56	2025-12-11 21:37:56
+791	6	1	5	INV-25/00022	\N	2025-10-04	\N	\N	88.36	38.36	50.00	1832.77	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 21:38:05	2025-12-11 21:38:05
+792	6	1	5	INV-25/00023	\N	2025-10-04	\N	\N	38.36	0.36	38.00	1832.77	2651.16	100744.08	108299.89	0.00	0.00	7.50	7555.81	\N	\N	\N	\N	2025-12-11 21:38:14	2025-12-11 21:38:14
+793	6	1	5	INV-25/00024	\N	2025-10-05	\N	\N	99.56	49.56	50.00	1832.70	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 21:43:55	2025-12-11 21:43:55
+794	6	1	5	INV-25/00025	\N	2025-10-05	\N	\N	49.56	0.56	49.00	1832.70	2651.16	129906.84	139649.85	0.00	0.00	7.50	9743.01	\N	\N	\N	\N	2025-12-11 21:44:11	2025-12-11 21:44:11
+795	6	1	5	INV-25/00026	\N	2025-10-05	\N	\N	24.83	0.83	24.00	1832.62	2651.16	63627.84	68399.93	0.00	0.00	7.50	4772.09	\N	\N	\N	\N	2025-12-11 21:54:59	2025-12-11 21:54:59
+796	6	1	5	INV-25/00027	\N	2025-10-06	\N	\N	12.83	0.83	12.00	1843.50	2651.16	31813.92	34199.96	0.00	0.00	7.50	2386.04	\N	\N	\N	\N	2025-12-11 21:56:16	2025-12-11 21:56:16
+797	6	1	5	INV-25/00028	\N	2025-10-07	\N	\N	72.83	36.83	36.00	1843.53	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 21:57:52	2025-12-11 21:57:52
+798	6	1	5	INV-25/00029	\N	2025-10-07	\N	\N	36.83	0.83	36.00	1843.53	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 21:58:06	2025-12-11 21:58:06
+799	6	1	5	INV-25/00030	\N	2025-10-08	\N	\N	150.32	100.32	50.00	1843.51	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 21:59:56	2025-12-11 21:59:56
+800	6	1	5	INV-25/00031	\N	2025-10-08	\N	\N	100.32	50.32	50.00	1843.51	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 22:00:04	2025-12-11 22:00:04
+801	6	1	5	INV-25/00032	\N	2025-10-08	\N	\N	50.32	0.32	50.00	1843.51	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 22:00:11	2025-12-11 22:00:11
+802	6	1	5	INV-25/00033	\N	2025-10-08	\N	\N	86.71	50.71	36.00	1843.55	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 22:01:42	2025-12-11 22:01:42
+803	6	1	5	INV-25/00034	\N	2025-10-08	\N	\N	50.71	0.71	50.00	1843.55	2651.16	132558.00	142499.85	0.00	0.00	7.50	9941.85	\N	\N	\N	\N	2025-12-11 22:01:49	2025-12-11 22:01:49
+804	6	1	5	INV-25/00035	\N	2025-10-08	\N	\N	111.44	75.44	36.00	1843.48	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 22:06:28	2025-12-11 22:06:28
+805	6	1	5	INV-25/00036	\N	2025-10-08	\N	\N	75.44	39.44	36.00	1843.48	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 22:06:38	2025-12-11 22:06:38
+806	6	1	5	INV-25/00037	\N	2025-10-08	\N	\N	39.44	0.44	39.00	1843.48	2651.16	103395.24	111149.88	0.00	0.00	7.50	7754.64	\N	\N	\N	\N	2025-12-11 22:06:46	2025-12-11 22:06:46
+807	6	1	5	INV-25/00038	\N	2025-10-09	\N	\N	73.42	37.42	36.00	1843.45	2651.16	95441.76	102599.89	0.00	0.00	7.50	7158.13	\N	\N	\N	\N	2025-12-11 22:08:06	2025-12-11 22:08:06
+808	6	1	5	INV-25/00039	\N	2025-10-09	\N	\N	37.42	0.42	37.00	1843.45	2651.16	98092.92	105449.89	0.00	0.00	7.50	7356.97	\N	\N	\N	\N	2025-12-11 22:08:12	2025-12-11 22:08:12
+809	6	1	5	INV-25/00040	\N	2025-10-10	\N	\N	62.28	32.28	30.00	1843.50	2651.16	79534.80	85499.91	0.00	0.00	7.50	5965.11	\N	\N	\N	\N	2025-12-11 22:09:57	2025-12-11 22:09:57
+810	6	1	5	INV-25/00041	\N	2025-10-10	\N	\N	32.28	0.28	32.00	1843.50	2651.16	84837.12	91199.90	0.00	0.00	7.50	6362.78	\N	\N	\N	\N	2025-12-11 22:10:03	2025-12-11 22:10:03
+811	6	1	5	INV-25/00042	\N	2025-10-11	\N	\N	86.27	36.27	50.00	1843.51	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 02:51:14	2025-12-12 02:51:14
+812	6	1	5	INV-25/00043	\N	2025-10-11	\N	\N	36.27	0.27	36.00	1843.51	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:51:22	2025-12-12 02:51:22
+813	6	1	5	INV-25/00044	\N	2025-10-11	\N	\N	200.96	164.96	36.00	1843.52	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:53:08	2025-12-12 02:53:08
+814	6	1	5	INV-25/00045	\N	2025-10-11	\N	\N	164.96	128.96	36.00	1843.52	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:53:16	2025-12-12 02:53:16
+815	6	1	5	INV-25/00046	\N	2025-10-11	\N	\N	128.96	92.96	36.00	1843.52	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:53:23	2025-12-12 02:53:23
+816	6	1	5	INV-25/00047	\N	2025-10-11	\N	\N	92.96	42.96	50.00	1843.52	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 02:53:31	2025-12-12 02:53:31
+817	6	1	5	INV-25/00048	\N	2025-10-11	\N	\N	42.96	0.96	42.00	1843.52	2646.51	111153.42	119489.93	0.00	0.00	7.50	8336.51	\N	\N	\N	\N	2025-12-12 02:53:38	2025-12-12 02:53:38
+818	6	1	5	INV-25/00049	\N	2025-10-12	\N	\N	75.07	39.07	36.00	1843.07	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:55:19	2025-12-12 02:55:19
+819	6	1	5	INV-25/00050	\N	2025-10-12	\N	\N	39.07	0.07	39.00	1843.07	2646.51	103213.89	110954.93	0.00	0.00	7.50	7741.04	\N	\N	\N	\N	2025-12-12 02:55:26	2025-12-12 02:55:26
+820	6	1	5	INV-25/00051	\N	2025-10-12	\N	\N	85.21	50.21	35.00	1843.02	2646.51	92627.85	99574.94	0.00	0.00	7.50	6947.09	\N	\N	\N	\N	2025-12-12 02:56:41	2025-12-12 02:56:41
+821	6	1	5	INV-25/00052	\N	2025-10-12	\N	\N	50.21	0.21	50.00	1843.02	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 02:56:48	2025-12-12 02:56:48
+822	6	1	5	INV-25/00053	\N	2025-10-12	\N	\N	123.07	73.07	50.00	1843.05	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 02:57:56	2025-12-12 02:57:56
+823	6	1	5	INV-25/00054	\N	2025-10-12	\N	\N	73.07	37.07	36.00	1843.05	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:58:04	2025-12-12 02:58:04
+824	6	1	5	INV-25/00055	\N	2025-10-12	\N	\N	37.07	0.07	37.00	1843.05	2646.51	97920.87	105264.94	0.00	0.00	7.50	7344.07	\N	\N	\N	\N	2025-12-12 02:58:11	2025-12-12 02:58:11
+825	6	1	5	INV-25/00056	\N	2025-10-13	\N	\N	123.70	73.70	50.00	1843.07	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 02:59:09	2025-12-12 02:59:09
+826	6	1	5	INV-25/00057	\N	2025-10-13	\N	\N	73.70	37.70	36.00	1843.07	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 02:59:15	2025-12-12 02:59:15
+827	6	1	5	INV-25/00058	\N	2025-10-13	\N	\N	37.70	0.70	37.00	1843.07	2646.51	97920.87	105264.94	0.00	0.00	7.50	7344.07	\N	\N	\N	\N	2025-12-12 02:59:22	2025-12-12 02:59:22
+828	6	1	5	INV-25/00059	\N	2025-10-14	\N	\N	76.12	26.12	50.00	1843.08	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 03:02:06	2025-12-12 03:02:06
+829	6	1	5	INV-25/00060	\N	2025-10-14	\N	\N	26.12	0.12	26.00	1843.08	2646.51	68809.26	73969.95	0.00	0.00	7.50	5160.69	\N	\N	\N	\N	2025-12-12 03:02:17	2025-12-12 03:02:17
+830	6	1	5	INV-25/00061	\N	2025-10-14	\N	\N	135.35	85.35	50.00	1843.03	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 03:21:57	2025-12-12 03:21:57
+831	6	1	5	INV-25/00062	\N	2025-10-14	\N	\N	85.35	50.35	35.00	1843.03	2646.51	92627.85	99574.94	0.00	0.00	7.50	6947.09	\N	\N	\N	\N	2025-12-12 03:22:06	2025-12-12 03:22:06
+832	6	1	5	INV-25/00063	\N	2025-10-14	\N	\N	50.35	0.35	50.00	1843.03	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 03:22:18	2025-12-12 03:22:18
+833	6	1	5	INV-25/00064	\N	2025-10-15	\N	\N	123.05	87.05	36.00	1843.05	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 03:28:07	2025-12-12 03:28:07
+834	6	1	5	INV-25/00065	\N	2025-10-15	\N	\N	87.05	51.05	36.00	1843.05	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 03:28:17	2025-12-12 03:28:17
+835	6	1	5	INV-25/00066	\N	2025-10-15	\N	\N	51.05	0.05	51.00	1843.05	2646.51	134972.01	145094.91	0.00	0.00	7.50	10122.90	\N	\N	\N	\N	2025-12-12 03:28:24	2025-12-12 03:28:24
+836	6	1	5	INV-25/00067	\N	2025-10-15	\N	\N	48.05	0.05	48.00	1843.00	2646.51	127032.48	136559.92	0.00	0.00	7.50	9527.44	\N	\N	\N	\N	2025-12-12 03:29:39	2025-12-12 03:29:39
+837	6	1	5	INV-25/00068	\N	2025-10-15	\N	\N	96.73	60.73	36.00	1842.97	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 03:30:50	2025-12-12 03:30:50
+838	6	1	5	INV-25/00069	\N	2025-10-15	\N	\N	60.73	30.73	30.00	1842.97	2646.51	79395.30	85349.95	0.00	0.00	7.50	5954.65	\N	\N	\N	\N	2025-12-12 03:30:56	2025-12-12 03:30:56
+839	6	1	5	INV-25/00070	\N	2025-10-15	\N	\N	30.73	0.73	30.00	1842.97	2646.51	79395.30	85349.95	0.00	0.00	7.50	5954.65	\N	\N	\N	\N	2025-12-12 03:31:02	2025-12-12 03:31:02
+840	6	1	5	INV-25/00071	\N	2025-10-15	\N	\N	62.07	32.07	30.00	1841.76	2646.51	79395.30	85349.95	0.00	0.00	7.50	5954.65	\N	\N	\N	\N	2025-12-12 03:32:43	2025-12-12 03:32:43
+841	6	1	5	INV-25/00072	\N	2025-10-15	\N	\N	32.07	0.07	32.00	1841.76	2646.51	84688.32	91039.94	0.00	0.00	7.50	6351.62	\N	\N	\N	\N	2025-12-12 03:32:49	2025-12-12 03:32:49
+842	6	1	5	INV-25/00073	\N	2025-10-15	\N	\N	12.57	0.57	12.00	1841.66	2646.51	31758.12	34139.98	0.00	0.00	7.50	2381.86	\N	\N	\N	\N	2025-12-12 03:57:21	2025-12-12 03:57:21
+843	6	1	5	INV-25/00074	\N	2025-10-15	\N	\N	186.98	136.98	50.00	1841.72	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:05:31	2025-12-12 04:05:31
+844	6	1	5	INV-25/00075	\N	2025-10-15	\N	\N	136.98	100.98	36.00	1841.72	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 04:05:38	2025-12-12 04:05:38
+845	6	1	5	INV-25/00076	\N	2025-10-15	\N	\N	100.98	50.98	50.00	1841.72	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:05:44	2025-12-12 04:05:44
+846	6	1	5	INV-25/00077	\N	2025-10-15	\N	\N	50.98	0.98	50.00	1841.72	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:05:50	2025-12-12 04:05:50
+847	6	1	5	INV-25/00078	\N	2025-10-16	\N	\N	147.19	97.19	50.00	1841.77	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:06:54	2025-12-12 04:06:54
+848	6	1	5	INV-25/00079	\N	2025-10-16	\N	\N	97.19	47.19	50.00	1841.77	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:06:59	2025-12-12 04:06:59
+849	6	1	5	INV-25/00080	\N	2025-10-16	\N	\N	47.19	0.19	47.00	1841.77	2646.51	124385.97	133714.92	0.00	0.00	7.50	9328.95	\N	\N	\N	\N	2025-12-12 04:07:04	2025-12-12 04:07:04
+850	6	1	5	INV-25/00081	\N	2025-10-16	\N	\N	84.32	34.32	50.00	1841.76	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:08:08	2025-12-12 04:08:08
+851	6	1	5	INV-25/00082	\N	2025-10-16	\N	\N	34.32	0.32	34.00	1841.76	2646.51	89981.34	96729.94	0.00	0.00	7.50	6748.60	\N	\N	\N	\N	2025-12-12 04:08:16	2025-12-12 04:08:16
+852	6	1	5	INV-25/00083	\N	2025-10-24	\N	\N	61.19	30.19	31.00	1841.75	2646.51	82041.81	88194.95	0.00	0.00	7.50	6153.14	\N	\N	\N	\N	2025-12-12 04:33:50	2025-12-12 04:33:50
+853	6	1	5	INV-25/00084	\N	2025-10-24	\N	\N	30.19	0.19	30.00	1841.75	2646.51	79395.30	85349.95	0.00	0.00	7.50	5954.65	\N	\N	\N	\N	2025-12-12 04:33:56	2025-12-12 04:33:56
+854	6	1	5	INV-25/00085	\N	2025-10-26	\N	\N	99.60	49.60	50.00	1841.73	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:34:50	2025-12-12 04:34:50
+855	6	1	5	INV-25/00086	\N	2025-10-26	\N	\N	49.60	0.60	49.00	1841.73	2646.51	129678.99	139404.91	0.00	0.00	7.50	9725.92	\N	\N	\N	\N	2025-12-12 04:34:59	2025-12-12 04:34:59
+856	6	1	5	INV-25/00087	\N	2025-10-29	\N	\N	148.21	98.21	50.00	1841.77	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:35:56	2025-12-12 04:35:56
+857	6	1	5	INV-25/00088	\N	2025-10-29	\N	\N	98.21	48.21	50.00	1841.77	2646.51	132325.50	142249.91	0.00	0.00	7.50	9924.41	\N	\N	\N	\N	2025-12-12 04:36:02	2025-12-12 04:36:02
+858	6	1	5	INV-25/00089	\N	2025-10-29	\N	\N	48.21	0.21	48.00	1841.77	2646.51	127032.48	136559.92	0.00	0.00	7.50	9527.44	\N	\N	\N	\N	2025-12-12 04:36:07	2025-12-12 04:36:07
+859	6	1	5	INV-25/00090	\N	2025-11-04	\N	\N	61.04	31.04	30.00	1838.92	2646.51	79395.30	85349.95	0.00	0.00	7.50	5954.65	\N	\N	\N	\N	2025-12-12 04:37:56	2025-12-12 04:37:56
+860	6	1	5	INV-25/00091	\N	2025-11-04	\N	\N	31.04	0.04	31.00	1838.92	2646.51	82041.81	88194.95	0.00	0.00	7.50	6153.14	\N	\N	\N	\N	2025-12-12 04:38:05	2025-12-12 04:38:05
+861	6	1	5	INV-25/00092	\N	2025-11-13	\N	\N	101.04	65.04	36.00	1838.94	2646.51	95274.36	102419.94	0.00	0.00	7.50	7145.58	\N	\N	\N	\N	2025-12-12 04:39:12	2025-12-12 04:39:12
+862	6	1	5	INV-25/00093	\N	2025-11-13	\N	\N	65.04	30.04	35.00	1838.94	2646.51	92627.85	99574.94	0.00	0.00	7.50	6947.09	\N	\N	\N	\N	2025-12-12 04:39:19	2025-12-12 04:39:19
+863	6	1	5	INV-25/00094	\N	2025-11-13	\N	\N	30.04	0.04	30.00	1838.94	2646.51	79395.30	85349.95	0.00	0.00	7.50	5954.65	\N	\N	\N	\N	2025-12-12 04:39:30	2025-12-12 04:39:30
+864	10	2	5	INV-25/00001	\N	2025-10-01	\N	\N	244.12	208.12	36.00	1868.65	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 06:43:06	2025-12-12 06:43:06
+865	10	2	5	INV-25/00002	\N	2025-10-01	\N	\N	208.12	160.12	48.00	1868.65	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 06:43:14	2025-12-12 06:43:14
+866	10	2	5	INV-25/00003	\N	2025-10-01	\N	\N	160.12	124.12	36.00	1868.65	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 06:43:22	2025-12-12 06:43:22
+867	10	2	5	INV-25/00004	\N	2025-10-01	\N	\N	124.12	88.12	36.00	1868.65	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 06:43:33	2025-12-12 06:43:33
+868	10	2	5	INV-25/00005	\N	2025-10-01	\N	\N	88.12	50.12	38.00	1868.65	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 06:43:45	2025-12-12 06:44:53
+869	10	2	5	INV-25/00006	\N	2025-10-01	\N	\N	50.12	0.12	50.00	1868.65	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 06:45:06	2025-12-12 06:45:06
+870	10	2	5	INV-25/00007	\N	2025-10-01	\N	\N	33.76	0.76	33.00	1868.59	2680.00	88440.00	95073.00	0.00	0.00	7.50	6633.00	\N	\N	\N	\N	2025-12-12 07:21:11	2025-12-12 07:21:11
+871	10	2	5	INV-25/00008	\N	2025-10-01	\N	\N	111.05	75.05	36.00	1868.69	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:22:27	2025-12-12 07:22:27
+872	10	2	5	INV-25/00009	\N	2025-10-01	\N	\N	75.05	39.05	36.00	1868.69	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:22:32	2025-12-12 07:22:32
+873	10	2	5	INV-25/00010	\N	2025-10-01	\N	\N	39.05	0.05	39.00	1868.69	2680.00	104520.00	112359.00	0.00	0.00	7.50	7839.00	\N	\N	\N	\N	2025-12-12 07:22:38	2025-12-12 07:22:38
+874	10	2	5	INV-25/00011	\N	2025-10-01	\N	\N	287.32	237.32	50.00	1868.59	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:24:36	2025-12-12 07:24:36
+875	10	2	5	INV-25/00012	\N	2025-10-01	\N	\N	237.32	201.32	36.00	1868.59	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:24:42	2025-12-12 07:24:42
+876	10	2	5	INV-25/00013	\N	2025-10-01	\N	\N	201.32	165.32	36.00	1868.59	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:24:48	2025-12-12 07:24:48
+877	10	2	5	INV-25/00014	\N	2025-10-01	\N	\N	165.32	115.32	50.00	1868.59	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:24:55	2025-12-12 07:24:55
+878	10	2	5	INV-25/00015	\N	2025-10-01	\N	\N	115.32	79.32	36.00	1868.59	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:25:01	2025-12-12 07:25:01
+879	10	2	5	INV-25/00016	\N	2025-10-01	\N	\N	79.32	41.32	38.00	1868.59	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 07:25:21	2025-12-12 07:25:21
+880	10	2	5	INV-25/00017	\N	2025-10-01	\N	\N	41.32	0.32	41.00	1868.59	2680.00	109880.00	118121.00	0.00	0.00	7.50	8241.00	\N	\N	\N	\N	2025-12-12 07:25:27	2025-12-12 07:25:27
+881	10	2	5	INV-25/00018	\N	2025-10-02	\N	\N	12.47	0.47	12.00	1868.45	2680.00	32160.00	34572.00	0.00	0.00	7.50	2412.00	\N	\N	\N	\N	2025-12-12 07:26:28	2025-12-12 07:26:28
+882	10	2	5	INV-25/00019	\N	2025-10-02	\N	\N	260.66	212.66	48.00	1868.61	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 07:27:34	2025-12-12 07:27:34
+883	10	2	5	INV-25/00020	\N	2025-10-02	\N	\N	212.66	162.66	50.00	1868.61	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:27:40	2025-12-12 07:27:40
+884	10	2	5	INV-25/00021	\N	2025-10-02	\N	\N	162.66	126.66	36.00	1868.61	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:27:45	2025-12-12 07:27:45
+885	10	2	5	INV-25/00022	\N	2025-10-02	\N	\N	126.66	90.66	36.00	1868.61	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:27:52	2025-12-12 07:27:52
+886	10	2	5	INV-25/00023	\N	2025-10-02	\N	\N	90.66	60.66	30.00	1868.61	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 07:27:57	2025-12-12 07:27:57
+887	10	2	5	INV-25/00024	\N	2025-10-02	\N	\N	60.66	30.66	30.00	1868.61	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 07:28:05	2025-12-12 07:28:05
+888	10	2	5	INV-25/00025	\N	2025-10-02	\N	\N	30.66	0.66	30.00	1868.61	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 07:28:11	2025-12-12 07:28:11
+889	10	2	5	INV-25/00026	\N	2025-10-02	\N	\N	422.29	372.29	50.00	1868.62	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:29:12	2025-12-12 07:29:12
+890	10	2	5	INV-25/00027	\N	2025-10-02	\N	\N	372.29	336.29	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:29:17	2025-12-12 07:29:17
+891	10	2	5	INV-25/00028	\N	2025-10-02	\N	\N	336.29	300.29	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:29:23	2025-12-12 07:29:23
+892	10	2	5	INV-25/00029	\N	2025-10-02	\N	\N	300.29	250.29	50.00	1868.62	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:29:29	2025-12-12 07:29:29
+893	10	2	5	INV-25/00030	\N	2025-10-02	\N	\N	250.29	214.29	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:29:37	2025-12-12 07:29:37
+894	10	2	5	INV-25/00031	\N	2025-10-02	\N	\N	214.29	178.29	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:29:42	2025-12-12 07:29:42
+895	10	2	5	INV-25/00032	\N	2025-10-02	\N	\N	178.29	142.29	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:29:49	2025-12-12 07:29:49
+896	10	2	5	INV-25/00033	\N	2025-10-02	\N	\N	142.29	112.29	30.00	1868.62	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 07:29:58	2025-12-12 07:29:58
+897	10	2	5	INV-25/00034	\N	2025-10-02	\N	\N	112.29	76.29	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:30:05	2025-12-12 07:30:05
+898	10	2	5	INV-25/00035	\N	2025-10-02	\N	\N	76.29	38.29	38.00	1868.62	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 07:30:16	2025-12-12 07:30:16
+899	10	2	5	INV-25/00036	\N	2025-10-02	\N	\N	38.29	0.29	38.00	1868.62	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 07:30:23	2025-12-12 07:30:23
+900	10	2	5	INV-25/00037	\N	2025-10-02	\N	\N	137.71	87.71	50.00	1868.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:31:19	2025-12-12 07:31:19
+901	10	2	5	INV-25/00038	\N	2025-10-02	\N	\N	87.71	37.71	50.00	1868.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:31:31	2025-12-12 07:31:31
+902	10	2	5	INV-25/00039	\N	2025-10-02	\N	\N	37.71	0.71	37.00	1868.82	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-12 07:31:37	2025-12-12 07:31:37
+903	10	2	5	INV-25/00040	\N	2025-10-03	\N	\N	86.37	36.37	50.00	1868.62	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:32:34	2025-12-12 07:32:34
+904	10	2	5	INV-25/00041	\N	2025-10-03	\N	\N	36.37	0.37	36.00	1868.62	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:32:39	2025-12-12 07:32:39
+905	10	2	5	INV-25/00042	\N	2025-10-03	\N	\N	85.37	35.37	50.00	1868.81	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:33:44	2025-12-12 07:33:44
+906	10	2	5	INV-25/00043	\N	2025-10-03	\N	\N	35.37	0.37	35.00	1868.81	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 07:33:49	2025-12-12 07:33:49
+907	10	2	5	INV-25/00044	\N	2025-10-04	\N	\N	285.68	235.68	50.00	1868.63	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:34:47	2025-12-12 07:34:47
+908	10	2	5	INV-25/00045	\N	2025-10-04	\N	\N	235.68	185.68	50.00	1868.63	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:34:53	2025-12-12 07:34:53
+909	10	2	5	INV-25/00046	\N	2025-10-04	\N	\N	185.68	149.68	36.00	1868.63	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:35:00	2025-12-12 07:35:00
+910	10	2	5	INV-25/00047	\N	2025-10-04	\N	\N	149.68	99.68	50.00	1868.63	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:35:07	2025-12-12 07:35:07
+911	10	2	5	INV-25/00048	\N	2025-10-04	\N	\N	99.68	49.68	50.00	1868.63	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:35:14	2025-12-12 07:35:14
+912	10	2	5	INV-25/00049	\N	2025-10-04	\N	\N	49.68	0.68	49.00	1868.63	2680.00	131320.00	141169.00	0.00	0.00	7.50	9849.00	\N	\N	\N	\N	2025-12-12 07:35:20	2025-12-12 07:35:20
+913	10	2	5	INV-25/00050	\N	2025-10-04	\N	\N	92.81	42.81	50.00	1868.69	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:36:09	2025-12-12 07:36:09
+914	10	2	5	INV-25/00051	\N	2025-10-04	\N	\N	42.81	0.81	42.00	1868.69	2680.00	112560.00	121002.00	0.00	0.00	7.50	8442.00	\N	\N	\N	\N	2025-12-12 07:36:15	2025-12-12 07:36:15
+915	10	2	5	INV-25/00052	\N	2025-10-05	\N	\N	353.81	317.81	36.00	1868.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:37:07	2025-12-12 07:37:07
+916	10	2	5	INV-25/00053	\N	2025-10-05	\N	\N	317.81	269.81	48.00	1868.64	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 07:37:13	2025-12-12 07:37:13
+917	10	2	5	INV-25/00054	\N	2025-10-05	\N	\N	269.81	233.81	36.00	1868.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:37:19	2025-12-12 07:37:19
+918	10	2	5	INV-25/00055	\N	2025-10-05	\N	\N	233.81	197.81	36.00	1868.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:37:25	2025-12-12 07:37:25
+919	10	2	5	INV-25/00056	\N	2025-10-05	\N	\N	197.81	161.81	36.00	1868.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:37:30	2025-12-12 07:37:30
+920	10	2	5	INV-25/00057	\N	2025-10-05	\N	\N	161.81	125.81	36.00	1868.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:37:35	2025-12-12 07:37:35
+921	10	2	5	INV-25/00058	\N	2025-10-05	\N	\N	125.81	89.81	36.00	1868.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:37:42	2025-12-12 07:37:42
+922	10	2	5	INV-25/00059	\N	2025-10-05	\N	\N	89.81	41.81	48.00	1868.64	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 07:37:49	2025-12-12 07:37:49
+923	10	2	5	INV-25/00060	\N	2025-10-05	\N	\N	41.81	0.81	41.00	1868.64	2680.00	109880.00	118121.00	0.00	0.00	7.50	8241.00	\N	\N	\N	\N	2025-12-12 07:37:57	2025-12-12 07:37:57
+924	10	2	5	INV-25/00061	\N	2025-10-05	\N	\N	87.80	37.80	50.00	1868.61	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:38:50	2025-12-12 07:38:50
+925	10	2	5	INV-25/00062	\N	2025-10-05	\N	\N	37.80	0.80	37.00	1868.61	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-12 07:38:55	2025-12-12 07:38:55
+926	10	2	5	INV-25/00063	\N	2025-10-06	\N	\N	78.64	42.64	36.00	1868.61	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:40:07	2025-12-12 07:40:07
+927	10	2	5	INV-25/00064	\N	2025-10-06	\N	\N	42.64	0.64	42.00	1868.61	2680.00	112560.00	121002.00	0.00	0.00	7.50	8442.00	\N	\N	\N	\N	2025-12-12 07:40:13	2025-12-12 07:40:13
+928	10	2	5	INV-25/00065	\N	2025-10-06	\N	\N	37.40	0.40	37.00	1868.59	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-12 07:41:05	2025-12-12 07:41:05
+929	10	2	5	INV-25/00066	\N	2025-10-07	\N	\N	34.00	0.00	34.00	1868.69	2680.00	91120.00	97954.00	0.00	0.00	7.50	6834.00	\N	\N	\N	\N	2025-12-12 07:41:57	2025-12-12 07:41:57
+930	10	2	5	INV-25/00067	\N	2025-10-07	\N	\N	77.28	41.28	36.00	1879.68	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:42:50	2025-12-12 07:42:50
+931	10	2	5	INV-25/00068	\N	2025-10-07	\N	\N	41.28	0.28	41.00	1879.68	2680.00	109880.00	118121.00	0.00	0.00	7.50	8241.00	\N	\N	\N	\N	2025-12-12 07:42:55	2025-12-12 07:42:55
+932	10	2	5	INV-25/00069	\N	2025-10-08	\N	\N	107.66	71.66	36.00	1879.67	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:43:51	2025-12-12 07:43:51
+933	10	2	5	INV-25/00070	\N	2025-10-08	\N	\N	71.66	35.66	36.00	1879.67	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:43:58	2025-12-12 07:43:58
+934	10	2	5	INV-25/00071	\N	2025-10-08	\N	\N	35.66	0.66	35.00	1879.67	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 07:44:04	2025-12-12 07:44:04
+935	10	2	5	INV-25/00072	\N	2025-10-08	\N	\N	77.06	40.06	37.00	1879.67	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-12 07:45:06	2025-12-12 07:45:06
+936	10	2	5	INV-25/00073	\N	2025-10-08	\N	\N	40.06	0.06	40.00	1879.67	2680.00	107200.00	115240.00	0.00	0.00	7.50	8040.00	\N	\N	\N	\N	2025-12-12 07:45:13	2025-12-12 07:45:13
+937	10	2	5	INV-25/00074	\N	2025-10-08	\N	\N	131.90	95.90	36.00	1879.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:46:18	2025-12-12 07:46:18
+938	10	2	5	INV-25/00075	\N	2025-10-08	\N	\N	95.90	45.90	50.00	1879.64	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:46:24	2025-12-12 07:46:24
+939	10	2	5	INV-25/00076	\N	2025-10-08	\N	\N	45.90	0.90	45.00	1879.64	2680.00	120600.00	129645.00	0.00	0.00	7.50	9045.00	\N	\N	\N	\N	2025-12-12 07:46:30	2025-12-12 07:46:30
+940	10	2	5	INV-25/00077	\N	2025-10-09	\N	\N	157.43	121.43	36.00	1879.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:47:52	2025-12-12 07:47:52
+941	10	2	5	INV-25/00078	\N	2025-10-09	\N	\N	121.43	85.43	36.00	1879.64	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 07:47:58	2025-12-12 07:47:58
+942	10	2	5	INV-25/00079	\N	2025-10-09	\N	\N	85.43	35.43	50.00	1879.64	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 07:48:05	2025-12-12 07:48:05
+943	10	2	5	INV-25/00080	\N	2025-10-09	\N	\N	35.43	0.43	35.00	1879.64	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 07:48:11	2025-12-12 07:48:11
+944	10	2	5	INV-25/00081	\N	2025-10-10	\N	\N	75.37	40.37	35.00	1879.65	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 07:49:42	2025-12-12 07:49:42
+945	10	2	5	INV-25/00082	\N	2025-10-10	\N	\N	40.37	0.37	40.00	1879.65	2680.00	107200.00	115240.00	0.00	0.00	7.50	8040.00	\N	\N	\N	\N	2025-12-12 07:49:48	2025-12-12 07:49:48
+946	10	2	5	INV-25/00083	\N	2025-10-10	\N	\N	165.55	129.55	36.00	1879.86	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:31:11	2025-12-12 08:31:11
+947	10	2	5	INV-25/00084	\N	2025-10-10	\N	\N	129.55	93.55	36.00	1879.86	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:31:17	2025-12-12 08:31:17
+948	10	2	5	INV-25/00085	\N	2025-10-10	\N	\N	93.55	63.55	30.00	1879.86	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 08:31:26	2025-12-12 08:31:26
+949	10	2	5	INV-25/00086	\N	2025-10-10	\N	\N	63.55	30.55	33.00	1879.86	2680.00	88440.00	95073.00	0.00	0.00	7.50	6633.00	\N	\N	\N	\N	2025-12-12 08:31:33	2025-12-12 08:31:33
+950	10	2	5	INV-25/00087	\N	2025-10-10	\N	\N	30.55	0.55	30.00	1879.86	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 08:31:39	2025-12-12 08:31:39
+951	10	2	5	INV-25/00088	\N	2025-10-10	\N	\N	105.37	70.37	35.00	1879.65	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 08:32:40	2025-12-12 08:32:40
+952	10	2	5	INV-25/00089	\N	2025-10-10	\N	\N	70.37	35.37	35.00	1879.65	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 08:32:46	2025-12-12 08:32:46
+953	10	2	5	INV-25/00090	\N	2025-10-10	\N	\N	35.37	0.37	35.00	1879.65	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 08:32:52	2025-12-12 08:32:52
+954	10	2	5	INV-25/00091	\N	2025-10-11	\N	\N	386.85	350.85	36.00	1879.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:34:49	2025-12-12 08:34:49
+955	10	2	5	INV-25/00092	\N	2025-10-11	\N	\N	350.85	300.85	50.00	1879.84	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:34:55	2025-12-12 08:34:55
+956	10	2	5	INV-25/00093	\N	2025-10-11	\N	\N	300.85	270.85	30.00	1879.84	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 08:35:01	2025-12-12 08:35:01
+957	10	2	5	INV-25/00094	\N	2025-10-11	\N	\N	270.85	234.85	36.00	1879.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:35:05	2025-12-12 08:35:05
+958	10	2	5	INV-25/00095	\N	2025-10-11	\N	\N	234.85	198.85	36.00	1879.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:35:11	2025-12-12 08:35:11
+959	10	2	5	INV-25/00096	\N	2025-10-11	\N	\N	198.85	162.85	36.00	1879.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:35:17	2025-12-12 08:35:17
+960	10	2	5	INV-25/00097	\N	2025-10-11	\N	\N	162.85	126.85	36.00	1879.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:35:24	2025-12-12 08:35:24
+961	10	2	5	INV-25/00098	\N	2025-10-11	\N	\N	126.85	90.85	36.00	1879.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:35:30	2025-12-12 08:35:30
+962	10	2	5	INV-25/00099	\N	2025-10-11	\N	\N	90.85	40.85	50.00	1879.84	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:35:37	2025-12-12 08:35:37
+963	10	2	5	INV-25/00100	\N	2025-10-11	\N	\N	40.85	0.85	40.00	1879.84	2680.00	107200.00	115240.00	0.00	0.00	7.50	8040.00	\N	\N	\N	\N	2025-12-12 08:35:44	2025-12-12 08:35:44
+964	10	2	5	INV-25/00101	\N	2025-10-11	\N	\N	64.72	30.72	34.00	1879.63	2680.00	91120.00	97954.00	0.00	0.00	7.50	6834.00	\N	\N	\N	\N	2025-12-12 08:37:29	2025-12-12 08:37:29
+965	10	2	5	INV-25/00102	\N	2025-10-11	\N	\N	30.72	0.72	30.00	1879.63	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 08:37:35	2025-12-12 08:37:35
+966	10	2	5	INV-25/00103	\N	2025-10-11	\N	\N	416.72	366.72	50.00	1879.69	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:38:40	2025-12-12 08:38:40
+967	10	2	5	INV-25/00104	\N	2025-10-11	\N	\N	366.72	330.72	36.00	1879.69	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:38:46	2025-12-12 08:38:46
+968	10	2	5	INV-25/00105	\N	2025-10-11	\N	\N	330.72	300.72	30.00	1879.69	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 08:38:52	2025-12-12 08:38:52
+969	10	2	5	INV-25/00106	\N	2025-10-11	\N	\N	300.72	252.72	48.00	1879.69	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 08:38:59	2025-12-12 08:38:59
+970	10	2	5	INV-25/00107	\N	2025-10-11	\N	\N	252.72	202.72	50.00	1879.69	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:50:46	2025-12-12 08:50:46
+971	10	2	5	INV-25/00108	\N	2025-10-11	\N	\N	202.72	166.72	36.00	1879.69	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:53:10	2025-12-12 08:53:10
+972	10	2	5	INV-25/00109	\N	2025-10-11	\N	\N	166.72	130.72	36.00	1879.69	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 08:53:18	2025-12-12 08:53:18
+973	10	2	5	INV-25/00110	\N	2025-10-11	\N	\N	130.72	100.72	30.00	1879.69	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 08:53:45	2025-12-12 08:53:45
+974	10	2	5	INV-25/00111	\N	2025-10-11	\N	\N	100.72	50.72	50.00	1879.69	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:53:55	2025-12-12 08:53:55
+975	10	2	5	INV-25/00112	\N	2025-10-11	\N	\N	50.72	0.72	50.00	1879.69	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:54:02	2025-12-12 08:54:02
+976	10	2	5	INV-25/00113	\N	2025-10-12	\N	\N	27.97	0.97	27.00	1879.64	2680.00	72360.00	77787.00	0.00	0.00	7.50	5427.00	\N	\N	\N	\N	2025-12-12 08:55:20	2025-12-12 08:55:20
+977	10	2	5	INV-25/00114	\N	2025-10-12	\N	\N	82.31	32.31	50.00	1879.79	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 08:56:24	2025-12-12 08:56:24
+978	10	2	5	INV-25/00115	\N	2025-10-12	\N	\N	32.31	0.31	32.00	1879.79	2680.00	85760.00	92192.00	0.00	0.00	7.50	6432.00	\N	\N	\N	\N	2025-12-12 08:56:32	2025-12-12 08:56:32
+979	10	2	5	INV-25/00116	\N	2025-10-12	\N	\N	341.36	291.36	50.00	1879.44	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:06:00	2025-12-12 10:06:00
+980	10	2	5	INV-25/00117	\N	2025-10-12	\N	\N	291.36	255.36	36.00	1879.44	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:06:07	2025-12-12 10:06:07
+981	10	2	5	INV-25/00118	\N	2025-10-12	\N	\N	255.36	205.36	50.00	1879.44	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:06:14	2025-12-12 10:06:14
+982	10	2	5	INV-25/00119	\N	2025-10-12	\N	\N	205.36	169.36	36.00	1879.44	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:06:22	2025-12-12 10:06:22
+983	10	2	5	INV-25/00120	\N	2025-10-12	\N	\N	169.36	133.36	36.00	1879.44	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:06:28	2025-12-12 10:06:28
+984	10	2	5	INV-25/00121	\N	2025-10-12	\N	\N	133.36	97.36	36.00	1879.44	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:06:35	2025-12-12 10:06:35
+985	10	2	5	INV-25/00122	\N	2025-10-12	\N	\N	97.36	47.36	50.00	1879.44	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:06:43	2025-12-12 10:06:43
+986	10	2	5	INV-25/00123	\N	2025-10-12	\N	\N	47.36	0.36	47.00	1879.44	2680.00	125960.00	135407.00	0.00	0.00	7.50	9447.00	\N	\N	\N	\N	2025-12-12 10:06:51	2025-12-12 10:06:51
+987	10	2	5	INV-25/00124	\N	2025-10-12	\N	\N	232.90	196.90	36.00	1879.72	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:08:19	2025-12-12 10:08:19
+988	10	2	5	INV-25/00125	\N	2025-10-12	\N	\N	196.90	148.90	48.00	1879.72	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:08:28	2025-12-12 10:08:28
+989	10	2	5	INV-25/00126	\N	2025-10-12	\N	\N	148.90	98.90	50.00	1879.72	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:08:36	2025-12-12 10:08:36
+990	10	2	5	INV-25/00127	\N	2025-10-12	\N	\N	98.90	48.90	50.00	1879.72	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:08:44	2025-12-12 10:08:44
+991	10	2	5	INV-25/00128	\N	2025-10-12	\N	\N	48.90	0.90	48.00	1879.72	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:08:51	2025-12-12 10:08:51
+992	10	2	5	INV-25/00129	\N	2025-10-12	\N	\N	88.26	38.26	50.00	1879.64	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:10:08	2025-12-12 10:10:08
+993	10	2	5	INV-25/00130	\N	2025-10-12	\N	\N	38.26	0.26	38.00	1879.64	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:10:15	2025-12-12 10:10:15
+994	10	2	5	INV-25/00131	\N	2025-10-13	\N	\N	38.54	0.54	38.00	1880.17	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:11:23	2025-12-12 10:11:23
+995	10	2	5	INV-25/00132	\N	2025-10-13	\N	\N	519.89	484.89	35.00	1879.15	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:12:44	2025-12-12 10:12:44
+996	10	2	5	INV-25/00133	\N	2025-10-13	\N	\N	484.89	448.89	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:12:51	2025-12-12 10:12:51
+997	10	2	5	INV-25/00134	\N	2025-10-13	\N	\N	448.89	400.89	48.00	1879.15	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:13:01	2025-12-12 10:13:01
+998	10	2	5	INV-25/00135	\N	2025-10-13	\N	\N	400.89	364.89	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:13:08	2025-12-12 10:13:08
+999	10	2	5	INV-25/00136	\N	2025-10-13	\N	\N	364.89	328.89	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:13:15	2025-12-12 10:13:15
+1000	10	2	5	INV-25/00137	\N	2025-10-13	\N	\N	328.89	278.89	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:13:25	2025-12-12 10:13:25
+1001	10	2	5	INV-25/00138	\N	2025-10-13	\N	\N	278.89	228.89	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:13:31	2025-12-12 10:13:31
+1002	10	2	5	INV-25/00139	\N	2025-10-13	\N	\N	228.89	178.89	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:13:38	2025-12-12 10:13:38
+1003	10	2	5	INV-25/00140	\N	2025-10-13	\N	\N	178.89	142.89	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:13:44	2025-12-12 10:13:44
+1004	10	2	5	INV-25/00141	\N	2025-10-13	\N	\N	142.89	106.89	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:13:50	2025-12-12 10:13:50
+1005	10	2	5	INV-25/00142	\N	2025-10-13	\N	\N	106.89	70.89	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:13:58	2025-12-12 10:13:58
+1006	10	2	5	INV-25/00143	\N	2025-10-13	\N	\N	70.89	35.89	35.00	1879.15	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:14:04	2025-12-12 10:14:04
+1007	10	2	5	INV-25/00144	\N	2025-10-13	\N	\N	35.89	0.89	35.00	1879.15	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:14:10	2025-12-12 10:14:10
+1008	10	2	5	INV-25/00145	\N	2025-10-13	\N	\N	51.90	0.90	51.00	1879.17	2680.00	136680.00	146931.00	0.00	0.00	7.50	10251.00	\N	\N	\N	\N	2025-12-12 10:15:19	2025-12-12 10:15:19
+1009	10	2	5	INV-25/00146	\N	2025-10-14	\N	\N	247.36	197.36	50.00	1879.13	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:16:36	2025-12-12 10:16:36
+1010	10	2	5	INV-25/00147	\N	2025-10-14	\N	\N	197.36	149.36	48.00	1879.13	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:16:42	2025-12-12 10:16:42
+1011	10	2	5	INV-25/00148	\N	2025-10-14	\N	\N	149.36	113.36	36.00	1879.13	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:16:49	2025-12-12 10:16:49
+1012	10	2	5	INV-25/00149	\N	2025-10-14	\N	\N	113.36	75.36	38.00	1879.13	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:16:57	2025-12-12 10:16:57
+1013	10	2	5	INV-25/00150	\N	2025-10-14	\N	\N	75.36	37.36	38.00	1879.13	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:17:05	2025-12-12 10:17:05
+1014	10	2	5	INV-25/00151	\N	2025-10-14	\N	\N	37.36	0.36	37.00	1879.13	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-12 10:17:13	2025-12-12 10:17:13
+1015	10	2	5	INV-25/00152	\N	2025-10-14	\N	\N	15.84	0.84	15.00	1879.14	2680.00	40200.00	43215.00	0.00	0.00	7.50	3015.00	\N	\N	\N	\N	2025-12-12 10:18:27	2025-12-12 10:18:27
+1016	10	2	5	INV-25/00153	\N	2025-10-14	\N	\N	66.88	33.88	33.00	1879.15	2680.00	88440.00	95073.00	0.00	0.00	7.50	6633.00	\N	\N	\N	\N	2025-12-12 10:20:18	2025-12-12 10:20:18
+1017	10	2	5	INV-25/00154	\N	2025-10-14	\N	\N	33.88	0.88	33.00	1879.15	2680.00	88440.00	95073.00	0.00	0.00	7.50	6633.00	\N	\N	\N	\N	2025-12-12 10:20:24	2025-12-12 10:20:24
+1018	10	2	5	INV-25/00155	\N	2025-10-15	\N	\N	226.62	190.62	36.00	1879.08	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:21:46	2025-12-12 10:21:46
+1019	10	2	5	INV-25/00156	\N	2025-10-15	\N	\N	190.62	154.62	36.00	1879.08	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:21:53	2025-12-12 10:21:53
+1020	10	2	5	INV-25/00157	\N	2025-10-15	\N	\N	154.62	104.62	50.00	1879.08	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:22:01	2025-12-12 10:22:01
+1021	10	2	5	INV-25/00158	\N	2025-10-15	\N	\N	104.62	70.62	34.00	1879.08	2680.00	91120.00	97954.00	0.00	0.00	7.50	6834.00	\N	\N	\N	\N	2025-12-12 10:22:07	2025-12-12 10:22:07
+1022	10	2	5	INV-25/00159	\N	2025-10-15	\N	\N	70.62	35.62	35.00	1879.08	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:22:13	2025-12-12 10:22:13
+1023	10	2	5	INV-25/00160	\N	2025-10-15	\N	\N	35.62	0.62	35.00	1879.08	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:22:21	2025-12-12 10:22:21
+1024	10	2	5	INV-25/00161	\N	2025-10-15	\N	\N	48.85	0.85	48.00	1879.09	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:23:45	2025-12-12 10:23:45
+1025	10	2	5	INV-25/00162	\N	2025-10-15	\N	\N	234.55	198.55	36.00	1879.19	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:25:14	2025-12-12 10:25:14
+1026	10	2	5	INV-25/00163	\N	2025-10-15	\N	\N	198.55	150.55	48.00	1879.19	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:25:20	2025-12-12 10:25:20
+1027	10	2	5	INV-25/00164	\N	2025-10-15	\N	\N	150.55	100.55	50.00	1879.19	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:25:27	2025-12-12 10:25:27
+1028	10	2	5	INV-25/00165	\N	2025-10-15	\N	\N	100.55	50.55	50.00	1879.19	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:25:32	2025-12-12 10:25:32
+1029	10	2	5	INV-25/00166	\N	2025-10-15	\N	\N	50.55	0.55	50.00	1879.19	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:25:38	2025-12-12 10:25:38
+1030	10	2	5	INV-25/00167	\N	2025-10-15	\N	\N	115.32	79.32	36.00	1879.27	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:28:37	2025-12-12 10:28:37
+1031	10	2	5	INV-25/00168	\N	2025-10-15	\N	\N	79.32	43.32	36.00	1879.27	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:28:43	2025-12-12 10:28:43
+1032	10	2	5	INV-25/00169	\N	2025-10-15	\N	\N	43.32	0.32	43.00	1879.27	2680.00	115240.00	123883.00	0.00	0.00	7.50	8643.00	\N	\N	\N	\N	2025-12-12 10:28:50	2025-12-12 10:28:50
+1033	10	2	5	INV-25/00170	\N	2025-10-15	\N	\N	285.09	235.09	50.00	1879.28	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:30:25	2025-12-12 10:30:25
+1034	10	2	5	INV-25/00171	\N	2025-10-15	\N	\N	235.09	199.09	36.00	1879.28	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:30:31	2025-12-12 10:30:31
+1035	10	2	5	INV-25/00172	\N	2025-10-15	\N	\N	199.09	163.09	36.00	1879.28	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:30:37	2025-12-12 10:30:37
+1036	10	2	5	INV-25/00173	\N	2025-10-15	\N	\N	163.09	127.09	36.00	1879.28	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:30:42	2025-12-12 10:30:42
+1037	10	2	5	INV-25/00174	\N	2025-10-15	\N	\N	127.09	91.09	36.00	1879.28	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:30:49	2025-12-12 10:30:49
+1038	10	2	5	INV-25/00175	\N	2025-10-15	\N	\N	91.09	41.09	50.00	1879.28	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:30:57	2025-12-12 10:30:57
+1039	10	2	5	INV-25/00176	\N	2025-10-15	\N	\N	41.09	0.09	41.00	1879.28	2680.00	109880.00	118121.00	0.00	0.00	7.50	8241.00	\N	\N	\N	\N	2025-12-12 10:31:02	2025-12-12 10:31:02
+1040	10	2	5	INV-25/00177	\N	2025-10-17	\N	\N	131.88	95.88	36.00	1879.31	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:32:13	2025-12-12 10:32:13
+1041	10	2	5	INV-25/00178	\N	2025-10-17	\N	\N	95.88	45.88	50.00	1879.31	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:32:19	2025-12-12 10:32:19
+1042	10	2	5	INV-25/00179	\N	2025-10-17	\N	\N	45.88	0.88	45.00	1879.31	2680.00	120600.00	129645.00	0.00	0.00	7.50	9045.00	\N	\N	\N	\N	2025-12-12 10:32:25	2025-12-12 10:32:25
+1043	10	2	5	INV-25/00180	\N	2025-10-17	\N	\N	40.30	0.30	40.00	1879.13	2680.00	107200.00	115240.00	0.00	0.00	7.50	8040.00	\N	\N	\N	\N	2025-12-12 10:33:37	2025-12-12 10:33:37
+1044	10	2	5	INV-25/00181	\N	2025-10-17	\N	\N	246.79	196.79	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:34:56	2025-12-12 10:34:56
+1045	10	2	5	INV-25/00182	\N	2025-10-17	\N	\N	196.79	160.79	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:35:06	2025-12-12 10:35:06
+1046	10	2	5	INV-25/00183	\N	2025-10-17	\N	\N	160.79	130.79	30.00	1879.15	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 10:35:16	2025-12-12 10:35:16
+1047	10	2	5	INV-25/00184	\N	2025-10-17	\N	\N	130.79	94.79	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:35:22	2025-12-12 10:35:22
+1048	10	2	5	INV-25/00185	\N	2025-10-17	\N	\N	94.79	44.79	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:35:32	2025-12-12 10:35:32
+1049	10	2	5	INV-25/00186	\N	2025-10-17	\N	\N	44.79	0.79	44.00	1879.15	2680.00	117920.00	126764.00	0.00	0.00	7.50	8844.00	\N	\N	\N	\N	2025-12-12 10:35:38	2025-12-12 10:35:38
+1050	10	2	5	INV-25/00187	\N	2025-10-18	\N	\N	200.89	150.89	50.00	1879.14	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:37:31	2025-12-12 10:37:31
+1051	10	2	5	INV-25/00188	\N	2025-10-18	\N	\N	150.89	100.89	50.00	1879.14	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:37:39	2025-12-12 10:37:39
+1052	10	2	5	INV-25/00189	\N	2025-10-18	\N	\N	100.89	50.89	50.00	1879.14	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:37:45	2025-12-12 10:37:45
+1053	10	2	5	INV-25/00190	\N	2025-10-18	\N	\N	50.89	0.89	50.00	1879.14	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:37:52	2025-12-12 10:37:52
+1054	10	2	5	INV-25/00191	\N	2025-10-18	\N	\N	130.47	100.47	30.00	1879.31	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 10:39:21	2025-12-12 10:39:21
+1055	10	2	5	INV-25/00192	\N	2025-10-18	\N	\N	100.47	50.47	50.00	1879.31	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:39:28	2025-12-12 10:39:28
+1056	10	2	5	INV-25/00193	\N	2025-10-18	\N	\N	50.47	0.47	50.00	1879.31	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:39:35	2025-12-12 10:39:35
+1057	10	2	5	INV-25/00194	\N	2025-10-18	\N	\N	160.97	124.97	36.00	1879.19	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:41:13	2025-12-12 10:41:13
+1058	10	2	5	INV-25/00195	\N	2025-10-18	\N	\N	124.97	74.97	50.00	1879.19	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:41:18	2025-12-12 10:41:18
+1059	10	2	5	INV-25/00196	\N	2025-10-18	\N	\N	74.97	38.97	36.00	1879.19	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:41:26	2025-12-12 10:41:26
+1060	10	2	5	INV-25/00197	\N	2025-10-18	\N	\N	38.97	0.97	38.00	1879.19	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:41:49	2025-12-12 10:41:49
+1061	10	2	5	INV-25/00198	\N	2025-10-19	\N	\N	174.12	138.12	36.00	1879.15	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:43:37	2025-12-12 10:43:37
+1062	10	2	5	INV-25/00199	\N	2025-10-19	\N	\N	138.12	100.12	38.00	1879.15	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:43:43	2025-12-12 10:43:43
+1063	10	2	5	INV-25/00200	\N	2025-10-19	\N	\N	100.12	50.12	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:43:51	2025-12-12 10:43:51
+1064	10	2	5	INV-25/00201	\N	2025-10-19	\N	\N	50.12	0.12	50.00	1879.15	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:43:57	2025-12-12 10:43:57
+1065	10	2	5	INV-25/00202	\N	2025-10-20	\N	\N	40.64	0.64	40.00	1879.12	2680.00	107200.00	115240.00	0.00	0.00	7.50	8040.00	\N	\N	\N	\N	2025-12-12 10:45:16	2025-12-12 10:45:16
+1066	10	2	5	INV-25/00203	\N	2025-10-20	\N	\N	139.59	100.59	39.00	1879.19	2680.00	104520.00	112359.00	0.00	0.00	7.50	7839.00	\N	\N	\N	\N	2025-12-12 10:46:28	2025-12-12 10:46:28
+1067	10	2	5	INV-25/00204	\N	2025-10-20	\N	\N	100.59	50.59	50.00	1879.19	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:46:33	2025-12-12 10:46:33
+1068	10	2	5	INV-25/00205	\N	2025-10-20	\N	\N	50.59	0.59	50.00	1879.19	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:46:39	2025-12-12 10:46:39
+1069	10	2	5	INV-25/00206	\N	2025-10-20	\N	\N	21.14	0.14	21.00	1879.11	2680.00	56280.00	60501.00	0.00	0.00	7.50	4221.00	\N	\N	\N	\N	2025-12-12 10:47:43	2025-12-12 10:47:43
+1070	10	2	5	INV-25/00207	\N	2025-10-21	\N	\N	37.04	0.04	37.00	1879.08	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-12 10:48:50	2025-12-12 10:48:50
+1071	10	2	5	INV-25/00208	\N	2025-10-21	\N	\N	274.95	224.95	50.00	1879.20	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:50:04	2025-12-12 10:50:04
+1072	10	2	5	INV-25/00209	\N	2025-10-21	\N	\N	224.95	188.95	36.00	1879.20	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:50:09	2025-12-12 10:50:09
+1073	10	2	5	INV-25/00210	\N	2025-10-21	\N	\N	188.95	152.95	36.00	1879.20	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:50:13	2025-12-12 10:50:13
+1074	10	2	5	INV-25/00211	\N	2025-10-21	\N	\N	152.95	104.95	48.00	1879.20	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 10:50:21	2025-12-12 10:50:21
+1075	10	2	5	INV-25/00212	\N	2025-10-21	\N	\N	104.95	69.95	35.00	1879.20	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:50:32	2025-12-12 10:50:32
+1076	10	2	5	INV-25/00213	\N	2025-10-21	\N	\N	69.95	33.95	36.00	1879.20	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:50:38	2025-12-12 10:50:38
+1077	10	2	5	INV-25/00214	\N	2025-10-21	\N	\N	33.95	0.95	33.00	1879.20	2680.00	88440.00	95073.00	0.00	0.00	7.50	6633.00	\N	\N	\N	\N	2025-12-12 10:50:45	2025-12-12 10:50:45
+1078	10	2	5	INV-25/00215	\N	2025-10-22	\N	\N	176.65	126.65	50.00	1879.18	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:52:11	2025-12-12 10:52:11
+1079	10	2	5	INV-25/00216	\N	2025-10-22	\N	\N	126.65	76.65	50.00	1879.18	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:52:19	2025-12-12 10:52:19
+1080	10	2	5	INV-25/00217	\N	2025-10-22	\N	\N	76.65	38.65	38.00	1879.18	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:52:27	2025-12-12 10:52:27
+1081	10	2	5	INV-25/00218	\N	2025-10-22	\N	\N	38.65	0.65	38.00	1879.18	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:52:32	2025-12-12 10:52:32
+1082	10	2	5	INV-25/00219	\N	2025-10-22	\N	\N	68.88	30.88	38.00	1877.89	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 10:55:08	2025-12-12 10:55:08
+1083	10	2	5	INV-25/00220	\N	2025-10-22	\N	\N	30.88	0.88	30.00	1877.89	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 10:55:15	2025-12-12 10:55:15
+1084	10	2	5	INV-25/00221	\N	2025-10-23	\N	\N	325.70	275.70	50.00	1877.93	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:56:31	2025-12-12 10:56:31
+1085	10	2	5	INV-25/00222	\N	2025-10-23	\N	\N	275.70	225.70	50.00	1877.93	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:56:37	2025-12-12 10:56:37
+1086	10	2	5	INV-25/00223	\N	2025-10-23	\N	\N	225.70	189.70	36.00	1877.93	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:56:43	2025-12-12 10:56:43
+1087	10	2	5	INV-25/00224	\N	2025-10-23	\N	\N	189.70	153.70	36.00	1877.93	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:56:49	2025-12-12 10:56:49
+1088	10	2	5	INV-25/00225	\N	2025-10-23	\N	\N	153.70	117.70	36.00	1877.93	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:56:56	2025-12-12 10:56:56
+1089	10	2	5	INV-25/00226	\N	2025-10-23	\N	\N	117.70	81.70	36.00	1877.93	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 10:57:01	2025-12-12 10:57:01
+1090	10	2	5	INV-25/00227	\N	2025-10-23	\N	\N	81.70	31.70	50.00	1877.93	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:57:07	2025-12-12 10:57:07
+1091	10	2	5	INV-25/00228	\N	2025-10-23	\N	\N	31.70	0.70	31.00	1877.93	2680.00	83080.00	89311.00	0.00	0.00	7.50	6231.00	\N	\N	\N	\N	2025-12-12 10:57:13	2025-12-12 10:57:13
+1092	10	2	5	INV-25/00229	\N	2025-10-24	\N	\N	166.53	116.53	50.00	1877.88	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:58:26	2025-12-12 10:58:26
+1093	10	2	5	INV-25/00230	\N	2025-10-24	\N	\N	116.53	81.53	35.00	1877.88	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 10:58:34	2025-12-12 10:58:34
+1094	10	2	5	INV-25/00231	\N	2025-10-24	\N	\N	81.53	31.53	50.00	1877.88	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 10:58:41	2025-12-12 10:58:41
+1095	10	2	5	INV-25/00232	\N	2025-10-24	\N	\N	31.53	0.53	31.00	1877.88	2680.00	83080.00	89311.00	0.00	0.00	7.50	6231.00	\N	\N	\N	\N	2025-12-12 10:58:47	2025-12-12 10:58:47
+1096	10	2	5	INV-25/00233	\N	2025-10-24	\N	\N	43.35	0.35	43.00	1877.79	2680.00	115240.00	123883.00	0.00	0.00	7.50	8643.00	\N	\N	\N	\N	2025-12-12 11:00:08	2025-12-12 11:00:08
+1097	10	2	5	INV-25/00234	\N	2025-10-24	\N	\N	202.79	154.79	48.00	1877.84	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 11:01:36	2025-12-12 11:01:36
+1098	10	2	5	INV-25/00235	\N	2025-10-24	\N	\N	154.79	106.79	48.00	1877.84	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-12 11:01:43	2025-12-12 11:01:43
+1099	10	2	5	INV-25/00236	\N	2025-10-24	\N	\N	106.79	70.79	36.00	1877.84	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:01:55	2025-12-12 11:01:55
+1100	10	2	5	INV-25/00237	\N	2025-10-24	\N	\N	70.79	35.79	35.00	1877.84	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 11:02:01	2025-12-12 11:02:01
+1101	10	2	5	INV-25/00238	\N	2025-10-24	\N	\N	35.79	0.79	35.00	1877.84	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 11:02:07	2025-12-12 11:02:07
+1102	10	2	5	INV-25/00239	\N	2025-10-24	\N	\N	124.33	88.33	36.00	1877.83	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:03:27	2025-12-12 11:03:27
+1103	10	2	5	INV-25/00240	\N	2025-10-24	\N	\N	88.33	38.33	50.00	1877.83	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:03:34	2025-12-12 11:03:34
+1104	10	2	5	INV-25/00241	\N	2025-10-24	\N	\N	38.33	0.33	38.00	1877.83	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-12 11:03:39	2025-12-12 11:03:39
+1105	10	2	5	INV-25/00242	\N	2025-10-25	\N	\N	269.55	219.55	50.00	1877.81	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:05:08	2025-12-12 11:05:08
+1106	10	2	5	INV-25/00243	\N	2025-10-25	\N	\N	219.55	169.55	50.00	1877.81	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:05:15	2025-12-12 11:05:15
+1107	10	2	5	INV-25/00244	\N	2025-10-25	\N	\N	169.55	119.55	50.00	1877.81	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:05:21	2025-12-12 11:05:21
+1108	10	2	5	INV-25/00245	\N	2025-10-25	\N	\N	119.55	69.55	50.00	1877.81	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:05:28	2025-12-12 11:05:28
+1109	10	2	5	INV-25/00246	\N	2025-10-25	\N	\N	69.55	35.55	34.00	1877.81	2680.00	91120.00	97954.00	0.00	0.00	7.50	6834.00	\N	\N	\N	\N	2025-12-12 11:05:37	2025-12-12 11:05:37
+1110	10	2	5	INV-25/00247	\N	2025-10-25	\N	\N	35.55	0.55	35.00	1877.81	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 11:05:42	2025-12-12 11:05:42
+1111	10	2	5	INV-25/00248	\N	2025-10-25	\N	\N	258.82	208.82	50.00	1878.11	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:07:08	2025-12-12 11:07:08
+1112	10	2	5	INV-25/00249	\N	2025-10-25	\N	\N	208.82	158.82	50.00	1878.11	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:07:13	2025-12-12 11:07:13
+1113	10	2	5	INV-25/00250	\N	2025-10-25	\N	\N	158.82	108.82	50.00	1878.11	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:07:19	2025-12-12 11:07:19
+1114	10	2	5	INV-25/00251	\N	2025-10-25	\N	\N	108.82	72.82	36.00	1878.11	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:07:26	2025-12-12 11:07:26
+1115	10	2	5	INV-25/00252	\N	2025-10-25	\N	\N	72.82	36.82	36.00	1878.11	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:07:32	2025-12-12 11:07:32
+1116	10	2	5	INV-25/00253	\N	2025-10-25	\N	\N	36.82	0.82	36.00	1878.11	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:07:38	2025-12-12 11:07:38
+1117	10	2	5	INV-25/00254	\N	2025-10-26	\N	\N	43.86	0.86	43.00	1877.88	2680.00	115240.00	123883.00	0.00	0.00	7.50	8643.00	\N	\N	\N	\N	2025-12-12 11:08:59	2025-12-12 11:08:59
+1118	10	2	5	INV-25/00255	\N	2025-10-26	\N	\N	93.25	43.25	50.00	1877.88	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:10:21	2025-12-12 11:10:21
+1119	10	2	5	INV-25/00256	\N	2025-10-26	\N	\N	43.25	0.25	43.00	1877.88	2680.00	115240.00	123883.00	0.00	0.00	7.50	8643.00	\N	\N	\N	\N	2025-12-12 11:10:29	2025-12-12 11:10:29
+1120	10	2	5	INV-25/00257	\N	2025-10-26	\N	\N	230.37	180.37	50.00	1878.06	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:11:45	2025-12-12 11:11:45
+1121	10	2	5	INV-25/00258	\N	2025-10-26	\N	\N	180.37	130.37	50.00	1878.06	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:11:53	2025-12-12 11:11:53
+1122	10	2	5	INV-25/00259	\N	2025-10-26	\N	\N	130.37	80.37	50.00	1878.06	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:11:59	2025-12-12 11:11:59
+1123	10	2	5	INV-25/00260	\N	2025-10-26	\N	\N	80.37	30.37	50.00	1878.06	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:12:05	2025-12-12 11:12:05
+1124	10	2	5	INV-25/00261	\N	2025-10-26	\N	\N	30.37	0.37	30.00	1878.06	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-12 11:12:11	2025-12-12 11:12:11
+1125	10	2	5	INV-25/00262	\N	2025-10-26	\N	\N	175.47	140.47	35.00	1877.93	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 11:13:31	2025-12-12 11:13:31
+1126	10	2	5	INV-25/00263	\N	2025-10-26	\N	\N	140.47	90.47	50.00	1877.93	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:13:40	2025-12-12 11:13:40
+1127	10	2	5	INV-25/00264	\N	2025-10-26	\N	\N	90.47	40.47	50.00	1877.93	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:13:48	2025-12-12 11:13:48
+1128	10	2	5	INV-25/00265	\N	2025-10-26	\N	\N	40.47	0.47	40.00	1877.93	2680.00	107200.00	115240.00	0.00	0.00	7.50	8040.00	\N	\N	\N	\N	2025-12-12 11:13:54	2025-12-12 11:13:54
+1129	10	2	5	INV-25/00266	\N	2025-10-27	\N	\N	277.42	227.42	50.00	1877.83	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:15:22	2025-12-12 11:15:22
+1130	10	2	5	INV-25/00267	\N	2025-10-27	\N	\N	227.42	191.42	36.00	1877.83	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:15:30	2025-12-12 11:15:30
+1131	10	2	5	INV-25/00268	\N	2025-10-27	\N	\N	191.42	141.42	50.00	1877.83	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:15:38	2025-12-12 11:15:38
+1132	10	2	5	INV-25/00269	\N	2025-10-27	\N	\N	141.42	91.42	50.00	1877.83	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:15:44	2025-12-12 11:15:44
+1133	10	2	5	INV-25/00270	\N	2025-10-27	\N	\N	91.42	41.42	50.00	1877.83	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:15:51	2025-12-12 11:15:51
+1134	10	2	5	INV-25/00271	\N	2025-10-27	\N	\N	41.42	0.42	41.00	1877.83	2680.00	109880.00	118121.00	0.00	0.00	7.50	8241.00	\N	\N	\N	\N	2025-12-12 11:15:56	2025-12-12 11:15:56
+1135	10	2	5	INV-25/00272	\N	2025-10-27	\N	\N	126.99	90.99	36.00	1877.82	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:17:13	2025-12-12 11:17:13
+1136	10	2	5	INV-25/00273	\N	2025-10-27	\N	\N	90.99	54.99	36.00	1877.82	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:17:19	2025-12-12 11:17:19
+1137	10	2	5	INV-25/00274	\N	2025-10-27	\N	\N	54.99	27.99	27.00	1877.82	2680.00	72360.00	77787.00	0.00	0.00	7.50	5427.00	\N	\N	\N	\N	2025-12-12 11:17:30	2025-12-12 11:17:30
+1138	10	2	5	INV-25/00275	\N	2025-10-27	\N	\N	27.99	0.99	27.00	1877.82	2680.00	72360.00	77787.00	0.00	0.00	7.50	5427.00	\N	\N	\N	\N	2025-12-12 11:17:37	2025-12-12 11:17:37
+1139	10	2	5	INV-25/00276	\N	2025-10-27	\N	\N	107.74	71.74	36.00	1877.86	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:19:01	2025-12-12 11:19:01
+1140	10	2	5	INV-25/00277	\N	2025-10-27	\N	\N	71.74	35.74	36.00	1877.86	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-12 11:19:09	2025-12-12 11:19:09
+1141	10	2	5	INV-25/00278	\N	2025-10-27	\N	\N	35.74	0.74	35.00	1877.86	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-12 11:19:17	2025-12-12 11:19:17
+1142	10	2	5	INV-25/00279	\N	2025-10-28	\N	\N	42.74	0.74	42.00	1877.88	2680.00	112560.00	121002.00	0.00	0.00	7.50	8442.00	\N	\N	\N	\N	2025-12-12 11:21:06	2025-12-12 11:21:06
+1143	10	2	5	INV-25/00280	\N	2025-10-28	\N	\N	350.26	300.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:22:27	2025-12-12 11:22:27
+1144	10	2	5	INV-25/00281	\N	2025-10-28	\N	\N	300.26	250.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:22:39	2025-12-12 11:22:39
+1145	10	2	5	INV-25/00282	\N	2025-10-28	\N	\N	250.26	200.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:22:44	2025-12-12 11:22:44
+1146	10	2	5	INV-25/00283	\N	2025-10-28	\N	\N	200.26	150.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:22:50	2025-12-12 11:22:50
+1147	10	2	5	INV-25/00284	\N	2025-10-28	\N	\N	150.26	100.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:22:55	2025-12-12 11:22:55
+1148	10	2	5	INV-25/00285	\N	2025-10-28	\N	\N	100.26	50.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:23:01	2025-12-12 11:23:01
+1149	10	2	5	INV-25/00286	\N	2025-10-28	\N	\N	50.26	0.26	50.00	1877.82	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:23:07	2025-12-12 11:23:07
+1150	10	2	5	INV-25/00287	\N	2025-10-28	\N	\N	82.36	32.36	50.00	1878.09	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:24:21	2025-12-12 11:24:21
+1151	10	2	5	INV-25/00288	\N	2025-10-28	\N	\N	32.36	0.36	32.00	1878.09	2680.00	85760.00	92192.00	0.00	0.00	7.50	6432.00	\N	\N	\N	\N	2025-12-12 11:24:31	2025-12-12 11:24:31
+1152	10	2	5	INV-25/00289	\N	2025-10-29	\N	\N	93.55	43.55	50.00	1877.97	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:25:52	2025-12-12 11:25:52
+1153	10	2	5	INV-25/00290	\N	2025-10-29	\N	\N	43.55	0.55	43.00	1877.97	2680.00	115240.00	123883.00	0.00	0.00	7.50	8643.00	\N	\N	\N	\N	2025-12-12 11:25:59	2025-12-12 11:25:59
+1154	10	2	5	INV-25/00291	\N	2025-10-30	\N	\N	95.08	45.08	50.00	1877.84	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 11:27:34	2025-12-12 11:27:34
+1155	10	2	5	INV-25/00292	\N	2025-10-30	\N	\N	45.08	0.08	45.00	1877.84	2680.00	120600.00	129645.00	0.00	0.00	7.50	9045.00	\N	\N	\N	\N	2025-12-12 11:27:41	2025-12-12 11:27:41
+1156	10	1	5	INV-25/00293	\N	2025-10-30	\N	\N	236.21	200.21	36.00	1832.69	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-12 12:27:31	2025-12-12 12:27:31
+1157	10	1	5	INV-25/00294	\N	2025-10-30	\N	\N	200.21	150.21	50.00	1832.69	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:27:41	2025-12-12 12:27:41
+1158	10	1	5	INV-25/00295	\N	2025-10-30	\N	\N	150.21	100.21	50.00	1832.69	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:27:49	2025-12-12 12:27:49
+1159	10	1	5	INV-25/00296	\N	2025-10-30	\N	\N	100.21	50.21	50.00	1832.69	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:27:57	2025-12-12 12:27:57
+1160	10	1	5	INV-25/00297	\N	2025-10-30	\N	\N	50.21	0.21	50.00	1832.69	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:28:03	2025-12-12 12:28:03
+1161	10	1	5	INV-25/00298	\N	2025-10-30	\N	\N	74.80	40.80	34.00	1832.62	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-12 12:29:32	2025-12-12 12:29:32
+1162	10	1	5	INV-25/00299	\N	2025-10-30	\N	\N	40.80	0.80	40.00	1832.62	2650.00	106000.00	113950.00	0.00	0.00	7.50	7950.00	\N	\N	\N	\N	2025-12-12 12:29:41	2025-12-12 12:29:41
+1163	10	1	5	INV-25/00300	\N	2025-10-30	\N	\N	34.18	0.18	34.00	1832.72	2650.00	90100.00	96857.50	0.00	0.00	7.50	6757.50	\N	\N	\N	\N	2025-12-12 12:30:59	2025-12-12 12:30:59
+1164	10	1	5	INV-25/00301	\N	2025-10-30	\N	\N	49.93	0.93	49.00	1832.71	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-12 12:32:21	2025-12-12 12:32:21
+1165	10	1	5	INV-25/00302	\N	2025-10-30	\N	\N	38.51	0.51	38.00	1832.74	2650.00	100700.00	108252.50	0.00	0.00	7.50	7552.50	\N	\N	\N	\N	2025-12-12 12:33:28	2025-12-12 12:33:28
+1166	10	1	5	INV-25/00303	\N	2025-10-30	\N	\N	500.07	450.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:34:52	2025-12-12 12:34:52
+1167	10	1	5	INV-25/00304	\N	2025-10-30	\N	\N	450.07	400.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:35:01	2025-12-12 12:35:01
+1168	10	1	5	INV-25/00305	\N	2025-10-30	\N	\N	400.07	350.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:35:15	2025-12-12 12:35:15
+1169	10	1	5	INV-25/00306	\N	2025-10-30	\N	\N	350.07	300.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:35:23	2025-12-12 12:35:23
+1170	10	1	5	INV-25/00307	\N	2025-10-30	\N	\N	300.07	250.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:35:47	2025-12-12 12:35:47
+1171	10	1	5	INV-25/00308	\N	2025-10-30	\N	\N	250.07	200.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:35:55	2025-12-12 12:35:55
+1172	10	1	5	INV-25/00309	\N	2025-10-30	\N	\N	200.07	150.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:36:03	2025-12-12 12:36:03
+1173	10	1	5	INV-25/00310	\N	2025-10-30	\N	\N	150.07	100.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:36:10	2025-12-12 12:36:10
+1174	10	1	5	INV-25/00311	\N	2025-10-30	\N	\N	100.07	50.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:36:21	2025-12-12 12:36:21
+1175	10	1	5	INV-25/00312	\N	2025-10-30	\N	\N	50.07	0.07	50.00	1832.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:36:31	2025-12-12 12:36:31
+1176	10	1	5	INV-25/00313	\N	2025-10-30	\N	\N	109.33	71.33	38.00	1832.74	2650.00	100700.00	108252.50	0.00	0.00	7.50	7552.50	\N	\N	\N	\N	2025-12-12 12:38:08	2025-12-12 12:38:08
+1177	10	1	5	INV-25/00314	\N	2025-10-30	\N	\N	71.33	35.33	36.00	1832.74	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-12 12:38:16	2025-12-12 12:38:16
+1178	10	1	5	INV-25/00315	\N	2025-10-30	\N	\N	35.33	0.33	35.00	1832.74	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-12 12:38:23	2025-12-12 12:38:23
+1179	10	1	5	INV-25/00316	\N	2025-10-30	\N	\N	12.84	0.84	12.00	1832.70	2650.00	31800.00	34185.00	0.00	0.00	7.50	2385.00	\N	\N	\N	\N	2025-12-12 12:39:39	2025-12-12 12:39:39
+1180	10	1	5	INV-25/00317	\N	2025-10-31	\N	\N	63.63	30.63	33.00	1841.74	2650.00	87450.00	94008.75	0.00	0.00	7.50	6558.75	\N	\N	\N	\N	2025-12-12 12:40:47	2025-12-12 12:40:47
+1181	10	1	5	INV-25/00318	\N	2025-10-31	\N	\N	30.63	0.63	30.00	1841.74	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-12 12:40:53	2025-12-12 12:40:53
+1182	10	1	5	INV-25/00319	\N	2025-10-31	\N	\N	37.83	0.83	37.00	1841.70	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-12 12:42:33	2025-12-12 12:42:33
+1183	10	1	5	INV-25/00320	\N	2025-10-31	\N	\N	37.33	0.33	37.00	1841.69	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-12 12:43:41	2025-12-12 12:43:41
+1184	10	1	5	INV-25/00321	\N	2025-10-31	\N	\N	135.81	100.81	35.00	1841.71	2650.00	92750.00	99706.25	0.00	0.00	7.50	6956.25	\N	\N	\N	\N	2025-12-12 12:44:50	2025-12-12 12:44:50
+1185	10	1	5	INV-25/00322	\N	2025-10-31	\N	\N	100.81	50.81	50.00	1841.71	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:44:56	2025-12-12 12:44:56
+1186	10	1	5	INV-25/00323	\N	2025-10-31	\N	\N	50.81	0.81	50.00	1841.71	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:45:01	2025-12-12 12:45:01
+1187	10	1	5	INV-25/00324	\N	2025-10-31	\N	\N	100.16	50.16	50.00	1841.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:46:07	2025-12-12 12:46:07
+1188	10	1	5	INV-25/00325	\N	2025-10-31	\N	\N	50.16	0.16	50.00	1841.73	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:46:13	2025-12-12 12:46:13
+1189	10	1	5	INV-25/00326	\N	2025-10-31	\N	\N	49.39	0.39	49.00	1841.74	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-12 12:47:21	2025-12-12 12:47:21
+1190	10	1	5	INV-25/00327	\N	2025-10-31	\N	\N	37.81	0.81	37.00	1841.71	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-12 12:48:30	2025-12-12 12:48:30
+1191	10	1	5	INV-25/00328	\N	2025-10-31	\N	\N	38.08	0.08	38.00	1841.73	2650.00	100700.00	108252.50	0.00	0.00	7.50	7552.50	\N	\N	\N	\N	2025-12-12 12:49:41	2025-12-12 12:49:41
+1192	10	1	5	INV-25/00329	\N	2025-10-31	\N	\N	136.61	100.61	36.00	1841.65	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-12 12:50:45	2025-12-12 12:50:45
+1193	10	1	5	INV-25/00330	\N	2025-10-31	\N	\N	100.61	50.61	50.00	1841.65	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:50:51	2025-12-12 12:50:51
+1194	10	1	5	INV-25/00331	\N	2025-10-31	\N	\N	50.61	0.61	50.00	1841.65	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:50:57	2025-12-12 12:50:57
+1195	10	1	5	INV-25/00332	\N	2025-10-31	\N	\N	25.55	0.55	25.00	1841.65	2650.00	66250.00	71218.75	0.00	0.00	7.50	4968.75	\N	\N	\N	\N	2025-12-12 12:52:06	2025-12-12 12:52:06
+1196	10	1	5	INV-25/00333	\N	2025-10-31	\N	\N	87.16	50.16	37.00	1841.70	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-12 12:53:06	2025-12-12 12:53:06
+1197	10	1	5	INV-25/00334	\N	2025-10-31	\N	\N	50.16	0.16	50.00	1841.70	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-12 12:53:13	2025-12-12 12:53:13
+1198	10	1	5	INV-25/00335	\N	2025-10-31	\N	\N	24.95	0.95	24.00	1841.74	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-12 12:54:21	2025-12-12 12:54:21
+1199	10	2	5	INV-25/00336	\N	2025-11-01	\N	\N	244.93	200.93	44.00	1879.33	2680.00	117920.00	126764.00	0.00	0.00	7.50	8844.00	\N	\N	\N	\N	2025-12-12 13:04:10	2025-12-12 13:04:10
+1200	10	2	5	INV-25/00337	\N	2025-11-01	\N	\N	200.93	150.93	50.00	1879.33	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 13:04:16	2025-12-12 13:04:16
+1201	10	2	5	INV-25/00338	\N	2025-11-01	\N	\N	150.93	100.93	50.00	1879.33	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 13:04:23	2025-12-12 13:04:23
+1202	10	2	5	INV-25/00339	\N	2025-11-01	\N	\N	100.93	50.93	50.00	1879.33	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 13:04:31	2025-12-12 13:04:31
+1203	10	2	5	INV-25/00340	\N	2025-11-01	\N	\N	50.93	0.93	50.00	1879.33	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-12 13:04:37	2025-12-12 13:04:37
+1204	10	2	5	INV-25/00341	\N	2025-11-01	\N	\N	260.18	210.18	50.00	1877.95	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:12:25	2025-12-13 07:12:25
+1205	10	2	5	INV-25/00342	\N	2025-11-01	\N	\N	210.18	174.18	36.00	1877.95	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:12:32	2025-12-13 07:12:32
+1206	10	2	5	INV-25/00343	\N	2025-11-01	\N	\N	174.18	138.18	36.00	1877.95	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:12:39	2025-12-13 07:12:39
+1207	10	2	5	INV-25/00344	\N	2025-11-01	\N	\N	138.18	88.18	50.00	1877.95	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:12:49	2025-12-13 07:12:49
+1208	10	2	5	INV-25/00345	\N	2025-11-01	\N	\N	88.18	52.18	36.00	1877.95	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:12:59	2025-12-13 07:12:59
+1209	10	2	5	INV-25/00346	\N	2025-11-01	\N	\N	52.18	26.18	26.00	1877.95	2680.00	69680.00	74906.00	0.00	0.00	7.50	5226.00	\N	\N	\N	\N	2025-12-13 07:13:06	2025-12-13 07:13:06
+1210	10	2	5	INV-25/00347	\N	2025-11-01	\N	\N	26.18	0.18	26.00	1877.95	2680.00	69680.00	74906.00	0.00	0.00	7.50	5226.00	\N	\N	\N	\N	2025-12-13 07:13:15	2025-12-13 07:13:15
+1211	10	2	5	INV-25/00348	\N	2025-11-02	\N	\N	271.64	235.64	36.00	1874.94	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:40:42	2025-12-13 07:40:42
+1212	10	2	5	INV-25/00349	\N	2025-11-02	\N	\N	235.64	185.64	50.00	1874.94	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:40:49	2025-12-13 07:40:49
+1213	10	2	5	INV-25/00350	\N	2025-11-02	\N	\N	185.64	135.64	50.00	1874.94	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:40:56	2025-12-13 07:40:56
+1214	10	2	5	INV-25/00351	\N	2025-11-02	\N	\N	135.64	99.64	36.00	1874.94	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:41:07	2025-12-13 07:41:07
+1215	10	2	5	INV-25/00352	\N	2025-11-02	\N	\N	99.64	49.64	50.00	1874.94	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:41:14	2025-12-13 07:41:14
+1216	10	2	5	INV-25/00353	\N	2025-11-02	\N	\N	49.64	0.64	49.00	1874.94	2680.00	131320.00	141169.00	0.00	0.00	7.50	9849.00	\N	\N	\N	\N	2025-12-13 07:41:19	2025-12-13 07:41:19
+1217	10	2	5	INV-25/00354	\N	2025-11-04	\N	\N	128.71	92.71	36.00	1875.07	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:42:53	2025-12-13 07:42:53
+1218	10	2	5	INV-25/00355	\N	2025-11-04	\N	\N	92.71	44.71	48.00	1875.07	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-13 07:43:06	2025-12-13 07:43:06
+1219	10	2	5	INV-25/00356	\N	2025-11-04	\N	\N	44.71	0.71	44.00	1875.07	2680.00	117920.00	126764.00	0.00	0.00	7.50	8844.00	\N	\N	\N	\N	2025-12-13 07:43:14	2025-12-13 07:43:14
+1220	10	2	5	INV-25/00357	\N	2025-11-05	\N	\N	95.30	45.30	50.00	1875.05	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:45:44	2025-12-13 07:45:44
+1221	10	2	5	INV-25/00358	\N	2025-11-05	\N	\N	45.30	0.30	45.00	1875.05	2680.00	120600.00	129645.00	0.00	0.00	7.50	9045.00	\N	\N	\N	\N	2025-12-13 07:45:50	2025-12-13 07:45:50
+1222	10	2	5	INV-25/00359	\N	2025-11-06	\N	\N	173.77	137.77	36.00	1875.01	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 07:47:11	2025-12-13 07:47:11
+1223	10	2	5	INV-25/00360	\N	2025-11-06	\N	\N	137.77	89.77	48.00	1875.01	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-13 07:47:22	2025-12-13 07:47:22
+1224	10	2	5	INV-25/00361	\N	2025-11-06	\N	\N	89.77	59.77	30.00	1875.01	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 07:47:32	2025-12-13 07:47:32
+1225	10	2	5	INV-25/00362	\N	2025-11-06	\N	\N	59.77	29.77	30.00	1875.01	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 07:47:38	2025-12-13 07:47:38
+1226	10	2	5	INV-25/00363	\N	2025-11-06	\N	\N	29.77	0.77	29.00	1875.01	2680.00	77720.00	83549.00	0.00	0.00	7.50	5829.00	\N	\N	\N	\N	2025-12-13 07:47:46	2025-12-13 07:47:46
+1227	10	2	5	INV-25/00364	\N	2025-11-06	\N	\N	85.66	35.66	50.00	1874.99	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:49:09	2025-12-13 07:49:09
+1228	10	2	5	INV-25/00365	\N	2025-11-06	\N	\N	35.66	0.66	35.00	1874.99	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-13 07:49:15	2025-12-13 07:49:15
+1229	10	2	5	INV-25/00366	\N	2025-11-07	\N	\N	10.66	0.66	10.00	1874.70	2680.00	26800.00	28810.00	0.00	0.00	7.50	2010.00	\N	\N	\N	\N	2025-12-13 07:50:40	2025-12-13 07:50:40
+1230	10	2	5	INV-25/00367	\N	2025-11-07	\N	\N	60.66	30.66	30.00	1874.98	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 07:52:24	2025-12-13 07:52:24
+1231	10	2	5	INV-25/00368	\N	2025-11-07	\N	\N	30.66	0.66	30.00	1874.98	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 07:52:32	2025-12-13 07:52:32
+1232	10	2	5	INV-25/00369	\N	2025-11-09	\N	\N	97.07	47.07	50.00	1874.98	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:53:58	2025-12-13 07:53:58
+1233	10	2	5	INV-25/00370	\N	2025-11-09	\N	\N	47.07	0.07	47.00	1874.98	2680.00	125960.00	135407.00	0.00	0.00	7.50	9447.00	\N	\N	\N	\N	2025-12-13 07:54:08	2025-12-13 07:54:08
+1234	10	2	5	INV-25/00371	\N	2025-11-11	\N	\N	245.30	195.30	50.00	1875.03	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:55:43	2025-12-13 07:55:43
+1235	10	2	5	INV-25/00372	\N	2025-11-11	\N	\N	195.30	145.30	50.00	1875.03	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:55:49	2025-12-13 07:55:49
+1236	10	2	5	INV-25/00373	\N	2025-11-11	\N	\N	145.30	95.30	50.00	1875.03	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:55:55	2025-12-13 07:55:55
+1237	10	2	5	INV-25/00374	\N	2025-11-11	\N	\N	95.30	45.30	50.00	1875.03	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:56:02	2025-12-13 07:56:02
+1238	10	2	5	INV-25/00375	\N	2025-11-11	\N	\N	45.30	0.30	45.00	1875.03	2680.00	120600.00	129645.00	0.00	0.00	7.50	9045.00	\N	\N	\N	\N	2025-12-13 07:56:09	2025-12-13 07:56:09
+1239	10	2	5	INV-25/00376	\N	2025-11-12	\N	\N	98.63	48.63	50.00	1874.96	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 07:57:27	2025-12-13 07:57:27
+1240	10	2	5	INV-25/00377	\N	2025-11-12	\N	\N	48.63	0.63	48.00	1874.96	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-13 07:57:35	2025-12-13 07:57:35
+1241	10	2	5	INV-25/00378	\N	2025-11-13	\N	\N	133.21	97.21	36.00	1875.02	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 08:05:32	2025-12-13 08:05:32
+1242	10	2	5	INV-25/00379	\N	2025-11-13	\N	\N	97.21	47.21	50.00	1875.02	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 08:05:42	2025-12-13 08:05:42
+1243	10	2	5	INV-25/00380	\N	2025-11-13	\N	\N	47.21	0.21	47.00	1875.02	2680.00	125960.00	135407.00	0.00	0.00	7.50	9447.00	\N	\N	\N	\N	2025-12-13 08:05:50	2025-12-13 08:05:50
+1244	10	2	5	INV-25/00381	\N	2025-11-14	\N	\N	57.85	30.85	27.00	1874.99	2680.00	72360.00	77787.00	0.00	0.00	7.50	5427.00	\N	\N	\N	\N	2025-12-13 09:40:18	2025-12-13 09:40:18
+1245	10	2	5	INV-25/00382	\N	2025-11-14	\N	\N	30.85	0.85	30.00	1874.99	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 09:40:25	2025-12-13 09:40:25
+1246	10	2	5	INV-25/00383	\N	2025-11-16	\N	\N	173.66	143.66	30.00	1874.99	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 09:42:02	2025-12-13 09:42:02
+1247	10	2	5	INV-25/00384	\N	2025-11-16	\N	\N	143.66	113.66	30.00	1874.99	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 09:42:10	2025-12-13 09:42:10
+1248	10	2	5	INV-25/00385	\N	2025-11-16	\N	\N	113.66	77.66	36.00	1874.99	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:42:20	2025-12-13 09:42:20
+1249	10	2	5	INV-25/00386	\N	2025-11-16	\N	\N	77.66	41.66	36.00	1874.99	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:42:27	2025-12-13 09:42:27
+1250	10	2	5	INV-25/00387	\N	2025-11-16	\N	\N	41.66	0.66	41.00	1874.99	2680.00	109880.00	118121.00	0.00	0.00	7.50	8241.00	\N	\N	\N	\N	2025-12-13 09:42:38	2025-12-13 09:42:38
+1251	10	2	5	INV-25/00388	\N	2025-11-18	\N	\N	55.66	28.66	27.00	1874.99	2680.00	72360.00	77787.00	0.00	0.00	7.50	5427.00	\N	\N	\N	\N	2025-12-13 09:44:36	2025-12-13 09:45:05
+1252	10	2	5	INV-25/00389	\N	2025-11-18	\N	\N	28.66	0.66	28.00	1874.99	2680.00	75040.00	80668.00	0.00	0.00	7.50	5628.00	\N	\N	\N	\N	2025-12-13 09:45:13	2025-12-13 09:45:13
+1253	10	2	5	INV-25/00390	\N	2025-11-19	\N	\N	26.32	0.32	26.00	1874.97	2680.00	69680.00	74906.00	0.00	0.00	7.50	5226.00	\N	\N	\N	\N	2025-12-13 09:46:44	2025-12-13 09:46:44
+1254	10	2	5	INV-25/00391	\N	2025-11-20	\N	\N	63.32	30.32	33.00	1874.95	2680.00	88440.00	95073.00	0.00	0.00	7.50	6633.00	\N	\N	\N	\N	2025-12-13 09:47:51	2025-12-13 09:47:51
+1255	10	2	5	INV-25/00392	\N	2025-11-20	\N	\N	30.32	0.32	30.00	1874.95	2680.00	80400.00	86430.00	0.00	0.00	7.50	6030.00	\N	\N	\N	\N	2025-12-13 09:47:58	2025-12-13 09:47:58
+1256	10	2	5	INV-25/00393	\N	2025-11-21	\N	\N	122.45	74.45	48.00	1875.16	2680.00	128640.00	138288.00	0.00	0.00	7.50	9648.00	\N	\N	\N	\N	2025-12-13 09:50:16	2025-12-13 09:50:16
+1257	10	2	5	INV-25/00394	\N	2025-11-21	\N	\N	74.45	38.45	36.00	1875.16	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:50:23	2025-12-13 09:50:23
+1258	10	2	5	INV-25/00395	\N	2025-11-21	\N	\N	38.45	0.45	38.00	1875.16	2680.00	101840.00	109478.00	0.00	0.00	7.50	7638.00	\N	\N	\N	\N	2025-12-13 09:50:31	2025-12-13 09:50:31
+1259	10	2	5	INV-25/00396	\N	2025-11-26	\N	\N	73.12	37.12	36.00	1875.03	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:51:51	2025-12-13 09:51:51
+1260	10	2	5	INV-25/00397	\N	2025-11-26	\N	\N	37.12	0.12	37.00	1875.03	2680.00	99160.00	106597.00	0.00	0.00	7.50	7437.00	\N	\N	\N	\N	2025-12-13 09:51:56	2025-12-13 09:51:56
+1261	10	2	5	INV-25/00398	\N	2025-11-27	\N	\N	68.33	32.33	36.00	1875.08	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:53:08	2025-12-13 09:53:08
+1262	10	2	5	INV-25/00399	\N	2025-11-27	\N	\N	32.33	0.33	32.00	1875.08	2680.00	85760.00	92192.00	0.00	0.00	7.50	6432.00	\N	\N	\N	\N	2025-12-13 09:53:15	2025-12-13 09:53:15
+1263	10	2	5	INV-25/00400	\N	2025-11-27	\N	\N	133.18	97.18	36.00	1875.08	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:54:30	2025-12-13 09:54:30
+1264	10	2	5	INV-25/00401	\N	2025-11-27	\N	\N	97.18	47.18	50.00	1875.08	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 09:54:37	2025-12-13 09:54:37
+1265	10	2	5	INV-25/00402	\N	2025-11-27	\N	\N	47.18	0.18	47.00	1875.08	2680.00	125960.00	135407.00	0.00	0.00	7.50	9447.00	\N	\N	\N	\N	2025-12-13 09:54:45	2025-12-13 09:54:45
+1266	10	2	5	INV-25/00403	\N	2025-11-28	\N	\N	5.75	0.75	5.00	1874.90	2680.00	13400.00	14405.00	0.00	0.00	7.50	1005.00	\N	\N	\N	\N	2025-12-13 09:56:12	2025-12-13 09:56:12
+1267	10	2	5	INV-25/00404	\N	2025-11-30	\N	\N	121.54	71.54	50.00	1875.01	2680.00	134000.00	144050.00	0.00	0.00	7.50	10050.00	\N	\N	\N	\N	2025-12-13 09:57:28	2025-12-13 09:57:28
+1268	10	2	5	INV-25/00405	\N	2025-11-30	\N	\N	71.54	35.54	36.00	1875.01	2680.00	96480.00	103716.00	0.00	0.00	7.50	7236.00	\N	\N	\N	\N	2025-12-13 09:57:35	2025-12-13 09:57:35
+1269	10	2	5	INV-25/00406	\N	2025-11-30	\N	\N	35.54	0.54	35.00	1875.01	2680.00	93800.00	100835.00	0.00	0.00	7.50	7035.00	\N	\N	\N	\N	2025-12-13 09:57:42	2025-12-13 09:57:42
+1270	10	2	5	INV-25/00407	\N	2025-11-30	\N	\N	6.26	0.26	6.00	1874.55	2680.00	16080.00	17286.00	0.00	0.00	7.50	1206.00	\N	\N	\N	\N	2025-12-13 09:58:55	2025-12-13 09:58:55
+1271	10	1	5	INV-25/00408	\N	2025-11-30	\N	\N	49.74	0.74	49.00	1838.97	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-13 10:03:23	2025-12-13 10:03:23
+1272	10	1	5	INV-25/00409	\N	2025-11-30	\N	\N	38.28	0.28	38.00	1838.89	2650.00	100700.00	108252.50	0.00	0.00	7.50	7552.50	\N	\N	\N	\N	2025-12-13 10:04:37	2025-12-13 10:04:37
+1273	10	1	5	INV-25/00410	\N	2025-11-30	\N	\N	37.30	0.30	37.00	1838.91	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-13 10:05:44	2025-12-13 10:05:44
+1274	10	1	5	INV-25/00411	\N	2025-11-30	\N	\N	37.75	0.75	37.00	1839.01	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-13 10:06:57	2025-12-13 10:06:57
+1275	10	1	5	INV-25/00412	\N	2025-11-30	\N	\N	75.51	37.51	38.00	1838.99	2650.00	100700.00	108252.50	0.00	0.00	7.50	7552.50	\N	\N	\N	\N	2025-12-13 10:22:19	2025-12-13 10:22:19
+1276	10	1	5	INV-25/00413	\N	2025-11-30	\N	\N	37.51	0.51	37.00	1838.99	2650.00	98050.00	105403.75	0.00	0.00	7.50	7353.75	\N	\N	\N	\N	2025-12-13 10:22:30	2025-12-13 10:22:30
+1277	10	1	5	INV-25/00414	\N	2025-11-30	\N	\N	25.41	0.41	25.00	1838.88	2650.00	66250.00	71218.75	0.00	0.00	7.50	4968.75	\N	\N	\N	\N	2025-12-13 10:23:49	2025-12-13 10:23:49
+1278	10	1	5	INV-25/00415	\N	2025-11-30	\N	\N	24.77	0.77	24.00	1838.91	2650.00	63600.00	68370.00	0.00	0.00	7.50	4770.00	\N	\N	\N	\N	2025-12-13 10:25:10	2025-12-13 10:25:10
+1279	10	1	5	INV-25/00416	\N	2025-11-30	\N	\N	89.04	59.04	30.00	1838.95	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-13 10:26:28	2025-12-13 10:26:28
+1280	10	1	5	INV-25/00417	\N	2025-11-30	\N	\N	59.04	29.04	30.00	1838.95	2650.00	79500.00	85462.50	0.00	0.00	7.50	5962.50	\N	\N	\N	\N	2025-12-13 10:26:37	2025-12-13 10:26:37
+1281	10	1	5	INV-25/00418	\N	2025-11-30	\N	\N	29.04	0.04	29.00	1838.95	2650.00	76850.00	82613.75	0.00	0.00	7.50	5763.75	\N	\N	\N	\N	2025-12-13 10:26:46	2025-12-13 10:26:46
+1282	10	1	5	INV-25/00419	\N	2025-11-30	\N	\N	49.92	0.92	49.00	1839.01	2650.00	129850.00	139588.75	0.00	0.00	7.50	9738.75	\N	\N	\N	\N	2025-12-13 10:27:59	2025-12-13 10:27:59
+1283	10	1	5	INV-25/00420	\N	2025-11-30	\N	\N	113.75	77.75	36.00	1839.06	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 19:57:14	2025-12-13 19:57:14
+1284	10	1	5	INV-25/00421	\N	2025-11-30	\N	\N	77.75	41.75	36.00	1839.06	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 19:57:28	2025-12-13 19:57:28
+1285	10	1	5	INV-25/00422	\N	2025-11-30	\N	\N	41.75	0.75	41.00	1839.06	2650.00	108650.00	116798.75	0.00	0.00	7.50	8148.75	\N	\N	\N	\N	2025-12-13 19:57:37	2025-12-13 19:57:37
+1286	10	1	5	INV-25/00423	\N	2025-11-30	\N	\N	26.20	0.20	26.00	1838.90	2650.00	68900.00	74067.50	0.00	0.00	7.50	5167.50	\N	\N	\N	\N	2025-12-13 19:59:40	2025-12-13 19:59:40
+1287	10	1	5	INV-25/00424	\N	2025-11-30	\N	\N	158.29	122.29	36.00	1838.99	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 20:00:56	2025-12-13 20:00:56
+1288	10	1	5	INV-25/00425	\N	2025-11-30	\N	\N	122.29	86.29	36.00	1838.99	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 20:01:10	2025-12-13 20:01:10
+1289	10	1	5	INV-25/00426	\N	2025-11-30	\N	\N	86.29	50.29	36.00	1838.99	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 20:03:03	2025-12-13 20:03:03
+1290	10	1	5	INV-25/00427	\N	2025-11-30	\N	\N	50.29	0.29	50.00	1838.99	2650.00	132500.00	142437.50	0.00	0.00	7.50	9937.50	\N	\N	\N	\N	2025-12-13 20:03:12	2025-12-13 20:03:12
+1291	10	1	5	INV-25/00428	\N	2025-11-30	\N	\N	48.29	0.29	48.00	1838.94	2650.00	127200.00	136740.00	0.00	0.00	7.50	9540.00	\N	\N	\N	\N	2025-12-13 20:18:34	2025-12-13 20:18:34
+1292	10	1	5	INV-25/00429	\N	2025-11-30	\N	\N	108.29	72.29	36.00	1838.95	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 20:19:40	2025-12-13 20:19:40
+1293	10	1	5	INV-25/00430	\N	2025-11-30	\N	\N	72.29	36.29	36.00	1838.95	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 20:20:02	2025-12-13 20:20:02
+1294	10	1	5	INV-25/00431	\N	2025-11-30	\N	\N	36.29	0.29	36.00	1838.95	2650.00	95400.00	102555.00	0.00	0.00	7.50	7155.00	\N	\N	\N	\N	2025-12-13 20:20:11	2025-12-13 20:20:11
+1295	9	1	5	INV-25/00001	\N	2025-10-01	\N	\N	48.20	0.20	48.00	1832.67	2673.45	128325.60	137950.02	0.00	0.00	7.50	9624.42	\N	\N	\N	\N	2025-12-14 00:05:09	2025-12-14 00:05:09
+1296	9	1	5	INV-25/00002	\N	2025-10-01	\N	\N	60.97	30.97	30.00	1832.77	2673.45	80203.50	86218.76	0.00	0.00	7.50	6015.26	\N	\N	\N	\N	2025-12-14 00:07:35	2025-12-14 00:07:35
+1297	9	1	5	INV-25/00003	\N	2025-10-01	\N	\N	30.97	0.97	30.00	1832.77	2673.45	80203.50	86218.76	0.00	0.00	7.50	6015.26	\N	\N	\N	\N	2025-12-14 00:07:43	2025-12-14 00:07:43
+1298	9	1	5	INV-25/00004	\N	2025-10-01	\N	\N	86.47	50.47	36.00	1832.75	2673.45	96244.20	103462.52	0.00	0.00	7.50	7218.32	\N	\N	\N	\N	2025-12-14 00:11:29	2025-12-14 00:11:29
+1299	9	1	5	INV-25/00005	\N	2025-10-01	\N	\N	50.47	0.47	50.00	1832.75	2673.45	133672.50	143697.94	0.00	0.00	7.50	10025.44	\N	\N	\N	\N	2025-12-14 00:11:39	2025-12-14 00:11:39
+1300	9	1	5	INV-25/00006	\N	2025-10-01	\N	\N	60.47	30.47	30.00	1832.71	2673.45	80203.50	86218.76	0.00	0.00	7.50	6015.26	\N	\N	\N	\N	2025-12-14 00:13:21	2025-12-14 00:13:21
+1301	9	1	5	INV-25/00007	\N	2025-10-01	\N	\N	30.47	0.47	30.00	1832.71	2673.45	80203.50	86218.76	0.00	0.00	7.50	6015.26	\N	\N	\N	\N	2025-12-14 00:13:32	2025-12-14 00:13:32
+1302	9	1	5	INV-25/00008	\N	2025-10-01	\N	\N	25.57	0.57	25.00	1832.63	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 00:16:43	2025-12-14 00:16:43
+1303	9	1	5	INV-25/00009	\N	2025-10-02	\N	\N	50.09	0.09	50.00	1832.72	2673.45	133672.50	143697.94	0.00	0.00	7.50	10025.44	\N	\N	\N	\N	2025-12-14 00:17:53	2025-12-14 00:17:53
+1304	9	1	5	INV-25/00010	\N	2025-10-02	\N	\N	24.09	0.09	24.00	1832.68	2673.45	64162.80	68975.01	0.00	0.00	7.50	4812.21	\N	\N	\N	\N	2025-12-14 00:19:06	2025-12-14 00:19:06
+1305	9	1	5	INV-25/00011	\N	2025-10-02	\N	\N	24.09	0.09	24.00	1832.68	2673.45	64162.80	68975.01	0.00	0.00	7.50	4812.21	\N	\N	\N	\N	2025-12-14 00:20:25	2025-12-14 00:20:25
+1306	9	1	5	INV-25/00012	\N	2025-10-03	\N	\N	60.72	30.72	30.00	1832.73	2673.45	80203.50	86218.76	0.00	0.00	7.50	6015.26	\N	\N	\N	\N	2025-12-14 00:21:30	2025-12-14 00:21:30
+1307	9	1	5	INV-25/00013	\N	2025-10-03	\N	\N	30.72	0.72	30.00	1832.73	2673.45	80203.50	86218.76	0.00	0.00	7.50	6015.26	\N	\N	\N	\N	2025-12-14 00:21:35	2025-12-14 00:21:35
+1308	9	1	5	INV-25/00014	\N	2025-10-03	\N	\N	48.72	0.72	48.00	1832.68	2673.45	128325.60	137950.02	0.00	0.00	7.50	9624.42	\N	\N	\N	\N	2025-12-14 00:22:38	2025-12-14 00:22:38
+1309	9	1	5	INV-25/00015	\N	2025-10-03	\N	\N	36.91	0.91	36.00	1832.64	2673.45	96244.20	103462.52	0.00	0.00	7.50	7218.32	\N	\N	\N	\N	2025-12-14 00:23:40	2025-12-14 00:23:40
+1310	9	1	5	INV-25/00016	\N	2025-10-04	\N	\N	38.50	0.50	38.00	1832.72	2673.45	101591.10	109210.43	0.00	0.00	7.50	7619.33	\N	\N	\N	\N	2025-12-14 00:24:54	2025-12-14 00:24:54
+1311	9	1	5	INV-25/00017	\N	2025-10-04	\N	\N	37.66	0.66	37.00	1843.52	2673.45	98917.65	106336.47	0.00	0.00	7.50	7418.82	\N	\N	\N	\N	2025-12-14 00:25:51	2025-12-14 00:25:51
+1312	9	1	5	INV-25/00018	\N	2025-10-04	\N	\N	25.44	0.44	25.00	1843.45	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 00:27:02	2025-12-14 00:27:02
+1313	9	1	5	INV-25/00019	\N	2025-10-05	\N	\N	37.44	0.44	37.00	1843.48	2673.45	98917.65	106336.47	0.00	0.00	7.50	7418.82	\N	\N	\N	\N	2025-12-14 00:28:04	2025-12-14 00:28:04
+1314	9	1	5	INV-25/00020	\N	2025-10-05	\N	\N	36.94	0.94	36.00	1842.99	2673.45	96244.20	103462.52	0.00	0.00	7.50	7218.32	\N	\N	\N	\N	2025-12-14 00:29:20	2025-12-14 00:29:20
+1315	9	1	5	INV-25/00021	\N	2025-10-06	\N	\N	25.94	0.94	25.00	1842.97	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 00:30:17	2025-12-14 00:30:17
+1316	9	1	5	INV-25/00022	\N	2025-10-06	\N	\N	25.51	0.51	25.00	1843.03	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 00:31:19	2025-12-14 00:31:19
+1317	9	1	5	INV-25/00023	\N	2025-10-06	\N	\N	42.44	0.44	42.00	1620.58	2673.45	112284.90	120706.27	0.00	0.00	7.50	8421.37	\N	\N	\N	\N	2025-12-14 00:32:30	2025-12-14 00:32:30
+1318	9	1	5	INV-25/00024	\N	2025-10-06	\N	\N	37.17	0.17	37.00	1843.06	2673.45	98917.65	106336.47	0.00	0.00	7.50	7418.82	\N	\N	\N	\N	2025-12-14 00:51:21	2025-12-14 00:51:21
+1319	9	1	5	INV-25/00025	\N	2025-10-07	\N	\N	12.47	0.47	12.00	1843.03	2673.45	32081.40	34487.51	0.00	0.00	7.50	2406.11	\N	\N	\N	\N	2025-12-14 00:52:35	2025-12-14 00:52:35
+1320	9	1	5	INV-25/00026	\N	2025-10-07	\N	\N	13.06	0.06	13.00	1843.02	2673.45	34754.85	37361.46	0.00	0.00	7.50	2606.61	\N	\N	\N	\N	2025-12-14 00:53:49	2025-12-14 00:53:49
+1321	9	1	5	INV-25/00027	\N	2025-10-07	\N	\N	36.66	0.66	36.00	1843.07	2673.45	96244.20	103462.52	0.00	0.00	7.50	7218.32	\N	\N	\N	\N	2025-12-14 00:55:08	2025-12-14 00:55:08
+1322	9	1	5	INV-25/00028	\N	2025-10-07	\N	\N	49.27	0.27	49.00	1843.00	2673.45	130999.05	140823.98	0.00	0.00	7.50	9824.93	\N	\N	\N	\N	2025-12-14 00:56:19	2025-12-14 00:56:19
+1323	9	1	5	INV-25/00029	\N	2025-10-09	\N	\N	25.04	0.04	25.00	1841.69	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 00:57:29	2025-12-14 00:58:11
+1324	9	1	5	INV-25/00030	\N	2025-10-10	\N	\N	49.24	0.24	49.00	1841.73	2673.45	130999.05	140823.98	0.00	0.00	7.50	9824.93	\N	\N	\N	\N	2025-12-14 00:59:20	2025-12-14 00:59:20
+1325	9	1	5	INV-25/00031	\N	2025-10-14	\N	\N	25.16	0.16	25.00	1841.73	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 01:00:26	2025-12-14 01:00:26
+1326	9	1	5	INV-25/00032	\N	2025-10-17	\N	\N	12.56	0.56	12.00	1841.70	2673.45	32081.40	34487.51	0.00	0.00	7.50	2406.11	\N	\N	\N	\N	2025-12-14 01:01:41	2025-12-14 01:01:41
+1327	9	1	5	INV-25/00033	\N	2025-10-22	\N	\N	74.77	38.77	36.00	1841.67	2673.45	96244.20	103462.52	0.00	0.00	7.50	7218.32	\N	\N	\N	\N	2025-12-14 01:02:47	2025-12-14 01:02:47
+1328	9	1	5	INV-25/00034	\N	2025-10-22	\N	\N	38.77	0.77	38.00	1841.67	2673.45	101591.10	109210.43	0.00	0.00	7.50	7619.33	\N	\N	\N	\N	2025-12-14 01:02:54	2025-12-14 01:02:54
+1329	9	1	5	INV-25/00035	\N	2025-10-24	\N	\N	12.89	0.89	12.00	1841.77	2673.45	32081.40	34487.51	0.00	0.00	7.50	2406.11	\N	\N	\N	\N	2025-12-14 01:03:48	2025-12-14 01:03:48
+1330	9	1	5	INV-25/00036	\N	2025-10-26	\N	\N	12.89	0.89	12.00	1841.70	2673.45	32081.40	34487.51	0.00	0.00	7.50	2406.11	\N	\N	\N	\N	2025-12-14 01:04:41	2025-12-14 01:04:41
+1331	9	1	5	INV-25/00037	\N	2025-10-28	\N	\N	13.48	0.48	13.00	1841.71	2673.45	34754.85	37361.46	0.00	0.00	7.50	2606.61	\N	\N	\N	\N	2025-12-14 01:05:36	2025-12-14 01:05:36
+1332	9	1	5	INV-25/00038	\N	2025-10-30	\N	\N	73.77	37.77	36.00	1841.66	2673.45	96244.20	103462.52	0.00	0.00	7.50	7218.32	\N	\N	\N	\N	2025-12-14 01:06:37	2025-12-14 01:06:37
+1333	9	1	5	INV-25/00039	\N	2025-10-30	\N	\N	37.77	0.77	37.00	1841.66	2673.45	98917.65	106336.47	0.00	0.00	7.50	7418.82	\N	\N	\N	\N	2025-12-14 01:06:43	2025-12-14 01:06:43
+1334	9	1	5	INV-25/00040	\N	2025-10-30	\N	\N	25.31	0.31	25.00	1841.71	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 01:07:44	2025-12-14 01:07:44
+1335	9	1	5	INV-25/00041	\N	2025-11-07	\N	\N	51.03	0.03	51.00	1838.99	2673.45	136345.95	146571.90	0.00	0.00	7.50	10225.95	\N	\N	\N	\N	2025-12-14 01:10:33	2025-12-14 01:10:33
+1336	9	1	5	INV-25/00042	\N	2025-11-07	\N	\N	25.24	0.24	25.00	1838.92	2673.45	66836.25	71848.97	0.00	0.00	7.50	5012.72	\N	\N	\N	\N	2025-12-14 01:11:26	2025-12-14 01:11:26
+1337	9	1	5	INV-25/00043	\N	2025-11-12	\N	\N	37.92	0.92	37.00	1838.91	2673.45	98917.65	106336.47	0.00	0.00	7.50	7418.82	\N	\N	\N	\N	2025-12-14 01:12:21	2025-12-14 01:12:21
+1338	9	1	5	INV-25/00044	\N	2025-11-16	\N	\N	50.92	0.92	50.00	1838.88	2673.45	133672.50	143697.94	0.00	0.00	7.50	10025.44	\N	\N	\N	\N	2025-12-14 01:13:13	2025-12-14 01:13:13
+1339	9	1	5	INV-25/00045	\N	2025-11-19	\N	\N	38.87	0.87	38.00	1838.96	2673.45	101591.10	109210.43	0.00	0.00	7.50	7619.33	\N	\N	\N	\N	2025-12-14 01:14:09	2025-12-14 01:14:09
+1340	9	1	5	INV-25/00046	\N	2025-11-20	\N	\N	12.87	0.87	12.00	1838.94	2673.45	32081.40	34487.51	0.00	0.00	7.50	2406.11	\N	\N	\N	\N	2025-12-14 01:15:00	2025-12-14 01:15:00
+1341	9	1	5	INV-25/00047	\N	2025-11-21	\N	\N	38.07	0.07	38.00	1838.91	2673.45	101591.10	109210.43	0.00	0.00	7.50	7619.33	\N	\N	\N	\N	2025-12-14 01:15:59	2025-12-14 01:15:59
+1342	9	1	5	INV-25/00048	\N	2025-11-28	\N	\N	24.20	0.20	24.00	1838.94	2673.45	64162.80	68975.01	0.00	0.00	7.50	4812.21	\N	\N	\N	\N	2025-12-14 01:16:55	2025-12-14 01:16:55
+1343	9	1	5	INV-25/00049	\N	2025-11-30	\N	\N	48.70	0.70	48.00	1838.95	2673.45	128325.60	137950.02	0.00	0.00	7.50	9624.42	\N	\N	\N	\N	2025-12-14 01:17:56	2025-12-14 01:17:56
+1344	8	1	5	INV-25/00001	\N	2025-10-01	\N	\N	199.32	163.32	36.00	1832.70	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 01:31:06	2025-12-14 01:31:06
+1345	8	1	5	INV-25/00002	\N	2025-10-01	\N	\N	163.32	127.32	36.00	1832.70	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 01:31:12	2025-12-14 01:31:12
+1346	8	1	5	INV-25/00003	\N	2025-10-01	\N	\N	127.32	91.32	36.00	1832.70	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 01:31:18	2025-12-14 01:31:18
+1347	8	1	5	INV-25/00004	\N	2025-10-01	\N	\N	91.32	61.32	30.00	1832.70	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 01:31:26	2025-12-14 01:31:26
+1348	8	1	5	INV-25/00005	\N	2025-10-01	\N	\N	61.32	31.32	30.00	1832.70	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 01:31:32	2025-12-14 01:31:32
+1349	8	1	5	INV-25/00006	\N	2025-10-01	\N	\N	31.32	0.32	31.00	1832.70	2687.35	83307.85	89555.94	0.00	0.00	7.50	6248.09	\N	\N	\N	\N	2025-12-14 01:31:38	2025-12-14 01:31:38
+1350	8	1	5	INV-25/00007	\N	2025-10-01	\N	\N	63.32	33.32	30.00	1832.78	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 02:34:33	2025-12-14 02:34:33
+1351	8	1	5	INV-25/00008	\N	2025-10-01	\N	\N	33.32	0.32	33.00	1832.78	2687.35	88682.55	95333.74	0.00	0.00	7.50	6651.19	\N	\N	\N	\N	2025-12-14 02:34:41	2025-12-14 02:34:41
+1352	8	1	5	INV-25/00009	\N	2025-10-01	\N	\N	112.13	76.13	36.00	1832.59	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 02:36:14	2025-12-14 02:36:14
+1353	8	1	5	INV-25/00010	\N	2025-10-01	\N	\N	76.13	40.13	36.00	1832.59	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 02:36:21	2025-12-14 02:36:21
+1354	8	1	5	INV-25/00011	\N	2025-10-01	\N	\N	40.13	0.13	40.00	1832.59	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 02:36:27	2025-12-14 02:36:27
+1355	8	1	5	INV-25/00012	\N	2025-10-02	\N	\N	62.30	32.30	30.00	1832.70	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 02:37:46	2025-12-14 02:37:46
+1356	8	1	5	INV-25/00013	\N	2025-10-02	\N	\N	32.30	0.30	32.00	1832.70	2687.35	85995.20	92444.84	0.00	0.00	7.50	6449.64	\N	\N	\N	\N	2025-12-14 02:37:53	2025-12-14 02:37:53
+1357	8	1	5	INV-25/00014	\N	2025-10-02	\N	\N	174.40	124.40	50.00	1832.71	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:39:11	2025-12-14 02:39:11
+1358	8	1	5	INV-25/00015	\N	2025-10-02	\N	\N	124.40	88.40	36.00	1832.71	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 02:39:18	2025-12-14 02:39:18
+1359	8	1	5	INV-25/00016	\N	2025-10-02	\N	\N	88.40	50.40	38.00	1832.71	2687.35	102119.30	109778.25	0.00	0.00	7.50	7658.95	\N	\N	\N	\N	2025-12-14 02:39:27	2025-12-14 02:40:02
+1360	8	1	5	INV-25/00017	\N	2025-10-02	\N	\N	50.40	0.40	50.00	1832.71	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:40:18	2025-12-14 02:40:18
+1361	8	1	5	INV-25/00018	\N	2025-10-02	\N	\N	138.40	100.40	38.00	1832.77	2687.35	102119.30	109778.25	0.00	0.00	7.50	7658.95	\N	\N	\N	\N	2025-12-14 02:41:43	2025-12-14 02:41:43
+1362	8	1	5	INV-25/00019	\N	2025-10-02	\N	\N	100.40	50.40	50.00	1832.77	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:41:49	2025-12-14 02:41:49
+1363	8	1	5	INV-25/00020	\N	2025-10-02	\N	\N	50.40	0.40	50.00	1832.77	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:41:56	2025-12-14 02:41:56
+1364	8	1	5	INV-25/00021	\N	2025-10-02	\N	\N	186.84	136.84	50.00	1832.69	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:43:04	2025-12-14 02:43:04
+1365	8	1	5	INV-25/00022	\N	2025-10-02	\N	\N	136.84	86.84	50.00	1832.69	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:43:09	2025-12-14 02:43:09
+1366	8	1	5	INV-25/00023	\N	2025-10-02	\N	\N	86.84	50.84	36.00	1832.69	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 02:43:16	2025-12-14 02:43:16
+1367	8	1	5	INV-25/00024	\N	2025-10-02	\N	\N	50.84	0.84	50.00	1832.69	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:43:22	2025-12-14 02:43:22
+1368	8	1	5	INV-25/00025	\N	2025-10-02	\N	\N	75.41	40.41	35.00	1843.51	2687.35	94057.25	101111.54	0.00	0.00	7.50	7054.29	\N	\N	\N	\N	2025-12-14 02:44:22	2025-12-14 02:44:22
+1369	8	1	5	INV-25/00026	\N	2025-10-02	\N	\N	40.41	0.41	40.00	1843.51	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 02:44:31	2025-12-14 02:44:31
+1370	8	1	5	INV-25/00027	\N	2025-10-03	\N	\N	24.68	0.68	24.00	1843.58	2687.35	64496.40	69333.63	0.00	0.00	7.50	4837.23	\N	\N	\N	\N	2025-12-14 02:45:53	2025-12-14 02:45:53
+1371	8	1	5	INV-25/00028	\N	2025-10-03	\N	\N	287.68	237.68	50.00	1843.57	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:46:58	2025-12-14 02:46:58
+1372	8	1	5	INV-25/00029	\N	2025-10-03	\N	\N	237.68	187.68	50.00	1843.57	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:47:03	2025-12-14 02:47:03
+1373	8	1	5	INV-25/00030	\N	2025-10-03	\N	\N	187.68	137.68	50.00	1843.57	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:47:08	2025-12-14 02:47:08
+1374	8	1	5	INV-25/00031	\N	2025-10-03	\N	\N	137.68	87.68	50.00	1843.57	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:47:14	2025-12-14 02:47:14
+1375	8	1	5	INV-25/00032	\N	2025-10-03	\N	\N	87.68	37.68	50.00	1843.57	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:47:20	2025-12-14 02:47:20
+1376	8	1	5	INV-25/00033	\N	2025-10-03	\N	\N	37.68	0.68	37.00	1843.57	2687.35	99431.95	106889.35	0.00	0.00	7.50	7457.40	\N	\N	\N	\N	2025-12-14 02:47:26	2025-12-14 02:47:26
+1377	8	1	5	INV-25/00034	\N	2025-10-03	\N	\N	50.86	0.86	50.00	1843.49	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:52:12	2025-12-14 02:52:12
+1378	8	1	5	INV-25/00035	\N	2025-10-04	\N	\N	175.23	125.23	50.00	1843.46	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:53:13	2025-12-14 02:53:13
+1379	8	1	5	INV-25/00036	\N	2025-10-04	\N	\N	125.23	75.23	50.00	1843.46	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:53:18	2025-12-14 02:53:18
+1380	8	1	5	INV-25/00037	\N	2025-10-04	\N	\N	75.23	40.23	35.00	1843.46	2687.35	94057.25	101111.54	0.00	0.00	7.50	7054.29	\N	\N	\N	\N	2025-12-14 02:53:24	2025-12-14 02:53:24
+1381	8	1	5	INV-25/00038	\N	2025-10-04	\N	\N	40.23	0.23	40.00	1843.46	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 02:53:30	2025-12-14 02:53:30
+1382	8	1	5	INV-25/00039	\N	2025-10-04	\N	\N	162.06	112.06	50.00	1843.45	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:54:39	2025-12-14 02:54:39
+1383	8	1	5	INV-25/00040	\N	2025-10-04	\N	\N	112.06	62.06	50.00	1843.45	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 02:54:46	2025-12-14 02:54:46
+1384	8	1	5	INV-25/00041	\N	2025-10-04	\N	\N	62.06	32.06	30.00	1843.45	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 02:54:52	2025-12-14 02:54:52
+1385	8	1	5	INV-25/00042	\N	2025-10-04	\N	\N	32.06	0.06	32.00	1843.45	2687.35	85995.20	92444.84	0.00	0.00	7.50	6449.64	\N	\N	\N	\N	2025-12-14 02:54:57	2025-12-14 02:54:57
+1386	8	1	5	INV-25/00043	\N	2025-10-05	\N	\N	49.67	0.67	49.00	1843.55	2687.35	131680.15	141556.16	0.00	0.00	7.50	9876.01	\N	\N	\N	\N	2025-12-14 02:55:54	2025-12-14 02:55:54
+1387	8	1	5	INV-25/00044	\N	2025-10-05	\N	\N	12.72	0.72	12.00	1843.48	2687.35	32248.20	34666.82	0.00	0.00	7.50	2418.62	\N	\N	\N	\N	2025-12-14 02:56:51	2025-12-14 02:56:51
+1388	8	1	5	INV-25/00045	\N	2025-10-05	\N	\N	303.00	267.00	36.00	1843.50	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 03:50:40	2025-12-14 03:50:40
+1389	8	1	5	INV-25/00046	\N	2025-10-05	\N	\N	267.00	231.00	36.00	1843.50	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 03:50:47	2025-12-14 03:50:47
+1390	8	1	5	INV-25/00047	\N	2025-10-05	\N	\N	231.00	195.00	36.00	1843.50	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 03:50:54	2025-12-14 03:50:54
+1391	8	1	5	INV-25/00048	\N	2025-10-05	\N	\N	195.00	145.00	50.00	1843.50	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:51:02	2025-12-14 03:51:02
+1392	8	1	5	INV-25/00049	\N	2025-10-05	\N	\N	145.00	95.00	50.00	1843.50	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:51:09	2025-12-14 03:51:09
+1393	8	1	5	INV-25/00050	\N	2025-10-05	\N	\N	95.00	45.00	50.00	1843.50	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:51:19	2025-12-14 03:51:19
+1394	8	1	5	INV-25/00051	\N	2025-10-05	\N	\N	45.00	0.00	45.00	1843.50	2687.35	120930.75	130000.56	0.00	0.00	7.50	9069.81	\N	\N	\N	\N	2025-12-14 03:51:25	2025-12-14 03:51:25
+1395	8	1	5	INV-25/00052	\N	2025-10-05	\N	\N	197.93	147.93	50.00	1843.06	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:53:04	2025-12-14 03:53:04
+1396	8	1	5	INV-25/00053	\N	2025-10-05	\N	\N	147.93	97.93	50.00	1843.06	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:53:11	2025-12-14 03:53:11
+1397	8	1	5	INV-25/00054	\N	2025-10-05	\N	\N	97.93	47.93	50.00	1843.06	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:53:18	2025-12-14 03:53:18
+1398	8	1	5	INV-25/00055	\N	2025-10-05	\N	\N	47.93	0.93	47.00	1843.06	2687.35	126305.45	135778.36	0.00	0.00	7.50	9472.91	\N	\N	\N	\N	2025-12-14 03:53:29	2025-12-14 03:53:29
+1399	8	1	5	INV-25/00056	\N	2025-10-05	\N	\N	136.95	100.95	36.00	1842.85	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 03:57:47	2025-12-14 03:57:47
+1400	8	1	5	INV-25/00057	\N	2025-10-05	\N	\N	100.95	50.95	50.00	1842.85	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:57:55	2025-12-14 03:57:55
+1401	8	1	5	INV-25/00058	\N	2025-10-05	\N	\N	50.95	0.95	50.00	1842.85	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 03:58:04	2025-12-14 03:58:04
+1402	8	1	5	INV-25/00059	\N	2025-10-06	\N	\N	212.07	176.07	36.00	1843.03	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 04:01:31	2025-12-14 04:01:31
+1403	8	1	5	INV-25/00060	\N	2025-10-06	\N	\N	176.07	140.07	36.00	1843.03	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 04:01:40	2025-12-14 04:01:40
+1404	8	1	5	INV-25/00061	\N	2025-10-06	\N	\N	140.07	100.07	40.00	1843.03	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 04:01:49	2025-12-14 04:01:49
+1405	8	1	5	INV-25/00062	\N	2025-10-06	\N	\N	100.07	50.07	50.00	1843.03	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:01:56	2025-12-14 04:01:56
+1406	8	1	5	INV-25/00063	\N	2025-10-06	\N	\N	50.07	0.07	50.00	1843.03	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:02:04	2025-12-14 04:02:04
+1407	8	1	5	INV-25/00064	\N	2025-10-07	\N	\N	37.61	0.61	37.00	1842.94	2687.35	99431.95	106889.35	0.00	0.00	7.50	7457.40	\N	\N	\N	\N	2025-12-14 04:46:19	2025-12-14 04:46:19
+1408	8	1	5	INV-25/00065	\N	2025-10-07	\N	\N	25.41	0.41	25.00	1843.00	2687.35	67183.75	72222.53	0.00	0.00	7.50	5038.78	\N	\N	\N	\N	2025-12-14 04:55:48	2025-12-14 04:55:48
+1409	8	1	5	INV-25/00066	\N	2025-10-08	\N	\N	262.17	212.17	50.00	1842.92	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:57:46	2025-12-14 04:57:46
+1410	8	1	5	INV-25/00067	\N	2025-10-08	\N	\N	212.17	162.17	50.00	1842.92	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:57:53	2025-12-14 04:57:53
+1411	8	1	5	INV-25/00068	\N	2025-10-08	\N	\N	162.17	112.17	50.00	1842.92	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:58:01	2025-12-14 04:58:01
+1412	8	1	5	INV-25/00069	\N	2025-10-08	\N	\N	112.17	62.17	50.00	1842.92	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:58:10	2025-12-14 04:58:10
+1413	8	1	5	INV-25/00070	\N	2025-10-08	\N	\N	62.17	32.17	30.00	1842.92	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 04:58:21	2025-12-14 04:58:21
+1414	8	1	5	INV-25/00071	\N	2025-10-08	\N	\N	32.17	0.17	32.00	1842.92	2687.35	85995.20	92444.84	0.00	0.00	7.50	6449.64	\N	\N	\N	\N	2025-12-14 04:58:28	2025-12-14 04:58:28
+1415	8	1	5	INV-25/00072	\N	2025-10-08	\N	\N	163.96	113.96	50.00	1843.07	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:59:32	2025-12-14 04:59:32
+1416	8	1	5	INV-25/00073	\N	2025-10-08	\N	\N	113.96	63.96	50.00	1843.07	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 04:59:38	2025-12-14 04:59:38
+1417	8	1	5	INV-25/00074	\N	2025-10-08	\N	\N	63.96	33.96	30.00	1843.07	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 04:59:44	2025-12-14 04:59:44
+1418	8	1	5	INV-25/00075	\N	2025-10-08	\N	\N	33.96	0.96	33.00	1843.07	2687.35	88682.55	95333.74	0.00	0.00	7.50	6651.19	\N	\N	\N	\N	2025-12-14 04:59:50	2025-12-14 04:59:50
+1419	8	1	5	INV-25/00076	\N	2025-10-29	\N	\N	38.88	0.88	38.00	1841.70	2687.35	102119.30	109778.25	0.00	0.00	7.50	7658.95	\N	\N	\N	\N	2025-12-14 05:01:22	2025-12-14 05:01:22
+1420	8	1	5	INV-25/00077	\N	2025-10-30	\N	\N	120.88	90.88	30.00	1841.73	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:02:23	2025-12-14 05:02:23
+1421	8	1	5	INV-25/00078	\N	2025-10-30	\N	\N	90.88	60.88	30.00	1841.73	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:02:29	2025-12-14 05:02:29
+1422	8	1	5	INV-25/00079	\N	2025-10-30	\N	\N	60.88	30.88	30.00	1841.73	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:02:34	2025-12-14 05:02:34
+1423	8	1	5	INV-25/00080	\N	2025-10-30	\N	\N	30.88	0.88	30.00	1841.73	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:02:40	2025-12-14 05:02:40
+1424	8	1	5	INV-25/00081	\N	2025-10-31	\N	\N	76.84	40.84	36.00	1841.69	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 05:03:56	2025-12-14 05:03:56
+1425	8	1	5	INV-25/00082	\N	2025-10-31	\N	\N	40.84	0.84	40.00	1841.69	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 05:04:03	2025-12-14 05:04:03
+1426	8	1	5	INV-25/00083	\N	2025-11-02	\N	\N	98.27	66.27	32.00	1838.97	2687.35	85995.20	92444.84	0.00	0.00	7.50	6449.64	\N	\N	\N	\N	2025-12-14 05:09:04	2025-12-14 05:09:04
+1427	8	1	5	INV-25/00084	\N	2025-11-02	\N	\N	66.27	34.27	32.00	1838.97	2687.35	85995.20	92444.84	0.00	0.00	7.50	6449.64	\N	\N	\N	\N	2025-12-14 05:09:41	2025-12-14 05:09:41
+1428	8	1	5	INV-25/00085	\N	2025-11-02	\N	\N	34.27	0.27	34.00	1838.97	2687.35	91369.90	98222.64	0.00	0.00	7.50	6852.74	\N	\N	\N	\N	2025-12-14 05:09:50	2025-12-14 05:09:50
+1429	8	1	5	INV-25/00086	\N	2025-11-04	\N	\N	125.21	90.21	35.00	1838.99	2687.35	94057.25	101111.54	0.00	0.00	7.50	7054.29	\N	\N	\N	\N	2025-12-14 05:25:26	2025-12-14 05:25:26
+1430	8	1	5	INV-25/00087	\N	2025-11-04	\N	\N	90.21	60.21	30.00	1838.99	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:25:34	2025-12-14 05:25:34
+1431	8	1	5	INV-25/00088	\N	2025-11-04	\N	\N	60.21	30.21	30.00	1838.99	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:25:40	2025-12-14 05:25:40
+1432	8	1	5	INV-25/00089	\N	2025-11-04	\N	\N	30.21	0.21	30.00	1838.99	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 05:25:46	2025-12-14 05:25:46
+1433	8	1	5	INV-25/00090	\N	2025-11-05	\N	\N	25.23	0.23	25.00	1838.96	2687.35	67183.75	72222.53	0.00	0.00	7.50	5038.78	\N	\N	\N	\N	2025-12-14 06:03:29	2025-12-14 06:03:29
+1434	8	1	5	INV-25/00091	\N	2025-11-06	\N	\N	87.86	37.86	50.00	1838.97	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:04:55	2025-12-14 06:04:55
+1435	8	1	5	INV-25/00092	\N	2025-11-06	\N	\N	37.86	0.86	37.00	1838.97	2687.35	99431.95	106889.35	0.00	0.00	7.50	7457.40	\N	\N	\N	\N	2025-12-14 06:05:02	2025-12-14 06:05:02
+1436	8	1	5	INV-25/00093	\N	2025-11-07	\N	\N	164.90	114.90	50.00	1838.94	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:06:28	2025-12-14 06:06:28
+1437	8	1	5	INV-25/00094	\N	2025-11-07	\N	\N	114.90	78.90	36.00	1838.94	2687.35	96744.60	104000.45	0.00	0.00	7.50	7255.85	\N	\N	\N	\N	2025-12-14 06:06:36	2025-12-14 06:06:36
+1438	8	1	5	INV-25/00095	\N	2025-11-07	\N	\N	78.90	40.90	38.00	1838.94	2687.35	102119.30	109778.25	0.00	0.00	7.50	7658.95	\N	\N	\N	\N	2025-12-14 06:06:45	2025-12-14 06:06:45
+1439	8	1	5	INV-25/00096	\N	2025-11-07	\N	\N	40.90	0.90	40.00	1838.94	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 06:06:54	2025-12-14 06:06:54
+1440	8	1	5	INV-25/00097	\N	2025-11-09	\N	\N	100.29	50.29	50.00	1838.92	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:09:50	2025-12-14 06:09:50
+1441	8	1	5	INV-25/00098	\N	2025-11-09	\N	\N	50.29	0.29	50.00	1838.92	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:09:59	2025-12-14 06:09:59
+1442	8	1	5	INV-25/00099	\N	2025-11-11	\N	\N	75.74	40.74	35.00	1838.82	2687.35	94057.25	101111.54	0.00	0.00	7.50	7054.29	\N	\N	\N	\N	2025-12-14 06:12:23	2025-12-14 06:12:23
+1443	8	1	5	INV-25/00100	\N	2025-11-11	\N	\N	40.74	0.74	40.00	1838.82	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 06:12:33	2025-12-14 06:12:33
+1444	8	1	5	INV-25/00101	\N	2025-11-12	\N	\N	125.41	90.41	35.00	1838.94	2687.35	94057.25	101111.54	0.00	0.00	7.50	7054.29	\N	\N	\N	\N	2025-12-14 06:14:12	2025-12-14 06:14:12
+1445	8	1	5	INV-25/00102	\N	2025-11-12	\N	\N	90.41	60.41	30.00	1838.94	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 06:14:21	2025-12-14 06:14:21
+1446	8	1	5	INV-25/00103	\N	2025-11-12	\N	\N	60.41	30.41	30.00	1838.94	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 06:14:29	2025-12-14 06:14:29
+1447	8	1	5	INV-25/00104	\N	2025-11-12	\N	\N	30.41	0.41	30.00	1838.94	2687.35	80620.50	86667.04	0.00	0.00	7.50	6046.54	\N	\N	\N	\N	2025-12-14 06:14:37	2025-12-14 06:14:37
+1448	8	1	5	INV-25/00105	\N	2025-11-14	\N	\N	75.76	40.76	35.00	1838.94	2687.35	94057.25	101111.54	0.00	0.00	7.50	7054.29	\N	\N	\N	\N	2025-12-14 06:16:09	2025-12-14 06:16:09
+1449	8	1	5	INV-25/00106	\N	2025-11-14	\N	\N	40.76	0.76	40.00	1838.94	2687.35	107494.00	115556.05	0.00	0.00	7.50	8062.05	\N	\N	\N	\N	2025-12-14 06:16:17	2025-12-14 06:16:17
+1450	8	1	5	INV-25/00107	\N	2025-11-14	\N	\N	37.93	0.93	37.00	1838.89	2687.35	99431.95	106889.35	0.00	0.00	7.50	7457.40	\N	\N	\N	\N	2025-12-14 06:17:39	2025-12-14 06:17:39
+1451	8	1	5	INV-25/00108	\N	2025-11-14	\N	\N	13.53	0.53	13.00	1838.91	2687.35	34935.55	37555.72	0.00	0.00	7.50	2620.17	\N	\N	\N	\N	2025-12-14 06:19:07	2025-12-14 06:19:07
+1452	8	1	5	INV-25/00109	\N	2025-11-16	\N	\N	184.51	134.51	50.00	1838.98	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:21:04	2025-12-14 06:21:04
+1453	8	1	5	INV-25/00110	\N	2025-11-16	\N	\N	134.51	84.51	50.00	1838.98	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:21:13	2025-12-14 06:21:13
+1454	8	1	5	INV-25/00111	\N	2025-11-16	\N	\N	84.51	34.51	50.00	1838.98	2687.35	134367.50	144445.06	0.00	0.00	7.50	10077.56	\N	\N	\N	\N	2025-12-14 06:21:20	2025-12-14 06:21:20
+1455	8	1	5	INV-25/00112	\N	2025-11-16	\N	\N	34.51	0.51	34.00	1838.98	2687.35	91369.90	98222.64	0.00	0.00	7.50	6852.74	\N	\N	\N	\N	2025-12-14 06:21:30	2025-12-14 06:21:30
+1456	11	1	5	INV-25/00001	\N	2025-10-17	\N	\N	191.54	166.24	25.30	1841.88	2565.92	64917.78	74655.44	0.00	0.00	15.00	9737.67	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:40:11	2025-12-22 17:40:11
+1457	11	1	5	INV-25/00002	\N	2025-10-17	\N	\N	166.24	142.01	24.23	1841.88	2565.92	62172.24	71498.08	0.00	0.00	15.00	9325.84	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:40:24	2025-12-22 17:40:24
+1458	11	1	5	INV-25/00003	\N	2025-10-17	\N	\N	142.01	117.78	24.23	1841.88	2565.92	62172.24	71498.08	0.00	0.00	15.00	9325.84	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:40:41	2025-12-22 17:40:41
+1459	11	1	5	INV-25/00004	\N	2025-10-17	\N	\N	117.78	92.46	25.32	1841.88	2565.92	64969.09	74714.46	0.00	0.00	15.00	9745.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:40:55	2025-12-22 17:40:55
+1460	11	1	5	INV-25/00005	\N	2025-10-17	\N	\N	92.46	69.34	23.12	1841.88	2565.92	59324.07	68222.68	0.00	0.00	15.00	8898.61	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:41:09	2025-12-22 17:41:09
+1461	11	1	5	INV-25/00006	\N	2025-10-17	\N	\N	69.34	46.19	23.15	1841.88	2565.92	59401.05	68311.21	0.00	0.00	15.00	8910.16	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:41:20	2025-12-22 17:41:20
+1462	11	1	5	INV-25/00007	\N	2025-10-17	\N	\N	46.19	23.17	23.02	1841.88	2565.92	59067.48	67927.60	0.00	0.00	15.00	8860.12	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:41:32	2025-12-22 17:41:32
+1463	11	1	5	INV-25/00008	\N	2025-10-17	\N	\N	23.17	0.00	23.17	1841.88	2565.92	59452.37	68370.22	0.00	0.00	15.00	8917.85	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:41:43	2025-12-22 17:41:43
+1464	11	1	5	INV-25/00009	\N	2025-10-19	\N	\N	119.80	96.65	23.15	1841.89	2565.92	59401.05	68311.21	0.00	0.00	15.00	8910.16	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:42:59	2025-12-22 17:42:59
+1465	11	1	5	INV-25/00010	\N	2025-10-19	\N	\N	96.65	72.42	24.23	1841.89	2565.92	62172.24	71498.08	0.00	0.00	15.00	9325.84	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:43:18	2025-12-22 17:43:18
+1466	11	1	5	INV-25/00011	\N	2025-10-19	\N	\N	72.42	48.30	24.12	1841.89	2565.92	61889.99	71173.49	0.00	0.00	15.00	9283.50	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:43:29	2025-12-22 17:43:29
+1467	11	1	5	INV-25/00012	\N	2025-10-19	\N	\N	48.30	24.18	24.12	1841.89	2565.92	61889.99	71173.49	0.00	0.00	15.00	9283.50	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:43:39	2025-12-22 17:43:39
+1468	11	1	5	INV-25/00013	\N	2025-10-19	\N	\N	24.18	0.00	24.18	1841.89	2565.92	62043.95	71350.54	0.00	0.00	15.00	9306.59	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:43:49	2025-12-22 17:43:49
+1469	11	1	5	INV-25/00014	\N	2025-10-23	\N	\N	72.10	48.41	23.69	1841.76	2565.92	60786.64	69904.64	0.00	0.00	15.00	9118.00	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:53:36	2025-12-22 17:53:36
+1470	11	1	5	INV-25/00015	\N	2025-10-23	\N	\N	48.41	24.26	24.15	1841.76	2565.92	61966.97	71262.01	0.00	0.00	15.00	9295.05	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:53:47	2025-12-22 17:53:47
+1471	11	1	5	INV-25/00016	\N	2025-10-23	\N	\N	24.26	0.00	24.26	1841.76	2565.92	62249.22	71586.60	0.00	0.00	15.00	9337.38	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:53:57	2025-12-22 17:53:57
+1472	11	1	5	INV-25/00017	\N	2025-10-23	\N	\N	47.61	23.92	23.69	861.69	2565.92	60786.64	69904.64	0.00	0.00	15.00	9118.00	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 17:57:08	2025-12-22 17:57:08
+1473	11	1	5	INV-25/00018	\N	2025-10-23	\N	\N	23.92	0.00	23.92	861.69	2565.92	61376.81	70583.33	0.00	0.00	15.00	9206.52	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:01:16	2025-12-22 18:01:16
+1474	11	1	5	INV-25/00019	\N	2025-10-24	\N	\N	167.00	141.64	25.36	1841.82	2565.92	65071.73	74832.49	0.00	0.00	15.00	9760.76	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:04:13	2025-12-22 18:04:13
+1475	11	1	5	INV-25/00020	\N	2025-10-24	\N	\N	141.64	115.28	26.36	1841.82	2565.92	67637.65	77783.30	0.00	0.00	15.00	10145.65	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:04:24	2025-12-22 18:04:24
+1476	11	1	5	INV-25/00021	\N	2025-10-24	\N	\N	115.28	89.38	25.90	1841.82	2565.92	66457.33	76425.93	0.00	0.00	15.00	9968.60	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:04:35	2025-12-22 18:04:35
+1477	11	1	5	INV-25/00022	\N	2025-10-24	\N	\N	89.38	67.26	22.12	1841.82	2565.92	56758.15	65271.87	0.00	0.00	15.00	8513.72	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:05:13	2025-12-22 18:05:13
+1478	11	1	5	INV-25/00023	\N	2025-10-24	\N	\N	67.26	44.95	22.31	1841.82	2565.92	57245.68	65832.53	0.00	0.00	15.00	8586.85	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:05:22	2025-12-22 18:05:22
+1479	11	1	5	INV-25/00024	\N	2025-10-24	\N	\N	44.95	22.59	22.36	1841.82	2565.92	57373.97	65980.07	0.00	0.00	15.00	8606.10	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:05:31	2025-12-22 18:05:31
+1480	11	1	5	INV-25/00025	\N	2025-10-24	\N	\N	22.59	0.00	22.59	1841.82	2565.92	57964.13	66658.75	0.00	0.00	15.00	8694.62	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:05:40	2025-12-22 18:05:40
+1481	11	1	5	INV-25/00026	\N	2025-10-28	\N	\N	24.37	0.00	24.37	1841.91	2565.92	62531.47	71911.19	0.00	0.00	15.00	9379.72	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:17:54	2025-12-22 18:17:54
+1482	11	1	5	INV-25/00027	\N	2025-10-28	\N	\N	23.73	0.00	23.73	1841.95	2565.92	60889.28	70022.67	0.00	0.00	15.00	9133.39	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:19:11	2025-12-22 18:19:11
+1483	11	1	5	INV-25/00028	\N	2025-10-29	\N	\N	47.65	24.02	23.63	1841.81	2565.92	60632.69	69727.59	0.00	0.00	15.00	9094.90	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:20:26	2025-12-22 18:20:26
+1484	11	1	5	INV-25/00029	\N	2025-10-29	\N	\N	24.02	0.00	24.02	1841.81	2565.92	61633.40	70878.41	0.00	0.00	15.00	9245.01	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:20:37	2025-12-22 18:20:37
+1485	11	1	5	INV-25/00030	\N	2025-10-29	\N	\N	23.93	0.00	23.93	1841.97	2565.92	61402.47	70612.84	0.00	0.00	15.00	9210.37	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:21:52	2025-12-22 18:21:52
+1486	11	1	5	INV-25/00031	\N	2025-10-29	\N	\N	23.96	0.00	23.96	1841.96	2565.92	61479.44	70701.36	0.00	0.00	15.00	9221.92	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:23:03	2025-12-22 18:23:03
+1487	11	1	5	INV-25/00032	\N	2025-10-30	\N	\N	46.62	23.01	23.61	1842.01	2565.92	60581.37	69668.58	0.00	0.00	15.00	9087.21	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:24:13	2025-12-22 18:24:13
+1488	11	1	5	INV-25/00033	\N	2025-10-30	\N	\N	23.01	0.00	23.01	1842.01	2565.92	59041.82	67898.09	0.00	0.00	15.00	8856.27	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:24:23	2025-12-22 18:24:23
+1489	11	1	5	INV-25/00034	\N	2025-10-31	\N	\N	22.36	0.00	22.36	1841.61	2565.92	57373.97	65980.07	0.00	0.00	15.00	8606.10	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:25:38	2025-12-22 18:25:38
+1490	11	1	5	INV-25/00035	\N	2025-11-13	\N	\N	72.86	49.17	23.69	1839.04	2680.00	63489.20	68250.89	0.00	0.00	7.50	4761.69	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:40:13	2025-12-22 18:40:13
+1491	11	1	5	INV-25/00036	\N	2025-11-13	\N	\N	49.17	24.58	24.59	1839.04	2680.00	65901.20	70843.79	0.00	0.00	7.50	4942.59	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 18:40:26	2025-12-22 18:40:26
+1492	11	1	5	INV-25/00037	\N	2025-11-13	\N	\N	24.58	0.00	24.58	1839.04	2680.00	65874.40	70814.98	0.00	0.00	7.50	4940.58	\N	Sorif	\N	\N	2025-12-22 18:40:35	2025-12-22 18:40:35
+1493	11	1	5	INV-25/00038	\N	2025-11-14	\N	\N	121.26	96.94	24.32	1839.16	2680.00	65177.60	70065.92	0.00	0.00	7.50	4888.32	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:51:02	2025-12-22 20:51:02
+1494	11	1	5	INV-25/00039	\N	2025-11-14	\N	\N	96.94	72.82	24.12	1839.16	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:51:12	2025-12-22 20:51:12
+1495	11	1	5	INV-25/00040	\N	2025-11-14	\N	\N	72.82	48.51	24.31	1839.16	2680.00	65150.80	70037.11	0.00	0.00	7.50	4886.31	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:51:59	2025-12-22 20:51:59
+1496	11	1	5	INV-25/00041	\N	2025-11-14	\N	\N	48.51	24.82	23.69	1839.16	2680.00	63489.20	68250.89	0.00	0.00	7.50	4761.69	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:52:09	2025-12-22 20:52:09
+1497	11	1	5	INV-25/00042	\N	2025-11-14	\N	\N	24.82	0.00	24.82	1839.16	2680.00	66517.60	71506.42	0.00	0.00	7.50	4988.82	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:52:17	2025-12-22 20:52:17
+1498	11	1	5	INV-25/00043	\N	2025-11-15	\N	\N	98.11	73.99	24.12	1838.99	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:54:26	2025-12-22 20:54:26
+1499	11	1	5	INV-25/00044	\N	2025-11-15	\N	\N	73.99	49.36	24.63	1838.99	2680.00	66008.40	70959.03	0.00	0.00	7.50	4950.63	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:54:53	2025-12-22 20:54:53
+1500	11	1	5	INV-25/00045	\N	2025-11-15	\N	\N	49.36	24.40	24.96	1838.99	2680.00	66892.80	71909.76	0.00	0.00	7.50	5016.96	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:55:03	2025-12-22 20:55:03
+1501	11	1	5	INV-25/00046	\N	2025-11-15	\N	\N	24.40	0.00	24.40	1838.99	2680.00	65392.00	70296.40	0.00	0.00	7.50	4904.40	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:55:11	2025-12-22 20:55:11
+1502	11	1	5	INV-25/00047	\N	2025-11-17	\N	\N	97.38	72.75	24.63	1839.04	2680.00	66008.40	70959.03	0.00	0.00	7.50	4950.63	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:56:35	2025-12-22 20:56:35
+1503	11	1	5	INV-25/00048	\N	2025-11-17	\N	\N	72.75	48.63	24.12	1839.04	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:56:44	2025-12-22 20:56:44
+1504	11	1	5	INV-25/00049	\N	2025-11-17	\N	\N	48.63	24.10	24.53	1839.04	2680.00	65740.40	70670.93	0.00	0.00	7.50	4930.53	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:56:53	2025-12-22 20:56:53
+1505	11	1	5	INV-25/00050	\N	2025-11-17	\N	\N	24.10	0.00	24.10	1839.04	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:57:02	2025-12-22 20:57:02
+1506	11	1	5	INV-25/00051	\N	2025-11-18	\N	\N	98.53	73.90	24.63	1839.07	2680.00	66008.40	70959.03	0.00	0.00	7.50	4950.63	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:58:17	2025-12-22 20:58:17
+1507	11	1	5	INV-25/00052	\N	2025-11-18	\N	\N	73.90	49.54	24.36	1839.07	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:58:26	2025-12-22 20:58:26
+1508	11	1	5	INV-25/00053	\N	2025-11-18	\N	\N	49.54	24.65	24.89	1839.07	2680.00	66705.20	71708.09	0.00	0.00	7.50	5002.89	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:58:35	2025-12-22 20:58:35
+1509	11	1	5	INV-25/00054	\N	2025-11-18	\N	\N	24.65	0.00	24.65	1839.07	2680.00	66062.00	71016.65	0.00	0.00	7.50	4954.65	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 20:58:44	2025-12-22 20:58:44
+1510	11	1	5	INV-25/00055	\N	2025-11-18	\N	\N	122.32	98.20	24.12	1839.13	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:00:27	2025-12-22 21:00:27
+1511	11	1	5	INV-25/00056	\N	2025-11-18	\N	\N	98.20	73.84	24.36	1839.13	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:01:02	2025-12-22 21:01:02
+1512	11	1	5	INV-25/00057	\N	2025-11-18	\N	\N	73.84	48.98	24.86	1839.13	2680.00	66624.80	71621.66	0.00	0.00	7.50	4996.86	\N	Sorif	\N	\N	2025-12-22 21:01:11	2025-12-22 21:01:11
+1513	11	1	5	INV-25/00058	\N	2025-11-18	\N	\N	48.98	24.12	24.86	1839.13	2680.00	66624.80	71621.66	0.00	0.00	7.50	4996.86	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:01:22	2025-12-22 21:01:22
+1514	11	1	5	INV-25/00059	\N	2025-11-18	\N	\N	24.12	0.00	24.12	1839.13	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:01:32	2025-12-22 21:01:32
+1515	11	1	5	INV-25/00060	\N	2025-11-19	\N	\N	49.10	24.54	24.56	1839.06	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:06:37	2025-12-22 21:06:37
+1516	11	1	5	INV-25/00061	\N	2025-11-19	\N	\N	24.54	0.00	24.54	1839.06	2680.00	65767.20	70699.74	0.00	0.00	7.50	4932.54	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:07:05	2025-12-22 21:07:05
+1517	11	1	5	INV-25/00062	\N	2025-11-20	\N	\N	24.88	0.00	24.88	1839.10	2680.00	66678.40	71679.28	0.00	0.00	7.50	5000.88	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:08:10	2025-12-22 21:08:10
+1518	11	1	5	INV-25/00063	\N	2025-11-25	\N	\N	75.26	50.28	24.98	1839.08	2680.00	66946.40	71967.38	0.00	0.00	7.50	5020.98	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:10:40	2025-12-22 21:10:40
+1519	11	1	5	INV-25/00064	\N	2025-11-25	\N	\N	50.28	24.87	25.41	1839.08	2680.00	68098.80	73206.21	0.00	0.00	7.50	5107.41	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:10:49	2025-12-22 21:10:49
+1520	11	1	5	INV-25/00065	\N	2025-11-25	\N	\N	24.87	0.00	24.87	1839.08	2680.00	66651.60	71650.47	0.00	0.00	7.50	4998.87	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:10:57	2025-12-22 21:10:57
+1521	11	1	5	INV-25/00066	\N	2025-11-25	\N	\N	49.66	24.97	24.69	1839.01	2680.00	66169.20	71131.89	0.00	0.00	7.50	4962.69	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:12:02	2025-12-22 21:12:02
+1522	11	1	5	INV-25/00067	\N	2025-11-25	\N	\N	24.97	0.00	24.97	1839.01	2680.00	66919.60	71938.57	0.00	0.00	7.50	5018.97	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:12:11	2025-12-22 21:12:11
+1523	11	1	5	INV-25/00068	\N	2025-11-25	\N	\N	103.06	77.40	25.66	1839.15	2680.00	68768.80	73926.46	0.00	0.00	7.50	5157.66	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:14:00	2025-12-22 21:14:00
+1524	11	1	5	INV-25/00069	\N	2025-11-25	\N	\N	77.40	51.92	25.48	1839.15	2680.00	68286.40	73407.88	0.00	0.00	7.50	5121.48	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:14:09	2025-12-22 21:14:09
+1525	11	1	5	INV-25/00070	\N	2025-11-25	\N	\N	51.92	26.03	25.89	1839.15	2680.00	69385.20	74589.09	0.00	0.00	7.50	5203.89	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:14:19	2025-12-22 21:14:19
+1526	11	1	5	INV-25/00071	\N	2025-11-25	\N	\N	26.03	0.00	26.03	1839.15	2680.00	69760.40	74992.43	0.00	0.00	7.50	5232.03	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:14:28	2025-12-22 21:14:28
+1527	11	1	5	INV-25/00072	\N	2025-11-27	\N	\N	24.62	0.00	24.62	1839.01	2680.00	65981.60	70930.22	0.00	0.00	7.50	4948.62	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:18:27	2025-12-22 21:18:27
+1528	11	1	5	INV-25/00073	\N	2025-11-27	\N	\N	152.84	128.15	24.69	1839.07	2680.00	66169.20	71131.89	0.00	0.00	7.50	4962.69	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:20:32	2025-12-22 21:20:32
+1529	11	1	5	INV-25/00074	\N	2025-11-27	\N	\N	128.15	102.79	25.36	1839.07	2680.00	67964.80	73062.16	0.00	0.00	7.50	5097.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:20:42	2025-12-22 21:20:42
+1530	11	1	5	INV-25/00075	\N	2025-11-27	\N	\N	102.79	77.43	25.36	1839.07	2680.00	67964.80	73062.16	0.00	0.00	7.50	5097.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:20:51	2025-12-22 21:20:51
+1531	11	1	5	INV-25/00076	\N	2025-11-27	\N	\N	77.43	51.80	25.63	1839.07	2680.00	68688.40	73840.03	0.00	0.00	7.50	5151.63	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:21:00	2025-12-22 21:21:00
+1532	11	1	5	INV-25/00077	\N	2025-11-27	\N	\N	51.80	25.94	25.86	1839.07	2680.00	69304.80	74502.66	0.00	0.00	7.50	5197.86	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:21:09	2025-12-22 21:21:09
+1533	11	1	5	INV-25/00078	\N	2025-11-27	\N	\N	25.94	0.00	25.94	1839.07	2680.00	69519.20	74733.14	0.00	0.00	7.50	5213.94	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:21:19	2025-12-22 21:21:19
+1534	11	1	5	INV-25/00079	\N	2025-11-27	\N	\N	51.37	25.51	25.86	1839.11	2680.00	69304.80	74502.66	0.00	0.00	7.50	5197.86	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:25:37	2025-12-22 21:25:37
+1535	11	1	5	INV-25/00080	\N	2025-11-27	\N	\N	25.51	0.00	25.51	1839.11	2680.00	68366.80	73494.31	0.00	0.00	7.50	5127.51	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:25:46	2025-12-22 21:25:46
+1536	11	1	5	INV-25/00081	\N	2025-11-28	\N	\N	146.64	122.28	24.36	1839.16	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:29:52	2025-12-22 21:29:52
+1537	11	1	5	INV-25/00082	\N	2025-11-28	\N	\N	122.28	97.92	24.36	1839.16	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:30:00	2025-12-22 21:30:00
+1538	11	1	5	INV-25/00083	\N	2025-11-28	\N	\N	97.92	73.29	24.63	1839.16	2680.00	66008.40	70959.03	0.00	0.00	7.50	4950.63	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:30:09	2025-12-22 21:30:09
+1539	11	1	5	INV-25/00084	\N	2025-11-28	\N	\N	73.29	48.73	24.56	1839.16	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:30:18	2025-12-22 21:30:18
+1540	11	1	5	INV-25/00085	\N	2025-11-28	\N	\N	48.73	24.37	24.36	1839.16	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:30:33	2025-12-22 21:30:33
+1541	11	1	5	INV-25/00086	\N	2025-11-28	\N	\N	24.37	0.00	24.37	1839.16	2680.00	65311.60	70209.97	0.00	0.00	7.50	4898.37	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:30:42	2025-12-22 21:30:42
+1542	11	1	5	INV-25/00087	\N	2025-11-29	\N	\N	219.13	193.77	25.36	1839.16	2680.00	67964.80	73062.16	0.00	0.00	7.50	5097.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:31:56	2025-12-22 21:31:56
+1543	11	1	5	INV-25/00088	\N	2025-11-29	\N	\N	193.77	168.35	25.42	1839.16	2680.00	68125.60	73235.02	0.00	0.00	7.50	5109.42	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:32:04	2025-12-22 21:32:04
+1544	11	1	5	INV-25/00089	\N	2025-11-29	\N	\N	168.35	142.66	25.69	1839.16	2680.00	68849.20	74012.89	0.00	0.00	7.50	5163.69	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:32:13	2025-12-22 21:32:13
+1545	11	1	5	INV-25/00090	\N	2025-11-29	\N	\N	142.66	117.30	25.36	1839.16	2680.00	67964.80	73062.16	0.00	0.00	7.50	5097.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:32:20	2025-12-22 21:32:20
+1546	11	1	5	INV-25/00091	\N	2025-11-29	\N	\N	117.30	91.83	25.47	1839.16	2680.00	68259.60	73379.07	0.00	0.00	7.50	5119.47	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:32:29	2025-12-22 21:32:29
+1547	11	1	5	INV-25/00092	\N	2025-11-29	\N	\N	91.83	68.47	23.36	1839.16	2680.00	62604.80	67300.16	0.00	0.00	7.50	4695.36	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:32:39	2025-12-22 21:32:39
+1548	11	1	5	INV-25/00093	\N	2025-11-29	\N	\N	68.47	45.78	22.69	1839.16	2680.00	60809.20	65369.89	0.00	0.00	7.50	4560.69	\N	Sorif	\N	\N	2025-12-22 21:32:47	2025-12-22 21:32:47
+1549	11	1	5	INV-25/00094	\N	2025-11-29	\N	\N	45.78	23.42	22.36	1839.16	2680.00	59924.80	64419.16	0.00	0.00	7.50	4494.36	\N	Sorif	\N	\N	2025-12-22 21:32:56	2025-12-22 21:32:56
+1550	11	1	5	INV-25/00095	\N	2025-11-29	\N	\N	23.42	0.00	23.42	1839.16	2680.00	62765.60	67473.02	0.00	0.00	7.50	4707.42	\N	Sorif	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-22 21:33:04	2025-12-22 21:33:04
+1551	7	1	5	INV-25/00167	\N	2025-10-07	\N	\N	71.61	50.25	21.36	1841.81	2566.20	54814.03	63036.14	0.00	0.00	15.00	8222.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:17:46	2025-12-23 18:17:46
+1552	7	1	5	INV-25/00168	\N	2025-10-07	\N	\N	50.25	24.89	25.36	1841.81	2566.20	65078.83	74840.66	0.00	0.00	15.00	9761.82	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:17:54	2025-12-23 18:17:54
+1553	7	1	5	INV-25/00169	\N	2025-10-07	\N	\N	24.89	0.00	24.89	1841.81	2566.20	63872.72	73453.63	0.00	0.00	15.00	9580.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:18:01	2025-12-23 18:18:01
+1554	7	1	5	INV-25/00170	\N	2025-10-08	\N	\N	47.64	23.28	24.36	1841.82	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:19:57	2025-12-23 18:19:57
+1555	7	1	5	INV-25/00171	\N	2025-10-08	\N	\N	23.28	0.00	23.28	1841.82	2566.20	59741.14	68702.31	0.00	0.00	15.00	8961.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:20:05	2025-12-23 18:20:05
+1556	7	1	5	INV-25/00172	\N	2025-10-08	\N	\N	122.67	99.31	23.36	1841.83	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:22:29	2025-12-23 18:22:29
+1557	7	1	5	INV-25/00173	\N	2025-10-08	\N	\N	99.31	75.19	24.12	1841.83	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:22:39	2025-12-23 18:22:39
+1558	7	1	5	INV-25/00174	\N	2025-10-08	\N	\N	75.19	50.83	24.36	1841.83	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:22:52	2025-12-23 18:22:52
+1559	7	1	5	INV-25/00175	\N	2025-10-08	\N	\N	50.83	25.20	25.63	1841.83	2566.20	65771.71	75637.46	0.00	0.00	15.00	9865.76	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:23:00	2025-12-23 18:23:00
+1560	7	1	5	INV-25/00176	\N	2025-10-08	\N	\N	25.20	0.00	25.20	1841.83	2566.20	64668.24	74368.48	0.00	0.00	15.00	9700.24	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:23:08	2025-12-23 18:23:08
+1561	7	1	5	INV-25/00177	\N	2025-10-09	\N	\N	24.41	0.00	24.41	1841.76	2566.20	62640.94	72037.08	0.00	0.00	15.00	9396.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:25:00	2025-12-23 18:25:00
+1562	7	1	5	INV-25/00178	\N	2025-10-09	\N	\N	96.09	71.97	24.12	1841.76	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:26:43	2025-12-23 18:26:43
+1563	7	1	5	INV-25/00179	\N	2025-10-09	\N	\N	71.97	47.94	24.03	1841.76	2566.20	61665.79	70915.65	0.00	0.00	15.00	9249.87	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:26:51	2025-12-23 18:26:51
+1564	7	1	5	INV-25/00180	\N	2025-10-09	\N	\N	47.94	23.78	24.16	1841.76	2566.20	61999.39	71299.30	0.00	0.00	15.00	9299.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:26:59	2025-12-23 18:26:59
+1565	7	1	5	INV-25/00181	\N	2025-10-09	\N	\N	23.78	0.00	23.78	1841.76	2566.20	61024.24	70177.87	0.00	0.00	15.00	9153.64	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:27:11	2025-12-23 18:27:11
+1566	7	1	5	INV-25/00182	\N	2025-10-09	\N	\N	145.47	121.11	24.36	1841.83	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:29:02	2025-12-23 18:29:02
+1567	7	1	5	INV-25/00183	\N	2025-10-09	\N	\N	121.11	96.42	24.69	1841.83	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:29:10	2025-12-23 18:29:10
+1568	7	1	5	INV-25/00184	\N	2025-10-09	\N	\N	96.42	72.30	24.12	1841.83	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:29:17	2025-12-23 18:29:17
+1569	7	1	5	INV-25/00185	\N	2025-10-09	\N	\N	72.30	48.24	24.06	1841.83	2566.20	61742.77	71004.19	0.00	0.00	15.00	9261.42	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:29:24	2025-12-23 18:29:24
+1570	7	1	5	INV-25/00186	\N	2025-10-09	\N	\N	48.24	24.09	24.15	1841.83	2566.20	61973.73	71269.79	0.00	0.00	15.00	9296.06	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:29:32	2025-12-23 18:29:32
+1571	7	1	5	INV-25/00187	\N	2025-10-09	\N	\N	24.09	0.00	24.09	1841.83	2566.20	61819.76	71092.72	0.00	0.00	15.00	9272.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:29:39	2025-12-23 18:29:39
+1572	7	1	5	INV-25/00188	\N	2025-10-10	\N	\N	145.81	121.69	24.12	1841.99	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:31:04	2025-12-23 18:31:04
+1573	7	1	5	INV-25/00189	\N	2025-10-10	\N	\N	121.69	97.66	24.03	1841.99	2566.20	61665.79	70915.65	0.00	0.00	15.00	9249.87	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:31:11	2025-12-23 18:31:11
+1574	7	1	5	INV-25/00190	\N	2025-10-10	\N	\N	97.66	73.10	24.56	1841.99	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:31:19	2025-12-23 18:31:19
+1575	7	1	5	INV-25/00191	\N	2025-10-10	\N	\N	73.10	48.85	24.25	1841.99	2566.20	62230.35	71564.90	0.00	0.00	15.00	9334.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:31:26	2025-12-23 18:31:26
+1576	7	1	5	INV-25/00192	\N	2025-10-10	\N	\N	48.85	24.16	24.69	1841.99	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:31:33	2025-12-23 18:31:33
+1577	7	1	5	INV-25/00193	\N	2025-10-10	\N	\N	24.16	0.00	24.16	1841.99	2566.20	61999.39	71299.30	0.00	0.00	15.00	9299.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:31:41	2025-12-23 18:31:41
+1578	7	1	5	INV-25/00194	\N	2025-10-10	\N	\N	170.23	145.87	24.36	1841.77	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:33:12	2025-12-23 18:33:12
+1579	7	1	5	INV-25/00195	\N	2025-10-10	\N	\N	145.87	121.48	24.39	1841.77	2566.20	62589.62	71978.06	0.00	0.00	15.00	9388.44	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:33:21	2025-12-23 18:33:21
+1580	7	1	5	INV-25/00196	\N	2025-10-10	\N	\N	121.48	96.79	24.69	1841.77	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:33:29	2025-12-23 18:33:29
+1581	7	1	5	INV-25/00197	\N	2025-10-10	\N	\N	96.79	72.63	24.16	1841.77	2566.20	61999.39	71299.30	0.00	0.00	15.00	9299.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:33:38	2025-12-23 18:33:38
+1582	7	1	5	INV-25/00198	\N	2025-10-10	\N	\N	72.63	48.46	24.17	1841.77	2566.20	62025.05	71328.81	0.00	0.00	15.00	9303.76	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:33:45	2025-12-23 18:33:45
+1583	7	1	5	INV-25/00199	\N	2025-10-10	\N	\N	48.46	24.10	24.36	1841.77	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:33:52	2025-12-23 18:33:52
+1584	7	1	5	INV-25/00200	\N	2025-10-10	\N	\N	24.10	0.00	24.10	1841.77	2566.20	61845.42	71122.23	0.00	0.00	15.00	9276.81	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:34:00	2025-12-23 18:34:00
+1585	7	1	5	INV-25/00201	\N	2025-10-11	\N	\N	100.52	75.83	24.69	1841.81	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:41:17	2025-12-23 18:41:17
+1586	7	1	5	INV-25/00202	\N	2025-10-11	\N	\N	75.83	50.14	25.69	1841.81	2566.20	65925.68	75814.53	0.00	0.00	15.00	9888.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:41:24	2025-12-23 18:41:24
+1587	7	1	5	INV-25/00203	\N	2025-10-11	\N	\N	50.14	25.02	25.12	1841.81	2566.20	64462.94	74132.39	0.00	0.00	15.00	9669.44	\N	\N	\N	\N	2025-12-23 18:41:29	2025-12-23 18:41:29
+1588	7	1	5	INV-25/00204	\N	2025-10-11	\N	\N	25.02	0.00	25.02	1841.81	2566.20	64206.32	73837.27	0.00	0.00	15.00	9630.95	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:41:36	2025-12-23 18:41:36
+1589	7	1	5	INV-25/00205	\N	2025-10-13	\N	\N	74.33	49.97	24.36	1841.82	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:43:00	2025-12-23 18:43:00
+1590	7	1	5	INV-25/00206	\N	2025-10-13	\N	\N	49.97	24.61	25.36	1841.82	2566.20	65078.83	74840.66	0.00	0.00	15.00	9761.82	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:43:07	2025-12-23 18:43:07
+1591	7	1	5	INV-25/00207	\N	2025-10-13	\N	\N	24.61	0.00	24.61	1841.82	2566.20	63154.18	72627.31	0.00	0.00	15.00	9473.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 18:43:13	2025-12-23 18:43:13
+1592	7	1	5	INV-25/00208	\N	2025-10-13	\N	\N	96.74	72.62	24.12	1841.74	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 19:04:19	2025-12-23 19:04:19
+1593	7	1	5	INV-25/00209	\N	2025-10-13	\N	\N	72.62	48.50	24.12	1841.74	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 19:04:27	2025-12-23 19:04:27
+1594	7	1	5	INV-25/00210	\N	2025-10-13	\N	\N	48.50	24.40	24.10	1841.74	2566.20	61845.42	71122.23	0.00	0.00	15.00	9276.81	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 19:04:40	2025-12-23 19:04:40
+1595	7	1	5	INV-25/00211	\N	2025-10-13	\N	\N	24.40	0.00	24.40	1841.74	2566.20	62615.28	72007.57	0.00	0.00	15.00	9392.29	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 19:05:24	2025-12-23 19:05:24
+1596	7	1	5	INV-25/00212	\N	2025-10-14	\N	\N	98.68	73.99	24.69	1841.95	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:48:20	2025-12-23 21:48:20
+1597	7	1	5	INV-25/00213	\N	2025-10-14	\N	\N	73.99	49.30	24.69	1841.95	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:48:28	2025-12-23 21:48:28
+1598	7	1	5	INV-25/00214	\N	2025-10-14	\N	\N	49.30	24.61	24.69	1841.95	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:48:38	2025-12-23 21:48:38
+1599	7	1	5	INV-25/00215	\N	2025-10-14	\N	\N	24.61	0.00	24.61	1841.95	2566.20	63154.18	72627.31	0.00	0.00	15.00	9473.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:48:46	2025-12-23 21:48:46
+1600	7	1	5	INV-25/00216	\N	2025-10-14	\N	\N	49.45	25.09	24.36	1841.83	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:56:47	2025-12-23 21:56:47
+1601	7	1	5	INV-25/00217	\N	2025-10-14	\N	\N	25.09	0.00	25.09	1841.83	2566.20	64385.96	74043.85	0.00	0.00	15.00	9657.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:56:56	2025-12-23 21:56:56
+1602	7	1	5	INV-25/00218	\N	2025-10-14	\N	\N	95.42	71.73	23.69	1841.76	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:59:13	2025-12-23 21:59:13
+1603	7	1	5	INV-25/00219	\N	2025-10-14	\N	\N	71.73	48.04	23.69	1841.76	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:59:21	2025-12-23 21:59:21
+1604	7	1	5	INV-25/00220	\N	2025-10-14	\N	\N	48.04	23.78	24.26	1841.76	2566.20	62256.01	71594.41	0.00	0.00	15.00	9338.40	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:59:29	2025-12-23 21:59:29
+1605	7	1	5	INV-25/00221	\N	2025-10-14	\N	\N	23.78	0.00	23.78	1841.76	2566.20	61024.24	70177.87	0.00	0.00	15.00	9153.64	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 21:59:36	2025-12-23 21:59:36
+1606	7	1	5	INV-25/00222	\N	2025-10-15	\N	\N	92.54	68.85	23.69	1843.25	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:01:12	2025-12-23 22:01:12
+1607	7	1	5	INV-25/00223	\N	2025-10-15	\N	\N	68.85	45.38	23.47	1843.25	2566.20	60228.71	69263.02	0.00	0.00	15.00	9034.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:01:19	2025-12-23 22:01:19
+1608	7	1	5	INV-25/00224	\N	2025-10-15	\N	\N	45.38	21.75	23.63	1843.25	2566.20	60639.31	69735.20	0.00	0.00	15.00	9095.90	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:01:28	2025-12-23 22:01:28
+1609	7	1	5	INV-25/00225	\N	2025-10-15	\N	\N	21.75	0.00	21.75	1843.25	2566.20	55814.85	64187.08	0.00	0.00	15.00	8372.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:01:35	2025-12-23 22:01:35
+1610	7	1	5	INV-25/00226	\N	2025-10-15	\N	\N	100.49	75.80	24.69	1841.84	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:03:16	2025-12-23 22:03:16
+1611	7	1	5	INV-25/00227	\N	2025-10-15	\N	\N	75.80	51.17	24.63	1841.84	2566.20	63205.51	72686.33	0.00	0.00	15.00	9480.83	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:03:23	2025-12-23 22:03:23
+1612	7	1	5	INV-25/00228	\N	2025-10-15	\N	\N	51.17	25.48	25.69	1841.84	2566.20	65925.68	75814.53	0.00	0.00	15.00	9888.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:03:30	2025-12-23 22:03:30
+1613	7	1	5	INV-25/00229	\N	2025-10-15	\N	\N	25.48	0.00	25.48	1841.84	2566.20	65386.78	75194.79	0.00	0.00	15.00	9808.02	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:03:37	2025-12-23 22:03:37
+1614	7	1	5	INV-25/00230	\N	2025-10-16	\N	\N	70.10	46.87	23.23	1841.72	2566.20	59612.83	68554.75	0.00	0.00	15.00	8941.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:08:33	2025-12-23 22:08:33
+1615	7	1	5	INV-25/00231	\N	2025-10-16	\N	\N	46.87	23.24	23.63	1841.72	2566.20	60639.31	69735.20	0.00	0.00	15.00	9095.90	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:08:40	2025-12-23 22:08:40
+1616	7	1	5	INV-25/00232	\N	2025-10-16	\N	\N	23.24	0.00	23.24	1841.72	2566.20	59638.49	68584.26	0.00	0.00	15.00	8945.77	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:08:48	2025-12-23 22:08:48
+1617	7	1	5	INV-25/00233	\N	2025-10-16	\N	\N	50.44	24.81	25.63	1841.91	2566.20	65771.71	75637.46	0.00	0.00	15.00	9865.76	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:10:33	2025-12-23 22:10:33
+1618	7	1	5	INV-25/00234	\N	2025-10-16	\N	\N	24.81	0.00	24.81	1841.91	2566.20	63667.42	73217.54	0.00	0.00	15.00	9550.11	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:10:40	2025-12-23 22:10:40
+1619	7	1	5	INV-25/00235	\N	2025-10-16	\N	\N	24.58	0.00	24.58	1841.72	2566.20	63077.20	72538.78	0.00	0.00	15.00	9461.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:13:14	2025-12-23 22:13:14
+1620	7	1	5	INV-25/00236	\N	2025-10-17	\N	\N	246.65	222.29	24.36	1841.83	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:14:56	2025-12-23 22:14:56
+1621	7	1	5	INV-25/00237	\N	2025-10-17	\N	\N	222.29	197.93	24.36	1841.83	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:15:06	2025-12-23 22:15:06
+1622	7	1	5	INV-25/00238	\N	2025-10-17	\N	\N	197.93	173.30	24.63	1841.83	2566.20	63205.51	72686.33	0.00	0.00	15.00	9480.83	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:15:14	2025-12-23 22:15:14
+1623	7	1	5	INV-25/00239	\N	2025-10-17	\N	\N	173.30	148.61	24.69	1841.83	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:15:22	2025-12-23 22:15:22
+1624	7	1	5	INV-25/00240	\N	2025-10-17	\N	\N	148.61	124.47	24.14	1841.83	2566.20	61948.07	71240.28	0.00	0.00	15.00	9292.21	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:15:30	2025-12-23 22:15:30
+1625	7	1	5	INV-25/00241	\N	2025-10-17	\N	\N	124.47	100.16	24.31	1841.83	2566.20	62384.32	71741.97	0.00	0.00	15.00	9357.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:15:39	2025-12-23 22:15:39
+1626	7	1	5	INV-25/00242	\N	2025-10-17	\N	\N	100.16	75.80	24.36	1841.83	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:15:56	2025-12-23 22:15:56
+1627	7	1	5	INV-25/00243	\N	2025-10-17	\N	\N	75.80	51.68	24.12	1841.83	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:16:05	2025-12-23 22:16:05
+1628	7	1	5	INV-25/00244	\N	2025-10-17	\N	\N	51.68	26.23	25.45	1841.83	2566.20	65309.79	75106.26	0.00	0.00	15.00	9796.47	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:16:13	2025-12-23 22:16:13
+1629	7	1	5	INV-25/00245	\N	2025-10-17	\N	\N	26.23	0.00	26.23	1841.83	2566.20	67311.43	77408.14	0.00	0.00	15.00	10096.71	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:16:21	2025-12-23 22:16:21
+1630	7	1	5	INV-25/00246	\N	2025-10-19	\N	\N	100.63	76.05	24.58	1841.85	2566.20	63077.20	72538.78	0.00	0.00	15.00	9461.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:28:50	2025-12-23 22:28:50
+1631	7	1	5	INV-25/00247	\N	2025-10-19	\N	\N	76.05	51.49	24.56	1841.85	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:29:01	2025-12-23 22:29:01
+1632	7	1	5	INV-25/00248	\N	2025-10-19	\N	\N	51.49	25.80	25.69	1841.85	2566.20	65925.68	75814.53	0.00	0.00	15.00	9888.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:29:08	2025-12-23 22:29:08
+1633	7	1	5	INV-25/00249	\N	2025-10-19	\N	\N	25.80	0.00	25.80	1841.85	2566.20	66207.96	76139.15	0.00	0.00	15.00	9931.19	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:29:16	2025-12-23 22:29:16
+1634	7	1	5	INV-25/00250	\N	2025-10-22	\N	\N	99.51	74.88	24.63	1841.72	2566.20	63205.51	72686.33	0.00	0.00	15.00	9480.83	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:32:25	2025-12-23 22:32:25
+1635	7	1	5	INV-25/00251	\N	2025-10-22	\N	\N	74.88	49.90	24.98	1841.72	2566.20	64103.68	73719.23	0.00	0.00	15.00	9615.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:32:42	2025-12-23 22:32:42
+1636	7	1	5	INV-25/00252	\N	2025-10-22	\N	\N	49.90	25.34	24.56	1841.72	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:32:51	2025-12-23 22:32:51
+1637	7	1	5	INV-25/00253	\N	2025-10-22	\N	\N	25.34	0.00	25.34	1841.72	2566.20	65027.51	74781.63	0.00	0.00	15.00	9754.13	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 22:32:58	2025-12-23 22:32:58
+1638	7	1	5	INV-25/00254	\N	2025-10-22	\N	\N	98.51	73.95	24.56	1841.88	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:04:45	2025-12-23 23:04:45
+1639	7	1	5	INV-25/00255	\N	2025-10-22	\N	\N	73.95	48.99	24.96	1841.88	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:04:53	2025-12-23 23:04:53
+1640	7	1	5	INV-25/00256	\N	2025-10-22	\N	\N	48.99	24.14	24.85	1841.88	2566.20	63770.07	73335.58	0.00	0.00	15.00	9565.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:04:59	2025-12-23 23:04:59
+1641	7	1	5	INV-25/00257	\N	2025-10-22	\N	\N	24.14	0.00	24.14	1841.88	2566.20	61948.07	71240.28	0.00	0.00	15.00	9292.21	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:05:11	2025-12-23 23:05:11
+1642	7	1	5	INV-25/00258	\N	2025-10-23	\N	\N	49.08	24.23	24.85	1841.96	2566.20	63770.07	73335.58	0.00	0.00	15.00	9565.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:07:07	2025-12-23 23:07:07
+1643	7	1	5	INV-25/00259	\N	2025-10-23	\N	\N	24.23	0.00	24.23	1841.96	2566.20	62179.03	71505.88	0.00	0.00	15.00	9326.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:07:15	2025-12-23 23:07:15
+1644	7	1	5	INV-25/00260	\N	2025-10-23	\N	\N	73.34	49.11	24.23	1864.63	2566.20	62179.03	71505.88	0.00	0.00	15.00	9326.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:12:54	2025-12-23 23:12:54
+1645	7	1	5	INV-25/00261	\N	2025-10-23	\N	\N	49.11	24.55	24.56	1864.63	2566.20	63025.87	72479.75	0.00	0.00	15.00	9453.88	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:13:01	2025-12-23 23:13:01
+1646	7	1	5	INV-25/00262	\N	2025-10-23	\N	\N	24.55	0.00	24.55	1864.63	2566.20	63000.21	72450.24	0.00	0.00	15.00	9450.03	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-23 23:13:15	2025-12-23 23:13:15
+1647	7	1	5	INV-25/00263	\N	2025-10-24	\N	\N	244.58	220.22	24.36	1841.75	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:07:42	2025-12-24 00:07:42
+1648	7	1	5	INV-25/00264	\N	2025-10-24	\N	\N	220.22	194.53	25.69	1841.75	2566.20	65925.68	75814.53	0.00	0.00	15.00	9888.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:07:52	2025-12-24 00:07:52
+1649	7	1	5	INV-25/00265	\N	2025-10-24	\N	\N	194.53	168.84	25.69	1841.75	2566.20	65925.68	75814.53	0.00	0.00	15.00	9888.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:07:59	2025-12-24 00:07:59
+1650	7	1	5	INV-25/00266	\N	2025-10-24	\N	\N	168.84	143.10	25.74	1841.75	2566.20	66053.99	75962.09	0.00	0.00	15.00	9908.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:08:06	2025-12-24 00:08:06
+1651	7	1	5	INV-25/00267	\N	2025-10-24	\N	\N	143.10	117.63	25.47	1841.75	2566.20	65361.11	75165.28	0.00	0.00	15.00	9804.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:08:15	2025-12-24 00:08:15
+1652	7	1	5	INV-25/00268	\N	2025-10-24	\N	\N	117.63	94.27	23.36	1841.75	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:08:52	2025-12-24 00:08:52
+1653	7	1	5	INV-25/00269	\N	2025-10-24	\N	\N	94.27	70.69	23.58	1841.75	2566.20	60511.00	69587.65	0.00	0.00	15.00	9076.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:09:05	2025-12-24 00:09:05
+1654	7	1	5	INV-25/00270	\N	2025-10-24	\N	\N	70.69	46.84	23.85	1841.75	2566.20	61203.87	70384.45	0.00	0.00	15.00	9180.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:09:13	2025-12-24 00:09:13
+1655	7	1	5	INV-25/00271	\N	2025-10-24	\N	\N	46.84	23.37	23.47	1841.75	2566.20	60228.71	69263.02	0.00	0.00	15.00	9034.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:09:22	2025-12-24 00:09:22
+1656	7	1	5	INV-25/00272	\N	2025-10-24	\N	\N	23.37	0.00	23.37	1841.75	2566.20	59972.09	68967.91	0.00	0.00	15.00	8995.81	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 00:09:31	2025-12-24 00:09:31
+1657	7	1	5	INV-25/00273	\N	2025-10-25	\N	\N	98.73	73.84	24.89	1841.84	2566.20	63872.72	73453.63	0.00	0.00	15.00	9580.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:24:05	2025-12-24 16:24:05
+1658	7	1	5	INV-25/00274	\N	2025-10-25	\N	\N	73.84	49.06	24.78	1841.84	2566.20	63590.44	73129.00	0.00	0.00	15.00	9538.57	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:24:12	2025-12-24 16:24:12
+1659	7	1	5	INV-25/00275	\N	2025-10-25	\N	\N	49.06	24.10	24.96	1841.84	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:24:20	2025-12-24 16:24:20
+1660	7	1	5	INV-25/00276	\N	2025-10-25	\N	\N	24.10	0.00	24.10	1841.84	2566.20	61845.42	71122.23	0.00	0.00	15.00	9276.81	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:24:26	2025-12-24 16:24:26
+1661	7	1	5	INV-25/00277	\N	2025-10-27	\N	\N	146.25	121.89	24.36	1841.88	2566.20	62512.63	71889.53	0.00	0.00	15.00	9376.89	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:37:07	2025-12-24 16:37:07
+1662	7	1	5	INV-25/00278	\N	2025-10-27	\N	\N	121.89	97.31	24.58	1841.88	2566.20	63077.20	72538.78	0.00	0.00	15.00	9461.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:37:17	2025-12-24 16:37:17
+1663	7	1	5	INV-25/00279	\N	2025-10-27	\N	\N	97.31	72.35	24.96	1841.88	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:37:27	2025-12-24 16:37:27
+1664	7	1	5	INV-25/00280	\N	2025-10-27	\N	\N	72.35	47.61	24.74	1841.88	2566.20	63487.79	73010.96	0.00	0.00	15.00	9523.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:37:35	2025-12-24 16:37:35
+1665	7	1	5	INV-25/00281	\N	2025-10-27	\N	\N	47.61	23.36	24.25	1841.88	2566.20	62230.35	71564.90	0.00	0.00	15.00	9334.55	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:37:42	2025-12-24 16:37:42
+1666	7	1	5	INV-25/00282	\N	2025-10-27	\N	\N	23.36	0.00	23.36	1841.88	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:37:49	2025-12-24 16:37:49
+1667	7	1	5	INV-25/00283	\N	2025-10-27	\N	\N	120.40	96.40	24.00	1841.71	2566.20	61588.80	70827.12	0.00	0.00	15.00	9238.32	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:39:37	2025-12-24 16:39:37
+1668	7	1	5	INV-25/00284	\N	2025-10-27	\N	\N	96.40	72.71	23.69	1841.71	2566.20	60793.28	69912.27	0.00	0.00	15.00	9118.99	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:39:44	2025-12-24 16:39:44
+1669	7	1	5	INV-25/00285	\N	2025-10-27	\N	\N	72.71	48.84	23.87	1841.71	2566.20	61255.19	70443.47	0.00	0.00	15.00	9188.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:39:52	2025-12-24 16:39:52
+1670	7	1	5	INV-25/00286	\N	2025-10-27	\N	\N	48.84	24.67	24.17	1841.71	2566.20	62025.05	71328.81	0.00	0.00	15.00	9303.76	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:40:01	2025-12-24 16:40:01
+1671	7	1	5	INV-25/00287	\N	2025-10-27	\N	\N	24.67	0.00	24.67	1841.71	2566.20	63308.15	72804.38	0.00	0.00	15.00	9496.22	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:40:09	2025-12-24 16:40:09
+1672	7	1	5	INV-25/00288	\N	2025-10-28	\N	\N	24.62	0.00	24.62	1841.66	2566.20	63179.84	72656.82	0.00	0.00	15.00	9476.98	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:42:07	2025-12-24 16:42:07
+1673	7	1	5	INV-25/00289	\N	2025-10-29	\N	\N	23.87	0.00	23.87	1841.78	2566.20	61255.19	70443.47	0.00	0.00	15.00	9188.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:43:53	2025-12-24 16:43:53
+1674	7	1	5	INV-25/00290	\N	2025-10-29	\N	\N	74.69	49.91	24.78	1926.43	2566.20	63590.44	73129.00	0.00	0.00	15.00	9538.57	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:45:43	2025-12-24 16:45:43
+1675	7	1	5	INV-25/00291	\N	2025-10-29	\N	\N	49.91	24.95	24.96	1926.43	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:45:50	2025-12-24 16:45:50
+1676	7	1	5	INV-25/00292	\N	2025-10-29	\N	\N	24.95	0.00	24.95	1926.43	2566.20	64026.69	73630.69	0.00	0.00	15.00	9604.00	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:45:58	2025-12-24 16:45:58
+1677	7	1	5	INV-25/00293	\N	2025-10-29	\N	\N	25.02	0.00	25.02	1841.81	2566.20	64206.32	73837.27	0.00	0.00	15.00	9630.95	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:47:43	2025-12-24 16:47:43
+1678	7	1	5	INV-25/00294	\N	2025-10-29	\N	\N	48.64	24.38	24.26	1841.74	2566.20	62256.01	71594.41	0.00	0.00	15.00	9338.40	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:49:12	2025-12-24 16:49:12
+1679	7	1	5	INV-25/00295	\N	2025-10-29	\N	\N	24.38	0.00	24.38	1841.74	2566.20	62563.96	71948.55	0.00	0.00	15.00	9384.59	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:49:21	2025-12-24 16:49:21
+1680	7	1	5	INV-25/00296	\N	2025-10-29	\N	\N	23.72	0.00	23.72	1841.73	2566.20	60870.26	70000.80	0.00	0.00	15.00	9130.54	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:50:45	2025-12-24 16:50:45
+1681	7	1	5	INV-25/00297	\N	2025-10-29	\N	\N	122.74	98.62	24.12	1841.77	2566.20	61896.74	71181.26	0.00	0.00	15.00	9284.51	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:53:04	2025-12-24 16:53:04
+1682	7	1	5	INV-25/00298	\N	2025-10-29	\N	\N	98.62	74.36	24.26	1841.77	2566.20	62256.01	71594.41	0.00	0.00	15.00	9338.40	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:53:12	2025-12-24 16:53:12
+1683	7	1	5	INV-25/00299	\N	2025-10-29	\N	\N	74.36	49.67	24.69	1841.77	2566.20	63359.48	72863.40	0.00	0.00	15.00	9503.92	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:53:19	2025-12-24 16:53:19
+1684	7	1	5	INV-25/00300	\N	2025-10-29	\N	\N	49.67	24.78	24.89	1841.77	2566.20	63872.72	73453.63	0.00	0.00	15.00	9580.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:53:26	2025-12-24 16:53:26
+1685	7	1	5	INV-25/00301	\N	2025-10-29	\N	\N	24.78	0.00	24.78	1841.77	2566.20	63590.44	73129.00	0.00	0.00	15.00	9538.57	\N	\N	\N	\N	2025-12-24 16:53:33	2025-12-24 16:53:33
+1686	7	1	5	INV-25/00302	\N	2025-10-30	\N	\N	49.09	24.22	24.87	1841.86	2566.20	63821.39	73394.60	0.00	0.00	15.00	9573.21	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:56:26	2025-12-24 16:56:26
+1687	7	1	5	INV-25/00303	\N	2025-10-30	\N	\N	24.22	0.00	24.22	1841.86	2566.20	62153.36	71476.37	0.00	0.00	15.00	9323.00	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:56:33	2025-12-24 16:56:33
+1688	7	1	5	INV-25/00304	\N	2025-10-30	\N	\N	48.18	24.08	24.10	1841.93	2566.20	61845.42	71122.23	0.00	0.00	15.00	9276.81	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:58:00	2025-12-24 16:58:00
+1689	7	1	5	INV-25/00305	\N	2025-10-30	\N	\N	24.08	0.00	24.08	1841.93	2566.20	61794.10	71063.21	0.00	0.00	15.00	9269.11	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 16:58:08	2025-12-24 16:58:08
+1690	7	1	5	INV-25/00306	\N	2025-10-31	\N	\N	71.89	48.53	23.36	1841.80	2566.20	59946.43	68938.40	0.00	0.00	15.00	8991.96	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:00:02	2025-12-24 17:00:02
+1691	7	1	5	INV-25/00307	\N	2025-10-31	\N	\N	48.53	24.35	24.18	1841.80	2566.20	62050.72	71358.32	0.00	0.00	15.00	9307.61	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:00:11	2025-12-24 17:00:11
+1692	7	1	5	INV-25/00308	\N	2025-10-31	\N	\N	24.35	0.00	24.35	1841.80	2566.20	62486.97	71860.02	0.00	0.00	15.00	9373.05	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:00:18	2025-12-24 17:00:18
+1693	7	1	5	INV-25/00309	\N	2025-10-31	\N	\N	74.17	49.28	24.89	1841.77	2566.20	63872.72	73453.63	0.00	0.00	15.00	9580.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:02:17	2025-12-24 17:02:17
+1694	7	1	5	INV-25/00310	\N	2025-10-31	\N	\N	49.28	24.32	24.96	1841.77	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:02:25	2025-12-24 17:02:25
+1695	7	1	5	INV-25/00311	\N	2025-10-31	\N	\N	24.32	0.00	24.32	1841.77	2566.20	62409.98	71771.48	0.00	0.00	15.00	9361.50	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:02:32	2025-12-24 17:02:32
+1696	7	1	5	INV-25/00312	\N	2025-10-31	\N	\N	125.24	100.35	24.89	1841.98	2566.20	63872.72	73453.63	0.00	0.00	15.00	9580.91	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:04:13	2025-12-24 17:04:13
+1697	7	1	5	INV-25/00313	\N	2025-10-31	\N	\N	100.35	75.39	24.96	1841.98	2566.20	64052.35	73660.20	0.00	0.00	15.00	9607.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:04:20	2025-12-24 17:04:20
+1698	7	1	5	INV-25/00314	\N	2025-10-31	\N	\N	75.39	50.08	25.31	1841.98	2566.20	64950.52	74693.10	0.00	0.00	15.00	9742.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:04:27	2025-12-24 17:04:27
+1699	7	1	5	INV-25/00315	\N	2025-10-31	\N	\N	50.08	25.06	25.02	1841.98	2566.20	64206.32	73837.27	0.00	0.00	15.00	9630.95	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:04:34	2025-12-24 17:04:34
+1700	7	1	5	INV-25/00316	\N	2025-10-31	\N	\N	25.06	0.00	25.06	1841.98	2566.20	64308.97	73955.32	0.00	0.00	15.00	9646.35	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:04:45	2025-12-24 17:04:45
+1701	7	1	5	INV-25/00317	\N	2025-11-01	\N	\N	144.90	120.65	24.25	1839.03	2680.00	64990.00	69864.25	0.00	0.00	7.50	4874.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:57:19	2025-12-24 17:57:19
+1702	7	1	5	INV-25/00318	\N	2025-11-01	\N	\N	120.65	96.65	24.00	1839.03	2680.00	64320.00	69144.00	0.00	0.00	7.50	4824.00	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:57:24	2025-12-24 17:57:24
+1703	7	1	5	INV-25/00319	\N	2025-11-01	\N	\N	96.65	72.55	24.10	1839.03	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:57:31	2025-12-24 17:57:31
+1704	7	1	5	INV-25/00320	\N	2025-11-01	\N	\N	72.55	48.50	24.05	1839.03	2680.00	64454.00	69288.05	0.00	0.00	7.50	4834.05	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:57:38	2025-12-24 17:57:38
+1705	7	1	5	INV-25/00321	\N	2025-11-01	\N	\N	48.50	24.38	24.12	1839.03	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:57:46	2025-12-24 17:57:46
+1706	7	1	5	INV-25/00322	\N	2025-11-01	\N	\N	24.38	0.00	24.38	1839.03	2680.00	65338.40	70238.78	0.00	0.00	7.50	4900.38	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 17:57:53	2025-12-24 17:57:53
+1707	7	1	5	INV-25/00323	\N	2025-11-01	\N	\N	145.61	121.38	24.23	1839.03	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:00:15	2025-12-24 18:00:15
+1708	7	1	5	INV-25/00324	\N	2025-11-01	\N	\N	121.38	97.13	24.25	1839.03	2680.00	64990.00	69864.25	0.00	0.00	7.50	4874.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:00:22	2025-12-24 18:00:22
+1709	7	1	5	INV-25/00325	\N	2025-11-01	\N	\N	97.13	73.01	24.12	1839.03	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:00:29	2025-12-24 18:00:29
+1710	7	1	5	INV-25/00326	\N	2025-11-01	\N	\N	73.01	48.75	24.26	1839.03	2680.00	65016.80	69893.06	0.00	0.00	7.50	4876.26	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:00:35	2025-12-24 18:00:35
+1711	7	1	5	INV-25/00327	\N	2025-11-01	\N	\N	48.75	24.47	24.28	1839.03	2680.00	65070.40	69950.68	0.00	0.00	7.50	4880.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:00:42	2025-12-24 18:00:42
+1712	7	1	5	INV-25/00328	\N	2025-11-01	\N	\N	24.47	0.00	24.47	1839.03	2680.00	65579.60	70498.07	0.00	0.00	7.50	4918.47	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:00:48	2025-12-24 18:00:48
+1713	7	1	5	INV-25/00329	\N	2025-11-03	\N	\N	121.49	97.29	24.20	1839.15	2680.00	64856.00	69720.20	0.00	0.00	7.50	4864.20	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:02:46	2025-12-24 18:02:46
+1714	7	1	5	INV-25/00330	\N	2025-11-03	\N	\N	97.29	73.66	23.63	1839.15	2680.00	63328.40	68078.03	0.00	0.00	7.50	4749.63	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:02:52	2025-12-24 18:02:52
+1715	7	1	5	INV-25/00331	\N	2025-11-03	\N	\N	73.66	50.52	23.14	1839.15	2680.00	62015.20	66666.34	0.00	0.00	7.50	4651.14	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:03:00	2025-12-24 18:03:00
+1716	7	1	5	INV-25/00332	\N	2025-11-03	\N	\N	50.52	25.11	25.41	1839.15	2680.00	68098.80	73206.21	0.00	0.00	7.50	5107.41	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:03:08	2025-12-24 18:03:08
+1717	7	1	5	INV-25/00333	\N	2025-11-03	\N	\N	25.11	0.00	25.11	1839.15	2680.00	67294.80	72341.91	0.00	0.00	7.50	5047.11	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:03:15	2025-12-24 18:03:15
+1718	7	1	5	INV-25/00334	\N	2025-11-03	\N	\N	73.84	48.99	24.85	1839.04	2680.00	66598.00	71592.85	0.00	0.00	7.50	4994.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:42:42	2025-12-24 18:42:42
+1719	7	1	5	INV-25/00335	\N	2025-11-03	\N	\N	48.99	24.63	24.36	1839.04	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:42:49	2025-12-24 18:42:49
+1720	7	1	5	INV-25/00336	\N	2025-11-03	\N	\N	24.63	0.00	24.63	1839.04	2680.00	66008.40	70959.03	0.00	0.00	7.50	4950.63	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:42:56	2025-12-24 18:42:56
+1721	7	1	5	INV-25/00337	\N	2025-11-03	\N	\N	73.61	49.05	24.56	1839.11	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:44:18	2025-12-24 18:44:18
+1722	7	1	5	INV-25/00338	\N	2025-11-03	\N	\N	49.05	24.18	24.87	1839.11	2680.00	66651.60	71650.47	0.00	0.00	7.50	4998.87	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:44:25	2025-12-24 18:44:25
+1723	7	1	5	INV-25/00339	\N	2025-11-03	\N	\N	24.18	0.00	24.18	1839.11	2680.00	64802.40	69662.58	0.00	0.00	7.50	4860.18	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:44:31	2025-12-24 18:44:31
+1724	7	1	5	INV-25/00340	\N	2025-11-03	\N	\N	24.03	0.00	24.03	1839.05	2680.00	64400.40	69230.43	0.00	0.00	7.50	4830.03	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:46:06	2025-12-24 18:46:06
+1725	7	1	5	INV-25/00341	\N	2025-11-04	\N	\N	25.19	0.00	25.19	1838.95	2680.00	67509.20	72572.39	0.00	0.00	7.50	5063.19	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:48:09	2025-12-24 18:48:09
+1726	7	1	5	INV-25/00342	\N	2025-11-04	\N	\N	218.59	194.23	24.36	1839.24	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:50:36	2025-12-24 18:50:36
+1727	7	1	5	INV-25/00343	\N	2025-11-04	\N	\N	194.23	170.11	24.12	1839.24	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:50:51	2025-12-24 18:50:51
+1728	7	1	5	INV-25/00344	\N	2025-11-04	\N	\N	170.11	145.75	24.36	1839.24	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:50:58	2025-12-24 18:50:58
+1729	7	1	5	INV-25/00345	\N	2025-11-04	\N	\N	145.75	121.58	24.17	1839.24	2680.00	64775.60	69633.77	0.00	0.00	7.50	4858.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:51:05	2025-12-24 18:51:05
+1730	7	1	5	INV-25/00346	\N	2025-11-04	\N	\N	121.58	97.46	24.12	1839.24	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:51:12	2025-12-24 18:51:12
+1731	7	1	5	INV-25/00347	\N	2025-11-04	\N	\N	97.46	72.81	24.65	1839.24	2680.00	66062.00	71016.65	0.00	0.00	7.50	4954.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:51:19	2025-12-24 18:51:19
+1732	7	1	5	INV-25/00348	\N	2025-11-04	\N	\N	72.81	48.71	24.10	1839.24	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:51:27	2025-12-24 18:51:27
+1733	7	1	5	INV-25/00349	\N	2025-11-04	\N	\N	48.71	24.39	24.32	1839.24	2680.00	65177.60	70065.92	0.00	0.00	7.50	4888.32	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:51:35	2025-12-24 18:51:35
+1734	7	1	5	INV-25/00350	\N	2025-11-04	\N	\N	24.39	0.00	24.39	1839.24	2680.00	65365.20	70267.59	0.00	0.00	7.50	4902.39	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:51:41	2025-12-24 18:51:41
+1735	7	1	5	INV-25/00351	\N	2025-11-04	\N	\N	48.69	24.44	24.25	1839.21	2680.00	64990.00	69864.25	0.00	0.00	7.50	4874.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:54:33	2025-12-24 18:54:33
+1736	7	1	5	INV-25/00352	\N	2025-11-04	\N	\N	24.44	0.00	24.44	1839.21	2680.00	65499.20	70411.64	0.00	0.00	7.50	4912.44	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:54:39	2025-12-24 18:54:39
+1737	7	1	5	INV-25/00353	\N	2025-11-05	\N	\N	193.56	169.31	24.25	1839.24	2680.00	64990.00	69864.25	0.00	0.00	7.50	4874.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:56:26	2025-12-24 18:56:26
+1738	7	1	5	INV-25/00354	\N	2025-11-05	\N	\N	169.31	145.05	24.26	1839.24	2680.00	65016.80	69893.06	0.00	0.00	7.50	4876.26	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:56:33	2025-12-24 18:56:33
+1739	7	1	5	INV-25/00355	\N	2025-11-05	\N	\N	145.05	120.69	24.36	1839.24	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:56:40	2025-12-24 18:56:40
+1740	7	1	5	INV-25/00356	\N	2025-11-05	\N	\N	120.69	96.33	24.36	1839.24	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:56:50	2025-12-24 18:56:50
+1741	7	1	5	INV-25/00357	\N	2025-11-05	\N	\N	96.33	71.70	24.63	1839.24	2680.00	66008.40	70959.03	0.00	0.00	7.50	4950.63	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:56:58	2025-12-24 18:56:58
+1742	7	1	5	INV-25/00358	\N	2025-11-05	\N	\N	71.70	47.39	24.31	1839.24	2680.00	65150.80	70037.11	0.00	0.00	7.50	4886.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:57:07	2025-12-24 18:57:07
+1743	7	1	5	INV-25/00359	\N	2025-11-05	\N	\N	47.39	23.65	23.74	1839.24	2680.00	63623.20	68394.94	0.00	0.00	7.50	4771.74	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:57:15	2025-12-24 18:57:15
+1744	7	1	5	INV-25/00360	\N	2025-11-05	\N	\N	23.65	0.00	23.65	1839.24	2680.00	63382.00	68135.65	0.00	0.00	7.50	4753.65	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 18:57:22	2025-12-24 18:57:22
+1745	7	1	5	INV-25/00361	\N	2025-11-05	\N	\N	47.79	24.10	23.69	1838.89	2680.00	63489.20	68250.89	0.00	0.00	7.50	4761.69	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:00:41	2025-12-24 19:00:41
+1746	7	1	5	INV-25/00362	\N	2025-11-05	\N	\N	24.10	0.00	24.10	1838.89	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:00:48	2025-12-24 19:00:48
+1747	7	1	5	INV-25/00363	\N	2025-11-06	\N	\N	74.21	50.06	24.15	1839.23	2680.00	64722.00	69576.15	0.00	0.00	7.50	4854.15	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:02:49	2025-12-24 19:02:49
+1748	7	1	5	INV-25/00364	\N	2025-11-06	\N	\N	50.06	25.50	24.56	1839.23	2680.00	65820.80	70757.36	0.00	0.00	7.50	4936.56	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:02:56	2025-12-24 19:02:56
+1749	7	1	5	INV-25/00365	\N	2025-11-06	\N	\N	25.50	0.00	25.50	1839.23	2680.00	68340.00	73465.50	0.00	0.00	7.50	5125.50	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:03:02	2025-12-24 19:03:02
+1750	7	1	5	INV-25/00366	\N	2025-11-06	\N	\N	123.05	98.69	24.36	1838.98	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:05:57	2025-12-24 19:05:57
+1751	7	1	5	INV-25/00367	\N	2025-11-06	\N	\N	98.69	73.84	24.85	1838.98	2680.00	66598.00	71592.85	0.00	0.00	7.50	4994.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:06:05	2025-12-24 19:06:05
+1752	7	1	5	INV-25/00368	\N	2025-11-06	\N	\N	73.84	49.05	24.79	1838.98	2680.00	66437.20	71419.99	0.00	0.00	7.50	4982.79	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:06:12	2025-12-24 19:06:12
+1753	7	1	5	INV-25/00369	\N	2025-11-06	\N	\N	49.05	24.07	24.98	1838.98	2680.00	66946.40	71967.38	0.00	0.00	7.50	5020.98	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:06:19	2025-12-24 19:06:19
+1754	7	1	5	INV-25/00370	\N	2025-11-06	\N	\N	24.07	0.00	24.07	1838.98	2680.00	64507.60	69345.67	0.00	0.00	7.50	4838.07	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:06:25	2025-12-24 19:06:25
+1755	7	1	5	INV-25/00371	\N	2025-11-06	\N	\N	24.10	0.00	24.10	1839.07	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:07:57	2025-12-24 19:07:57
+1756	7	1	5	INV-25/00372	\N	2025-11-06	\N	\N	24.11	0.00	24.11	1838.94	2680.00	64614.80	69460.91	0.00	0.00	7.50	4846.11	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:09:25	2025-12-24 19:09:25
+1757	7	1	5	INV-25/00373	\N	2025-11-07	\N	\N	161.84	135.15	26.69	1839.01	2680.00	71529.20	76893.89	0.00	0.00	7.50	5364.69	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:10:56	2025-12-24 19:10:56
+1758	7	1	5	INV-25/00374	\N	2025-11-07	\N	\N	135.15	107.52	27.63	1839.01	2680.00	74048.40	79602.03	0.00	0.00	7.50	5553.63	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:11:03	2025-12-24 19:11:03
+1759	7	1	5	INV-25/00375	\N	2025-11-07	\N	\N	107.52	81.16	26.36	1839.01	2680.00	70644.80	75943.16	0.00	0.00	7.50	5298.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:11:10	2025-12-24 19:11:10
+1760	7	1	5	INV-25/00376	\N	2025-11-07	\N	\N	81.16	53.80	27.36	1839.01	2680.00	73324.80	78824.16	0.00	0.00	7.50	5499.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:11:27	2025-12-24 19:11:27
+1761	7	1	5	INV-25/00377	\N	2025-11-07	\N	\N	53.80	26.95	26.85	1839.01	2680.00	71958.00	77354.85	0.00	0.00	7.50	5396.85	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:11:35	2025-12-24 19:11:35
+1762	7	1	5	INV-25/00378	\N	2025-11-07	\N	\N	26.95	0.00	26.95	1839.01	2680.00	72226.00	77642.95	0.00	0.00	7.50	5416.95	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:11:44	2025-12-24 19:11:44
+1763	7	1	5	INV-25/00379	\N	2025-11-07	\N	\N	96.69	72.59	24.10	1839.03	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:13:14	2025-12-24 19:13:14
+1764	7	1	5	INV-25/00380	\N	2025-11-07	\N	\N	72.59	48.53	24.06	1839.03	2680.00	64480.80	69316.86	0.00	0.00	7.50	4836.06	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:13:20	2025-12-24 19:13:20
+1765	7	1	5	INV-25/00381	\N	2025-11-07	\N	\N	48.53	24.30	24.23	1839.03	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:13:27	2025-12-24 19:13:27
+1766	7	1	5	INV-25/00382	\N	2025-11-07	\N	\N	24.30	0.00	24.30	1839.03	2680.00	65124.00	70008.30	0.00	0.00	7.50	4884.30	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:13:33	2025-12-24 19:13:33
+1767	7	1	5	INV-25/00383	\N	2025-11-07	\N	\N	25.03	0.00	25.03	1839.14	2680.00	67080.40	72111.43	0.00	0.00	7.50	5031.03	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:14:57	2025-12-24 19:14:57
+1768	7	1	5	INV-25/00384	\N	2025-11-08	\N	\N	198.57	173.99	24.58	1839.13	2680.00	65874.40	70814.98	0.00	0.00	7.50	4940.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:00	2025-12-24 19:17:00
+1769	7	1	5	INV-25/00385	\N	2025-11-08	\N	\N	173.99	149.63	24.36	1839.13	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:10	2025-12-24 19:17:10
+1770	7	1	5	INV-25/00386	\N	2025-11-08	\N	\N	149.63	125.94	23.69	1839.13	2680.00	63489.20	68250.89	0.00	0.00	7.50	4761.69	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:17	2025-12-24 19:17:17
+1771	7	1	5	INV-25/00387	\N	2025-11-08	\N	\N	125.94	101.36	24.58	1839.13	2680.00	65874.40	70814.98	0.00	0.00	7.50	4940.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:23	2025-12-24 19:17:23
+1772	7	1	5	INV-25/00388	\N	2025-11-08	\N	\N	101.36	77.00	24.36	1839.13	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:31	2025-12-24 19:17:31
+1773	7	1	5	INV-25/00389	\N	2025-11-08	\N	\N	77.00	51.64	25.36	1839.13	2680.00	67964.80	73062.16	0.00	0.00	7.50	5097.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:38	2025-12-24 19:17:38
+1774	7	1	5	INV-25/00390	\N	2025-11-08	\N	\N	51.64	25.78	25.86	1839.13	2680.00	69304.80	74502.66	0.00	0.00	7.50	5197.86	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:45	2025-12-24 19:17:45
+1775	7	1	5	INV-25/00391	\N	2025-11-08	\N	\N	25.78	0.00	25.78	1839.13	2680.00	69090.40	74272.18	0.00	0.00	7.50	5181.78	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:17:54	2025-12-24 19:17:54
+1776	7	1	5	INV-25/00392	\N	2025-11-10	\N	\N	50.56	25.25	25.31	1839.20	2680.00	67830.80	72918.11	0.00	0.00	7.50	5087.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:19:25	2025-12-24 19:19:25
+1777	7	1	5	INV-25/00393	\N	2025-11-10	\N	\N	25.25	0.00	25.25	1839.20	2680.00	67670.00	72745.25	0.00	0.00	7.50	5075.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:19:32	2025-12-24 19:19:32
+1778	7	1	5	INV-25/00394	\N	2025-11-14	\N	\N	193.66	169.43	24.23	1839.13	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:11	2025-12-24 19:21:11
+1779	7	1	5	INV-25/00395	\N	2025-11-14	\N	\N	169.43	145.34	24.09	1839.13	2680.00	64561.20	69403.29	0.00	0.00	7.50	4842.09	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:18	2025-12-24 19:21:18
+1780	7	1	5	INV-25/00396	\N	2025-11-14	\N	\N	145.34	120.03	25.31	1839.13	2680.00	67830.80	72918.11	0.00	0.00	7.50	5087.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:25	2025-12-24 19:21:25
+1781	7	1	5	INV-25/00397	\N	2025-11-14	\N	\N	120.03	95.88	24.15	1839.13	2680.00	64722.00	69576.15	0.00	0.00	7.50	4854.15	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:34	2025-12-24 19:21:34
+1782	7	1	5	INV-25/00398	\N	2025-11-14	\N	\N	95.88	71.71	24.17	1839.13	2680.00	64775.60	69633.77	0.00	0.00	7.50	4858.17	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:43	2025-12-24 19:21:43
+1783	7	1	5	INV-25/00399	\N	2025-11-14	\N	\N	71.71	48.35	23.36	1839.13	2680.00	62604.80	67300.16	0.00	0.00	7.50	4695.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:51	2025-12-24 19:21:51
+1784	7	1	5	INV-25/00400	\N	2025-11-14	\N	\N	48.35	24.03	24.32	1839.13	2680.00	65177.60	70065.92	0.00	0.00	7.50	4888.32	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:21:58	2025-12-24 19:21:58
+1785	7	1	5	INV-25/00401	\N	2025-11-14	\N	\N	24.03	0.00	24.03	1839.13	2680.00	64400.40	69230.43	0.00	0.00	7.50	4830.03	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:22:06	2025-12-24 19:22:06
+1786	7	1	5	INV-25/00402	\N	2025-11-17	\N	\N	72.29	48.17	24.12	1839.11	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:26:49	2025-12-24 19:26:49
+1787	7	1	5	INV-25/00403	\N	2025-11-17	\N	\N	48.17	24.07	24.10	1839.11	2680.00	64588.00	69432.10	0.00	0.00	7.50	4844.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:26:56	2025-12-24 19:26:56
+1788	7	1	5	INV-25/00404	\N	2025-11-17	\N	\N	24.07	0.00	24.07	1839.11	2680.00	64507.60	69345.67	0.00	0.00	7.50	4838.07	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:27:03	2025-12-24 19:27:03
+1789	7	1	5	INV-25/00405	\N	2025-11-17	\N	\N	47.78	24.20	23.58	1838.97	2680.00	63194.40	67933.98	0.00	0.00	7.50	4739.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:30:10	2025-12-24 19:30:10
+1790	7	1	5	INV-25/00406	\N	2025-11-17	\N	\N	24.20	0.00	24.20	1838.97	2680.00	64856.00	69720.20	0.00	0.00	7.50	4864.20	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:30:17	2025-12-24 19:30:17
+1791	7	1	5	INV-25/00407	\N	2025-11-20	\N	\N	96.93	72.81	24.12	1839.23	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:34:11	2025-12-24 19:34:11
+1792	7	1	5	INV-25/00408	\N	2025-11-20	\N	\N	72.81	48.75	24.06	1839.23	2680.00	64480.80	69316.86	0.00	0.00	7.50	4836.06	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:34:19	2025-12-24 19:34:19
+1793	7	1	5	INV-25/00409	\N	2025-11-20	\N	\N	48.75	24.50	24.25	1839.23	2680.00	64990.00	69864.25	0.00	0.00	7.50	4874.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:34:44	2025-12-24 19:34:44
+1794	7	1	5	INV-25/00410	\N	2025-11-20	\N	\N	24.50	0.00	24.50	1839.23	2680.00	65660.00	70584.50	0.00	0.00	7.50	4924.50	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:34:59	2025-12-24 19:34:59
+1795	7	1	5	INV-25/00411	\N	2025-11-20	\N	\N	73.07	48.20	24.87	1839.19	2680.00	66651.60	71650.47	0.00	0.00	7.50	4998.87	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:36:47	2025-12-24 19:36:47
+1796	7	1	5	INV-25/00412	\N	2025-11-20	\N	\N	48.20	24.08	24.12	1839.19	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:36:53	2025-12-24 19:36:53
+1797	7	1	5	INV-25/00413	\N	2025-11-20	\N	\N	24.08	0.00	24.08	1839.19	2680.00	64534.40	69374.48	0.00	0.00	7.50	4840.08	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:37:02	2025-12-24 19:37:02
+1798	7	1	5	INV-25/00414	\N	2025-11-21	\N	\N	96.19	72.07	24.12	1838.96	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:38:37	2025-12-24 19:38:37
+1799	7	1	5	INV-25/00415	\N	2025-11-21	\N	\N	72.07	47.92	24.15	1838.96	2680.00	64722.00	69576.15	0.00	0.00	7.50	4854.15	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:38:44	2025-12-24 19:38:44
+1800	7	1	5	INV-25/00416	\N	2025-11-21	\N	\N	47.92	24.29	23.63	1838.96	2680.00	63328.40	68078.03	0.00	0.00	7.50	4749.63	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:38:50	2025-12-24 19:38:50
+1801	7	1	5	INV-25/00417	\N	2025-11-21	\N	\N	24.29	0.00	24.29	1838.96	2680.00	65097.20	69979.49	0.00	0.00	7.50	4882.29	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:38:56	2025-12-24 19:38:56
+1802	7	1	5	INV-25/00418	\N	2025-11-25	\N	\N	146.15	121.79	24.36	1839.06	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:41:08	2025-12-24 19:41:08
+1803	7	1	5	INV-25/00419	\N	2025-11-25	\N	\N	121.79	97.48	24.31	1839.06	2680.00	65150.80	70037.11	0.00	0.00	7.50	4886.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:41:17	2025-12-24 19:41:17
+1804	7	1	5	INV-25/00420	\N	2025-11-25	\N	\N	97.48	72.90	24.58	1839.06	2680.00	65874.40	70814.98	0.00	0.00	7.50	4940.58	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:41:51	2025-12-24 19:41:51
+1805	7	1	5	INV-25/00421	\N	2025-11-25	\N	\N	72.90	48.67	24.23	1839.06	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:42:43	2025-12-24 19:42:43
+1806	7	1	5	INV-25/00422	\N	2025-11-25	\N	\N	48.67	24.31	24.36	1839.06	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:42:50	2025-12-24 19:42:50
+1807	7	1	5	INV-25/00423	\N	2025-11-25	\N	\N	24.31	0.00	24.31	1839.06	2680.00	65150.80	70037.11	0.00	0.00	7.50	4886.31	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:42:58	2025-12-24 19:42:58
+1808	7	1	5	INV-25/00424	\N	2025-11-25	\N	\N	24.23	0.00	24.23	1839.02	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:46:33	2025-12-24 19:46:33
+1809	7	1	5	INV-25/00425	\N	2025-11-25	\N	\N	48.18	24.06	24.12	1839.03	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:49:59	2025-12-24 19:49:59
+1810	7	1	5	INV-25/00426	\N	2025-11-25	\N	\N	24.06	0.00	24.06	1839.03	2680.00	64480.80	69316.86	0.00	0.00	7.50	4836.06	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:50:07	2025-12-24 19:50:07
+1811	7	1	5	INV-25/00427	\N	2025-11-26	\N	\N	96.90	72.54	24.36	1839.29	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:52:29	2025-12-24 19:52:29
+1812	7	1	5	INV-25/00428	\N	2025-11-26	\N	\N	72.54	48.42	24.12	1839.29	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:52:37	2025-12-24 19:52:37
+1813	7	1	5	INV-25/00429	\N	2025-11-26	\N	\N	48.42	24.30	24.12	1839.29	2680.00	64641.60	69489.72	0.00	0.00	7.50	4848.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:52:44	2025-12-24 19:52:44
+1814	7	1	5	INV-25/00430	\N	2025-11-26	\N	\N	24.30	0.00	24.30	1839.29	2680.00	65124.00	70008.30	0.00	0.00	7.50	4884.30	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:52:52	2025-12-24 19:52:52
+1815	7	1	5	INV-25/00431	\N	2025-11-26	\N	\N	71.83	48.14	23.69	1838.98	2680.00	63489.20	68250.89	0.00	0.00	7.50	4761.69	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:59:04	2025-12-24 19:59:04
+1816	7	1	5	INV-25/00432	\N	2025-11-26	\N	\N	48.14	24.09	24.05	1838.98	2680.00	64454.00	69288.05	0.00	0.00	7.50	4834.05	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:59:11	2025-12-24 19:59:11
+1817	7	1	5	INV-25/00433	\N	2025-11-26	\N	\N	24.09	0.00	24.09	1838.98	2680.00	64561.20	69403.29	0.00	0.00	7.50	4842.09	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 19:59:18	2025-12-24 19:59:18
+1818	7	1	5	INV-25/00434	\N	2025-11-27	\N	\N	143.97	119.61	24.36	1839.19	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:04:13	2025-12-24 20:04:13
+1819	7	1	5	INV-25/00435	\N	2025-11-27	\N	\N	119.61	95.25	24.36	1839.19	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:04:43	2025-12-24 20:04:43
+1820	7	1	5	INV-25/00436	\N	2025-11-27	\N	\N	95.25	70.56	24.69	1839.19	2680.00	66169.20	71131.89	0.00	0.00	7.50	4962.69	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:04:49	2025-12-24 20:04:49
+1821	7	1	5	INV-25/00437	\N	2025-11-27	\N	\N	70.56	47.44	23.12	1839.19	2680.00	61961.60	66608.72	0.00	0.00	7.50	4647.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:04:56	2025-12-24 20:04:56
+1822	7	1	5	INV-25/00438	\N	2025-11-27	\N	\N	47.44	23.21	24.23	1839.19	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:05:04	2025-12-24 20:05:04
+1823	7	1	5	INV-25/00439	\N	2025-11-27	\N	\N	23.21	0.00	23.21	1839.19	2680.00	62202.80	66868.01	0.00	0.00	7.50	4665.21	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:05:11	2025-12-24 20:05:11
+1824	7	1	5	INV-25/00440	\N	2025-11-28	\N	\N	221.24	196.88	24.36	1839.12	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:07:42	2025-12-24 20:07:42
+1825	7	1	5	INV-25/00441	\N	2025-11-28	\N	\N	196.88	171.52	25.36	1839.12	2680.00	67964.80	73062.16	0.00	0.00	7.50	5097.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:07:49	2025-12-24 20:07:49
+1826	7	1	5	INV-25/00442	\N	2025-11-28	\N	\N	171.52	146.40	25.12	1839.12	2680.00	67321.60	72370.72	0.00	0.00	7.50	5049.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:07:55	2025-12-24 20:07:55
+1827	7	1	5	INV-25/00443	\N	2025-11-28	\N	\N	146.40	121.30	25.10	1839.12	2680.00	67268.00	72313.10	0.00	0.00	7.50	5045.10	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:08:02	2025-12-24 20:08:02
+1828	7	1	5	INV-25/00444	\N	2025-11-28	\N	\N	121.30	96.94	24.36	1839.12	2680.00	65284.80	70181.16	0.00	0.00	7.50	4896.36	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:08:09	2025-12-24 20:08:09
+1829	7	1	5	INV-25/00445	\N	2025-11-28	\N	\N	96.94	72.69	24.25	1839.12	2680.00	64990.00	69864.25	0.00	0.00	7.50	4874.25	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:08:15	2025-12-24 20:08:15
+1830	7	1	5	INV-25/00446	\N	2025-11-28	\N	\N	72.69	48.51	24.18	1839.12	2680.00	64802.40	69662.58	0.00	0.00	7.50	4860.18	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:08:25	2025-12-24 20:08:25
+1831	7	1	5	INV-25/00447	\N	2025-11-28	\N	\N	48.51	24.28	24.23	1839.12	2680.00	64936.40	69806.63	0.00	0.00	7.50	4870.23	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:08:36	2025-12-24 20:08:36
+1832	7	1	5	INV-25/00448	\N	2025-11-28	\N	\N	24.28	0.00	24.28	1839.12	2680.00	65070.40	69950.68	0.00	0.00	7.50	4880.28	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:08:51	2025-12-24 20:08:51
+1833	7	1	5	INV-25/00449	\N	2025-11-29	\N	\N	46.79	23.67	23.12	1856.83	2680.00	61961.60	66608.72	0.00	0.00	7.50	4647.12	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:12:53	2025-12-24 20:12:53
+1834	7	1	5	INV-25/00450	\N	2025-11-29	\N	\N	23.67	0.00	23.67	1856.83	2680.00	63435.60	68193.27	0.00	0.00	7.50	4757.67	01738700900	KUKON	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-24 20:13:02	2025-12-24 20:13:02
+1972	12	1	5	INV-25/00001	\N	2025-09-02	\N	\N	306.28	281.59	24.69	1843.24	2475.00	61107.75	70273.91	0.00	0.00	15.00	9166.16	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:19:37	2025-12-30 16:19:37
+1973	12	1	5	INV-25/00002	\N	2025-09-02	\N	\N	281.59	256.72	24.87	1843.24	2475.00	61553.25	70786.24	0.00	0.00	15.00	9232.99	\N	SORIF ENT	\N	\N	2025-12-30 16:19:47	2025-12-30 16:19:47
+1974	12	1	5	INV-25/00003	\N	2025-09-02	\N	\N	256.72	231.94	24.78	1843.24	2475.00	61330.50	70530.08	0.00	0.00	15.00	9199.58	\N	SORIF ENT	\N	\N	2025-12-30 16:19:56	2025-12-30 16:19:56
+1975	12	1	5	INV-25/00004	\N	2025-09-02	\N	\N	231.94	207.05	24.89	1843.24	2475.00	61602.75	70843.16	0.00	0.00	15.00	9240.41	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:20:06	2025-12-30 16:20:06
+1976	12	1	5	INV-25/00005	\N	2025-09-02	\N	\N	207.05	182.04	25.01	1843.24	2475.00	61899.75	71184.71	0.00	0.00	15.00	9284.96	\N	SORIF ENT	\N	\N	2025-12-30 16:20:14	2025-12-30 16:20:14
+1977	12	1	5	INV-25/00006	\N	2025-09-02	\N	\N	182.04	156.72	25.32	1843.24	2475.00	62667.00	72067.05	0.00	0.00	15.00	9400.05	\N	SORIF ENT	\N	\N	2025-12-30 16:20:22	2025-12-30 16:20:22
+1978	12	1	5	INV-25/00007	\N	2025-09-02	\N	\N	156.72	131.41	25.31	1843.24	2475.00	62642.25	72038.59	0.00	0.00	15.00	9396.34	\N	SORIF ENT	\N	\N	2025-12-30 16:20:30	2025-12-30 16:20:30
+1979	12	1	5	INV-25/00008	\N	2025-09-02	\N	\N	131.41	106.27	25.14	1843.24	2475.00	62221.50	71554.73	0.00	0.00	15.00	9333.23	\N	SORIF ENT	\N	\N	2025-12-30 16:20:39	2025-12-30 16:20:39
+1980	12	1	5	INV-25/00009	\N	2025-09-02	\N	\N	106.27	79.29	26.98	1843.24	2475.00	66775.50	76791.83	0.00	0.00	15.00	10016.33	\N	SORIF ENT	\N	\N	2025-12-30 16:20:50	2025-12-30 16:20:50
+1981	12	1	5	INV-25/00010	\N	2025-09-02	\N	\N	79.29	51.84	27.45	1843.24	2475.00	67938.75	78129.56	0.00	0.00	15.00	10190.81	\N	SORIF ENT	\N	\N	2025-12-30 16:21:00	2025-12-30 16:21:00
+1982	12	1	5	INV-25/00011	\N	2025-09-02	\N	\N	51.84	25.48	26.36	1843.24	2475.00	65241.00	75027.15	0.00	0.00	15.00	9786.15	\N	SORIF ENT	\N	\N	2025-12-30 16:21:10	2025-12-30 16:21:10
+1983	12	1	5	INV-25/00012	\N	2025-09-02	\N	\N	25.48	0.00	25.48	1843.24	2475.00	63063.00	72522.45	0.00	0.00	15.00	9459.45	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:21:18	2025-12-30 16:21:18
+1984	12	1	5	INV-25/00013	\N	2025-09-08	\N	\N	286.20	261.88	24.32	1843.23	2475.00	60192.00	69220.80	0.00	0.00	15.00	9028.80	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:23:04	2025-12-30 16:23:04
+1985	12	1	5	INV-25/00014	\N	2025-09-08	\N	\N	261.88	237.57	24.31	1843.23	2475.00	60167.25	69192.34	0.00	0.00	15.00	9025.09	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:23:15	2025-12-30 16:23:15
+1986	12	1	5	INV-25/00015	\N	2025-09-08	\N	\N	237.57	212.83	24.74	1843.23	2475.00	61231.50	70416.23	0.00	0.00	15.00	9184.73	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:23:24	2025-12-30 16:23:24
+1987	12	1	5	INV-25/00016	\N	2025-09-08	\N	\N	212.83	188.71	24.12	1843.23	2475.00	59697.00	68651.55	0.00	0.00	15.00	8954.55	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:23:33	2025-12-30 16:23:33
+1988	12	1	5	INV-25/00017	\N	2025-09-08	\N	\N	188.71	164.50	24.21	1843.23	2475.00	59919.75	68907.71	0.00	0.00	15.00	8987.96	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:23:43	2025-12-30 16:23:43
+1989	12	1	5	INV-25/00018	\N	2025-09-08	\N	\N	164.50	140.38	24.12	1843.23	2475.00	59697.00	68651.55	0.00	0.00	15.00	8954.55	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:23:54	2025-12-30 16:23:54
+1990	12	1	5	INV-25/00019	\N	2025-09-08	\N	\N	140.38	116.36	24.02	1843.23	2475.00	59449.50	68366.93	0.00	0.00	15.00	8917.43	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:24:07	2025-12-30 16:24:07
+1991	12	1	5	INV-25/00020	\N	2025-09-08	\N	\N	116.36	93.15	23.21	1843.23	2475.00	57444.75	66061.46	0.00	0.00	15.00	8616.71	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:24:24	2025-12-30 16:24:24
+1992	12	1	5	INV-25/00021	\N	2025-09-08	\N	\N	93.15	70.84	22.31	1843.23	2475.00	55217.25	63499.84	0.00	0.00	15.00	8282.59	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:24:32	2025-12-30 16:24:32
+1993	12	1	5	INV-25/00022	\N	2025-09-08	\N	\N	70.84	48.53	22.31	1843.23	2475.00	55217.25	63499.84	0.00	0.00	15.00	8282.59	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:24:41	2025-12-30 16:24:41
+1994	12	1	5	INV-25/00023	\N	2025-09-08	\N	\N	48.53	24.41	24.12	1843.23	2475.00	59697.00	68651.55	0.00	0.00	15.00	8954.55	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:24:50	2025-12-30 16:24:50
+1995	12	1	5	INV-25/00024	\N	2025-09-08	\N	\N	24.41	0.00	24.41	1843.23	2475.00	60414.75	69476.96	0.00	0.00	15.00	9062.21	\N	SORIF ENT	\N	\N	2025-12-30 16:24:59	2025-12-30 16:24:59
+1996	12	1	5	INV-25/00025	\N	2025-09-10	\N	\N	165.58	141.26	24.32	1843.16	2475.00	60192.00	69220.80	0.00	0.00	15.00	9028.80	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:32:22	2025-12-30 16:32:22
+1997	12	1	5	INV-25/00026	\N	2025-09-10	\N	\N	141.26	117.14	24.12	1843.16	2475.00	59697.00	68651.55	0.00	0.00	15.00	8954.55	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:32:56	2025-12-30 16:32:56
+1998	12	1	5	INV-25/00027	\N	2025-09-10	\N	\N	117.14	93.14	24.00	1843.16	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:33:07	2025-12-30 16:33:07
+1999	12	1	5	INV-25/00028	\N	2025-09-10	\N	\N	93.14	68.82	24.32	1843.16	2475.00	60192.00	69220.80	0.00	0.00	15.00	9028.80	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:33:18	2025-12-30 16:33:18
+2000	12	1	5	INV-25/00029	\N	2025-09-10	\N	\N	68.82	46.82	22.00	1843.16	2475.00	54450.00	62617.50	0.00	0.00	15.00	8167.50	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:33:22	2025-12-30 16:33:22
+2001	12	1	5	INV-25/00030	\N	2025-09-10	\N	\N	46.82	23.61	23.21	1843.16	2475.00	57444.75	66061.46	0.00	0.00	15.00	8616.71	\N	SORIF ENT	\N	\N	2025-12-30 16:33:29	2025-12-30 16:33:29
+2002	12	1	5	INV-25/00031	\N	2025-09-10	\N	\N	23.61	0.00	23.61	1843.16	2475.00	58434.75	67199.96	0.00	0.00	15.00	8765.21	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:33:38	2025-12-30 16:33:38
+2003	12	1	5	INV-25/00032	\N	2025-09-11	\N	\N	188.72	164.60	24.12	1843.03	2475.00	59697.00	68651.55	0.00	0.00	15.00	8954.55	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:34:36	2025-12-30 16:34:36
+2004	12	1	5	INV-25/00033	\N	2025-09-11	\N	\N	164.60	140.48	24.12	1843.03	2475.00	59697.00	68651.55	0.00	0.00	15.00	8954.55	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:34:44	2025-12-30 16:34:44
+2005	12	1	5	INV-25/00034	\N	2025-09-11	\N	\N	140.48	116.48	24.00	1843.03	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:34:44	2025-12-30 16:34:44
+2006	12	1	5	INV-25/00035	\N	2025-09-11	\N	\N	116.48	94.36	22.12	1843.03	2475.00	54747.00	62959.05	0.00	0.00	15.00	8212.05	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:34:53	2025-12-30 16:34:53
+2007	12	1	5	INV-25/00036	\N	2025-09-11	\N	\N	94.36	71.36	23.00	1843.03	2475.00	56925.00	65463.75	0.00	0.00	15.00	8538.75	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:35:02	2025-12-30 16:35:02
+2008	12	1	5	INV-25/00037	\N	2025-09-11	\N	\N	71.36	49.24	22.12	1843.03	2475.00	54747.00	62959.05	0.00	0.00	15.00	8212.05	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:35:05	2025-12-30 16:35:05
+2009	12	1	5	INV-25/00038	\N	2025-09-11	\N	\N	49.24	24.74	24.50	1843.03	2475.00	60637.50	69733.13	0.00	0.00	15.00	9095.63	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:35:16	2025-12-30 16:35:16
+2010	12	1	5	INV-25/00039	\N	2025-09-11	\N	\N	24.74	0.00	24.74	1843.03	2475.00	61231.50	70416.23	0.00	0.00	15.00	9184.73	\N	SORIF ENT	\N	\N	2025-12-30 16:35:26	2025-12-30 16:35:26
+2011	12	1	5	INV-25/00040	\N	2025-09-11	\N	\N	142.35	120.03	22.32	1843.04	2475.00	55242.00	63528.30	0.00	0.00	15.00	8286.30	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:36:39	2025-12-30 16:36:39
+2012	12	1	5	INV-25/00041	\N	2025-09-11	\N	\N	120.03	95.05	24.98	1843.04	2475.00	61825.50	71099.33	0.00	0.00	15.00	9273.83	\N	SORIF ENT	\N	\N	2025-12-30 16:36:49	2025-12-30 16:36:49
+2013	12	1	5	INV-25/00042	\N	2025-09-11	\N	\N	95.05	71.05	24.00	1843.04	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:36:51	2025-12-30 16:36:51
+2014	12	1	5	INV-25/00043	\N	2025-09-11	\N	\N	71.05	47.69	23.36	1843.04	2475.00	57816.00	66488.40	0.00	0.00	15.00	8672.40	\N	SORIF ENT	\N	\N	2025-12-30 16:36:59	2025-12-30 16:36:59
+2015	12	1	5	INV-25/00044	\N	2025-09-11	\N	\N	47.69	23.69	24.00	1843.04	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	\N	2025-12-30 16:37:01	2025-12-30 16:37:01
+2016	12	1	5	INV-25/00045	\N	2025-09-11	\N	\N	23.69	0.00	23.69	1843.04	2475.00	58632.75	67427.66	0.00	0.00	15.00	8794.91	\N	SORIF ENT	\N	\N	2025-12-30 16:37:12	2025-12-30 16:37:12
+2017	12	1	5	INV-25/00046	\N	2025-09-12	\N	\N	208.71	184.71	24.00	1843.11	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:38:32	2025-12-30 16:38:32
+2018	12	1	5	INV-25/00047	\N	2025-09-12	\N	\N	184.71	159.59	25.12	1843.11	2475.00	62172.00	71497.80	0.00	0.00	15.00	9325.80	\N	SORIF ENT	\N	\N	2025-12-30 16:38:42	2025-12-30 16:38:42
+2019	12	1	5	INV-25/00048	\N	2025-09-12	\N	\N	159.59	135.59	24.00	1843.11	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:38:46	2025-12-30 16:38:46
+2020	12	1	5	INV-25/00049	\N	2025-09-12	\N	\N	135.59	110.58	25.01	1843.11	2475.00	61899.75	71184.71	0.00	0.00	15.00	9284.96	\N	SORIF ENT	\N	\N	2025-12-30 16:38:52	2025-12-30 16:38:52
+2021	12	1	5	INV-25/00050	\N	2025-09-12	\N	\N	110.58	87.58	23.00	1843.11	2475.00	56925.00	65463.75	0.00	0.00	15.00	8538.75	\N	SORIF ENT	\N	\N	2025-12-30 16:39:03	2025-12-30 16:39:03
+2022	12	1	5	INV-25/00051	\N	2025-09-12	\N	\N	87.58	58.08	29.50	1843.11	2475.00	73012.50	83964.38	0.00	0.00	15.00	10951.88	\N	SORIF ENT	\N	\N	2025-12-30 16:40:13	2025-12-30 16:40:13
+2023	12	1	5	INV-25/00052	\N	2025-09-12	\N	\N	58.08	29.08	29.00	1843.11	2475.00	71775.00	82541.25	0.00	0.00	15.00	10766.25	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:40:25	2025-12-30 16:40:25
+2024	12	1	5	INV-25/00053	\N	2025-09-12	\N	\N	29.08	0.00	29.08	1843.11	2475.00	71973.00	82768.95	0.00	0.00	15.00	10795.95	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:40:39	2025-12-30 16:40:39
+2025	12	1	5	INV-25/00054	\N	2025-09-22	\N	\N	144.49	120.30	24.19	1843.34	2475.00	59870.25	68850.79	0.00	0.00	15.00	8980.54	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:42:09	2025-12-30 16:42:09
+2026	12	1	5	INV-25/00055	\N	2025-09-22	\N	\N	120.30	96.30	24.00	1843.34	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:42:24	2025-12-30 16:42:24
+2027	12	1	5	INV-25/00056	\N	2025-09-22	\N	\N	96.30	71.94	24.36	1843.34	2475.00	60291.00	69334.65	0.00	0.00	15.00	9043.65	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:42:37	2025-12-30 16:42:37
+2028	12	1	5	INV-25/00057	\N	2025-09-22	\N	\N	71.94	47.76	24.18	1843.34	2475.00	59845.50	68822.33	0.00	0.00	15.00	8976.83	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:42:50	2025-12-30 16:42:50
+2029	12	1	5	INV-25/00058	\N	2025-09-22	\N	\N	47.76	23.18	24.58	1843.34	2475.00	60835.50	69960.83	0.00	0.00	15.00	9125.33	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:43:02	2025-12-30 16:43:02
+2030	12	1	5	INV-25/00059	\N	2025-09-22	\N	\N	23.18	0.00	23.18	1843.34	2475.00	57370.50	65976.08	0.00	0.00	15.00	8605.58	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:43:16	2025-12-30 16:43:16
+2031	12	1	5	INV-25/00060	\N	2025-09-23	\N	\N	260.73	235.61	25.12	1843.19	2475.00	62172.00	71497.80	0.00	0.00	15.00	9325.80	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:43:55	2025-12-30 16:43:55
+2032	12	1	5	INV-25/00061	\N	2025-09-23	\N	\N	235.61	209.80	25.81	1843.19	2475.00	63879.75	73461.71	0.00	0.00	15.00	9581.96	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:44:01	2025-12-30 16:44:01
+2033	12	1	5	INV-25/00062	\N	2025-09-23	\N	\N	209.80	184.33	25.47	1843.19	2475.00	63038.25	72493.99	0.00	0.00	15.00	9455.74	\N	SORIF ENT	\N	\N	2025-12-30 16:44:03	2025-12-30 16:44:03
+2034	12	1	5	INV-25/00063	\N	2025-09-23	\N	\N	184.33	158.55	25.78	1843.19	2475.00	63805.50	73376.33	0.00	0.00	15.00	9570.83	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:44:13	2025-12-30 16:44:13
+2035	12	1	5	INV-25/00064	\N	2025-09-23	\N	\N	158.55	133.14	25.41	1843.19	2475.00	62889.75	72323.21	0.00	0.00	15.00	9433.46	\N	SORIF ENT	\N	\N	2025-12-30 16:44:14	2025-12-30 16:44:14
+2036	12	1	5	INV-25/00065	\N	2025-09-23	\N	\N	133.14	106.27	26.87	1843.19	2475.00	66503.25	76478.74	0.00	0.00	15.00	9975.49	\N	SORIF ENT	\N	\N	2025-12-30 16:44:21	2025-12-30 16:44:21
+2037	12	1	5	INV-25/00066	\N	2025-09-23	\N	\N	106.27	78.71	27.56	1843.19	2475.00	68211.00	78442.65	0.00	0.00	15.00	10231.65	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:44:34	2025-12-30 16:44:34
+2038	12	1	5	INV-25/00067	\N	2025-09-23	\N	\N	78.71	51.15	27.56	1843.19	2475.00	68211.00	78442.65	0.00	0.00	15.00	10231.65	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:44:49	2025-12-30 16:44:49
+2039	12	1	5	INV-25/00068	\N	2025-09-23	\N	\N	51.15	25.26	25.89	1843.19	2475.00	64077.75	73689.41	0.00	0.00	15.00	9611.66	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:45:05	2025-12-30 16:45:05
+2040	12	1	5	INV-25/00069	\N	2025-09-23	\N	\N	25.26	0.00	25.26	1843.19	2475.00	62518.50	71896.28	0.00	0.00	15.00	9377.78	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:45:18	2025-12-30 16:45:18
+2041	12	1	5	INV-25/00070	\N	2025-09-24	\N	\N	163.07	135.48	27.59	1843.29	2475.00	68285.25	78528.04	0.00	0.00	15.00	10242.79	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:46:49	2025-12-30 16:46:49
+2042	12	1	5	INV-25/00071	\N	2025-09-24	\N	\N	135.48	108.23	27.25	1843.29	2475.00	67443.75	77560.31	0.00	0.00	15.00	10116.56	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:47:09	2025-12-30 16:47:09
+2043	12	1	5	INV-25/00072	\N	2025-09-24	\N	\N	108.23	82.23	26.00	1843.29	2475.00	64350.00	74002.50	0.00	0.00	15.00	9652.50	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:47:23	2025-12-30 16:47:23
+2044	12	1	5	INV-25/00073	\N	2025-09-24	\N	\N	82.23	54.64	27.59	1843.29	2475.00	68285.25	78528.04	0.00	0.00	15.00	10242.79	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:47:50	2025-12-30 16:47:50
+2045	12	1	5	INV-25/00074	\N	2025-09-24	\N	\N	54.64	27.05	27.59	1843.29	2475.00	68285.25	78528.04	0.00	0.00	15.00	10242.79	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:48:03	2025-12-30 16:48:03
+2046	12	1	5	INV-25/00075	\N	2025-09-24	\N	\N	27.05	0.00	27.05	1843.29	2475.00	66948.75	76991.06	0.00	0.00	15.00	10042.31	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:48:21	2025-12-30 16:48:21
+2047	12	1	5	INV-25/00076	\N	2025-09-25	\N	\N	138.76	114.76	24.00	1843.08	2475.00	59400.00	68310.00	0.00	0.00	15.00	8910.00	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:50:08	2025-12-30 16:50:08
+2048	12	1	5	INV-25/00077	\N	2025-09-25	\N	\N	114.76	91.18	23.58	1843.08	2475.00	58360.50	67114.58	0.00	0.00	15.00	8754.08	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:50:38	2025-12-30 16:50:38
+2049	12	1	5	INV-25/00078	\N	2025-09-25	\N	\N	91.18	67.29	23.89	1843.08	2475.00	59127.75	67996.91	0.00	0.00	15.00	8869.16	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:50:53	2025-12-30 16:50:53
+2050	12	1	5	INV-25/00079	\N	2025-09-25	\N	\N	67.29	44.19	23.10	1843.08	2475.00	57172.50	65748.38	0.00	0.00	15.00	8575.88	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:51:22	2025-12-30 16:51:22
+2051	12	1	5	INV-25/00080	\N	2025-09-25	\N	\N	44.19	22.11	22.08	1843.08	2475.00	54648.00	62845.20	0.00	0.00	15.00	8197.20	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:51:51	2025-12-30 16:51:51
+2052	12	1	5	INV-25/00081	\N	2025-09-25	\N	\N	22.11	0.00	22.11	1843.08	2475.00	54722.25	62930.59	0.00	0.00	15.00	8208.34	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:52:04	2025-12-30 16:52:04
+2053	12	1	5	INV-25/00082	\N	2025-09-27	\N	\N	380.36	355.78	24.58	1843.18	2475.00	60835.50	69960.83	0.00	0.00	15.00	9125.33	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:52:48	2025-12-30 16:52:48
+2054	12	1	5	INV-25/00083	\N	2025-09-27	\N	\N	355.78	330.09	25.69	1843.18	2475.00	63582.75	73120.16	0.00	0.00	15.00	9537.41	\N	SORIF ENT	\N	\N	2025-12-30 16:53:00	2025-12-30 16:53:00
+2055	12	1	5	INV-25/00084	\N	2025-09-27	\N	\N	330.09	304.64	25.45	1843.18	2475.00	62988.75	72437.06	0.00	0.00	15.00	9448.31	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:53:03	2025-12-30 16:53:03
+2056	12	1	5	INV-25/00085	\N	2025-09-27	\N	\N	304.64	278.95	25.69	1843.18	2475.00	63582.75	73120.16	0.00	0.00	15.00	9537.41	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:53:08	2025-12-30 16:53:08
+2057	12	1	5	INV-25/00086	\N	2025-09-27	\N	\N	278.95	253.17	25.78	1843.18	2475.00	63805.50	73376.33	0.00	0.00	15.00	9570.83	\N	SORIF ENT	\N	\N	2025-12-30 16:53:17	2025-12-30 16:53:17
+2058	12	1	5	INV-25/00087	\N	2025-09-27	\N	\N	253.17	228.28	24.89	1843.18	2475.00	61602.75	70843.16	0.00	0.00	15.00	9240.41	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:53:17	2025-12-30 16:53:17
+2059	12	1	5	INV-25/00088	\N	2025-09-27	\N	\N	228.28	201.59	26.69	1843.18	2475.00	66057.75	75966.41	0.00	0.00	15.00	9908.66	\N	SORIF ENT	\N	\N	2025-12-30 16:53:25	2025-12-30 16:53:25
+2060	12	1	5	INV-25/00089	\N	2025-09-27	\N	\N	201.59	176.09	25.50	1843.18	2475.00	63112.50	72579.38	0.00	0.00	15.00	9466.88	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:53:32	2025-12-30 16:53:32
+2061	12	1	5	INV-25/00090	\N	2025-09-27	\N	\N	176.09	150.97	25.12	1843.18	2475.00	62172.00	71497.80	0.00	0.00	15.00	9325.80	\N	SORIF ENT	\N	\N	2025-12-30 16:53:37	2025-12-30 16:53:37
+2062	12	1	5	INV-25/00091	\N	2025-09-27	\N	\N	150.97	125.22	25.75	1843.18	2475.00	63731.25	73290.94	0.00	0.00	15.00	9559.69	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:53:44	2025-12-30 16:53:44
+2063	12	1	5	INV-25/00092	\N	2025-09-27	\N	\N	125.22	100.19	25.03	1843.18	2475.00	61949.25	71241.64	0.00	0.00	15.00	9292.39	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:53:45	2025-12-30 16:53:45
+2064	12	1	5	INV-25/00093	\N	2025-09-27	\N	\N	100.19	75.05	25.14	1843.18	2475.00	62221.50	71554.73	0.00	0.00	15.00	9333.23	\N	SORIF ENT	\N	SHEOLA, BEANIBAZAR, SYLHET	2025-12-30 16:53:54	2025-12-30 16:53:54
+2065	12	1	5	INV-25/00094	\N	2025-09-27	\N	\N	75.05	49.62	25.43	1843.18	2475.00	62939.25	72380.14	0.00	0.00	15.00	9440.89	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:53:55	2025-12-30 16:53:55
+2066	12	1	5	INV-25/00095	\N	2025-09-27	\N	\N	49.62	25.04	24.58	1843.18	2475.00	60835.50	69960.83	0.00	0.00	15.00	9125.33	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:54:07	2025-12-30 16:54:07
+2067	12	1	5	INV-25/00096	\N	2025-09-27	\N	\N	25.04	0.00	25.04	1843.18	2475.00	61974.00	71270.10	0.00	0.00	15.00	9296.10	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:54:20	2025-12-30 16:54:20
+2068	12	1	5	INV-25/00097	\N	2025-09-27	\N	\N	95.37	70.79	24.58	1843.20	2475.00	60835.50	69960.83	0.00	0.00	15.00	9125.33	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:55:12	2025-12-30 16:55:12
+2069	12	1	5	INV-25/00098	\N	2025-09-27	\N	\N	70.79	47.29	23.50	1843.20	2475.00	58162.50	66886.88	0.00	0.00	15.00	8724.38	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:55:26	2025-12-30 16:55:26
+2070	12	1	5	INV-25/00099	\N	2025-09-27	\N	\N	47.29	24.17	23.12	1843.20	2475.00	57222.00	65805.30	0.00	0.00	15.00	8583.30	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:55:40	2025-12-30 16:55:40
+2071	12	1	5	INV-25/00100	\N	2025-09-27	\N	\N	24.17	0.00	24.17	1843.20	2475.00	59820.75	68793.86	0.00	0.00	15.00	8973.11	\N	SORIF ENT	\N	SHEWLA, BEANIBAZAR	2025-12-30 16:55:53	2025-12-30 16:55:53
+\.
+
+
+--
+-- TOC entry 3933 (class 0 OID 17342)
+-- Dependencies: 273
+-- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.sessions (id, user_id, ip_address, user_agent, payload, last_activity) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3934 (class 0 OID 17347)
+-- Dependencies: 274
+-- Data for Name: stationcodes; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.stationcodes (id, code, created_at, updated_at) FROM stdin;
+1	402	2025-12-03 06:17:28	\N
+2	407	2025-12-03 06:17:28	\N
+3	408	2025-12-03 06:17:28	\N
+4	427	2025-12-03 06:17:28	\N
+5	428	2025-12-03 06:17:28	\N
+6	429	2025-12-03 06:17:28	\N
+7	430	2025-12-03 06:17:28	\N
+8	423	2025-12-03 06:17:28	\N
+9	603	2025-12-03 06:17:28	\N
+10	405	2025-12-03 06:17:28	\N
+11	412	2025-12-03 06:17:28	\N
+12	301	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3936 (class 0 OID 17351)
+-- Dependencies: 276
+-- Data for Name: treasuries; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.treasuries (id, client_id, branch_id, tax_period, challan_no, amount, remarks, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3938 (class 0 OID 17355)
+-- Dependencies: 278
+-- Data for Name: units; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.units (id, name, created_at, updated_at) FROM stdin;
+1	Packet	2025-12-03 06:17:28	\N
+2	Cartoon	2025-12-03 06:17:28	\N
+3	CFT	2025-12-03 06:17:28	\N
+4	KG	2025-12-03 06:17:28	\N
+5	MT	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3940 (class 0 OID 17359)
+-- Dependencies: 280
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.users (id, name, email, password, forget_password, mobile, status, role_id, remember_token, created_at, updated_at) FROM stdin;
+1	superadmin	niyamulahsan@mail.com	$2y$12$4IBXU/gZJGG69ElFLytb7OueK2Tz4lwyU1kFSZu4eA8K.ueyaTUU6	\N	+8801711061131	1	1		2025-12-03 06:17:27	\N
+4	TAPAN PAUL CHOWDHURY	tapan1972bt@gmail.com	$2y$12$VyyibB2EnPkZW3f1vlXB.ejUJ/AUcxxgE91THYF0562axa/N1YW5e	2090	01700502090	1	3	GSITTzheuR4wduicYt1ze144tugg9caq0u2sJ7E67onjkzyXwZ1PFToPGdz4	2025-12-08 08:04:22	2025-12-08 16:27:11
+5	TAHRIM MUSTAQUE	tahrim.mustaque@gmail.com	$2y$12$BN6xpb12rvmc73rCHvCUAOXUUAOU2E.SHVa2CenxZptsH4VCcdbPm	7069	01707367069	1	3	c4MtM7VNQ4znAFJHKBUWjw99H62RzoHgqlvtC75zTEgRptO8Anq2MTyTFNgS	2025-12-09 03:44:50	2025-12-09 03:44:50
+6	Md. Rabiul Islam	robiulbdsyl@gmail.com	$2y$12$7lsUVTuXI9DkE8Vff8Uwru2Fu6op9eBaSLXtX3C25IBEZW1PL9VTy	0772	01713940772	1	3	wN5SfnF6CBdvqjcSHWoUgB0HHKDbMJ3u27BW1TNQrQhf3lUyJ1eJUIE9EtYU	2025-12-10 02:11:33	2025-12-10 02:11:33
+7	MD SHAHIDUL ISLAM (KHOKUN)	importershahid@gmail.com	$2y$12$9yf1GvTJRofqwRiY7PPdSOU3Wi2vcS3DdoSF/kDi.wZf.XmTYlUwi	9443	01711209443	1	3	\N	2025-12-10 05:44:50	2025-12-10 05:44:50
+8	Satish Chandra Das	srijanisyl@gmail.com	$2y$12$YZ5ikXWhATeUZ3seaXRikuRQBVBqFod8eEdHd5RtoZlzlhqC1d0Ze	7548	01711967548	1	3	Q7mGG3xzL1lOKmmCbF1QVtXJjHLKhdDlqDUiMMtfHWaZZ3IXnLLh97az6lyO	2025-12-12 05:34:56	2025-12-12 05:34:56
+3	Probash Paul	probashpal420@gmail.com	$2y$12$idIc6zud0.fODKGuXdZezuKoWW8WThFcQ/VOUwf3CNdrGEtXSjJAO	6801	01864976801	1	3	f5R5F3hTYunTPCyvUmbUbLXGNL6tsTFm7KrMwpCqSzuzMcXrW47x0xctbz94	2025-12-07 18:51:21	2025-12-07 18:51:21
+2	admin	vatmatebd@gmail.com	$2y$12$VR33XXacoNROKD7G8kOCT.he797EjL9u9/VIfuCE2WBac.9VXuyMK	123@sylhet	+8801719950891	1	2	vTKGR9k2JSD9nhhU3TnucXUnGhtLsxGghS0hhdXGaDd5UTCmg2ke2C6SwfaB	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3942 (class 0 OID 17367)
+-- Dependencies: 282
+-- Data for Name: vatfactors; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.vatfactors (id, name, value, description, created_at, updated_at) FROM stdin;
+1	vatfact	7.50	Check for 4.3 over or less 7.5%	2025-12-03 06:17:28	\N
+2	sale_limit	100000.00	For invoice check over 100000	2025-12-03 06:17:28	\N
+3	atfact	7.50	At is now set 7.5% from july 2025	2025-12-03 06:17:28	\N
+4	month_gap	7.00	Check over 6 BoE month tax period	2025-12-03 06:17:28	\N
+\.
+
+
+--
+-- TOC entry 3990 (class 0 OID 0)
+-- Dependencies: 285
+-- Name: activities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.activities_id_seq', 1, false);
+
+
+--
+-- TOC entry 3991 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: additions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.additions_id_seq', 41, true);
+
+
+--
+-- TOC entry 3992 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: adjustments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.adjustments_id_seq', 46, true);
+
+
+--
+-- TOC entry 3993 (class 0 OID 0)
+-- Dependencies: 287
+-- Name: areas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.areas_id_seq', 1, false);
+
+
+--
+-- TOC entry 3994 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: banks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.banks_id_seq', 2, true);
+
+
+--
+-- TOC entry 3995 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: branches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.branches_id_seq', 6, true);
+
+
+--
+-- TOC entry 3996 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: clients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.clients_id_seq', 12, true);
+
+
+--
+-- TOC entry 3997 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: costsheets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.costsheets_id_seq', 13, true);
+
+
+--
+-- TOC entry 3998 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: creditnotes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.creditnotes_id_seq', 1, true);
+
+
+--
+-- TOC entry 3999 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: customer_management_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.customer_management_id_seq', 8, true);
+
+
+--
+-- TOC entry 4000 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: debitnotes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.debitnotes_id_seq', 1, true);
+
+
+--
+-- TOC entry 4001 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: divisions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.divisions_id_seq', 8, true);
+
+
+--
+-- TOC entry 4002 (class 0 OID 0)
+-- Dependencies: 240
+-- Name: expenses_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.expenses_id_seq', 4, true);
+
+
+--
+-- TOC entry 4003 (class 0 OID 0)
+-- Dependencies: 242
+-- Name: failed_jobs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.failed_jobs_id_seq', 1, true);
+
+
+--
+-- TOC entry 4004 (class 0 OID 0)
+-- Dependencies: 244
+-- Name: form43s_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.form43s_id_seq', 18, true);
+
+
+--
+-- TOC entry 4005 (class 0 OID 0)
+-- Dependencies: 246
+-- Name: form44s_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.form44s_id_seq', 1, true);
+
+
+--
+-- TOC entry 4006 (class 0 OID 0)
+-- Dependencies: 248
+-- Name: form45s_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.form45s_id_seq', 1, true);
+
+
+--
+-- TOC entry 4007 (class 0 OID 0)
+-- Dependencies: 250
+-- Name: form621s_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.form621s_id_seq', 2739, true);
+
+
+--
+-- TOC entry 4008 (class 0 OID 0)
+-- Dependencies: 252
+-- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.items_id_seq', 2, true);
+
+
+--
+-- TOC entry 4009 (class 0 OID 0)
+-- Dependencies: 255
+-- Name: jobs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.jobs_id_seq', 1, true);
+
+
+--
+-- TOC entry 4010 (class 0 OID 0)
+-- Dependencies: 257
+-- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.migrations_id_seq', 31, true);
+
+
+--
+-- TOC entry 4011 (class 0 OID 0)
+-- Dependencies: 259
+-- Name: mushaknotes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.mushaknotes_id_seq', 3, true);
+
+
+--
+-- TOC entry 4012 (class 0 OID 0)
+-- Dependencies: 262
+-- Name: personal_access_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.personal_access_tokens_id_seq', 1, true);
+
+
+--
+-- TOC entry 4013 (class 0 OID 0)
+-- Dependencies: 264
+-- Name: purchases_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.purchases_id_seq', 668, true);
+
+
+--
+-- TOC entry 4014 (class 0 OID 0)
+-- Dependencies: 266
+-- Name: rates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.rates_id_seq', 20, true);
+
+
+--
+-- TOC entry 4015 (class 0 OID 0)
+-- Dependencies: 268
+-- Name: reports_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.reports_id_seq', 2, true);
+
+
+--
+-- TOC entry 4016 (class 0 OID 0)
+-- Dependencies: 270
+-- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.roles_id_seq', 4, true);
+
+
+--
+-- TOC entry 4017 (class 0 OID 0)
+-- Dependencies: 272
+-- Name: sales_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.sales_id_seq', 2071, true);
+
+
+--
+-- TOC entry 4018 (class 0 OID 0)
+-- Dependencies: 275
+-- Name: stationcodes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.stationcodes_id_seq', 12, true);
+
+
+--
+-- TOC entry 4019 (class 0 OID 0)
+-- Dependencies: 277
+-- Name: treasuries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.treasuries_id_seq', 1, true);
+
+
+--
+-- TOC entry 4020 (class 0 OID 0)
+-- Dependencies: 279
+-- Name: units_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.units_id_seq', 5, true);
+
+
+--
+-- TOC entry 4021 (class 0 OID 0)
+-- Dependencies: 281
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 8, true);
+
+
+--
+-- TOC entry 4022 (class 0 OID 0)
+-- Dependencies: 283
+-- Name: vatfactors_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.vatfactors_id_seq', 4, true);
+
+
+--
+-- TOC entry 3544 (class 2606 OID 17403)
+-- Name: additions additions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.additions
+    ADD CONSTRAINT additions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3546 (class 2606 OID 17405)
+-- Name: adjustments adjustments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.adjustments
+    ADD CONSTRAINT adjustments_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3550 (class 2606 OID 17407)
+-- Name: banks banks_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.banks
+    ADD CONSTRAINT banks_name_unique UNIQUE (name);
+
+
+--
+-- TOC entry 3552 (class 2606 OID 17409)
+-- Name: banks banks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.banks
+    ADD CONSTRAINT banks_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3555 (class 2606 OID 17411)
+-- Name: branches branches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3559 (class 2606 OID 17413)
+-- Name: cache_locks cache_locks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cache_locks
+    ADD CONSTRAINT cache_locks_pkey PRIMARY KEY (key);
+
+
+--
+-- TOC entry 3557 (class 2606 OID 17415)
+-- Name: cache cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cache
+    ADD CONSTRAINT cache_pkey PRIMARY KEY (key);
+
+
+--
+-- TOC entry 3561 (class 2606 OID 17417)
+-- Name: clients clients_email_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_email_unique UNIQUE (email);
+
+
+--
+-- TOC entry 3563 (class 2606 OID 17419)
+-- Name: clients clients_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3567 (class 2606 OID 17421)
+-- Name: costsheets costsheets_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.costsheets
+    ADD CONSTRAINT costsheets_name_unique UNIQUE (name);
+
+
+--
+-- TOC entry 3569 (class 2606 OID 17423)
+-- Name: costsheets costsheets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.costsheets
+    ADD CONSTRAINT costsheets_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3573 (class 2606 OID 17425)
+-- Name: creditnotes creditnotes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.creditnotes
+    ADD CONSTRAINT creditnotes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3577 (class 2606 OID 17427)
+-- Name: customer_management customer_management_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customer_management
+    ADD CONSTRAINT customer_management_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3582 (class 2606 OID 17429)
+-- Name: debitnotes debitnotes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.debitnotes
+    ADD CONSTRAINT debitnotes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3586 (class 2606 OID 17431)
+-- Name: divisions divisions_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.divisions
+    ADD CONSTRAINT divisions_name_unique UNIQUE (name);
+
+
+--
+-- TOC entry 3588 (class 2606 OID 17433)
+-- Name: divisions divisions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.divisions
+    ADD CONSTRAINT divisions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3590 (class 2606 OID 17435)
+-- Name: economic_areas economic_areas_client_id_item_id_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.economic_areas
+    ADD CONSTRAINT economic_areas_client_id_item_id_unique UNIQUE (client_id, item_id);
+
+
+--
+-- TOC entry 3593 (class 2606 OID 17437)
+-- Name: expenses expenses_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.expenses
+    ADD CONSTRAINT expenses_name_unique UNIQUE (name);
+
+
+--
+-- TOC entry 3595 (class 2606 OID 17439)
+-- Name: expenses expenses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.expenses
+    ADD CONSTRAINT expenses_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3597 (class 2606 OID 17441)
+-- Name: failed_jobs failed_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.failed_jobs
+    ADD CONSTRAINT failed_jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3599 (class 2606 OID 17443)
+-- Name: failed_jobs failed_jobs_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.failed_jobs
+    ADD CONSTRAINT failed_jobs_uuid_unique UNIQUE (uuid);
+
+
+--
+-- TOC entry 3603 (class 2606 OID 17445)
+-- Name: form43s form43s_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form43s
+    ADD CONSTRAINT form43s_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3607 (class 2606 OID 17447)
+-- Name: form44s form44s_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form44s
+    ADD CONSTRAINT form44s_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3612 (class 2606 OID 17449)
+-- Name: form45s form45s_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form45s
+    ADD CONSTRAINT form45s_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3617 (class 2606 OID 17451)
+-- Name: form621s form621s_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s
+    ADD CONSTRAINT form621s_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3620 (class 2606 OID 17453)
+-- Name: items items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.items
+    ADD CONSTRAINT items_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3623 (class 2606 OID 17455)
+-- Name: job_batches job_batches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.job_batches
+    ADD CONSTRAINT job_batches_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3625 (class 2606 OID 17457)
+-- Name: jobs jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.jobs
+    ADD CONSTRAINT jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3628 (class 2606 OID 17459)
+-- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.migrations
+    ADD CONSTRAINT migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3630 (class 2606 OID 17461)
+-- Name: mushaknotes mushaknotes_name_note_no_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mushaknotes
+    ADD CONSTRAINT mushaknotes_name_note_no_unique UNIQUE (name_note_no);
+
+
+--
+-- TOC entry 3633 (class 2606 OID 17463)
+-- Name: mushaknotes mushaknotes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mushaknotes
+    ADD CONSTRAINT mushaknotes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3635 (class 2606 OID 17465)
+-- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_pkey PRIMARY KEY (email);
+
+
+--
+-- TOC entry 3638 (class 2606 OID 17467)
+-- Name: personal_access_tokens personal_access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.personal_access_tokens
+    ADD CONSTRAINT personal_access_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3640 (class 2606 OID 17469)
+-- Name: personal_access_tokens personal_access_tokens_token_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.personal_access_tokens
+    ADD CONSTRAINT personal_access_tokens_token_unique UNIQUE (token);
+
+
+--
+-- TOC entry 3645 (class 2606 OID 17471)
+-- Name: purchases purchases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases
+    ADD CONSTRAINT purchases_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3648 (class 2606 OID 17473)
+-- Name: rates rates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rates
+    ADD CONSTRAINT rates_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3651 (class 2606 OID 17475)
+-- Name: reports reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3654 (class 2606 OID 17477)
+-- Name: roles roles_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_name_unique UNIQUE (name);
+
+
+--
+-- TOC entry 3656 (class 2606 OID 17479)
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3659 (class 2606 OID 17481)
+-- Name: sales sales_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3662 (class 2606 OID 17483)
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3666 (class 2606 OID 17485)
+-- Name: stationcodes stationcodes_code_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stationcodes
+    ADD CONSTRAINT stationcodes_code_unique UNIQUE (code);
+
+
+--
+-- TOC entry 3668 (class 2606 OID 17487)
+-- Name: stationcodes stationcodes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stationcodes
+    ADD CONSTRAINT stationcodes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3670 (class 2606 OID 17489)
+-- Name: treasuries treasuries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.treasuries
+    ADD CONSTRAINT treasuries_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3674 (class 2606 OID 17491)
+-- Name: units units_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.units
+    ADD CONSTRAINT units_name_unique UNIQUE (name);
+
+
+--
+-- TOC entry 3676 (class 2606 OID 17493)
+-- Name: units units_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.units
+    ADD CONSTRAINT units_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3678 (class 2606 OID 17495)
+-- Name: users users_email_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_unique UNIQUE (email);
+
+
+--
+-- TOC entry 3681 (class 2606 OID 17497)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3685 (class 2606 OID 17499)
+-- Name: vatfactors vatfactors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.vatfactors
+    ADD CONSTRAINT vatfactors_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3547 (class 1259 OID 17500)
+-- Name: adjustments_tax_period_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX adjustments_tax_period_trgm_idx ON public.adjustments USING gin (tax_period public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3548 (class 1259 OID 17501)
+-- Name: banks_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX banks_name_trgm_idx ON public.banks USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3553 (class 1259 OID 17502)
+-- Name: branches_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX branches_name_trgm_idx ON public.branches USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3564 (class 1259 OID 17503)
+-- Name: clients_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX clients_search_text_trgm_idx ON public.clients USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3565 (class 1259 OID 17504)
+-- Name: costsheets_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX costsheets_name_trgm_idx ON public.costsheets USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3570 (class 1259 OID 17505)
+-- Name: creditnotes_lc_or_invoice_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX creditnotes_lc_or_invoice_no_index ON public.creditnotes USING btree (lc_or_invoice_no);
+
+
+--
+-- TOC entry 3571 (class 1259 OID 17506)
+-- Name: creditnotes_lc_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX creditnotes_lc_trgm_idx ON public.creditnotes USING gin (lc_or_invoice_no public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3574 (class 1259 OID 17507)
+-- Name: customer_management_bin_or_nid_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX customer_management_bin_or_nid_index ON public.customer_management USING btree (bin_or_nid);
+
+
+--
+-- TOC entry 3575 (class 1259 OID 17508)
+-- Name: customer_management_mobile_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX customer_management_mobile_index ON public.customer_management USING btree (mobile);
+
+
+--
+-- TOC entry 3578 (class 1259 OID 17509)
+-- Name: customer_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX customer_search_text_trgm_idx ON public.customer_management USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3579 (class 1259 OID 17510)
+-- Name: debitnotes_boe_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX debitnotes_boe_index ON public.debitnotes USING btree (boe);
+
+
+--
+-- TOC entry 3580 (class 1259 OID 17511)
+-- Name: debitnotes_lc_or_invoice_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX debitnotes_lc_or_invoice_no_index ON public.debitnotes USING btree (lc_or_invoice_no);
+
+
+--
+-- TOC entry 3583 (class 1259 OID 17512)
+-- Name: debitnotes_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX debitnotes_search_text_trgm_idx ON public.debitnotes USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3584 (class 1259 OID 17513)
+-- Name: divisions_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX divisions_name_trgm_idx ON public.divisions USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3591 (class 1259 OID 17514)
+-- Name: expenses_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX expenses_name_trgm_idx ON public.expenses USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3600 (class 1259 OID 17515)
+-- Name: form43s_lc_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form43s_lc_no_index ON public.form43s USING btree (lc_no);
+
+
+--
+-- TOC entry 3601 (class 1259 OID 17516)
+-- Name: form43s_lc_or_invoice_no_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form43s_lc_or_invoice_no_trgm_idx ON public.form43s USING gin (lc_no public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3604 (class 1259 OID 17517)
+-- Name: form44s_boe_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form44s_boe_index ON public.form44s USING btree (boe);
+
+
+--
+-- TOC entry 3605 (class 1259 OID 17518)
+-- Name: form44s_lc_or_invoice_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form44s_lc_or_invoice_no_index ON public.form44s USING btree (lc_or_invoice_no);
+
+
+--
+-- TOC entry 3608 (class 1259 OID 17519)
+-- Name: form44s_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form44s_search_text_trgm_idx ON public.form44s USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3609 (class 1259 OID 17520)
+-- Name: form45s_boe_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form45s_boe_index ON public.form45s USING btree (boe);
+
+
+--
+-- TOC entry 3610 (class 1259 OID 17521)
+-- Name: form45s_lc_or_invoice_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form45s_lc_or_invoice_no_index ON public.form45s USING btree (lc_or_invoice_no);
+
+
+--
+-- TOC entry 3613 (class 1259 OID 17522)
+-- Name: form45s_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form45s_search_text_trgm_idx ON public.form45s USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3614 (class 1259 OID 17523)
+-- Name: form621s_boe_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form621s_boe_index ON public.form621s USING btree (boe);
+
+
+--
+-- TOC entry 3615 (class 1259 OID 17524)
+-- Name: form621s_lc_or_invoice_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form621s_lc_or_invoice_no_index ON public.form621s USING btree (lc_or_invoice_no);
+
+
+--
+-- TOC entry 3618 (class 1259 OID 17525)
+-- Name: form621s_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX form621s_search_text_trgm_idx ON public.form621s USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3621 (class 1259 OID 17526)
+-- Name: items_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX items_search_text_trgm_idx ON public.items USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3626 (class 1259 OID 17527)
+-- Name: jobs_queue_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX jobs_queue_index ON public.jobs USING btree (queue);
+
+
+--
+-- TOC entry 3631 (class 1259 OID 17528)
+-- Name: mushaknotes_note_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX mushaknotes_note_trgm_idx ON public.mushaknotes USING gin (name_note_no public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3636 (class 1259 OID 17529)
+-- Name: personal_access_tokens_expires_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX personal_access_tokens_expires_at_index ON public.personal_access_tokens USING btree (expires_at);
+
+
+--
+-- TOC entry 3641 (class 1259 OID 17530)
+-- Name: personal_access_tokens_tokenable_type_tokenable_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX personal_access_tokens_tokenable_type_tokenable_id_index ON public.personal_access_tokens USING btree (tokenable_type, tokenable_id);
+
+
+--
+-- TOC entry 3642 (class 1259 OID 17531)
+-- Name: purchases_boe_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX purchases_boe_index ON public.purchases USING btree (boe);
+
+
+--
+-- TOC entry 3643 (class 1259 OID 17532)
+-- Name: purchases_lc_no_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX purchases_lc_no_index ON public.purchases USING btree (lc_no);
+
+
+--
+-- TOC entry 3646 (class 1259 OID 17533)
+-- Name: purchases_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX purchases_search_text_trgm_idx ON public.purchases USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3649 (class 1259 OID 17534)
+-- Name: reports_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_name_trgm_idx ON public.reports USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3652 (class 1259 OID 17535)
+-- Name: roles_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX roles_name_trgm_idx ON public.roles USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3657 (class 1259 OID 17536)
+-- Name: sales_invoice_no_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX sales_invoice_no_trgm_idx ON public.sales USING gin (invoice_no public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3660 (class 1259 OID 17537)
+-- Name: sessions_last_activity_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX sessions_last_activity_index ON public.sessions USING btree (last_activity);
+
+
+--
+-- TOC entry 3663 (class 1259 OID 17538)
+-- Name: sessions_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX sessions_user_id_index ON public.sessions USING btree (user_id);
+
+
+--
+-- TOC entry 3664 (class 1259 OID 17539)
+-- Name: stationcodes_code_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX stationcodes_code_trgm_idx ON public.stationcodes USING gin (code public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3671 (class 1259 OID 17540)
+-- Name: treasuries_tax_period_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX treasuries_tax_period_trgm_idx ON public.treasuries USING gin (tax_period public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3672 (class 1259 OID 17541)
+-- Name: units_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX units_name_trgm_idx ON public.units USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3679 (class 1259 OID 17542)
+-- Name: users_mobile_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_mobile_index ON public.users USING btree (mobile);
+
+
+--
+-- TOC entry 3682 (class 1259 OID 17543)
+-- Name: users_search_text_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_search_text_trgm_idx ON public.users USING gin (search_text public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3683 (class 1259 OID 17544)
+-- Name: vatfactors_name_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX vatfactors_name_trgm_idx ON public.vatfactors USING gin (name public.gin_trgm_ops);
+
+
+--
+-- TOC entry 3686 (class 2606 OID 17545)
+-- Name: additions additions_costsheet_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.additions
+    ADD CONSTRAINT additions_costsheet_id_foreign FOREIGN KEY (costsheet_id) REFERENCES public.costsheets(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3687 (class 2606 OID 17550)
+-- Name: additions additions_form43_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.additions
+    ADD CONSTRAINT additions_form43_id_foreign FOREIGN KEY (form43_id) REFERENCES public.form43s(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3688 (class 2606 OID 17555)
+-- Name: adjustments adjustments_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.adjustments
+    ADD CONSTRAINT adjustments_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3689 (class 2606 OID 17560)
+-- Name: adjustments adjustments_expense_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.adjustments
+    ADD CONSTRAINT adjustments_expense_id_foreign FOREIGN KEY (expense_id) REFERENCES public.expenses(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3690 (class 2606 OID 17565)
+-- Name: branches branches_bank_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_bank_id_foreign FOREIGN KEY (bank_id) REFERENCES public.banks(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3691 (class 2606 OID 17570)
+-- Name: branches branches_division_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_division_id_foreign FOREIGN KEY (division_id) REFERENCES public.divisions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3692 (class 2606 OID 17575)
+-- Name: clients clients_division_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_division_id_foreign FOREIGN KEY (division_id) REFERENCES public.divisions(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3693 (class 2606 OID 17580)
+-- Name: clients clients_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3694 (class 2606 OID 17585)
+-- Name: creditnotes creditnotes_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.creditnotes
+    ADD CONSTRAINT creditnotes_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3695 (class 2606 OID 17590)
+-- Name: creditnotes creditnotes_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.creditnotes
+    ADD CONSTRAINT creditnotes_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3696 (class 2606 OID 17595)
+-- Name: creditnotes creditnotes_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.creditnotes
+    ADD CONSTRAINT creditnotes_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3697 (class 2606 OID 17600)
+-- Name: debitnotes debitnotes_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.debitnotes
+    ADD CONSTRAINT debitnotes_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3698 (class 2606 OID 17605)
+-- Name: debitnotes debitnotes_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.debitnotes
+    ADD CONSTRAINT debitnotes_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3699 (class 2606 OID 17610)
+-- Name: debitnotes debitnotes_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.debitnotes
+    ADD CONSTRAINT debitnotes_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3700 (class 2606 OID 17615)
+-- Name: economic_areas economic_areas_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.economic_areas
+    ADD CONSTRAINT economic_areas_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3701 (class 2606 OID 17620)
+-- Name: economic_areas economic_areas_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.economic_areas
+    ADD CONSTRAINT economic_areas_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3702 (class 2606 OID 17625)
+-- Name: form43s form43s_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form43s
+    ADD CONSTRAINT form43s_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3703 (class 2606 OID 17630)
+-- Name: form43s form43s_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form43s
+    ADD CONSTRAINT form43s_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3704 (class 2606 OID 17635)
+-- Name: form43s form43s_purchase_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form43s
+    ADD CONSTRAINT form43s_purchase_unit_id_foreign FOREIGN KEY (purchase_unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3705 (class 2606 OID 17640)
+-- Name: form43s form43s_sale_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form43s
+    ADD CONSTRAINT form43s_sale_unit_id_foreign FOREIGN KEY (sale_unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3706 (class 2606 OID 17645)
+-- Name: form44s form44s_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form44s
+    ADD CONSTRAINT form44s_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3707 (class 2606 OID 17650)
+-- Name: form44s form44s_form621_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form44s
+    ADD CONSTRAINT form44s_form621_id_foreign FOREIGN KEY (form621_id) REFERENCES public.form621s(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3708 (class 2606 OID 17655)
+-- Name: form44s form44s_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form44s
+    ADD CONSTRAINT form44s_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3709 (class 2606 OID 17660)
+-- Name: form44s form44s_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form44s
+    ADD CONSTRAINT form44s_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3710 (class 2606 OID 17665)
+-- Name: form45s form45s_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form45s
+    ADD CONSTRAINT form45s_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3711 (class 2606 OID 17670)
+-- Name: form45s form45s_form621_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form45s
+    ADD CONSTRAINT form45s_form621_id_foreign FOREIGN KEY (form621_id) REFERENCES public.form621s(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3712 (class 2606 OID 17675)
+-- Name: form45s form45s_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form45s
+    ADD CONSTRAINT form45s_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3713 (class 2606 OID 17680)
+-- Name: form45s form45s_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form45s
+    ADD CONSTRAINT form45s_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3714 (class 2606 OID 17685)
+-- Name: form621s form621s_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s
+    ADD CONSTRAINT form621s_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3715 (class 2606 OID 17690)
+-- Name: form621s form621s_form43_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s
+    ADD CONSTRAINT form621s_form43_id_foreign FOREIGN KEY (form43_id) REFERENCES public.form43s(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3716 (class 2606 OID 17695)
+-- Name: form621s form621s_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s
+    ADD CONSTRAINT form621s_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3717 (class 2606 OID 17700)
+-- Name: form621s form621s_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s
+    ADD CONSTRAINT form621s_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3718 (class 2606 OID 17705)
+-- Name: form621s form621s_userid_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.form621s
+    ADD CONSTRAINT form621s_userid_foreign FOREIGN KEY (userid) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3719 (class 2606 OID 17710)
+-- Name: purchases purchases_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases
+    ADD CONSTRAINT purchases_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3720 (class 2606 OID 17715)
+-- Name: purchases purchases_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases
+    ADD CONSTRAINT purchases_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3721 (class 2606 OID 17720)
+-- Name: purchases purchases_mushaknote_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases
+    ADD CONSTRAINT purchases_mushaknote_id_foreign FOREIGN KEY (mushaknote_id) REFERENCES public.mushaknotes(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3722 (class 2606 OID 17725)
+-- Name: purchases purchases_stationcode_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases
+    ADD CONSTRAINT purchases_stationcode_id_foreign FOREIGN KEY (stationcode_id) REFERENCES public.stationcodes(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3723 (class 2606 OID 17730)
+-- Name: purchases purchases_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.purchases
+    ADD CONSTRAINT purchases_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3724 (class 2606 OID 17735)
+-- Name: rates rates_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rates
+    ADD CONSTRAINT rates_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3725 (class 2606 OID 17740)
+-- Name: rates rates_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rates
+    ADD CONSTRAINT rates_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3726 (class 2606 OID 17745)
+-- Name: sales sales_bank_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_bank_id_foreign FOREIGN KEY (bank_id) REFERENCES public.banks(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3727 (class 2606 OID 17750)
+-- Name: sales sales_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3728 (class 2606 OID 17755)
+-- Name: sales sales_item_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_item_id_foreign FOREIGN KEY (item_id) REFERENCES public.items(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3729 (class 2606 OID 17760)
+-- Name: sales sales_unit_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_unit_id_foreign FOREIGN KEY (unit_id) REFERENCES public.units(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3730 (class 2606 OID 17765)
+-- Name: treasuries treasuries_branch_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.treasuries
+    ADD CONSTRAINT treasuries_branch_id_foreign FOREIGN KEY (branch_id) REFERENCES public.branches(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- TOC entry 3731 (class 2606 OID 17770)
+-- Name: treasuries treasuries_client_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.treasuries
+    ADD CONSTRAINT treasuries_client_id_foreign FOREIGN KEY (client_id) REFERENCES public.clients(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3732 (class 2606 OID 17775)
+-- Name: users users_role_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_role_id_foreign FOREIGN KEY (role_id) REFERENCES public.roles(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+-- Completed on 2026-01-04 09:38:21 UTC
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict iVh33OudGfnEqgU81jhHfkOKjewyco4EDHJswGIVwHBeeejfSGtLaY6eqHqfSQc
+

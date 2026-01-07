@@ -5,53 +5,34 @@ namespace Modules\Dashboard\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Modules\Client\Models\Client;
+use Modules\Form621\Models\Form621;
 
 class DashboardController extends Controller
 {
-  /**
-   * Display a listing of the resource.
-   */
+  public $form621;
+  public $client;
+  public function __construct(Form621 $form621, Client $client)
+  {
+    $this->form621 = $form621;
+    $this->client = $client;
+  }
+
   public function index(Request $request)
   {
-    return Inertia::render('dashboard/index');
+    $totalClient = $this->client->count();
+
+    $currentMonthClient = $this->client->whereRaw("created_at >= date_trunc('month', CURRENT_DATE) AND created_at < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'")->count();
+
+    $previousMonthClient = $this->client->whereRaw("created_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '1 month' AND created_at < date_trunc('month', CURRENT_DATE)")->count();
+
+    $twoMonthsAgoClient = $this->client->whereRaw("created_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '2 month' AND created_at < date_trunc('month', CURRENT_DATE) - INTERVAL '1 month'")->count();
+
+    return Inertia::render('dashboard/index', [
+      'total_client' => $totalClient,
+      'current_month_client' => $currentMonthClient,
+      'previous_month_client' => $previousMonthClient,
+      'two_month_ago_client' => $twoMonthsAgoClient,
+    ]);
   }
-
-  /**
-   * Show the form for creating a new resource.
-   */
-  public function create()
-  {
-    return view('dashboard::create');
-  }
-
-  /**
-   * Store a newly created resource in storage.
-   */
-  public function store(Request $request) {}
-
-  /**
-   * Show the specified resource.
-   */
-  public function show($id)
-  {
-    return view('dashboard::show');
-  }
-
-  /**
-   * Show the form for editing the specified resource.
-   */
-  public function edit($id)
-  {
-    return view('dashboard::edit');
-  }
-
-  /**
-   * Update the specified resource in storage.
-   */
-  public function update(Request $request, $id) {}
-
-  /**
-   * Remove the specified resource from storage.
-   */
-  public function destroy($id) {}
 }

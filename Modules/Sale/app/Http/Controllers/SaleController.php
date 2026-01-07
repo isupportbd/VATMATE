@@ -303,7 +303,7 @@ class SaleController extends Controller
         $lastInvoice = $this->sale->query()
           ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
           ->where('client_id', $clientId)
-          ->whereYear('date', $currentYear)
+          ->whereRaw('EXTRACT(YEAR FROM "date"::date) = ?', [$currentYear])
           ->orderByDesc('id')
           ->first();
 
@@ -745,7 +745,7 @@ class SaleController extends Controller
     // LAST INVOICE FOR THIS BIN + YEAR
     $lastInvoice = $this->sale->query()
       ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
-      ->whereYear('date', $currentYear)
+      ->whereRaw('EXTRACT(YEAR FROM "date"::date) = ?', [$currentYear])
       ->where('client_id', $clientId)
       ->orderByDesc('id')
       ->first();

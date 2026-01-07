@@ -214,9 +214,14 @@ class Form45Controller extends Controller
         $form621lastStock->update(['last' => 0]);
 
         // LAST INVOICE FOR THIS BIN + THIS YEAR
-        $lastInvoice = $this->form45->where('client_id', $clientId)->whereYear('date', $currentYear)->orderByDesc('id')->first();
+        $lastInvoice = $this->form45->query()
+          ->where('client_id', $clientId)
+          ->whereRaw('EXTRACT(YEAR FROM "date"::date) = ?', [$currentYear])
+          ->orderByDesc('id')
+          ->first();
+
         if ($lastInvoice) {
-          $parts  = explode('/', $lastInvoice->invoice_no);
+          $parts  = explode('/', $lastInvoice->form45_invoice);
           $number = isset($parts[1]) ? (int) $parts[1] : 0;
           $nextInvoiceNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
           $invoice = 'F45-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoiceNumber;
