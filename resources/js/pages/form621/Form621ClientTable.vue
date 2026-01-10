@@ -168,8 +168,7 @@
   </Modal>
 
   <TableSkeleton row="5" col="4" v-if="empty(props.Form621ClientTable)" />
-  <TableData name="Form 6.2.1" :data="props.Form621ClientTable" :item_id="props.item_id" :option="[5, 10, 15]"
-    :removable="false" v-else>
+  <TableData name="Form 6.2.1" :data="props.Form621ClientTable" :item_id="props.item_id" :option="[5, 10, 15]" :removable="false" v-else>
     <template #extra>
       <div class="col-12">
         <div class="row gx-1">

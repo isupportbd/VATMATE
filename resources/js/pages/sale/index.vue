@@ -370,7 +370,7 @@ const submitData = async () => {
     }
 
     let er = {};
-    Object.keys(errors).map((key) => { er[key] = errors[key].toString() });
+    Object.keys(errors).map((key) => { er[key] = errors[key].toString(); });
     err.invoice_no = er.invoice_no;
     err.bin = er.client_id;
     err.date = er.date;

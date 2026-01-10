@@ -102,7 +102,7 @@
           </ul>
         </li>
         <li class="list-group-item"
-          :class="{ 'active': $page.component === 'form621/index' || $page.component === 'form621/Form621IndividualTable' }">
+          :class="{ 'active': $page.component === 'form621/index' || $page.component === 'form621/Form621ClientTable' }">
           <Link :href="route('form621')">
             <div class="menu-icon"><i class="bi bi-ui-checks"></i></div>
             <span>Form 6.2.1</span>
@@ -277,11 +277,11 @@ onMounted(() => {
     const onShown = () => {
       openIds.value.add(el.id);
       save();
-    }
+    };
     const onHidden = () => {
       openIds.value.delete(el.id);
       save();
-    }
+    };
     el.addEventListener('shown.bs.collapse', onShown);
     el.addEventListener('hidden.bs.collapse', onHidden);
     cleanup.push(() => {
@@ -289,7 +289,7 @@ onMounted(() => {
       el.removeEventListener('hidden.bs.collapse', onHidden);
     });
   });
-})
+});
 
 onBeforeUnmount(() => {
   cleanup.forEach((fn) => fn());

@@ -192,7 +192,7 @@ class DebitnoteController extends Controller
 
     try {
       DB::transaction(function () use ($formField, $request, $user) {
-        $currentYear = now('Asia/Dhaka')->format('Y');
+        $issueDate = $formField['issued_date'];
         $clientId = $request->input('client_id');
         $itemId = $request->input('item_id');
         $invNo = $request->input('lc_or_invoice_no');
@@ -216,22 +216,28 @@ class DebitnoteController extends Controller
         // Mark previous last as not last
         $form621->update(['last' => 0]);
 
-        // LAST INVOICE FOR THIS BIN + THIS YEAR
+        $baseDate = $issueDate ? Carbon::parse($issueDate, 'Asia/Dhaka') : now('Asia/Dhaka');
+        $yearFull  = (int) $baseDate->format('Y'); // 2026
+        $yearShort = $baseDate->format('y');       // 26
+
         $lastInvoice = $this->debitnote->query()
-          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
           ->where('client_id', $clientId)
-          ->whereRaw('EXTRACT(YEAR FROM "issued_date"::date) = ?', [$currentYear])
+          ->whereYear('issued_date', $yearFull) // pg & mysql safe
           ->orderByDesc('id')
           ->first();
 
-        if ($lastInvoice) {
-          $parts = explode('/', $lastInvoice->debitnote_invoice);
-          $number = isset($parts[1]) ? (int) $parts[1] : 0;
-          $nextInvoiceNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
-          $invoice = 'DBN-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoiceNumber;
+        if (!$lastInvoice) {
+          $nextInvoice = '00001';
         } else {
-          $invoice = 'DBN-' . now('Asia/Dhaka')->format('y') . '/00001';
+          // Expected format: DBN-yy/00001
+          $parts  = explode('/', (string) $lastInvoice->debitnote_invoice);
+          $number = isset($parts[1]) ? (int) $parts[1] : 0;
+          $nextInvoice = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
         }
+
+        // Final invoice (year always from DB logic above)
+        $invoice = 'DBN-' . $yearShort . '/' . $nextInvoice;
 
         $stockAfter = (float) $form621->stock - (float) $formField['quantity_of_increasing_adjustment'];
 

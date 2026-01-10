@@ -209,26 +209,33 @@ class Form44Controller extends Controller
 
     try {
       DB::transaction(function () use ($user, $formField, $clientId, $form621, $form621lastStock, $price, $vatValue, $incadj, $netinc) {
-        $currentYear = now('Asia/Dhaka')->format('Y');
+        $date = $formField['date'];
 
         // Mark previous last as not last
         $form621lastStock->update(['last' => 0]);
 
-        // LAST INVOICE FOR THIS BIN + THIS YEAR
+        $baseDate = $date ? Carbon::parse($date, 'Asia/Dhaka') : now('Asia/Dhaka');
+        $yearFull  = (int) $baseDate->format('Y'); // 2026
+        $yearShort = $baseDate->format('y');       // 26
+
         $lastInvoice = $this->form44->query()
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
           ->where('client_id', $clientId)
-          ->whereRaw('EXTRACT(YEAR FROM "date"::date) = ?', [$currentYear])
+          ->whereYear('date', $yearFull) // pg & mysql safe
           ->orderByDesc('id')
           ->first();
 
-        if ($lastInvoice) {
-          $parts  = explode('/', $lastInvoice->form44_invoice);
-          $number = isset($parts[1]) ? (int) $parts[1] : 0;
-          $nextInvoiceNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
-          $invoice = 'F44-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoiceNumber;
+        if (!$lastInvoice) {
+          $nextInvoice = '00001';
         } else {
-          $invoice = 'F44-' . now('Asia/Dhaka')->format('y') . '/00001';
+          // Expected format: F44-yy/00001
+          $parts  = explode('/', (string) $lastInvoice->form44_invoice);
+          $number = isset($parts[1]) ? (int) $parts[1] : 0;
+          $nextInvoice = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
         }
+
+        // Final invoice (year always from DB logic above)
+        $invoice = 'F44-' . $yearShort . '/' . $nextInvoice;
 
         $stockAfter = (float) $form621lastStock->stock - (float) $formField['quantity'];
 

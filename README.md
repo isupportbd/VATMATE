@@ -265,3 +265,33 @@ Get-Content -Raw "C:\Users\niyam\OneDrive\Desktop\dump-vatmate-202512280148.sql"
 ForEach-Object { $_ -replace '(?m)^\s*SET\s+(transaction_timeout|idle_session_timeout)\s*=\s*[^;]+;\s*[\r\n]*','' } |
 ssh niyam@VPS_IP "docker exec -i postgres-global psql -U postgres -d vatmate -v ON_ERROR_STOP=1"
 ```
+
+-   sale table with form621 table update
+
+```
+BEGIN;
+
+WITH broken AS (
+  SELECT
+    id,
+    row_number() OVER (ORDER BY id) AS rn
+  FROM public.sales
+  WHERE client_id = 10
+    AND invoice_no ilike 'INV-26/%'
+),
+fixed AS (
+  UPDATE public.sales s
+  SET invoice_no = 'INV-25/' || lpad((431 + b.rn)::text, 5, '0')
+  FROM broken b
+  WHERE s.id = b.id
+  RETURNING s.id, s.invoice_no
+)
+UPDATE public.form621s f
+SET lc_or_invoice_no = fx.invoice_no
+FROM fixed fx
+WHERE f.importable_type = 'sale'
+  AND f.importable_id = fx.id;
+
+COMMIT;
+
+```

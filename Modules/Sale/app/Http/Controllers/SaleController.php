@@ -297,24 +297,29 @@ class SaleController extends Controller
 
     try {
       DB::transaction(function () use ($user, $clientId, $items, $date, $customerMobile, $customerName, $binOrNid, $address, $bankId, $transactionNo, $transactionDate, $note15) {
-        $currentYear = now('Asia/Dhaka')->format('Y');
 
-        // LAST INVOICE FOR THIS BIN + THIS YEAR
+        $baseDate = $date ? Carbon::parse($date, 'Asia/Dhaka') : now('Asia/Dhaka');
+        $yearFull  = (int) $baseDate->format('Y'); // 2026
+        $yearShort = $baseDate->format('y');       // 26
+
         $lastInvoice = $this->sale->query()
-          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($q) => $q->where('user_id', $user->id)))
+          ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
           ->where('client_id', $clientId)
-          ->whereRaw('EXTRACT(YEAR FROM "date"::date) = ?', [$currentYear])
+          ->whereYear('date', $yearFull) // pg & mysql safe
           ->orderByDesc('id')
           ->first();
 
-        if ($lastInvoice) {
-          $parts = explode('/', $lastInvoice->invoice_no);
-          $number = isset($parts[1]) ? (int) $parts[1] : 0;
-          $nextInvoiceNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
-          $invoice = 'INV-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoiceNumber;
+        if (!$lastInvoice) {
+          $nextInvoice = '00001';
         } else {
-          $invoice = 'INV-' . now('Asia/Dhaka')->format('y') . '/00001';
+          // Expected format: INV-yy/00001
+          $parts  = explode('/', (string) $lastInvoice->invoice_no);
+          $number = isset($parts[1]) ? (int) $parts[1] : 0;
+          $nextInvoice = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
         }
+
+        // Final invoice (year always from DB logic above)
+        $invoice = 'INV-' . $yearShort . '/' . $nextInvoice;
 
         // LOOP THROUGH ITEMS
         foreach ($items as $row) {
@@ -734,37 +739,43 @@ class SaleController extends Controller
    */
   public function lastInvoice(Request $request)
   {
-    $user       = Auth::user();
-    $clientId   = $request->input('client_id');
-    $currentYear = now('Asia/Dhaka')->format('Y');
+    $user     = Auth::user();
+    $clientId = $request->input('client_id');
 
     if (!$clientId) {
       return response()->json(['error' => 'BIN required']);
     }
 
-    // LAST INVOICE FOR THIS BIN + YEAR
+    $clientLastDate = $this->sale->query()
+      ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
+      ->where('client_id', $clientId)
+      ->max('date');
+
+    $baseDate = $clientLastDate ? Carbon::parse($clientLastDate, 'Asia/Dhaka') : now('Asia/Dhaka');
+    $yearFull  = (int) $baseDate->format('Y'); // 2026
+    $yearShort = $baseDate->format('y');       // 26
+
     $lastInvoice = $this->sale->query()
       ->when(!$this->hasRole(['admin']), fn($q) => $q->whereHas('client', fn($c) => $c->where('user_id', $user->id)))
-      ->whereRaw('EXTRACT(YEAR FROM "date"::date) = ?', [$currentYear])
       ->where('client_id', $clientId)
+      ->whereYear('date', $yearFull) // pg & mysql safe
       ->orderByDesc('id')
       ->first();
 
     if (!$lastInvoice) {
       $nextInvoice = '00001';
     } else {
-      // Extract numeric part of last invoice
-      // Assuming format INV-yy/00001
-      $parts = explode('/', $lastInvoice->invoice_no);
-      $number = isset($parts[1]) ? (int)$parts[1] : 0;
+      // Expected format: INV-yy/00001
+      $parts  = explode('/', (string) $lastInvoice->invoice_no);
+      $number = isset($parts[1]) ? (int) $parts[1] : 0;
       $nextInvoice = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
     }
 
-    $invoice = 'INV-' . now('Asia/Dhaka')->format('y') . '/' . $nextInvoice;
+    // Final invoice (year always from DB logic above)
+    $invoice = 'INV-' . $yearShort . '/' . $nextInvoice;
 
     return response()->json(['lastinvoice' => $invoice]);
   }
-
 
   /**
    * This is for sale page. the limit can

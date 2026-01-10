@@ -7,8 +7,8 @@
             <h5 class="card-title fw-bold">{{ props.title }}</h5>
             <p class="card-text fs-3 fw-bold">{{ props.data }}</p>
           </div>
-          <div class="position-relative z-1" :class="{ 'd-none': empty(props.client) }">
-            <h5 class="card-title fw-bold">Client</h5>
+          <div class="position-relative text-end z-1" :class="{ 'd-none': empty(props.client) }">
+            <h5 class="card-title fw-bold">New Client</h5>
             <p class="card-text fs-3 fw-bold">{{ props.client }}</p>
           </div>
         </div>

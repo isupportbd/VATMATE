@@ -133,7 +133,7 @@ const infiniteScroll = async ([{ isIntersecting, target }]) => {
   }
   await nextTick();
   if (ul) ul.scrollTop = scrollTop;
-}
+};
 
 onMounted(async () => {
   observer.value = new IntersectionObserver(infiniteScroll);
@@ -164,7 +164,7 @@ const resetMe = () => {
 const reloadMe = () => {
   field.all = [];
   field.page = 0;
-}
+};
 
 const fetchedDropdown = async (search, pack = null) => {
   const url = pack?.url ?? null;
