@@ -10,13 +10,10 @@
         <div class="text-end ms-auto text-primary fw-semibold" :class="{ 'd-none': !props.hood }"
           style="font-size: 12px; margin-top: 0.15rem;" v-html="props.hood"></div>
       </label>
-      <input class="form-control" :value="props.modelValue" @input="updateModel" :maxlength="max"
-        :readonly="props.readonly" v-bind="$attrs"
-        :autocomplete="$attrs.autocomplete || ['number', 'decimal'].includes(props.category) ? 'off' : 'on'">
+      <input class="form-control" :value="props.modelValue" @input="updateModel" :maxlength="max" :readonly="props.readonly" v-bind="$attrs" :autocomplete="$attrs.autocomplete || ['number', 'decimal'].includes(props.category) ? 'off' : 'on'">
       <!-- <input class="form-control" v-model="model" :maxlength="max" v-bind="$attrs"> vue3.3 (2nd way)/3.4 -->
       <div class="position-absolute bottom-0 end-0 pe-1 text-secondary max" :class="{ 'd-none': !max }">
-        {{ isFirefox ? (max - String(props.modelValue).length) : ($attrs.type == 'month') ? '' : (max -
-          String(props.modelValue).length) }}
+        {{ isFirefox ? (max - String(props.modelValue).length) : ($attrs.type == 'month') ? '' : (max - String(props.modelValue).length) }}
       </div>
     </div>
     <div :id="`${$attrs.id}Help`" class="form-text mt-1 text-danger" :class="{ 'd-none': !err }">{{ err }}</div>
@@ -169,7 +166,7 @@ const updateModel = (e) => {
  * });
  */
 
-onMounted(() => { props.focus ? nextTick(() => document.querySelector(`#${$attrs.id}`).focus()) : false });
+onMounted(() => { props.focus ? nextTick(() => document.querySelector(`#${$attrs.id}`).focus()) : false; });
 </script>
 
 <style lang="scss" scoped>

@@ -37,7 +37,12 @@ const fetchedClient = async () => {
   };
 };
 
-defineExpose({ field, err });
+const reset = () => {
+  field.id = field.client = field.monthYear = '';
+  err.client = err.monthYear = '';
+};
+
+defineExpose({ reset });
 </script>
 
 <style lang="scss" scoped></style>

@@ -11,8 +11,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watchEffect } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { reactive } from 'vue';
 import SelectInfinite from '../../components/SelectInfinite.vue';
 import Button from '../../components/Button.vue';
 
@@ -33,6 +32,9 @@ const fetchedUser = async () => {
     mapFn: (user) => ({ id: user.id, title: user.email })
   };
 };
+
+const reset = () => field.user = '';
+defineExpose({ reset });
 </script>
 
 <style lang="scss" scoped></style>

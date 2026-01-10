@@ -221,7 +221,10 @@ $sidebar-width: 16.25rem;
     // padding: calc(0.44rem - var(--bs-border-width)) calc(0.9375rem - var(--bs-border-width));
     // line-height: 1.375;
     background: map.get($theme, bg-white);
-    color-scheme: dark;
+
+    @if $theme-name ==dark {
+      color-scheme: dark;
+    }
 
     &:hover {
       border: 1px solid map.get($theme, secondary);

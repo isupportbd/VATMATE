@@ -9,12 +9,11 @@
     <Button class="nav-btn" title="refresh" icon='bi bi-arrow-repeat' @click="refresh" />
   </Refresh>
 
-  <h1>Dashboard</h1>
-  <!-- <div class="container-fluid px-0 mb-2">
+  <div class="container-fluid px-0 mb-2">
     <div class="row">
       <div class="col-12">
         <div class="card card-body">
-          <FilterByUser :filteredwithuser="filteredWithUser" :resetuserbasedfilter="resetUserBasedFilter" :class="{ 'd-none': !role('admin') }" />
+          <FilterByUser ref="user" :filteredwithuser="filteredWithUser" :resetuserbasedfilter="resetUserBasedFilter" :class="{ 'd-none': !role('admin') }" />
           <div class="row g-2">
             <Card title="Total Client" :data="props.total_client" icon="bi bi-people" foot="Clients" />
             <Card title="Jan 2026" :data="props.current_transaction_client" :client="props.current_month_client" icon="bi bi-person" foot="Transaction" />
@@ -32,7 +31,7 @@
         <div class="card card-body">
           <FilterByClient ref="client" :filteredwithclient="filteredWithClientMonth" :resetclientbasedfilter="resetClientBasedFilter" />
           <div class="row g-2">
-            <div class="col-12 col-md-6 col-lg-7">
+            <div class="col-12">
               <div class="row g-2 mb-2">
                 <div class="col-12 col-lg-6">
                   <div class="card card-body h-100">
@@ -52,59 +51,31 @@
               <div class="card card-body">
                 <div class="row">
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Treasury : </span> <span>{{ props.summary?.treasury }}</span>
+                    <span>Treasury : </span> <span>{{ props.summary?.treasury ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Note 52 : </span> <span>{{ props.summary?.prevNetPayable }}</span>
+                    <span>Note 52 : </span> <span>{{ props.summary?.prevNetPayable ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Net Payable VAT : </span> <span>{{ props.summary?.netPayableRegular }}</span>
+                    <span>Net Payable VAT : </span> <span>{{ props.summary?.netPayableRegular ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Note 65 : </span> <span>{{ props.summary?.closignBalanceCurrentRegular }}</span>
+                    <span>Note 65 : </span> <span>{{ props.summary?.closignBalanceCurrentRegular ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>MCU : </span> <span>{{ props.summary?.totalMcu }}</span>
+                    <span>MCU : </span> <span>{{ props.summary?.totalMcu ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Debit Note : </span> <span>{{ props.summary?.totalDebitnote }}</span>
+                    <span>Debit Note : </span> <span>{{ props.summary?.totalDebitnote ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Credit Note : </span> <span>{{ props.summary?.totalCreditnote }}</span>
+                    <span>Credit Note : </span> <span>{{ props.summary?.totalCreditnote ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Mushak 4.4 : </span> <span>{{ props.summary?.totalForm44 }}</span>
+                    <span>Mushak 4.4 : </span> <span>{{ props.summary?.totalForm44 ?? "xxxxxxx" }}</span>
                   </div>
                   <div class="col-6 col-sm-4 col-md-4">
-                    <span>Mushak 4.5 : </span> <span>{{ props.summary?.totalForm45 }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-5">
-              <div class="row g-2">
-                <div class="col-6">
-                  <div class="card card-body">
-                    <h6 class="m-0">BoE</h6>
-                    <p class="m-0">20</p>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="card card-body">
-                    <h6 class="m-0">BoE</h6>
-                    <p class="m-0">20</p>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="card card-body">
-                    <h6 class="m-0">BoE</h6>
-                    <p class="m-0">20</p>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="card card-body">
-                    <h6 class="m-0">BoE</h6>
-                    <p class="m-0">20</p>
+                    <span>Mushak 4.5 : </span> <span>{{ props.summary?.totalForm45 ?? "xxxxxxx" }}</span>
                   </div>
                 </div>
               </div>
@@ -113,7 +84,7 @@
         </div>
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
 
 <script setup>
@@ -141,8 +112,10 @@ const props = defineProps({
 
 const filteredWithUser = async (userid) => router.get(route('dashboard'), { user_id: userid }, { preserveScroll: true, preserveState: true, replace: true });
 
+const user = ref(null);
 const resetUserBasedFilter = () => {
   router.get(route('dashboard'), {}, {
+    onSuccess: () => user.value.reset(),
     only: [
       'total_client',
       'current_month_client',
@@ -163,7 +136,7 @@ const filteredWithClientMonth = async (client_id, monthYear) => router.get(route
 const client = ref(null);
 const resetClientBasedFilter = () => {
   router.get(route('dashboard'), {}, {
-    onSuccess: () => client.value.field,
+    onSuccess: () => client.value.reset(),
     only: ['summary'],
     preserveScroll: true,
     preserveState: true,
