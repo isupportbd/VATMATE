@@ -21,10 +21,10 @@
             <span>Dashboard</span>
           </Link>
         </li>
-        <li class="split-label" :class="{ 'd-none': !role('admin') }">
+        <li class="split-label" v-if="role('admin')">
           <span class="text-uppercase">setup</span>
         </li>
-        <li class="list-group-item accordion-item" :class="{ 'd-none': !role('admin') }">
+        <li class="list-group-item accordion-item" v-if="role('admin')">
           <a href="#" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
             <div class="menu-icon">
@@ -205,7 +205,7 @@
           <ul class="list-group accordion-collapse collapse" id="flush-collapseFour"
             data-bs-parent="#accordion-sidebar">
             <li class="list-group-item"
-              :class="{ 'active': $page.component === 'authentication/index', 'd-none': !role('admin') }">
+              :class="{ 'active': $page.component === 'authentication/index' }" v-if="role('admin')">
               <Link :href="route('user')">Users</Link>
             </li>
             <li class="list-group-item" :class="{ 'active': $page.component === 'client/index' }">
