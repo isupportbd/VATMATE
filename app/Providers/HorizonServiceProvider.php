@@ -28,10 +28,18 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
   protected function gate(): void
   {
     Gate::define('viewHorizon', function ($user = null) {
-      return in_array(optional($user)->email, [
-        'niyamulahsan@gmail.com',
-        'vatmatebd@gmail.com'
-      ]);
+      if (!$user) {
+        return false;
+      }
+
+      // Automatically allow Superadmin (role_id = 1)
+      if ((int) $user->role_id === 1) {
+        return true;
+      }
+
+      // Allow any extra emails configured via HORIZON_ALLOWED_EMAILS in .env
+      $allowedEmails = array_filter(array_map('trim', explode(',', env('HORIZON_ALLOWED_EMAILS', ''))));
+      return in_array($user->email, $allowedEmails);
     });
   }
 }

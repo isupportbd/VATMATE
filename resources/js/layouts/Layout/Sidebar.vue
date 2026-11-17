@@ -8,17 +8,17 @@
 
     <div class="app-brand">
       <Link :href="route('dashboard')" class="fw-semibold fs-2" aria-label="logo">
-        <h2 class="m-0 fw-semibold">VATMATE</h2>
+      <h2 class="m-0 fw-semibold">VATMATE</h2>
       </Link>
     </div>
     <div class="accordion accordion-flush" id="accordion-sidebar">
       <ul class="list-group px-3">
         <li class="list-group-item" :class="{ 'active': $page.component === 'dashboard/index' }">
           <Link :href="route('dashboard')">
-            <div class="menu-icon">
-              <i class="bi bi-house"></i>
-            </div>
-            <span>Dashboard</span>
+          <div class="menu-icon">
+            <i class="bi bi-house"></i>
+          </div>
+          <span>Dashboard</span>
           </Link>
         </li>
         <li class="split-label" v-if="role('admin')">
@@ -104,44 +104,44 @@
         <li class="list-group-item"
           :class="{ 'active': $page.component === 'form621/index' || $page.component === 'form621/Form621ClientTable' }">
           <Link :href="route('form621')">
-            <div class="menu-icon"><i class="bi bi-ui-checks"></i></div>
-            <span>Form 6.2.1</span>
+          <div class="menu-icon"><i class="bi bi-ui-checks"></i></div>
+          <span>Form 6.2.1</span>
           </Link>
         </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'creditnote/index' }">
           <Link :href="route('creditnote')">
-            <div class="menu-icon"><i class="bi bi-list-check "></i></div>
-            <span>Credit Note (Form 6.7)</span>
+          <div class="menu-icon"><i class="bi bi-list-check "></i></div>
+          <span>Credit Note (Form 6.7)</span>
           </Link>
         </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'debitnote/index' }">
           <Link :href="route('debitnote')">
-            <div class="menu-icon"><i class="bi bi-list-task"></i></div>
-            <span>Debit Note (Form 6.8)</span>
+          <div class="menu-icon"><i class="bi bi-list-task"></i></div>
+          <span>Debit Note (Form 6.8)</span>
           </Link>
         </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'form44/index' }">
           <Link :href="route('form44')">
-            <div class="menu-icon"><i class="bi bi-list-stars"></i></div>
-            <span>Form 4.4</span>
+          <div class="menu-icon"><i class="bi bi-list-stars"></i></div>
+          <span>Form 4.4</span>
           </Link>
         </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'form45/index' }">
           <Link :href="route('form45')">
-            <div class="menu-icon"><i class="bi bi-list-ul"></i></div>
-            <span>Form 4.5</span>
+          <div class="menu-icon"><i class="bi bi-list-ul"></i></div>
+          <span>Form 4.5</span>
           </Link>
         </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'adjustment/index' }">
           <Link :href="route('adjustment')">
-            <div class="menu-icon"><i class="bi bi-wrench-adjustable-circle"></i></div>
-            <span>Adjustment</span>
+          <div class="menu-icon"><i class="bi bi-wrench-adjustable-circle"></i></div>
+          <span>Adjustment</span>
           </Link>
         </li>
         <li class="list-group-item" :class="{ 'active': $page.component === 'treasury/index' }">
           <Link :href="route('treasury')">
-            <div class="menu-icon"><i class="bi bi-gem"></i></div>
-            <span>Treasury</span>
+          <div class="menu-icon"><i class="bi bi-gem"></i></div>
+          <span>Treasury</span>
           </Link>
         </li>
         <li class="split-label">
@@ -150,15 +150,15 @@
         <li class="list-group-item"
           :class="{ 'active': ['report/index', 'report/ClientDataList', 'report/report621/index', 'report/summary/index', 'report/report63/index', 'report/report63/View', 'report/report43/index', 'report/report43/View', 'report/report43/Forwarding', 'report/report91/index', 'report/report67/index', 'report/report67/View', 'report/report68/index', 'report/report68/View', 'report/report44/index', 'report/report44/View', 'report/report45/index', 'report/report45/View'].includes($page.component) }">
           <Link :href="route('report')">
-            <div class="menu-icon"><i class="bi bi-files"></i></div>
-            <span>Reports</span>
+          <div class="menu-icon"><i class="bi bi-files"></i></div>
+          <span>Reports</span>
           </Link>
         </li>
         <li class="list-group-item"
           :class="{ 'active': $page.component === 'report/files/index', 'd-none': role('superadmin') }">
           <Link :href="route('report-files')">
-            <div class="menu-icon"><i class="bi bi-file-earmark-excel"></i></div>
-            <span>Download Format</span>
+          <div class="menu-icon"><i class="bi bi-file-earmark-excel"></i></div>
+          <span>Download Format</span>
           </Link>
         </li>
         <!-- <li class="list-group-item accordion-item">
@@ -223,8 +223,8 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
 import { role, user } from '../../composables/user';
+import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const storageKey = `sidebar:openIds:${page.url}`;

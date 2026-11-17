@@ -29,14 +29,13 @@
 
 <script setup>
 import { ref, inject, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { router } from '@inertiajs/vue3';
 import Toast from '../../components/Toast.vue';
 import Header from './Header.vue';
 import Sidebar from './Sidebar.vue';
 import Footer from './Footer.vue';
 
-const notify = inject('notify')
-const toastEl = ref(null)
+const notify = inject('notify');
+const toastEl = ref(null);
 
 onMounted(async () => {
   // your back-button blocker

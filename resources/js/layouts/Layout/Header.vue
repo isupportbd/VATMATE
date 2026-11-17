@@ -29,12 +29,12 @@
           </li>
           <li>
             <Link class="dropdown-item" :href="route('profile-get')">
-            <i class="bi bi-person-check me-3"></i><span>My Profile</span>
+              <i class="bi bi-person-check me-3"></i><span>My Profile</span>
             </Link>
           </li>
           <li>
             <Link class="dropdown-item" :href="route('user-logout')" method="post" as="button" type="button">
-            <i class="bi bi-power me-3"></i><span>Log Out</span>
+              <i class="bi bi-power me-3"></i><span>Log Out</span>
             </Link>
           </li>
         </ul>

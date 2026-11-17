@@ -6,10 +6,9 @@ services:
     container_name: vatmate-app
     restart: unless-stopped
     working_dir: /var/www/html
-    labels:
-      - "com.github.nginx-proxy.websocket-services=reverb.vatmate.org"
     ports:
-      - "8081:80"
+      - "80:80"
+      - "6001:6001"
     expose:
       - "80"
       - "6001"
@@ -17,31 +16,22 @@ services:
       - storage_data:/var/www/html/storage
     environment:
       APP_KEY: ${APP_KEY}
+      APP_URL: ${APP_URL}
+      APP_ENV: production
+      APP_DEBUG: "false"
 
       DB_CONNECTION: pgsql
-      DB_HOST: postgres-global
-      DB_PORT: 5432
-      DB_DATABASE: vatmate
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-vatmate}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
 
-      REDIS_HOST: redis-global
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT:-6379}
       QUEUE_CONNECTION: redis
       BROADCAST_CONNECTION: reverb
       REDIS_PREFIX: vatmate_
 
-      VIRTUAL_HOST: vatmate.org,www.vatmate.org
-      LETSENCRYPT_HOST: vatmate.org,www.vatmate.org
-      LETSENCRYPT_EMAIL: niyamulahsan@gmail.com
-    networks:
-      - nginx-proxy
-      - infra
-
 volumes:
   storage_data:
-
-networks:
-  nginx-proxy:
-    external: true
-  infra:
-    external: true

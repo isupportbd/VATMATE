@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------------------
-# PHP extensions (add pdo_pgsql)
+# PHP extensions (pdo, pdo_pgsql, redis, etc.)
 # --------------------------------------------------
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql zip gd pcntl \
   && pecl install redis \
@@ -31,10 +31,18 @@ COPY docker/php/php.ini /usr/local/etc/php/php.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # --------------------------------------------------
-# App code (CI already built vendor + public/build)
+# Application Code & Build
 # --------------------------------------------------
 WORKDIR /var/www/html
 COPY . .
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Install Node dependencies & build frontend assets
+RUN npm ci || npm install \
+  && npm run build \
+  && rm -rf node_modules
 
 # Puppeteer cache
 ENV PUPPETEER_CACHE_DIR=/var/www/.cache/puppeteer
@@ -42,7 +50,7 @@ RUN mkdir -p $PUPPETEER_CACHE_DIR \
   && npx puppeteer browsers install chrome-headless-shell
 
 # --------------------------------------------------
-# nginx config INSIDE APP
+# Nginx config
 # --------------------------------------------------
 COPY docker/nginx/app.conf /etc/nginx/conf.d/default.conf
 RUN rm -f /etc/nginx/sites-enabled/default || true
@@ -53,18 +61,12 @@ RUN rm -f /etc/nginx/sites-enabled/default || true
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # --------------------------------------------------
-# Permissions
+# Permissions & Directories
 # --------------------------------------------------
-RUN mkdir -p bootstrap/cache \
-  && chown -R www-data:www-data bootstrap/cache \
-  && chmod -R 755 bootstrap/cache
-
-RUN mkdir -p /var/log/nginx /var/log/horizon /var/log/reverb /var/log/scheduler /var/log/supervisord
-
-# Laravel caches
-RUN php artisan config:cache \
-  && php artisan route:cache \
-  && php artisan view:cache
+RUN mkdir -p bootstrap/cache storage/framework/sessions storage/framework/views storage/framework/cache \
+  && chown -R www-data:www-data bootstrap/cache storage \
+  && chmod -R 775 bootstrap/cache storage \
+  && mkdir -p /var/log/nginx /var/log/horizon /var/log/reverb /var/log/scheduler /var/log/supervisord
 
 EXPOSE 80 6001
 CMD ["/usr/bin/supervisord"]
