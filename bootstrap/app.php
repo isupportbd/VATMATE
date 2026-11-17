@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     health: '/up',
   )
   ->withMiddleware(function (Middleware $middleware): void {
+    $middleware->trustProxies(at: '*');
+
     // Prepend TrustProxies to the web middleware stack
     $middleware->web(prepend: [TrustProxies::class]);
 
