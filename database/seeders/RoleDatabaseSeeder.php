@@ -14,11 +14,18 @@ class RoleDatabaseSeeder extends Seeder
    */
   public function run(): void
   {
-    DB::table('roles')->insert([
+    $roles = [
       ['name' => 'superadmin', 'created_at' => Carbon::now()],
       ['name' => 'admin', 'created_at' => Carbon::now()],
       ['name' => 'manager', 'created_at' => Carbon::now()],
       ['name' => 'guest', 'created_at' => Carbon::now()],
-    ]);
+    ];
+
+    foreach ($roles as $role) {
+      DB::table('roles')->updateOrInsert(
+        ['name' => $role['name']],
+        ['created_at' => $role['created_at']]
+      );
+    }
   }
 }
