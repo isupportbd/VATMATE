@@ -394,16 +394,75 @@ Only the row having `last = 1` (the tail of the ledger chain) can be updated or 
 
 ---
 
-### 5.4. Form 4.3 (Price Declaration / Input-Output Coefficient)
+### 5.4. Form 4.3 (Price Declaration) & 7.5% Rate Deviation Rule
 Every manufactured or traded product requires a registered Form 4.3 before it can be sold.
-- **Conversion Factor:** Used to convert raw material / import unit (e.g. Metric Ton) into retail sale unit (e.g. CFT, KG, Bag).
-- **Value Addition Elements (`additions`):**
-  $$\text{Addition Rate \%} = \left(\frac{\text{Component Value}}{\text{Form 4.3 Unit Price}}\right) \times 100$$
-- **Declaration Locking:** Once a `form43_id` has been referenced in `form621s`, cost sheet additions cannot be inserted, updated, or removed.
+1. **Conversion Factor:** Used to convert raw material / import unit (e.g. Metric Ton) into retail sale unit (e.g. CFT, KG, Bag).
+2. **Value Addition Elements (`additions`):**
+   $$\text{Addition Rate \%} = \left(\frac{\text{Component Value}}{\text{Form 4.3 Unit Price}}\right) \times 100$$
+3. **Declaration Locking:** Once a `form43_id` has been referenced in `form621s`, cost sheet additions cannot be inserted, updated, or removed (`Can not insert: already used in 6.2.1`).
+4. **Statutory 7.5% Rate Deviation Rule (`vatfactor.vatfact = 7.5`):**
+   Before a selling rate or invoice price is accepted, the system checks variance against declared base:
+   $$\text{Form 4.3 Base Cost} = \text{Form 4.3 Unit Price} + \sum \text{Costsheet Additions}$$
+   $$\text{Deviation \%} = \left(\frac{\text{Sale Value} - \text{Form 4.3 Base Cost}}{\text{Form 4.3 Base Cost}}\right) \times 100$$
+   - If $\text{Deviation \%} > +7.5\%$ or $\text{Deviation \%} < -7.5\%$, the system strictly rejects the transaction:  
+     `"Over 7.5% (calc%)"` or `"Less 7.5% (calc%)"`.
+   - *Legal Mandate:* Under NBR VAT Rule 4.3, any selling price change beyond $\pm 7.5\%$ necessitates an officially submitted revised Form 4.3 Price Declaration before sales can proceed.
 
 ---
 
-### 5.5. Mushak 9.1 (Monthly VAT Return) Master Calculation Architecture
+### 5.5. Form 4.4 (Damaged / Destroyed Goods) & Form 4.5 (Wastage Goods)
+1. **Invoice Numbering:** `F44-yy/xxxxx` and `F45-yy/xxxxx` (sequentially generated per client per calendar year).
+2. **Form 6.2.1 Real-Time Stock Impact:** Decreases available inventory balance in the ledger chain.
+3. **Increasing Adjustment & Net Increase Formula:**
+   $$\text{price} = \text{quantity} \times \text{purchase\_unit\_price}$$
+   $$\text{sdValue} = \text{price} \times \left(\frac{\text{purchase\_sd}}{100}\right)$$
+   $$\text{vatValue} = (\text{price} + \text{sdValue}) \times \left(\frac{\text{purchase\_vat}}{100}\right)$$
+   $$\text{adj} = \text{quantity} \times \text{proposed\_value}$$
+   $$\text{pvsd} = \text{adj} \times \left(\frac{\text{rate\_sd}}{100}\right)$$
+   $$\text{pvvat} = (\text{adj} + \text{pvsd}) \times \left(\frac{\text{rate\_vat}}{100}\right)$$
+   - If $\text{Note 15 \%} == \text{rate\_vat}$:
+     $$\text{Increasing Adjustment VAT} = \text{pvvat}, \quad \text{Net Increase} = \text{vatValue} - \text{pvvat}$$
+   - Else:
+     $$\text{Increasing Adjustment VAT} = \text{pvvat}, \quad \text{Net Increase} = \text{pvvat}$$
+4. **Validation Constraints:**
+   - $\text{Quantity} \le \text{Current Stock in Form 6.2.1}$
+   - $\text{Proposed Value} \le \text{Actual Purchase Unit Price}$
+   - Date cannot exceed today and cannot be earlier than client's last transaction in Form 6.2.1.
+
+---
+
+### 5.6. Credit Note (Mushak 6.7) & Debit Note (Mushak 6.8)
+1. **Credit Note (Mushak 6.7 - Sales Return / Rebate):**
+   - Sequential Numbering: `CRN-yy/xxxxx`.
+   - Mandatory reference to original sales invoice (`INV-...`).
+   - Generates a **Decreasing Adjustment** on VAT Return (reduces payable tax to NBR).
+   - **Increases stock** in Form 6.2.1 (goods returned to store).
+2. **Debit Note (Mushak 6.8 - Price or Quantity Increase):**
+   - Sequential Numbering: `DBN-yy/xxxxx`.
+   - Mandatory reference to original sales invoice (`INV-...`).
+   - Generates an **Increasing Adjustment** on VAT Return (increases payable tax to NBR).
+   - **Decreases stock** or increases revenue value in Form 6.2.1.
+3. **Ledger Date Guard:** Date cannot be in the future, and cannot be earlier than `max(Form 6.2.1 Date)`.
+
+---
+
+### 5.7. Economic Area Matrix (`economic_areas`)
+- Pivot table linking `client_id` and `item_id` with composite unique constraint `(client_id, item_id)`.
+- Defines which items each entity (taxpayer) is licensed to trade, manufacture, or import.
+- **De-linking Lock:** An item cannot be detached from a client if `EXISTS (SELECT 1 FROM form621s WHERE client_id = ? AND item_id = ?)`.
+
+---
+
+### 5.8. Asynchronous Excel Exports & WebSocket Notifications
+- When an Excel export is triggered for Form 6.2.1 (`Report621ExportJob`) or Form 6.3 (`Report63ExportJob`):
+  1. The job executes asynchronously in the background queue.
+  2. Data is written directly to disk (`temp_exports/{fileName}`).
+  3. Upon completion, the system broadcasts `ExcelExportEvent` (alias: `excelready`) over private WebSocket channel `App.Models.User.{userId}`.
+  4. The frontend listener automatically downloads the generated spreadsheet without freezing the user interface.
+
+---
+
+### 5.9. Mushak 9.1 (Monthly VAT Return) Master Calculation Architecture
 
 The monthly VAT return (Form 9.1) aggregates all transactional records for a given `tax_period` (`YYYY-MM`) into standardized statutory notes:
 
@@ -533,6 +592,10 @@ When implementing this specification in Node.js:
    - When deployed behind Cloudflare / Traefik / Nginx, ensure the HTTP application inspects `x-forwarded-proto` and enforces `HTTPS` across all generated absolute URLs to prevent Mixed Content security blocks.
 5. **Headless Browser PDF Generation:**
    - Run a pooled Puppeteer instance (`puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })`) rather than spawning a new Chrome process on every PDF request to ensure high throughput.
+6. **Strict 100% UI Preservation Guarantee (Zero UI Modification):**
+   - The entire frontend codebase located in `resources/js` (Vue 3 Composition API, Bootstrap 5, Vite, dark/light theme, layouts, modals, filters, alerts, and datatables) **MUST REMAIN 100% UNTOUCHED AND IDENTICAL**.
+   - Not a single CSS rule, component structure, color scheme, or user interaction should be altered.
+   - The Node.js backend must feed the exact same Inertia.js JSON contract / props payload (`component`, `props: { data, search, errors }`, `url`, `version`) to the existing Vue 3 components so the end-user sees zero visual or behavioral change.
 
 ---
 *End of VATMATE Specification.*
